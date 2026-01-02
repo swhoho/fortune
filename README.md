@@ -157,6 +157,20 @@ npm run dev
 cd python && uvicorn main:app --reload
 ```
 
+## Deployment (배포)
+
+### 1. Backend (Railway)
+1. Railway에서 `New Project` > `GitHub Repo` > `fortune` 선택
+2. **Settings > General > Root Directory**를 `/python`으로 변경 (필수!)
+3. 자동 빌드 후 생성된 URL 복사 (예: `https://fortune-api.up.railway.app`)
+
+### 2. Frontend (Vercel)
+1. Vercel에서 `Add New Project` > `fortune` 선택
+2. Environment Variables 설정
+   - `.env.example`의 모든 변수 추가
+   - `PYTHON_API_URL`: 위에서 복사한 Railway URL 입력
+3. Deploy 클릭
+
 ## 주요 참고 자료
 
 - 자평진전(子平真詮): 청대 명리학 핵심 고전

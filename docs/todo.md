@@ -22,6 +22,8 @@
 - [x] 1.3 환경 변수 설정 (.env.local)
 - [x] 1.4 Git 저장소 초기화 및 .gitignore 설정
 - [ ] 1.5 Vercel 프로젝트 연결
+  - [ ] GitHub 저장소 Import
+  - [ ] 환경 변수 설정 (NEXT_PUBLIC_APP_URL, SUPABASE 등)
 - [x] 1.6 ESLint, Prettier 설정
 - [x] 1.7 TypeScript 엄격 모드 설정
 
@@ -107,7 +109,7 @@
   - [x] POST /api/manseryeok/calculate
   - [x] 입력 검증 (Pydantic)
 - [x] 5.6 단위 테스트 작성 (12개 테스트 통과)
-- [ ] 5.7 Railway/AWS Lambda 배포
+- [x] 5.7 Railway 배포 설정 (Dockerfile 작성 완료)
 
 **참고**: PRD 섹션 6.2 Step 1 (만세력 엔진)
 

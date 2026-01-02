@@ -14,7 +14,18 @@
 | Auth | NextAuth.js |
 | AI | Gemini 3.0 Pro (`gemini-3-pro-preview`) |
 | Payment | Stripe |
-| Infra | Vercel + Railway (Python API) |
+| Infra | Vercel (Frontend) + Railway (Backend) |
+
+## 배포 가이드 (Deployment)
+
+### 아키텍처
+- **Frontend (Next.js)**: Vercel 배포
+  - Root Directory: `.` (Project Root)
+  - Env Vars: `PYTHON_API_URL`을 Railway 배포 URL로 설정
+- **Backend (Python)**: Railway 배포
+  - Root Directory: `/python` (설정에서 변경 필수)
+  - Dockerfile 자동 감지
+  - Env Vars: `PORT` (Railway 자동 주입)
 
 ## 프로젝트 구조
 
