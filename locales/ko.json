@@ -1,0 +1,299 @@
+{
+  "metadata": {
+    "title": "Master's Insight AI | 30년 명리학 거장이 인정한 AI 사주 분석",
+    "description": "동양 명리학의 지혜와 최신 AI 기술이 만나 당신의 사주를 분석합니다."
+  },
+  "common": {
+    "appName": "Master's Insight AI",
+    "loading": "로딩 중...",
+    "error": "오류가 발생했습니다",
+    "retry": "다시 시도",
+    "next": "다음",
+    "previous": "이전",
+    "confirm": "확인",
+    "cancel": "취소",
+    "save": "저장",
+    "delete": "삭제",
+    "credits": "크레딧"
+  },
+  "nav": {
+    "login": "로그인",
+    "signup": "회원가입",
+    "mypage": "마이페이지",
+    "logout": "로그아웃"
+  },
+  "landing": {
+    "headline": "30년 명리학 거장이\nGemini AI를 보고 붓을 내려놓았습니다",
+    "subheadline": "한·중·일 최고의 명리 고전을 학습한 AI가\n전문가보다 더 날카로운 분석을 내놓습니다.",
+    "cta": "30년 경력자가 감탄한 압도적 퀄리티를 지금 경험해 보세요",
+    "trust": {
+      "jaepyeongjinjeon": "자평진전 기반",
+      "gungtonggobogam": "궁통보감 통합",
+      "destinyCode": "The Destiny Code 활용"
+    },
+    "existingUser": "이미 계정이 있으신가요?"
+  },
+  "onboarding": {
+    "step1": {
+      "title": "스토리텔링",
+      "headline": "30년 명리학 거장이\nAI 앞에서 겸손해졌습니다",
+      "quote": "이 AI는 내가 30년간 쌓아온 해석력을 넘어섰다. 자평진전의 깊이와 궁통보감의 조후론을 이렇게 정교하게 통합할 줄은 몰랐다.",
+      "expertName": "김명철 선생",
+      "expertTitle": "30년 경력 명리학 전문가",
+      "cta": "나의 사주 분석 시작하기",
+      "stats": {
+        "analyses": "10,000+",
+        "analysesLabel": "분석 완료",
+        "rating": "4.9/5",
+        "ratingLabel": "평균 만족도",
+        "classics": "3권",
+        "classicsLabel": "고전 학습"
+      }
+    },
+    "step2": {
+      "title": "사주 정보 입력",
+      "headline": "당신의 사주 정보를 입력해주세요",
+      "subheadline": "정확한 분석을 위해 출생 정보를 입력해주세요",
+      "form": {
+        "birthDate": "생년월일",
+        "birthTime": "출생 시간 (선택)",
+        "birthTimeHint": "시간을 모르면 비워두셔도 됩니다",
+        "calendarType": "양력/음력",
+        "solar": "양력",
+        "lunar": "음력",
+        "timezone": "출생 시간대",
+        "timezoneHint": "출생 국가의 시간대를 선택해주세요",
+        "timezoneSelect": "시간대 선택",
+        "gender": "성별",
+        "male": "남성",
+        "female": "여성",
+        "yearPlaceholder": "년 (YYYY)",
+        "monthPlaceholder": "월 (MM)",
+        "dayPlaceholder": "일 (DD)",
+        "hourPlaceholder": "시 (HH)",
+        "minutePlaceholder": "분 (MM)"
+      },
+      "validation": {
+        "invalidYear": "올바른 연도를 입력해주세요 (1900년 이후)",
+        "invalidMonth": "올바른 월을 입력해주세요 (1-12)",
+        "invalidDay": "올바른 일을 입력해주세요 (1-31)",
+        "genderRequired": "성별을 선택해주세요"
+      },
+      "timezones": {
+        "korea": "한국 / 일본 (Seoul, Tokyo)",
+        "china": "중국 / 대만 (Beijing, Taipei)",
+        "usEast": "미국 동부 (New York)",
+        "usWest": "미국 서부 (Los Angeles)",
+        "uk": "영국 (London)",
+        "europe": "중부 유럽 (Paris, Berlin)"
+      }
+    },
+    "step3": {
+      "title": "가치 제안",
+      "headline": "한 번의 분석, 평생의 기록",
+      "subheadline": "당신의 사주는 평생 함께합니다",
+      "benefits": {
+        "lifetimeRecord": {
+          "icon": "📊",
+          "title": "평생 기록 저장",
+          "description": "오늘의 분석은 마이페이지에 평생 저장됩니다"
+        },
+        "continuity": {
+          "icon": "🔄",
+          "title": "연속성 있는 상담",
+          "description": "신년, 이사, 이직 등 인생의 이벤트마다 맞춤 분석"
+        },
+        "yearlyRecommendation": {
+          "icon": "📈",
+          "title": "연도별 맞춤 추천",
+          "description": "대운의 흐름에 따른 최적의 타이밍 제안"
+        }
+      },
+      "timeline": {
+        "2026": { "event": "종합 분석", "icon": "🎯" },
+        "2027": { "event": "신년 운세", "icon": "🌟" },
+        "2028": { "event": "이직 상담", "icon": "💼" },
+        "2029": { "event": "결혼 궁합", "icon": "💕" }
+      },
+      "startNow": {
+        "title": "지금 분석을 시작하면",
+        "unlimitedStorage": "무제한 기록 저장",
+        "historyAccess": "과거 분석 내역 언제든 조회",
+        "yearlyNotification": "연도별 맞춤 추천 알림",
+        "unlimitedChat": "AI와 무제한 후속 대화"
+      },
+      "cta": "분석 영역 선택하기",
+      "ctaHint": "다음 단계에서 집중 분석할 영역을 선택합니다"
+    }
+  },
+  "analysis": {
+    "focus": {
+      "title": "분석 영역 선택",
+      "headline": "어떤 분야를 집중적으로 알고 싶으신가요?",
+      "subheadline": "선택한 분야에 맞춰 더 깊은 분석을 제공합니다",
+      "nextButton": "다음: 고민 입력하기",
+      "selected": "선택됨",
+      "selectedArea": "선택한 분야",
+      "overallNote": "평생 총운, 성격, 재물, 연애, 건강, 10년 대운 흐름 포함"
+    },
+    "question": {
+      "title": "고민 입력",
+      "headline": "구체적인 고민이 있으신가요?",
+      "subheadline": "AI가 당신의 고민에 맞춘 맞춤형 분석을 제공합니다",
+      "placeholder": "예: 올해 이직해도 괜찮을까요?",
+      "exampleTitle": "예시 질문",
+      "skipButton": "건너뛰기",
+      "nextButton": "결제 페이지로"
+    }
+  },
+  "focusArea": {
+    "wealth": "재물운",
+    "love": "연애운",
+    "career": "직장운",
+    "health": "건강운",
+    "overall": "종합운"
+  },
+  "focusAreaDescription": {
+    "wealth": "재물운과 사업운을 집중 분석합니다",
+    "love": "연애운과 관계운을 분석합니다",
+    "career": "직장운과 승진운을 분석합니다",
+    "health": "건강운과 수명을 분석합니다",
+    "overall": "모든 분야를 종합적으로 분석합니다"
+  },
+  "focusAreaExamples": {
+    "wealth": [
+      "올해 부동산 매수 타이밍은 언제인가요?",
+      "현재 하는 사업, 확장해도 될까요?",
+      "주식 투자 적기는 언제인가요?"
+    ],
+    "love": [
+      "현재 만나는 사람과의 궁합은 어떤가요?",
+      "올해 결혼해도 괜찮을까요?",
+      "인연을 만날 시기는 언제인가요?"
+    ],
+    "career": [
+      "올해 이직해도 괜찮을까요?",
+      "승진 가능성은 어떻게 되나요?",
+      "창업하기 좋은 시기는 언제인가요?"
+    ],
+    "health": [
+      "건강에 특별히 주의해야 할 시기가 있나요?",
+      "어떤 부분의 건강을 조심해야 하나요?",
+      "운동이나 식이요법 추천이 있나요?"
+    ],
+    "overall": [
+      "올해 가장 중요하게 봐야 할 점은 무엇인가요?",
+      "대운의 흐름에서 주의할 점이 있나요?",
+      "인생에서 가장 좋은 시기는 언제인가요?"
+    ]
+  },
+  "payment": {
+    "title": "결제하기",
+    "subtitle": "크레딧을 충전하고 분석을 시작하세요",
+    "fullAnalysis": "전체 사주 분석",
+    "focusAreaLabel": "집중 분석 영역",
+    "concernLabel": "고민",
+    "includes": "포함 내용",
+    "analysisIncludes": {
+      "lifetimeFortune": "평생 총운 분석",
+      "personality": "성격 및 기질 분석",
+      "fiveElements": "오행 균형 분석",
+      "tenYearLuck": "10년 대운 흐름",
+      "careerWealth": "직업 적성 및 재물운",
+      "loveMarriage": "연애/결혼운",
+      "healthLongevity": "건강 및 수명"
+    },
+    "creditCharge": "크레딧 충전",
+    "popular": "인기",
+    "bonus": "보너스",
+    "currentCredits": "현재 보유 크레딧",
+    "requiredCredits": "필요 크레딧",
+    "chargeCredits": "충전 크레딧",
+    "paymentAmount": "결제 금액",
+    "processing": "처리 중...",
+    "pay": "결제하기",
+    "securePayment": "안전한 결제 (Stripe 보안)",
+    "errors": {
+      "sessionFailed": "결제 세션 생성에 실패했습니다",
+      "noUrl": "결제 URL을 받지 못했습니다",
+      "generic": "결제 중 오류가 발생했습니다"
+    }
+  },
+  "mypage": {
+    "title": "마이페이지",
+    "profile": {
+      "title": "내 프로필",
+      "user": "사용자",
+      "credits": "보유 크레딧",
+      "chargeCredits": "크레딧 충전"
+    },
+    "analysisHistory": {
+      "title": "분석 기록",
+      "empty": "아직 분석 기록이 없습니다",
+      "firstAnalysis": "첫 분석 시작하기",
+      "viewResult": "결과 보기",
+      "focusAreaLabel": "집중 영역"
+    },
+    "errors": {
+      "profileLoadFailed": "프로필을 불러오는데 실패했습니다"
+    }
+  },
+  "auth": {
+    "signin": {
+      "title": "로그인",
+      "email": "이메일",
+      "password": "비밀번호",
+      "submit": "로그인",
+      "noAccount": "계정이 없으신가요?",
+      "signupLink": "회원가입"
+    },
+    "signup": {
+      "title": "회원가입",
+      "email": "이메일",
+      "password": "비밀번호",
+      "confirmPassword": "비밀번호 확인",
+      "submit": "회원가입",
+      "hasAccount": "이미 계정이 있으신가요?",
+      "signinLink": "로그인"
+    },
+    "social": {
+      "google": "Google로 계속하기",
+      "kakao": "카카오로 계속하기"
+    }
+  },
+  "analysisType": {
+    "full": "전체 사주 분석",
+    "yearly": "신년 사주 분석",
+    "compatibility": "궁합 분석"
+  },
+  "saju": {
+    "fourPillars": "사주팔자",
+    "dayMaster": "일간",
+    "usefulGod": "용신",
+    "tenGods": {
+      "bijian": "비견",
+      "jiecai": "겁재",
+      "shishen": "식신",
+      "shangguan": "상관",
+      "zhengcai": "정재",
+      "piancai": "편재",
+      "zhengguan": "정관",
+      "qisha": "칠살",
+      "zhengyin": "정인",
+      "pianyin": "편인"
+    },
+    "elements": {
+      "wood": "목(木)",
+      "fire": "화(火)",
+      "earth": "토(土)",
+      "metal": "금(金)",
+      "water": "수(水)"
+    }
+  },
+  "language": {
+    "ko": "한국어",
+    "en": "English",
+    "ja": "日本語",
+    "zh": "中文"
+  }
+}

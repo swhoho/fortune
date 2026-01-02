@@ -34,3 +34,31 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Python
+python/__pycache__/
+python/*.pyc
+python/.venv/
+python/venv/
+*.egg-info/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Logs
+logs/
+*.log
+
+# Secrets (안전을 위한 추가)
+.env
+.env.production
+credentials.json
+serviceAccountKey.json
+
+# Claude Code (민감한 로컬 설정)
+.claude/settings.local.json
+
+/src/generated/prisma

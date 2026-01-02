@@ -1,0 +1,99 @@
+// Master's Insight AI - Prisma Schema
+// 사주 분석 서비스 데이터베이스 스키마
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+/// 사용자 모델
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  name      String?
+  credits   Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  analyses  Analysis[]
+  purchases Purchase[]
+
+  @@map("users")
+}
+
+/// 사주 분석 모델
+model Analysis {
+  id     String @id @default(cuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  /// 분석 유형: 'full', 'yearly', 'compatibility'
+  type String
+
+  // 입력 데이터
+  birthDatetime DateTime
+  timezone      String
+  isLunar       Boolean
+  gender        String
+  question      String?
+  focusArea     String?
+
+  // 만세력 계산 결과
+  pillars Json
+  daewun  Json
+
+  // AI 분석 결과
+  analysis Json
+
+  // 시각화 파일 경로
+  pillarCardUrl   String?
+  elementGraphUrl String?
+
+  creditsUsed Int
+  createdAt   DateTime @default(now())
+
+  questions Question[]
+
+  @@index([userId])
+  @@map("analyses")
+}
+
+/// AI 추가 질문 모델
+model Question {
+  id         String   @id @default(cuid())
+  analysisId String
+  analysis   Analysis @relation(fields: [analysisId], references: [id], onDelete: Cascade)
+
+  question String
+  answer   String   @db.Text
+
+  creditsUsed Int      @default(10)
+  createdAt   DateTime @default(now())
+
+  @@index([analysisId])
+  @@map("questions")
+}
+
+/// 결제 모델
+model Purchase {
+  id     String @id @default(cuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  amount  Float
+  credits Int
+
+  stripeSessionId String @unique
+  /// 결제 상태: 'pending', 'completed', 'failed'
+  status          String
+
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+  @@map("purchases")
+}
