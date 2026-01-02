@@ -5,33 +5,36 @@
 
 ---
 
-## 인증 API (NextAuth.js)
+## 인증 (Authentication)
 
-### GET/POST /api/auth/[...nextauth]
-
-NextAuth.js 인증 엔드포인트 (자동 생성)
-
-- `GET /api/auth/session` - 현재 세션 조회
-- `GET /api/auth/providers` - 사용 가능한 인증 제공자 목록
-- `POST /api/auth/signin/credentials` - 이메일/비밀번호 로그인
-- `POST /api/auth/signout` - 로그아웃
-- `GET /api/auth/csrf` - CSRF 토큰
+Supabase Auth를 사용하여 인증을 처리합니다 (`@supabase/ssr`).
 
 ### 인증 방식
 
-- **Provider**: Credentials (이메일 + 비밀번호)
-- **Session**: JWT 기반 (30일 유효)
-- **Backend**: Supabase Auth 연동
+- **Provider**:
+  - Email/Password
+  - Google OAuth
+- **Session**: JWT (Supabase Access Token) + Cookie
+- **Client**: `src/lib/supabase/client.ts`
+- **Server**: `src/lib/supabase/server.ts`
+- **Middleware**: `src/middleware.ts` (세션 리프레시 + 라우트 보호)
 
-### 인증 필요 라우트 (미들웨어)
+### 관련 API Route
 
-다음 경로는 인증이 필요합니다:
-- `/analysis/*` - 분석 페이지
-- `/mypage/*` - 마이페이지
-- `/payment/*` - 결제 페이지
-- `/api/analysis/*` - 분석 API
-- `/api/user/*` - 사용자 API
-- `/api/payment/*` - 결제 API
+#### GET /api/auth/callback
+
+OAuth 로그인 (Google 등) 및 이메일 확인 후 리다이렉트되는 콜백 엔드포인트입니다.
+PKCE 흐름을 처리하고 세션을 교환합니다.
+
+### 인증 필요 라우트
+
+다음 경로는 미들웨어에서 인증 여부를 확인합니다:
+- `/analysis/*` (분석 페이지)
+- `/mypage/*` (마이페이지)
+- `/payment/*` (결제 페이지)
+- `/api/analysis/*` (분석 API)
+- `/api/user/*` (사용자 API)
+- `/api/payment/*` (결제 API)
 
 ---
 
@@ -55,8 +58,20 @@ Gemini AI 사주 분석 (Task 6 구현 완료)
   },
   "daewun": [{ "startAge": 1, "endAge": 10, "stem": "庚", "branch": "辰" }],
   "focusArea": "overall",
-  "question": "2026년 운세가 궁금합니다"
+  "question": "2026년 운세가 궁금합니다",
+  "language": "ko"
 }
+```
+
+**language 파라미터** (Task 14, 18 추가):
+| 값 | 설명 |
+|----|------|
+| `ko` | 한국어 (기본값, 자평진전/궁통보감 용어) |
+| `en` | 영어 (PRD/The Destiny Code 스타일) |
+| `ja` | 일본어 (四柱推命 용어) |
+| `zh-CN` | 중국어 간체 (八字命理, 简体字) |
+| `zh-TW` | 중국어 번체 (八字命理, 繁體字) |
+| `zh` | 레거시 (→ `zh-CN`으로 자동 변환) |
 ```
 
 **Response** (성공):
@@ -107,34 +122,186 @@ Gemini AI 사주 분석 (Task 6 구현 완료)
 
 ---
 
-### GET /api/analysis/:id
+### POST /api/analysis/save ✅
 
-분석 결과 조회
+분석 결과 DB 저장 (Task 16 구현)
+
+**인증**: 필수 | **크레딧 차감**: 30C
+
+**Request**:
+```json
+{
+  "sajuInput": {
+    "birthDate": "1990-05-15",
+    "birthTime": "14:30",
+    "isLunar": false,
+    "gender": "male",
+    "timezone": "GMT+9"
+  },
+  "pillars": { ... },
+  "daewun": [ ... ],
+  "jijanggan": { ... },
+  "analysis": { ... },
+  "pillarImage": "data:image/png;base64,...",
+  "focusArea": "overall",
+  "question": "..."
+}
+```
 
 **Response**:
 ```json
 {
-  "id": "analysis_xxx",
-  "status": "completed",
-  "pillars": {
-    "year": { "stem": "庚", "branch": "午" },
-    "month": { "stem": "辛", "branch": "巳" },
-    "day": { "stem": "甲", "branch": "子" },
-    "hour": { "stem": "辛", "branch": "未" }
+  "success": true,
+  "analysisId": "cuid_xxx"
+}
+```
+
+---
+
+### GET /api/analysis/:id ✅
+
+분석 결과 + 질문 히스토리 조회 (Task 16 구현)
+
+**인증**: 필수 (본인 분석만 조회 가능)
+
+**Response**:
+```json
+{
+  "success": true,
+  "data": {
+    "id": "analysis_xxx",
+    "birthDatetime": "1990-05-15T14:30:00",
+    "timezone": "GMT+9",
+    "pillars": { ... },
+    "daewun": [ ... ],
+    "analysis": { ... },
+    "pillarImage": "data:image/png;base64,...",
+    "questions": [
+      {
+        "id": "q_xxx",
+        "question": "재물운이 좋아지는 시기는?",
+        "answer": "...",
+        "credits_used": 10,
+        "created_at": "2026-01-02T11:00:00Z"
+      }
+    ],
+    "createdAt": "2026-01-02T10:00:00Z"
+  }
+}
+```
+
+---
+
+### POST /api/analysis/yearly ✅
+
+신년 사주 분석 (Task 20 구현)
+
+특정 연도에 대한 월별 상세 운세 분석을 제공합니다.
+
+**모델**: `gemini-3-pro-preview` | **타임아웃**: 60초 | **인증**: 필수 | **크레딧**: 30C
+
+**Request**:
+```json
+{
+  "targetYear": 2026,
+  "sajuInput": {
+    "birthDate": "1990-05-15",
+    "birthTime": "14:30",
+    "timezone": "Asia/Seoul",
+    "isLunar": false,
+    "gender": "male"
   },
-  "analysis": {
-    "summary": "...",
-    "personality": "...",
-    "wealth": "...",
-    "love": "...",
-    "career": "...",
-    "health": "..."
+  "existingAnalysisId": "cuid_xxx",
+  "language": "ko"
+}
+```
+
+**Request 파라미터**:
+| 필드 | 타입 | 필수 | 설명 |
+|------|------|------|------|
+| targetYear | number | O | 분석 대상 연도 (2000-2100) |
+| sajuInput | object | △ | 새로운 사주 입력 (existingAnalysisId가 없을 때 필수) |
+| existingAnalysisId | string | △ | 기존 분석 ID (기존 사주 정보 재사용) |
+| language | string | X | 언어 (ko, en, ja, zh-CN, zh-TW) 기본값: ko |
+
+**Response** (성공):
+```json
+{
+  "success": true,
+  "analysisId": "cuid_yearly_xxx",
+  "year": 2026,
+  "data": {
+    "year": 2026,
+    "summary": "2026년은 변화와 도약의 해입니다...",
+    "yearlyTheme": "변화와 성장",
+    "overallScore": 75,
+    "monthlyFortunes": [
+      {
+        "month": 1,
+        "theme": "새로운 시작",
+        "score": 70,
+        "overview": "1월은...",
+        "luckyDays": [
+          { "date": "2026-01-08", "dayOfWeek": "목", "reason": "...", "suitableFor": ["계약", "미팅"] }
+        ],
+        "unluckyDays": [
+          { "date": "2026-01-15", "dayOfWeek": "목", "reason": "...", "avoid": ["큰 결정"] }
+        ],
+        "advice": "...",
+        "keywords": ["시작", "준비"]
+      }
+    ],
+    "quarterlyHighlights": [
+      { "quarter": 1, "theme": "준비", "score": 68, "overview": "...", "keywords": [...], "advice": "..." }
+    ],
+    "keyDates": [
+      { "date": "2026-03-21", "type": "lucky", "description": "...", "advice": "..." }
+    ],
+    "yearlyAdvice": {
+      "wealth": { "overview": "...", "strengths": [...], "cautions": [...] },
+      "love": { "overview": "...", "strengths": [...], "cautions": [...] },
+      "career": { "overview": "...", "strengths": [...], "cautions": [...] },
+      "health": { "overview": "...", "strengths": [...], "cautions": [...] }
+    },
+    "classicalReferences": [
+      { "source": "궁통보감", "quote": "...", "interpretation": "..." }
+    ]
   },
-  "visualizations": {
-    "pillarCard": "https://cdn.../pillar.png",
-    "elementGraph": "https://cdn.../element.png"
-  },
-  "createdAt": "2026-01-02T10:00:00Z"
+  "creditsUsed": 30,
+  "remainingCredits": 70
+}
+```
+
+**에러**:
+- `INSUFFICIENT_CREDITS` (402): 크레딧 부족
+- `TIMEOUT` (504): AI 분석 타임아웃
+- `INVALID_INPUT` (400): 잘못된 입력
+
+---
+
+### GET /api/analysis/yearly/:id ✅
+
+신년 분석 결과 조회 (Task 20 구현)
+
+**인증**: 필수 (본인 분석만 조회 가능)
+
+**Response**:
+```json
+{
+  "success": true,
+  "data": {
+    "id": "cuid_yearly_xxx",
+    "targetYear": 2026,
+    "pillars": { ... },
+    "daewun": [ ... ],
+    "currentDaewun": { ... },
+    "gender": "male",
+    "analysis": { ... },
+    "language": "ko",
+    "creditsUsed": 30,
+    "existingAnalysisId": null,
+    "createdAt": "2026-01-02T10:00:00Z"
+  }
 }
 ```
 
@@ -161,9 +328,11 @@ Gemini AI 사주 분석 (Task 6 구현 완료)
 
 ---
 
-### POST /api/analysis/:id/question
+### POST /api/analysis/:id/question ✅
 
-AI 추가 질문 (10 크레딧)
+AI 후속 질문 (Task 16 구현)
+
+**인증**: 필수 | **크레딧 차감**: 10C | **타임아웃**: 30초
 
 **Request**:
 ```json
@@ -172,14 +341,26 @@ AI 추가 질문 (10 크레딧)
 }
 ```
 
-**Response**:
+**Response** (성공):
 ```json
 {
-  "questionId": "q_xxx",
-  "answer": "...",
-  "creditsUsed": 10
+  "success": true,
+  "data": {
+    "questionId": "q_xxx",
+    "answer": "...",
+    "creditsUsed": 10,
+    "remainingCredits": 40
+  }
 }
 ```
+
+**에러**:
+| 코드 | HTTP | 설명 |
+|------|------|------|
+| `INSUFFICIENT_CREDITS` | 402 | 크레딧 부족 (10C 미만) |
+| `INVALID_INPUT` | 400 | 질문 없음 또는 500자 초과 |
+| `NOT_FOUND` | 404 | 분석 결과 없음 |
+| `UNAUTHORIZED` | 401 | 인증 필요 |
 
 ---
 
@@ -276,7 +457,7 @@ Stripe 웹훅 (Stripe 서버에서 호출)
 
 ## 사용자 API
 
-### GET /api/user/profile
+### GET /api/user/profile ✅
 
 사용자 프로필 조회
 
@@ -287,21 +468,76 @@ Stripe 웹훅 (Stripe 서버에서 호출)
   "email": "user@example.com",
   "name": "홍길동",
   "credits": 150,
+  "emailNotificationsEnabled": true,
+  "yearlyReminderEnabled": true,
+  "preferredLanguage": "ko",
   "createdAt": "2026-01-01T00:00:00Z"
 }
 ```
 
 ---
 
-### PATCH /api/user/profile
+### PATCH /api/user/profile ✅
 
-프로필 수정
+프로필 수정 (Task 17.4 구현 완료)
 
 **Request**:
 ```json
 {
   "name": "홍길동",
-  "language": "ko"
+  "preferredLanguage": "ko",
+  "emailNotificationsEnabled": true,
+  "yearlyReminderEnabled": false
+}
+```
+
+**Response**:
+```json
+{
+  "id": "user_xxx",
+  "email": "user@example.com",
+  "name": "홍길동",
+  "credits": 150,
+  "emailNotificationsEnabled": true,
+  "yearlyReminderEnabled": false,
+  "preferredLanguage": "ko",
+  "createdAt": "2026-01-01T00:00:00Z"
+}
+```
+
+---
+
+### GET /api/user/questions ✅
+
+질문 기록 조회 (Task 17.2 구현 완료)
+
+**Query Parameters**:
+- `search` (optional): 질문/답변 내용 검색
+- `analysisId` (optional): 특정 분석의 질문만 조회
+
+**Response**:
+```json
+{
+  "totalCount": 15,
+  "groupedByAnalysis": [
+    {
+      "analysis": {
+        "id": "analysis_xxx",
+        "type": "full",
+        "focusArea": "overall",
+        "createdAt": "2026-01-02T10:00:00Z"
+      },
+      "questions": [
+        {
+          "id": "q_xxx",
+          "question": "재물운이 좋아지는 시기는 언제인가요?",
+          "answer": "2027년 상반기에 재물운이 상승합니다...",
+          "creditsUsed": 10,
+          "createdAt": "2026-01-02T11:00:00Z"
+        }
+      ]
+    }
+  ]
 }
 ```
 
@@ -388,6 +624,57 @@ Stripe 웹훅 (Stripe 서버에서 호출)
 
 ---
 
+### POST /api/prompts/build ✅
+
+AI 프롬프트 빌드 (Task 14 구현)
+
+다국어 명리학 프롬프트를 생성합니다. 자평진전, 궁통보감, The Destiny Code 기반.
+
+**Request**:
+```json
+{
+  "language": "ko",
+  "pillars": {
+    "year": { "stem": "庚", "branch": "午", "element": "金" },
+    "month": { "stem": "辛", "branch": "巳", "element": "金" },
+    "day": { "stem": "甲", "branch": "子", "element": "木" },
+    "hour": { "stem": "辛", "branch": "未", "element": "金" }
+  },
+  "daewun": [{ "age": 1, "stem": "壬", "branch": "午", "startYear": 1991 }],
+  "focusArea": "career",
+  "question": "올해 이직해도 괜찮을까요?",
+  "options": {
+    "includeZiping": true,
+    "includeQiongtong": true,
+    "includeWestern": true
+  }
+}
+```
+
+**Response**:
+```json
+{
+  "systemPrompt": "당신은 30년 경력의 명리학 거장입니다...",
+  "userPrompt": "## 사주 팔자\n...",
+  "outputSchema": { "type": "object", "properties": { ... } },
+  "metadata": {
+    "version": "1.0.0",
+    "language": "ko",
+    "includedModules": ["master", "ziping", "qiongtong", "western"],
+    "generatedAt": "2026-01-02T12:00:00Z"
+  }
+}
+```
+
+**options 파라미터**:
+| 옵션 | 기본값 | 설명 |
+|------|--------|------|
+| `includeZiping` | true | 자평진전 원리 포함 (용신/격국/십신) |
+| `includeQiongtong` | true | 궁통보감 조후론 포함 |
+| `includeWestern` | true | The Destiny Code 프레임워크 포함 |
+
+---
+
 ## RAG API
 
 ### POST /api/rag/search
@@ -431,4 +718,4 @@ Stripe 웹훅 (Stripe 서버에서 호출)
 
 ---
 
-**최종 수정**: 2026-01-02 (Task 6: Gemini API 엔드포인트 추가)
+**최종 수정**: 2026-01-02 (Task 18: 다국어 프롬프트 최적화 - zh-CN/zh-TW 분리, 5개 언어 지원)

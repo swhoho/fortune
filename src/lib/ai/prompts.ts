@@ -222,3 +222,105 @@ ${focusSection}
 응답은 반드시 유효한 JSON 형식이어야 합니다.
 `;
 };
+
+// ============================================
+// Task 16: 후속 질문 프롬프트 생성
+// ============================================
+
+import type { FollowUpInput } from './types';
+
+/**
+ * 후속 질문 시스템 프롬프트
+ */
+const FOLLOW_UP_SYSTEM_PROMPT = `당신은 30년 경력의 명리학 전문가입니다.
+이전에 분석해드린 사주를 바탕으로 사용자의 추가 질문에 답변합니다.
+
+## 답변 원칙
+1. 이전 분석 결과와 일관성을 유지합니다
+2. 질문에 직접적으로 답변합니다
+3. 명리학적 근거를 제시합니다
+4. 구체적이고 실용적인 조언을 포함합니다
+5. 미신적이거나 부정적인 표현을 피합니다
+
+## 답변 형식
+- 300-500자 내외로 작성합니다
+- 친근하면서도 전문적인 톤을 유지합니다
+- 필요시 고전을 인용합니다`;
+
+/**
+ * 이전 분석 요약 포맷
+ */
+const formatPreviousAnalysis = (analysis: FollowUpInput['previousAnalysis']): string => {
+  return `
+## 이전 분석 요약
+${analysis.summary}
+
+### 성격 특성
+${analysis.personality.content}
+
+### 재물운 (점수: ${analysis.wealth.score}/100)
+${analysis.wealth.content}
+
+### 연애운 (점수: ${analysis.love.score}/100)
+${analysis.love.content}
+
+### 직장운 (점수: ${analysis.career.score}/100)
+${analysis.career.content}
+
+### 건강운 (점수: ${analysis.health.score}/100)
+${analysis.health.content}
+`;
+};
+
+/**
+ * Q&A 히스토리 포맷
+ */
+const formatQuestionHistory = (history?: FollowUpInput['questionHistory']): string => {
+  if (!history || history.length === 0) return '';
+
+  const historyItems = history
+    .slice(-5) // 최근 5개만
+    .map(
+      (item, index) => `
+### Q${index + 1}: ${item.question}
+A${index + 1}: ${item.answer}`
+    )
+    .join('\n');
+
+  return `
+## 이전 질문 기록
+${historyItems}
+`;
+};
+
+/**
+ * 후속 질문 프롬프트 생성 함수
+ * @param input - 후속 질문 입력 데이터
+ * @returns 완성된 프롬프트 문자열
+ */
+export const generateFollowUpPrompt = (input: FollowUpInput): string => {
+  const pillarsSection = formatPillars(input.pillars);
+  const previousSection = formatPreviousAnalysis(input.previousAnalysis);
+  const historySection = formatQuestionHistory(input.questionHistory);
+
+  return `${FOLLOW_UP_SYSTEM_PROMPT}
+
+${pillarsSection}
+
+${previousSection}
+
+${historySection}
+
+## 사용자의 새로운 질문
+${input.question}
+
+## 응답 가이드라인
+1. 위 사주 분석 결과와 질문 히스토리를 참고하여 답변해주세요.
+2. 명리학적 근거를 바탕으로 구체적이고 실용적인 조언을 제공하세요.
+3. 이전 분석과 일관성을 유지하면서 새로운 통찰을 더해주세요.
+4. 답변은 한국어로 300-500자 내외로 작성해주세요.
+5. 미신적이거나 부정적인 표현은 피하고 건설적인 조언을 제공하세요.
+
+답변만 작성해주세요 (JSON 형식 불필요):
+`;
+};

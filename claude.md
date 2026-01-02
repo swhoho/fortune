@@ -11,9 +11,12 @@
 | Styling | Tailwind CSS + shadcn/ui |
 | State | Zustand (client) + TanStack Query (server) |
 | Database | PostgreSQL + Prisma (Supabase) |
-| Auth | NextAuth.js |
+| Auth | Supabase Auth (@supabase/ssr) |
 | AI | Gemini 3.0 Pro (`gemini-3-pro-preview`) |
+| Visualization | D3.js + Recharts |
 | Payment | Stripe |
+| i18n | next-intl (ko, en, ja, zh-CN, zh-TW) |
+| Testing | Vitest + Playwright + pytest |
 | Infra | Vercel (Frontend) + Railway (Backend) |
 
 ## 배포 가이드 (Deployment)
@@ -37,19 +40,28 @@ masters-insight/
 │   ├── todo.md            # 작업 체크리스트
 │   └── api.md             # API 명세
 ├── src/
-│   ├── app/               # Next.js App Router
-│   │   ├── (marketing)/   # 마케팅 페이지
-│   │   ├── (app)/         # 메인 앱 (인증 필요)
-│   │   ├── auth/          # 인증 (signin, signup, error)
-│   │   ├── onboarding/    # 온보딩 (step1, step2, step3)
-│   │   ├── analysis/      # 분석 플로우
-│   │   ├── payment/       # 결제
-│   │   └── api/           # API Routes (auth, analysis, payment)
+│   ├── app/
+│   │   ├── layout.tsx     # 루트 레이아웃 (최소화)
+│   │   ├── robots.ts      # SEO: robots.txt 생성
+│   │   ├── sitemap.ts     # SEO: sitemap.xml 생성 (hreflang)
+│   │   ├── [locale]/      # 다국어 라우팅 (ko, en, ja, zh-CN, zh-TW)
+│   │   │   ├── layout.tsx # 로케일 레이아웃 + 메타데이터
+│   │   │   ├── page.tsx   # 랜딩 페이지
+│   │   │   ├── auth/      # 인증 (signin, signup, error)
+│   │   │   ├── onboarding/# 온보딩 (step1, step2, step3)
+│   │   │   ├── analysis/  # 분석 플로우
+│   │   │   ├── payment/   # 결제
+│   │   │   └── mypage/    # 마이페이지
+│   │   └── api/           # API Routes (locale 밖에 위치)
+│   ├── i18n/              # i18n 설정
+│   │   ├── routing.ts     # 라우팅 설정, Link/useRouter 헬퍼
+│   │   └── request.ts     # 서버 요청 설정
 │   ├── components/
 │   │   ├── ui/            # shadcn/ui
 │   │   ├── analysis/      # 분석 관련
+│   │   ├── seo/           # SEO (JSON-LD 구조화 데이터)
 │   │   ├── visualization/ # 시각화 (D3, Recharts)
-│   │   └── layout/        # 레이아웃
+│   │   └── language-switcher.tsx # 언어 전환 UI
 │   ├── lib/
 │   │   ├── saju/          # 만세력 계산
 │   │   ├── ai/            # Gemini, RAG
@@ -61,8 +73,17 @@ masters-insight/
 ├── python/                # Python 백엔드 (FastAPI)
 │   ├── manseryeok/        # 만세력 엔진
 │   ├── visualization/     # 이미지 생성
-│   └── prompts/           # AI 프롬프트
-└── locales/               # i18n (ko, en, ja, zh)
+│   ├── prompts/           # AI 프롬프트
+│   └── tests/             # Python 테스트 (pytest)
+├── tests/                 # TypeScript 테스트
+│   ├── e2e/               # Playwright E2E 테스트
+│   └── unit/              # Vitest 단위 테스트
+└── locales/               # i18n 번역 파일
+    ├── ko.json            # 한국어 (기본)
+    ├── en.json            # 영어
+    ├── ja.json            # 일본어
+    ├── zh-CN.json         # 중국어 간체
+    └── zh-TW.json         # 중국어 번체
 ```
 
 ## 문서
@@ -152,6 +173,65 @@ masters-insight/
 | 金 | Gray | `#e5e7eb` |
 | 水 | Blue | `#1e3a8a` |
 
+## 테스트 (Testing)
+
+### 테스트 스택
+
+| Category | Technology |
+|----------|------------|
+| Unit Test (TypeScript) | Vitest + Testing Library |
+| E2E Test | Playwright |
+| Unit Test (Python) | pytest |
+| Performance | Lighthouse CI |
+
+### 테스트 명령어
+
+```bash
+# 단위 테스트 (TypeScript)
+npm run test           # watch 모드
+npm run test:unit      # 1회 실행
+
+# E2E 테스트 (Playwright)
+npm run test:e2e              # 전체 브라우저 (Chrome, Firefox, Safari, Mobile)
+npm run test:e2e:chromium     # Chromium만
+npm run test:e2e:headed       # UI 모드
+npm run test:e2e:ui           # Playwright UI
+
+# 성능 테스트
+npm run test:lighthouse       # Lighthouse CI (90+ 목표)
+
+# 전체 테스트
+npm run test:all              # 단위 + E2E
+
+# Python 테스트
+cd python && pytest           # 만세력/시각화 테스트
+```
+
+### 테스트 파일 구조
+
+```
+tests/
+├── setup.ts                    # Vitest 설정
+├── e2e/                        # E2E 테스트
+│   ├── onboarding.spec.ts      # 온보딩 플로우 (10개)
+│   ├── analysis.spec.ts        # 분석 플로우 (11개)
+│   ├── payment.spec.ts         # 결제 플로우 (9개)
+│   └── fixtures/test-data.ts   # 테스트 데이터
+└── unit/                       # 단위 테스트
+    ├── lib/validation.test.ts  # Zod 스키마 검증 (15개)
+    └── stores/analysis.test.ts # Zustand 스토어 (14개)
+
+python/tests/
+├── test_engine.py              # 만세력 엔진 (14개)
+└── test_visualization.py       # 시각화 (11개)
+```
+
+### 크로스 브라우저/모바일 테스트
+
+Playwright 설정 (`playwright.config.ts`):
+- Desktop: Chrome, Firefox, Safari
+- Mobile: Pixel 5 (Android), iPhone 12 (iOS)
+
 ## Quick Start
 
 ```bash
@@ -166,6 +246,10 @@ npm run dev
 
 # Python API 실행 (별도 터미널)
 cd python && uvicorn main:app --reload
+
+# 테스트 실행
+npm run test:unit      # 단위 테스트
+npm run test:e2e       # E2E 테스트
 ```
 
 ## 주요 참고 자료
@@ -176,5 +260,5 @@ cd python && uvicorn main:app --reload
 
 ---
 
-**Version**: 1.0.0  
-**Last Updated**: 2026-01-02
+**Version**: 1.9.0
+**Last Updated**: 2026-01-03 (Task 19: SEO 최적화 - robots, sitemap, metadata, JSON-LD)

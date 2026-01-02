@@ -116,3 +116,57 @@ export const FocusAreaLabel: Record<FocusArea, string> = {
   health: '건강운',
   overall: '종합운',
 };
+
+// ============================================
+// Python API 응답 타입 (Task 8 추가)
+// ============================================
+
+/** 로딩 단계 */
+export type LoadingStep =
+  | 'manseryeok'
+  | 'jijanggan'
+  | 'ai_analysis'
+  | 'visualization'
+  | 'report'
+  | 'complete';
+
+/** 로딩 단계 한글 라벨 */
+export const LoadingStepLabel: Record<LoadingStep, string> = {
+  manseryeok: '만세력 계산',
+  jijanggan: '지장간 추출',
+  ai_analysis: 'AI 분석 진행',
+  visualization: '시각화 생성',
+  report: '최종 보고서 작성',
+  complete: '완료',
+};
+
+/** Python API 응답용 Pillar (한자) */
+export interface PillarHanja {
+  stem: string; // 천간 한자 (甲, 乙, 丙...)
+  branch: string; // 지지 한자 (子, 丑, 寅...)
+  element: string; // 오행 한자 (木, 火, 土, 金, 水)
+}
+
+/** Python API 응답용 Pillars (4개 기둥) */
+export interface PillarsHanja {
+  year: PillarHanja;
+  month: PillarHanja;
+  day: PillarHanja;
+  hour: PillarHanja;
+}
+
+/** Python API 대운 응답 */
+export interface DaewunItem {
+  age: number;
+  stem: string;
+  branch: string;
+  startYear: number;
+}
+
+/** Python API 지장간 응답 */
+export interface Jijanggan {
+  year: string[];
+  month: string[];
+  day: string[];
+  hour: string[];
+}

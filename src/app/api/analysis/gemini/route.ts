@@ -49,6 +49,8 @@ const analysisRequestSchema = z.object({
   focusArea: z.enum(['wealth', 'love', 'career', 'health', 'overall']).optional(),
   // 사용자 질문 (선택, 500자 제한)
   question: z.string().max(500, '질문은 500자를 초과할 수 없습니다').optional(),
+  // 언어 (선택, 기본값: ko)
+  language: z.enum(['ko', 'en', 'ja', 'zh']).optional().default('ko'),
 });
 
 /**
@@ -101,12 +103,14 @@ export async function POST(request: NextRequest) {
       daewun: validationResult.data.daewun,
       focusArea: validationResult.data.focusArea as FocusArea | undefined,
       question: validationResult.data.question,
+      language: validationResult.data.language as 'ko' | 'en' | 'ja' | 'zh',
     };
 
     // 3. AI 분석 실행 (30초 타임아웃)
     console.log('[API] /api/analysis/gemini 분석 시작', {
       userId: session.user.id,
       focusArea: input.focusArea,
+      language: input.language,
     });
 
     const analysisResult = await sajuAnalyzer.analyze(input, {

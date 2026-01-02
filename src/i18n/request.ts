@@ -11,9 +11,7 @@ export default getRequestConfig(async ({ requestLocale }) => {
   const requested = await requestLocale;
 
   // 유효한 로케일인지 검증, 아니면 기본 로케일 사용
-  const locale = hasLocale(routing.locales, requested)
-    ? requested
-    : routing.defaultLocale;
+  const locale = hasLocale(routing.locales, requested) ? requested : routing.defaultLocale;
 
   return {
     locale,

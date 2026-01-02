@@ -221,21 +221,80 @@
   },
   "mypage": {
     "title": "마이페이지",
+    "subtitle": "분석 기록과 계정 설정을 관리하세요",
     "profile": {
       "title": "내 프로필",
       "user": "사용자",
       "credits": "보유 크레딧",
       "chargeCredits": "크레딧 충전"
     },
+    "sidebar": {
+      "analysis": "분석 기록",
+      "questions": "질문 기록",
+      "notifications": "알림 설정",
+      "settings": "프로필 설정"
+    },
     "analysisHistory": {
       "title": "분석 기록",
+      "subtitle": "지금까지의 사주 분석 결과를 확인하세요",
       "empty": "아직 분석 기록이 없습니다",
+      "emptyDescription": "첫 번째 사주 분석을 시작해보세요",
       "firstAnalysis": "첫 분석 시작하기",
       "viewResult": "결과 보기",
-      "focusAreaLabel": "집중 영역"
+      "focusAreaLabel": "집중 영역",
+      "totalCount": "총 {count}개"
+    },
+    "questionHistory": {
+      "title": "질문 기록",
+      "subtitle": "AI에게 한 추가 질문과 답변을 확인하세요",
+      "searchPlaceholder": "질문 또는 답변 내용 검색...",
+      "empty": "아직 질문 기록이 없습니다",
+      "emptyDescription": "분석 결과 페이지에서 AI에게 추가 질문을 해보세요",
+      "noSearchResults": "검색 결과가 없습니다",
+      "noSearchResultsDescription": "다른 검색어로 다시 시도해보세요",
+      "questionsCount": "{count}개 질문",
+      "totalCount": "총 {count}개"
+    },
+    "notificationSettings": {
+      "title": "알림 설정",
+      "subtitle": "이메일 알림 및 리마인더를 관리하세요",
+      "emailNotifications": "이메일 알림",
+      "emailNotificationsDescription": "서비스 업데이트, 이벤트 소식을 이메일로 받아보세요",
+      "yearlyReminder": "신년 사주 리마인더",
+      "yearlyReminderDescription": "매년 새해가 되면 신년 사주 분석을 알려드려요",
+      "infoTitle": "알림 수신 동의",
+      "infoDescription": "이메일 알림은 언제든 해제할 수 있으며, 중요한 서비스 공지는 알림 설정과 관계없이 발송될 수 있습니다.",
+      "success": "알림 설정이 변경되었습니다",
+      "error": "설정 변경에 실패했습니다"
+    },
+    "profileSettings": {
+      "title": "프로필 설정",
+      "subtitle": "계정 정보를 관리하세요",
+      "name": "이름",
+      "namePlaceholder": "이름을 입력하세요",
+      "nameHint": "이름은 마이페이지에서만 표시됩니다",
+      "nameOptional": "이름 (선택)",
+      "preferredLanguage": "선호 언어",
+      "languageHint": "분석 결과 및 AI 응답에 적용됩니다",
+      "email": "이메일",
+      "emailHint": "이메일은 변경할 수 없습니다",
+      "accountInfo": "계정 정보",
+      "accountId": "계정 ID",
+      "credits": "보유 크레딧",
+      "joinedAt": "가입일",
+      "dangerZone": "위험 영역",
+      "dangerZoneDescription": "계정 삭제는 되돌릴 수 없으며, 모든 데이터가 영구적으로 삭제됩니다.",
+      "deleteAccount": "계정 삭제",
+      "deleteAccountPending": "준비 중",
+      "saveChanges": "변경사항 저장",
+      "saving": "저장 중...",
+      "cancel": "취소",
+      "success": "프로필이 저장되었습니다",
+      "error": "프로필 저장에 실패했습니다"
     },
     "errors": {
-      "profileLoadFailed": "프로필을 불러오는데 실패했습니다"
+      "profileLoadFailed": "프로필을 불러오는데 실패했습니다",
+      "retryButton": "다시 시도"
     }
   },
   "auth": {
@@ -290,10 +349,87 @@
       "water": "수(水)"
     }
   },
+  "yearly": {
+    "title": "신년 운세 분석",
+    "subtitle": "월별 상세 운세와 길흉일을 확인하세요",
+    "selectYear": "분석할 연도 선택",
+    "selectYearDesc": "월별 상세 운세를 확인할 연도를 선택하세요",
+    "existingAnalysis": {
+      "title": "기존 사주 분석 사용",
+      "subtitle": "이전에 분석한 사주 정보를 기반으로 신년 운세를 분석합니다",
+      "newInput": "새로운 생년월일 입력",
+      "newInputDesc": "온보딩에서 입력한 정보 사용"
+    },
+    "cost": {
+      "label": "분석 비용",
+      "credits": "크레딧",
+      "yourCredits": "보유 크레딧",
+      "insufficient": "크레딧이 부족합니다. 크레딧을 충전해주세요."
+    },
+    "startAnalysis": "운세 분석 시작",
+    "analysisTime": "분석에는 약 30~60초가 소요됩니다",
+    "processing": {
+      "title": "신년 운세를 분석하고 있습니다",
+      "subtitle": "12개월 월별 운세와 길흉일을 계산 중...",
+      "steps": {
+        "init": "초기화",
+        "fetchSaju": "사주 정보 불러오기",
+        "buildPrompt": "신년 분석 준비",
+        "aiAnalysis": "AI 운세 분석 중",
+        "saveResult": "결과 저장"
+      }
+    },
+    "result": {
+      "overallScore": "종합 점수",
+      "monthlyTimeline": "월별 운세 흐름",
+      "monthlyTimelineDesc": "12개월 운세 변화를 한눈에 확인하세요",
+      "avgScore": "평균 점수",
+      "luckyDays": "길일",
+      "unluckyDays": "주의일",
+      "calendar": {
+        "title": "길흉일 캘린더",
+        "subtitle": "중요한 날들을 미리 확인하세요",
+        "luckyLabel": "이달의 길일",
+        "unluckyLabel": "이달의 주의일"
+      },
+      "quarterly": {
+        "title": "분기별 운세",
+        "subtitle": "분기별 흐름을 확인하세요",
+        "avgLabel": "연간 평균",
+        "bestQuarter": "최고 분기",
+        "worstQuarter": "주의 분기"
+      },
+      "advice": {
+        "title": "분야별 조언",
+        "subtitle": "각 분야를 탭하여 상세 조언을 확인하세요",
+        "wealth": "재물운",
+        "wealthDesc": "재정, 투자, 사업 관련",
+        "love": "애정운",
+        "loveDesc": "연애, 결혼, 인간관계",
+        "career": "직장운",
+        "careerDesc": "직장, 승진, 학업",
+        "health": "건강운",
+        "healthDesc": "건강, 체력, 정신건강"
+      },
+      "keyDates": {
+        "title": "연중 핵심 날짜",
+        "subtitle": "주목해야 할 중요한 날들"
+      },
+      "classics": {
+        "title": "고전 참조",
+        "subtitle": "자평진전, 궁통보감 등 고전 인용"
+      },
+      "actions": {
+        "analyzeOther": "다른 연도 분석하기",
+        "goToMypage": "마이페이지로 이동"
+      }
+    }
+  },
   "language": {
     "ko": "한국어",
     "en": "English",
     "ja": "日本語",
-    "zh": "中文"
+    "zh-CN": "简体中文",
+    "zh-TW": "繁體中文"
   }
 }

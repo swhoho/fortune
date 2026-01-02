@@ -20,6 +20,13 @@ model User {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
+  /// 알림 설정
+  emailNotificationsEnabled Boolean @default(true)
+  yearlyReminderEnabled     Boolean @default(true)
+
+  /// 선호 언어 (ko, en, ja, zh)
+  preferredLanguage String @default("ko")
+
   analyses  Analysis[]
   purchases Purchase[]
 

@@ -1,0 +1,435 @@
+{
+  "metadata": {
+    "title": "Master's Insight AI | AI Four Pillars of Destiny Analysis",
+    "description": "Eastern fortune-telling wisdom meets cutting-edge AI to analyze your destiny."
+  },
+  "common": {
+    "appName": "Master's Insight AI",
+    "loading": "Loading...",
+    "error": "An error occurred",
+    "retry": "Retry",
+    "next": "Next",
+    "previous": "Previous",
+    "confirm": "Confirm",
+    "cancel": "Cancel",
+    "save": "Save",
+    "delete": "Delete",
+    "credits": "Credits"
+  },
+  "nav": {
+    "login": "Sign In",
+    "signup": "Sign Up",
+    "mypage": "My Page",
+    "logout": "Sign Out"
+  },
+  "landing": {
+    "headline": "A 30-Year Master of Destiny\nPut Down His Brush After Seeing Gemini AI",
+    "subheadline": "An AI trained on the finest classics from Korea, China, and Japan\ndelivers sharper insights than human experts.",
+    "cta": "Experience the overwhelming quality that amazed a 30-year expert",
+    "trust": {
+      "jaepyeongjinjeon": "Based on Ziping Zhenchuan",
+      "gungtonggobogam": "Integrated with Qiong Tong Bao Jian",
+      "destinyCode": "Powered by The Destiny Code"
+    },
+    "existingUser": "Already have an account?"
+  },
+  "onboarding": {
+    "step1": {
+      "title": "Story",
+      "headline": "A 30-Year Master of Destiny\nBecame Humble Before AI",
+      "quote": "This AI has surpassed my 30 years of interpretive skill. I never imagined it could integrate the depth of Ziping Zhenchuan with the seasonal theory of Qiong Tong Bao Jian so precisely.",
+      "expertName": "Master Kim Myeongcheol",
+      "expertTitle": "30-Year Destiny Analysis Expert",
+      "cta": "Start My Destiny Analysis",
+      "stats": {
+        "analyses": "10,000+",
+        "analysesLabel": "Analyses Done",
+        "rating": "4.9/5",
+        "ratingLabel": "Avg. Satisfaction",
+        "classics": "3",
+        "classicsLabel": "Classics Learned"
+      }
+    },
+    "step2": {
+      "title": "Birth Information",
+      "headline": "Enter Your Birth Information",
+      "subheadline": "Please provide accurate birth details for precise analysis",
+      "form": {
+        "birthDate": "Date of Birth",
+        "birthTime": "Time of Birth (Optional)",
+        "birthTimeHint": "Leave blank if you don't know the time",
+        "calendarType": "Calendar Type",
+        "solar": "Solar",
+        "lunar": "Lunar",
+        "timezone": "Birth Timezone",
+        "timezoneHint": "Select the timezone of your birth country",
+        "timezoneSelect": "Select timezone",
+        "gender": "Gender",
+        "male": "Male",
+        "female": "Female",
+        "yearPlaceholder": "Year (YYYY)",
+        "monthPlaceholder": "Month (MM)",
+        "dayPlaceholder": "Day (DD)",
+        "hourPlaceholder": "Hour (HH)",
+        "minutePlaceholder": "Min (MM)"
+      },
+      "validation": {
+        "invalidYear": "Please enter a valid year (after 1900)",
+        "invalidMonth": "Please enter a valid month (1-12)",
+        "invalidDay": "Please enter a valid day (1-31)",
+        "genderRequired": "Please select your gender"
+      },
+      "timezones": {
+        "korea": "Korea / Japan (Seoul, Tokyo)",
+        "china": "China / Taiwan (Beijing, Taipei)",
+        "usEast": "US Eastern (New York)",
+        "usWest": "US Western (Los Angeles)",
+        "uk": "United Kingdom (London)",
+        "europe": "Central Europe (Paris, Berlin)"
+      }
+    },
+    "step3": {
+      "title": "Value Proposition",
+      "headline": "One Analysis, Lifetime Record",
+      "subheadline": "Your destiny stays with you forever",
+      "benefits": {
+        "lifetimeRecord": {
+          "icon": "📊",
+          "title": "Lifetime Storage",
+          "description": "Today's analysis is stored forever in My Page"
+        },
+        "continuity": {
+          "icon": "🔄",
+          "title": "Continuous Consultation",
+          "description": "Custom analysis for life events: new year, moving, career changes"
+        },
+        "yearlyRecommendation": {
+          "icon": "📈",
+          "title": "Yearly Recommendations",
+          "description": "Optimal timing suggestions based on luck cycles"
+        }
+      },
+      "timeline": {
+        "2026": { "event": "Full Analysis", "icon": "🎯" },
+        "2027": { "event": "New Year Fortune", "icon": "🌟" },
+        "2028": { "event": "Career Consult", "icon": "💼" },
+        "2029": { "event": "Marriage Match", "icon": "💕" }
+      },
+      "startNow": {
+        "title": "Start your analysis now",
+        "unlimitedStorage": "Unlimited record storage",
+        "historyAccess": "Access past analyses anytime",
+        "yearlyNotification": "Yearly recommendation alerts",
+        "unlimitedChat": "Unlimited follow-up with AI"
+      },
+      "cta": "Select Analysis Area",
+      "ctaHint": "Choose your focus area in the next step"
+    }
+  },
+  "analysis": {
+    "focus": {
+      "title": "Select Focus Area",
+      "headline": "What area would you like to focus on?",
+      "subheadline": "We'll provide deeper insights for your chosen area",
+      "nextButton": "Next: Enter Your Concerns",
+      "selected": "Selected",
+      "selectedArea": "Selected Area",
+      "overallNote": "Includes lifetime fortune, personality, wealth, love, health, and 10-year luck cycle"
+    },
+    "question": {
+      "title": "Your Concerns",
+      "headline": "Do you have specific concerns?",
+      "subheadline": "AI will provide customized analysis for your concerns",
+      "placeholder": "e.g., Is it a good time to change jobs this year?",
+      "exampleTitle": "Example Questions",
+      "skipButton": "Skip",
+      "nextButton": "Go to Payment"
+    }
+  },
+  "focusArea": {
+    "wealth": "Wealth Fortune",
+    "love": "Love Fortune",
+    "career": "Career Fortune",
+    "health": "Health Fortune",
+    "overall": "Overall Fortune"
+  },
+  "focusAreaDescription": {
+    "wealth": "In-depth analysis of wealth and business fortune",
+    "love": "Analysis of love and relationship fortune",
+    "career": "Analysis of career and promotion fortune",
+    "health": "Analysis of health and longevity",
+    "overall": "Comprehensive analysis of all areas"
+  },
+  "focusAreaExamples": {
+    "wealth": [
+      "When is the best time to buy real estate this year?",
+      "Should I expand my current business?",
+      "When is the right time for stock investment?"
+    ],
+    "love": [
+      "What's my compatibility with my current partner?",
+      "Is it okay to get married this year?",
+      "When will I meet my destined partner?"
+    ],
+    "career": [
+      "Is it a good time to change jobs this year?",
+      "What are my promotion prospects?",
+      "When is the best time to start a business?"
+    ],
+    "health": [
+      "Are there times I should be careful about my health?",
+      "Which aspects of health should I watch?",
+      "Any recommendations for exercise or diet?"
+    ],
+    "overall": [
+      "What should I focus on most this year?",
+      "What should I watch for in my luck cycle?",
+      "When is the best period of my life?"
+    ]
+  },
+  "payment": {
+    "title": "Payment",
+    "subtitle": "Recharge credits to start your analysis",
+    "fullAnalysis": "Full Destiny Analysis",
+    "focusAreaLabel": "Focus Area",
+    "concernLabel": "Concern",
+    "includes": "Includes",
+    "analysisIncludes": {
+      "lifetimeFortune": "Lifetime fortune analysis",
+      "personality": "Personality analysis",
+      "fiveElements": "Five elements balance",
+      "tenYearLuck": "10-year luck cycle",
+      "careerWealth": "Career aptitude & wealth",
+      "loveMarriage": "Love & marriage fortune",
+      "healthLongevity": "Health & longevity"
+    },
+    "creditCharge": "Credit Packages",
+    "popular": "Popular",
+    "bonus": "Bonus",
+    "currentCredits": "Current Credits",
+    "requiredCredits": "Required Credits",
+    "chargeCredits": "Credits to Add",
+    "paymentAmount": "Payment Amount",
+    "processing": "Processing...",
+    "pay": "Pay Now",
+    "securePayment": "Secure payment (Stripe)",
+    "errors": {
+      "sessionFailed": "Failed to create payment session",
+      "noUrl": "Payment URL not received",
+      "generic": "An error occurred during payment"
+    }
+  },
+  "mypage": {
+    "title": "My Page",
+    "subtitle": "Manage your analysis history and account settings",
+    "profile": {
+      "title": "My Profile",
+      "user": "User",
+      "credits": "Credits",
+      "chargeCredits": "Recharge Credits"
+    },
+    "sidebar": {
+      "analysis": "Analysis History",
+      "questions": "Question History",
+      "notifications": "Notifications",
+      "settings": "Profile Settings"
+    },
+    "analysisHistory": {
+      "title": "Analysis History",
+      "subtitle": "View your past destiny analysis results",
+      "empty": "No analysis history yet",
+      "emptyDescription": "Start your first destiny analysis",
+      "firstAnalysis": "Start Your First Analysis",
+      "viewResult": "View Result",
+      "focusAreaLabel": "Focus Area",
+      "totalCount": "Total {count}"
+    },
+    "questionHistory": {
+      "title": "Question History",
+      "subtitle": "View your follow-up questions and AI answers",
+      "searchPlaceholder": "Search questions or answers...",
+      "empty": "No question history yet",
+      "emptyDescription": "Ask follow-up questions on your analysis result page",
+      "noSearchResults": "No search results",
+      "noSearchResultsDescription": "Try a different search term",
+      "questionsCount": "{count} questions",
+      "totalCount": "Total {count}"
+    },
+    "notificationSettings": {
+      "title": "Notification Settings",
+      "subtitle": "Manage email notifications and reminders",
+      "emailNotifications": "Email Notifications",
+      "emailNotificationsDescription": "Receive service updates and event news via email",
+      "yearlyReminder": "New Year Fortune Reminder",
+      "yearlyReminderDescription": "Get notified for new year fortune analysis every year",
+      "infoTitle": "Notification Consent",
+      "infoDescription": "You can unsubscribe from email notifications anytime. Important service announcements may still be sent regardless of settings.",
+      "success": "Notification settings updated",
+      "error": "Failed to update settings"
+    },
+    "profileSettings": {
+      "title": "Profile Settings",
+      "subtitle": "Manage your account information",
+      "name": "Name",
+      "namePlaceholder": "Enter your name",
+      "nameHint": "Name is only displayed on My Page",
+      "nameOptional": "Name (Optional)",
+      "preferredLanguage": "Preferred Language",
+      "languageHint": "Applied to analysis results and AI responses",
+      "email": "Email",
+      "emailHint": "Email cannot be changed",
+      "accountInfo": "Account Information",
+      "accountId": "Account ID",
+      "credits": "Credits",
+      "joinedAt": "Joined",
+      "dangerZone": "Danger Zone",
+      "dangerZoneDescription": "Account deletion is irreversible and all data will be permanently deleted.",
+      "deleteAccount": "Delete Account",
+      "deleteAccountPending": "Coming Soon",
+      "saveChanges": "Save Changes",
+      "saving": "Saving...",
+      "cancel": "Cancel",
+      "success": "Profile saved successfully",
+      "error": "Failed to save profile"
+    },
+    "errors": {
+      "profileLoadFailed": "Failed to load profile",
+      "retryButton": "Retry"
+    }
+  },
+  "auth": {
+    "signin": {
+      "title": "Sign In",
+      "email": "Email",
+      "password": "Password",
+      "submit": "Sign In",
+      "noAccount": "Don't have an account?",
+      "signupLink": "Sign Up"
+    },
+    "signup": {
+      "title": "Sign Up",
+      "email": "Email",
+      "password": "Password",
+      "confirmPassword": "Confirm Password",
+      "submit": "Sign Up",
+      "hasAccount": "Already have an account?",
+      "signinLink": "Sign In"
+    },
+    "social": {
+      "google": "Continue with Google",
+      "kakao": "Continue with Kakao"
+    }
+  },
+  "analysisType": {
+    "full": "Full Destiny Analysis",
+    "yearly": "New Year Fortune",
+    "compatibility": "Compatibility Analysis"
+  },
+  "saju": {
+    "fourPillars": "Four Pillars of Destiny",
+    "dayMaster": "Day Master",
+    "usefulGod": "Useful God",
+    "tenGods": {
+      "bijian": "Companion",
+      "jiecai": "Rob Wealth",
+      "shishen": "Creative Output",
+      "shangguan": "Hurting Officer",
+      "zhengcai": "Direct Wealth",
+      "piancai": "Indirect Wealth",
+      "zhengguan": "Direct Officer",
+      "qisha": "Seven Killings",
+      "zhengyin": "Direct Resource",
+      "pianyin": "Indirect Resource"
+    },
+    "elements": {
+      "wood": "Wood",
+      "fire": "Fire",
+      "earth": "Earth",
+      "metal": "Metal",
+      "water": "Water"
+    }
+  },
+  "yearly": {
+    "title": "New Year Fortune Analysis",
+    "subtitle": "Check monthly fortunes and auspicious days",
+    "selectYear": "Select Year to Analyze",
+    "selectYearDesc": "Choose the year for monthly fortune analysis",
+    "existingAnalysis": {
+      "title": "Use Existing Analysis",
+      "subtitle": "Analyze new year fortune based on your previous analysis",
+      "newInput": "Enter New Birth Date",
+      "newInputDesc": "Use information from onboarding"
+    },
+    "cost": {
+      "label": "Analysis Cost",
+      "credits": "credits",
+      "yourCredits": "Your Credits",
+      "insufficient": "Insufficient credits. Please recharge."
+    },
+    "startAnalysis": "Start Fortune Analysis",
+    "analysisTime": "Analysis takes about 30-60 seconds",
+    "processing": {
+      "title": "Analyzing your new year fortune",
+      "subtitle": "Calculating 12 months of fortune and lucky days...",
+      "steps": {
+        "init": "Initializing",
+        "fetchSaju": "Loading birth chart",
+        "buildPrompt": "Preparing analysis",
+        "aiAnalysis": "AI fortune analysis",
+        "saveResult": "Saving results"
+      }
+    },
+    "result": {
+      "overallScore": "Overall Score",
+      "monthlyTimeline": "Monthly Fortune Timeline",
+      "monthlyTimelineDesc": "View 12-month fortune changes at a glance",
+      "avgScore": "Average Score",
+      "luckyDays": "Lucky Days",
+      "unluckyDays": "Caution Days",
+      "calendar": {
+        "title": "Lucky Days Calendar",
+        "subtitle": "Check important dates in advance",
+        "luckyLabel": "Lucky Days This Month",
+        "unluckyLabel": "Caution Days This Month"
+      },
+      "quarterly": {
+        "title": "Quarterly Fortune",
+        "subtitle": "Check quarterly trends",
+        "avgLabel": "Annual Average",
+        "bestQuarter": "Best Quarter",
+        "worstQuarter": "Caution Quarter"
+      },
+      "advice": {
+        "title": "Area-specific Advice",
+        "subtitle": "Tap each area for detailed advice",
+        "wealth": "Wealth",
+        "wealthDesc": "Finance, investment, business",
+        "love": "Love",
+        "loveDesc": "Romance, marriage, relationships",
+        "career": "Career",
+        "careerDesc": "Work, promotion, studies",
+        "health": "Health",
+        "healthDesc": "Physical and mental health"
+      },
+      "keyDates": {
+        "title": "Key Dates",
+        "subtitle": "Important dates to note"
+      },
+      "classics": {
+        "title": "Classical References",
+        "subtitle": "Citations from Ziping Zhenjuan, Qiongtong Baojian"
+      },
+      "actions": {
+        "analyzeOther": "Analyze Another Year",
+        "goToMypage": "Go to My Page"
+      }
+    }
+  },
+  "language": {
+    "ko": "한국어",
+    "en": "English",
+    "ja": "日本語",
+    "zh-CN": "简体中文",
+    "zh-TW": "繁體中文"
+  }
+}

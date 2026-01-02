@@ -1,0 +1,435 @@
+{
+  "metadata": {
+    "title": "Master's Insight AI | AI四柱推命分析",
+    "description": "東洋の命理学の知恵と最新のAI技術があなたの運命を分析します。"
+  },
+  "common": {
+    "appName": "Master's Insight AI",
+    "loading": "読み込み中...",
+    "error": "エラーが発生しました",
+    "retry": "再試行",
+    "next": "次へ",
+    "previous": "戻る",
+    "confirm": "確認",
+    "cancel": "キャンセル",
+    "save": "保存",
+    "delete": "削除",
+    "credits": "クレジット"
+  },
+  "nav": {
+    "login": "ログイン",
+    "signup": "新規登録",
+    "mypage": "マイページ",
+    "logout": "ログアウト"
+  },
+  "landing": {
+    "headline": "30年の命理学の巨匠が\nGemini AIを見て筆を置いた",
+    "subheadline": "日中韓最高の命理古典を学習したAIが\n専門家より鋭い分析を提供します。",
+    "cta": "30年のベテランが感嘆した圧倒的な品質を今すぐ体験",
+    "trust": {
+      "jaepyeongjinjeon": "子平真詮に基づく",
+      "gungtonggobogam": "窮通宝鑑を統合",
+      "destinyCode": "The Destiny Codeを活用"
+    },
+    "existingUser": "すでにアカウントをお持ちですか？"
+  },
+  "onboarding": {
+    "step1": {
+      "title": "ストーリー",
+      "headline": "30年の命理学の巨匠が\nAIの前で謙虚になった",
+      "quote": "このAIは私が30年間積み上げてきた解釈力を超えた。子平真詮の深さと窮通宝鑑の調候論をこれほど精巧に統合できるとは思わなかった。",
+      "expertName": "金明哲先生",
+      "expertTitle": "30年経験の命理学専門家",
+      "cta": "私の四柱推命分析を始める",
+      "stats": {
+        "analyses": "10,000+",
+        "analysesLabel": "分析完了",
+        "rating": "4.9/5",
+        "ratingLabel": "平均満足度",
+        "classics": "3冊",
+        "classicsLabel": "古典学習"
+      }
+    },
+    "step2": {
+      "title": "生年月日入力",
+      "headline": "生年月日情報を入力してください",
+      "subheadline": "正確な分析のために出生情報を入力してください",
+      "form": {
+        "birthDate": "生年月日",
+        "birthTime": "出生時間（任意）",
+        "birthTimeHint": "時間が分からない場合は空欄で構いません",
+        "calendarType": "暦の種類",
+        "solar": "新暦",
+        "lunar": "旧暦",
+        "timezone": "出生時のタイムゾーン",
+        "timezoneHint": "出生国のタイムゾーンを選択してください",
+        "timezoneSelect": "タイムゾーンを選択",
+        "gender": "性別",
+        "male": "男性",
+        "female": "女性",
+        "yearPlaceholder": "年 (YYYY)",
+        "monthPlaceholder": "月 (MM)",
+        "dayPlaceholder": "日 (DD)",
+        "hourPlaceholder": "時 (HH)",
+        "minutePlaceholder": "分 (MM)"
+      },
+      "validation": {
+        "invalidYear": "正しい年を入力してください（1900年以降）",
+        "invalidMonth": "正しい月を入力してください（1-12）",
+        "invalidDay": "正しい日を入力してください（1-31）",
+        "genderRequired": "性別を選択してください"
+      },
+      "timezones": {
+        "korea": "韓国 / 日本 (Seoul, Tokyo)",
+        "china": "中国 / 台湾 (Beijing, Taipei)",
+        "usEast": "アメリカ東部 (New York)",
+        "usWest": "アメリカ西部 (Los Angeles)",
+        "uk": "イギリス (London)",
+        "europe": "中央ヨーロッパ (Paris, Berlin)"
+      }
+    },
+    "step3": {
+      "title": "価値提案",
+      "headline": "一度の分析、一生の記録",
+      "subheadline": "あなたの運命は一生あなたと共にあります",
+      "benefits": {
+        "lifetimeRecord": {
+          "icon": "📊",
+          "title": "一生の記録保存",
+          "description": "今日の分析はマイページに永久保存されます"
+        },
+        "continuity": {
+          "icon": "🔄",
+          "title": "継続的な相談",
+          "description": "新年、引越し、転職など人生のイベントごとにカスタム分析"
+        },
+        "yearlyRecommendation": {
+          "icon": "📈",
+          "title": "年別おすすめ",
+          "description": "大運の流れに沿った最適なタイミング提案"
+        }
+      },
+      "timeline": {
+        "2026": { "event": "総合分析", "icon": "🎯" },
+        "2027": { "event": "新年運勢", "icon": "🌟" },
+        "2028": { "event": "転職相談", "icon": "💼" },
+        "2029": { "event": "結婚相性", "icon": "💕" }
+      },
+      "startNow": {
+        "title": "今すぐ分析を始めると",
+        "unlimitedStorage": "無制限の記録保存",
+        "historyAccess": "過去の分析をいつでも閲覧",
+        "yearlyNotification": "年別おすすめ通知",
+        "unlimitedChat": "AIとの無制限フォローアップ"
+      },
+      "cta": "分析エリアを選択",
+      "ctaHint": "次のステップで集中分析するエリアを選択します"
+    }
+  },
+  "analysis": {
+    "focus": {
+      "title": "分析エリア選択",
+      "headline": "どの分野を集中的に知りたいですか？",
+      "subheadline": "選択した分野に合わせてより深い分析を提供します",
+      "nextButton": "次へ：お悩みを入力",
+      "selected": "選択済み",
+      "selectedArea": "選択した分野",
+      "overallNote": "一生の総運、性格、財運、恋愛、健康、10年大運を含む"
+    },
+    "question": {
+      "title": "お悩み入力",
+      "headline": "具体的なお悩みはありますか？",
+      "subheadline": "AIがあなたのお悩みに合わせたカスタム分析を提供します",
+      "placeholder": "例：今年転職しても大丈夫ですか？",
+      "exampleTitle": "質問例",
+      "skipButton": "スキップ",
+      "nextButton": "決済ページへ"
+    }
+  },
+  "focusArea": {
+    "wealth": "財運",
+    "love": "恋愛運",
+    "career": "仕事運",
+    "health": "健康運",
+    "overall": "総合運"
+  },
+  "focusAreaDescription": {
+    "wealth": "財運とビジネス運を集中分析します",
+    "love": "恋愛運と人間関係を分析します",
+    "career": "仕事運と昇進運を分析します",
+    "health": "健康運と寿命を分析します",
+    "overall": "すべての分野を総合的に分析します"
+  },
+  "focusAreaExamples": {
+    "wealth": [
+      "今年の不動産購入のタイミングはいつですか？",
+      "現在のビジネスを拡大しても良いですか？",
+      "株式投資の適期はいつですか？"
+    ],
+    "love": [
+      "今のパートナーとの相性はどうですか？",
+      "今年結婚しても良いですか？",
+      "運命の人に出会う時期はいつですか？"
+    ],
+    "career": [
+      "今年転職しても良いですか？",
+      "昇進の可能性はどうですか？",
+      "起業に良い時期はいつですか？"
+    ],
+    "health": [
+      "健康に特に注意すべき時期はありますか？",
+      "どの部分の健康に気をつけるべきですか？",
+      "運動や食事療法のおすすめはありますか？"
+    ],
+    "overall": [
+      "今年最も重要なことは何ですか？",
+      "大運の流れで注意すべき点はありますか？",
+      "人生で最も良い時期はいつですか？"
+    ]
+  },
+  "payment": {
+    "title": "決済",
+    "subtitle": "クレジットをチャージして分析を始めましょう",
+    "fullAnalysis": "四柱推命フル分析",
+    "focusAreaLabel": "集中分析エリア",
+    "concernLabel": "お悩み",
+    "includes": "含まれる内容",
+    "analysisIncludes": {
+      "lifetimeFortune": "一生の総運分析",
+      "personality": "性格・気質分析",
+      "fiveElements": "五行バランス分析",
+      "tenYearLuck": "10年大運の流れ",
+      "careerWealth": "職業適性・財運",
+      "loveMarriage": "恋愛・結婚運",
+      "healthLongevity": "健康・寿命"
+    },
+    "creditCharge": "クレジットチャージ",
+    "popular": "人気",
+    "bonus": "ボーナス",
+    "currentCredits": "現在のクレジット",
+    "requiredCredits": "必要クレジット",
+    "chargeCredits": "チャージクレジット",
+    "paymentAmount": "決済金額",
+    "processing": "処理中...",
+    "pay": "決済する",
+    "securePayment": "安全な決済 (Stripe)",
+    "errors": {
+      "sessionFailed": "決済セッションの作成に失敗しました",
+      "noUrl": "決済URLを受け取れませんでした",
+      "generic": "決済中にエラーが発生しました"
+    }
+  },
+  "mypage": {
+    "title": "マイページ",
+    "subtitle": "分析履歴とアカウント設定を管理してください",
+    "profile": {
+      "title": "マイプロフィール",
+      "user": "ユーザー",
+      "credits": "保有クレジット",
+      "chargeCredits": "クレジットチャージ"
+    },
+    "sidebar": {
+      "analysis": "分析履歴",
+      "questions": "質問履歴",
+      "notifications": "通知設定",
+      "settings": "プロフィール設定"
+    },
+    "analysisHistory": {
+      "title": "分析履歴",
+      "subtitle": "過去の四柱推命分析結果を確認してください",
+      "empty": "まだ分析履歴がありません",
+      "emptyDescription": "最初の四柱推命分析を始めましょう",
+      "firstAnalysis": "最初の分析を始める",
+      "viewResult": "結果を見る",
+      "focusAreaLabel": "集中エリア",
+      "totalCount": "合計 {count}件"
+    },
+    "questionHistory": {
+      "title": "質問履歴",
+      "subtitle": "AIへの追加質問と回答を確認してください",
+      "searchPlaceholder": "質問または回答を検索...",
+      "empty": "まだ質問履歴がありません",
+      "emptyDescription": "分析結果ページでAIに追加質問をしてみましょう",
+      "noSearchResults": "検索結果がありません",
+      "noSearchResultsDescription": "別の検索ワードで試してください",
+      "questionsCount": "{count}件の質問",
+      "totalCount": "合計 {count}件"
+    },
+    "notificationSettings": {
+      "title": "通知設定",
+      "subtitle": "メール通知とリマインダーを管理してください",
+      "emailNotifications": "メール通知",
+      "emailNotificationsDescription": "サービスアップデートやイベント情報をメールで受け取ります",
+      "yearlyReminder": "新年運勢リマインダー",
+      "yearlyReminderDescription": "毎年新年に新年運勢分析をお知らせします",
+      "infoTitle": "通知受信同意",
+      "infoDescription": "メール通知はいつでも解除できます。重要なサービスお知らせは設定に関係なく送信される場合があります。",
+      "success": "通知設定が変更されました",
+      "error": "設定の変更に失敗しました"
+    },
+    "profileSettings": {
+      "title": "プロフィール設定",
+      "subtitle": "アカウント情報を管理してください",
+      "name": "名前",
+      "namePlaceholder": "名前を入力してください",
+      "nameHint": "名前はマイページでのみ表示されます",
+      "nameOptional": "名前（任意）",
+      "preferredLanguage": "優先言語",
+      "languageHint": "分析結果とAI応答に適用されます",
+      "email": "メールアドレス",
+      "emailHint": "メールアドレスは変更できません",
+      "accountInfo": "アカウント情報",
+      "accountId": "アカウントID",
+      "credits": "保有クレジット",
+      "joinedAt": "登録日",
+      "dangerZone": "危険エリア",
+      "dangerZoneDescription": "アカウント削除は取り消せず、すべてのデータが永久に削除されます。",
+      "deleteAccount": "アカウント削除",
+      "deleteAccountPending": "準備中",
+      "saveChanges": "変更を保存",
+      "saving": "保存中...",
+      "cancel": "キャンセル",
+      "success": "プロフィールが保存されました",
+      "error": "プロフィールの保存に失敗しました"
+    },
+    "errors": {
+      "profileLoadFailed": "プロフィールの読み込みに失敗しました",
+      "retryButton": "再試行"
+    }
+  },
+  "auth": {
+    "signin": {
+      "title": "ログイン",
+      "email": "メールアドレス",
+      "password": "パスワード",
+      "submit": "ログイン",
+      "noAccount": "アカウントをお持ちでないですか？",
+      "signupLink": "新規登録"
+    },
+    "signup": {
+      "title": "新規登録",
+      "email": "メールアドレス",
+      "password": "パスワード",
+      "confirmPassword": "パスワード確認",
+      "submit": "新規登録",
+      "hasAccount": "すでにアカウントをお持ちですか？",
+      "signinLink": "ログイン"
+    },
+    "social": {
+      "google": "Googleで続ける",
+      "kakao": "Kakaoで続ける"
+    }
+  },
+  "analysisType": {
+    "full": "四柱推命フル分析",
+    "yearly": "新年運勢分析",
+    "compatibility": "相性分析"
+  },
+  "saju": {
+    "fourPillars": "四柱推命",
+    "dayMaster": "日干",
+    "usefulGod": "用神",
+    "tenGods": {
+      "bijian": "比肩",
+      "jiecai": "劫財",
+      "shishen": "食神",
+      "shangguan": "傷官",
+      "zhengcai": "正財",
+      "piancai": "偏財",
+      "zhengguan": "正官",
+      "qisha": "七殺",
+      "zhengyin": "正印",
+      "pianyin": "偏印"
+    },
+    "elements": {
+      "wood": "木",
+      "fire": "火",
+      "earth": "土",
+      "metal": "金",
+      "water": "水"
+    }
+  },
+  "yearly": {
+    "title": "新年運勢分析",
+    "subtitle": "月別の運勢と吉凶日をご確認ください",
+    "selectYear": "分析する年を選択",
+    "selectYearDesc": "月別運勢を確認する年を選んでください",
+    "existingAnalysis": {
+      "title": "既存の分析を使用",
+      "subtitle": "以前の分析データを基に新年運勢を分析します",
+      "newInput": "新しい生年月日を入力",
+      "newInputDesc": "オンボーディングで入力した情報を使用"
+    },
+    "cost": {
+      "label": "分析費用",
+      "credits": "クレジット",
+      "yourCredits": "保有クレジット",
+      "insufficient": "クレジットが不足しています。チャージしてください。"
+    },
+    "startAnalysis": "運勢分析を開始",
+    "analysisTime": "分析には約30〜60秒かかります",
+    "processing": {
+      "title": "新年運勢を分析中",
+      "subtitle": "12ヶ月の運勢と吉凶日を計算中...",
+      "steps": {
+        "init": "初期化",
+        "fetchSaju": "四柱情報を読み込み",
+        "buildPrompt": "分析準備",
+        "aiAnalysis": "AI運勢分析中",
+        "saveResult": "結果保存"
+      }
+    },
+    "result": {
+      "overallScore": "総合スコア",
+      "monthlyTimeline": "月別運勢の流れ",
+      "monthlyTimelineDesc": "12ヶ月の運勢変化を一目で確認",
+      "avgScore": "平均スコア",
+      "luckyDays": "吉日",
+      "unluckyDays": "注意日",
+      "calendar": {
+        "title": "吉凶日カレンダー",
+        "subtitle": "重要な日を事前に確認",
+        "luckyLabel": "今月の吉日",
+        "unluckyLabel": "今月の注意日"
+      },
+      "quarterly": {
+        "title": "四半期別運勢",
+        "subtitle": "四半期の流れを確認",
+        "avgLabel": "年間平均",
+        "bestQuarter": "最良の四半期",
+        "worstQuarter": "注意の四半期"
+      },
+      "advice": {
+        "title": "分野別アドバイス",
+        "subtitle": "各分野をタップして詳細を確認",
+        "wealth": "金運",
+        "wealthDesc": "財政、投資、事業",
+        "love": "恋愛運",
+        "loveDesc": "恋愛、結婚、人間関係",
+        "career": "仕事運",
+        "careerDesc": "仕事、昇進、学業",
+        "health": "健康運",
+        "healthDesc": "健康、体力、精神健康"
+      },
+      "keyDates": {
+        "title": "年間重要日",
+        "subtitle": "注目すべき重要な日"
+      },
+      "classics": {
+        "title": "古典参照",
+        "subtitle": "子平真詮、窮通寶鑑からの引用"
+      },
+      "actions": {
+        "analyzeOther": "他の年を分析",
+        "goToMypage": "マイページへ"
+      }
+    }
+  },
+  "language": {
+    "ko": "한국어",
+    "en": "English",
+    "ja": "日本語",
+    "zh-CN": "简体中文",
+    "zh-TW": "繁體中文"
+  }
+}
