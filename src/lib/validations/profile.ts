@@ -35,12 +35,10 @@ export const createProfileSchema = z.object({
       { message: 'validation.invalidDate' }
     ),
 
-  /** 출생시간 (HH:mm, 선택) */
+  /** 출생시간 (HH:mm, 필수) */
   birthTime: z
     .string()
-    .regex(/^([01]\d|2[0-3]):([0-5]\d)$/, { message: 'validation.invalidTime' })
-    .optional()
-    .nullable(),
+    .regex(/^([01]\d|2[0-3]):([0-5]\d)$/, { message: 'validation.invalidTime' }),
 
   /** 달력 유형 */
   calendarType: z.enum(['solar', 'lunar', 'lunar_leap']).default('solar'),
