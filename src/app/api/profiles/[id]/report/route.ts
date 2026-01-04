@@ -220,14 +220,12 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
       reportId = newReport.id;
     }
 
-    // 6. 백그라운드 파이프라인 시작 (Edge Function 호출)
-    // TODO: 실제 파이프라인 실행 연동
-    // 현재는 mock 진행을 위해 상태만 업데이트
-    startPipelineAsync(supabase, reportId, profile, retryFromStep);
+    // 6. 파이프라인 동기 실행 (Vercel Serverless에서 완료 대기)
+    await startPipelineAsync(supabase, reportId, profile, retryFromStep);
 
     return NextResponse.json({
       success: true,
-      message: '리포트 생성이 시작되었습니다',
+      message: '리포트 생성이 완료되었습니다',
       reportId,
       pollUrl: `/api/profiles/${profileId}/report/status`,
     });

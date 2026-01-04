@@ -1,0 +1,7 @@
+{
+  "functions": {
+    "src/app/api/profiles/[id]/report/route.ts": {
+      "maxDuration": 60
+    }
+  }
+}
