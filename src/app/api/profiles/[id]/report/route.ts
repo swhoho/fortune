@@ -9,6 +9,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getAuthenticatedUser } from '@/lib/supabase/server';
 import { getSupabaseAdmin } from '@/lib/supabase/client';
 import { SERVICE_CREDITS } from '@/lib/stripe';
+import { logAiUsage } from '@/lib/ai/usage-logger';
 import { z } from 'zod';
 
 /** 리포트 생성 요청 스키마 */
@@ -251,7 +252,11 @@ async function startPipelineAsync(
     const { createAnalysisPipeline } = await import('@/lib/ai/pipeline');
     // PYTHON_API_URL에 프로토콜 없으면 https:// 자동 추가
     let pythonApiUrl = process.env.PYTHON_API_URL || 'http://localhost:8000';
-    if (pythonApiUrl && !pythonApiUrl.startsWith('http://') && !pythonApiUrl.startsWith('https://')) {
+    if (
+      pythonApiUrl &&
+      !pythonApiUrl.startsWith('http://') &&
+      !pythonApiUrl.startsWith('https://')
+    ) {
       pythonApiUrl = `https://${pythonApiUrl}`;
     }
 
@@ -262,13 +267,13 @@ async function startPipelineAsync(
       const [hour, minute] = birthTime.split(':').map(Number);
       birthDate.setHours(hour || 12, minute || 0, 0, 0);
 
-      const manseryeokRes = await fetch(`${pythonApiUrl}/api/manseryeok`, {
+      const manseryeokRes = await fetch(`${pythonApiUrl}/api/manseryeok/calculate`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          birth_datetime: birthDate.toISOString(),
-          timezone: 'Asia/Seoul',
-          is_lunar: profile.calendar_type === 'lunar',
+          birthDatetime: birthDate.toISOString(),
+          timezone: 'GMT+9',
+          isLunar: profile.calendar_type === 'lunar',
           gender: profile.gender,
         }),
       });
@@ -374,6 +379,25 @@ async function startPipelineAsync(
           updated_at: new Date().toISOString(),
         })
         .eq('id', reportId);
+
+      // 4. AI 사용량 로깅
+      const tokenUsage = result.data?.pipelineMetadata?.tokenUsage;
+      if (tokenUsage) {
+        await logAiUsage({
+          userId: profile.user_id as string,
+          featureType: 'report_generation',
+          creditsUsed: SERVICE_CREDITS.profileReport,
+          inputTokens: tokenUsage.inputTokens,
+          outputTokens: tokenUsage.outputTokens,
+          model: 'gemini-3-pro-preview',
+          profileId: profile.id as string,
+          reportId,
+          metadata: {
+            parallelExecuted: result.data?.pipelineMetadata?.parallelExecuted,
+            totalDuration: result.data?.pipelineMetadata?.totalDuration,
+          },
+        });
+      }
 
       console.log('[Pipeline] 리포트 생성 완료:', reportId);
     } catch (error) {
