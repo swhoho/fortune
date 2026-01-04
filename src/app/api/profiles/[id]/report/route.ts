@@ -18,6 +18,69 @@ const generateReportSchema = z.object({
 });
 
 /**
+ * DB personality 데이터를 클라이언트 PersonalitySectionData 형식으로 변환
+ */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function transformPersonality(personality: any) {
+  if (!personality) return null;
+
+  return {
+    willpower: {
+      score: personality.willpower_analysis?.score || 0,
+      description: personality.willpower_analysis?.description || '',
+    },
+    outerPersonality: {
+      label: personality.outer_personality?.impression || '외면',
+      summary: personality.outer_personality?.basis || '',
+      description: personality.outer_personality?.social_persona || '',
+    },
+    innerPersonality: {
+      label: personality.inner_personality?.true_nature || '내면',
+      summary: personality.inner_personality?.basis || '',
+      description: personality.inner_personality?.emotional_processing || '',
+    },
+    socialStyle: {
+      label: personality.interpersonal_style?.type || '대인관계',
+      summary: personality.interpersonal_style?.strengths?.join(', ') || '',
+      description: personality.interpersonal_style?.weaknesses?.join(', ') || '',
+    },
+  };
+}
+
+/**
+ * DB basicAnalysis 데이터를 클라이언트 CharacteristicsSectionData 형식으로 변환
+ */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function transformCharacteristics(basicAnalysis: any) {
+  if (!basicAnalysis) return null;
+
+  const paragraphs: string[] = [];
+
+  // 격국 설명
+  if (basicAnalysis.structure?.description) {
+    paragraphs.push(basicAnalysis.structure.description);
+  }
+
+  // 일간 특성
+  if (basicAnalysis.day_master?.characteristics) {
+    paragraphs.push(basicAnalysis.day_master.characteristics);
+  }
+
+  // 용신 분석
+  if (basicAnalysis.yongshin_analysis?.reason) {
+    paragraphs.push(basicAnalysis.yongshin_analysis.reason);
+  }
+
+  return {
+    title: basicAnalysis.structure?.type || '사주 특성',
+    subtitle: basicAnalysis.day_master?.gan
+      ? `${basicAnalysis.day_master.gan}(${basicAnalysis.day_master.element}) 일간`
+      : '',
+    paragraphs,
+  };
+}
+
+/**
  * GET /api/profiles/[id]/report
  * 완료된 리포트 조회
  */
@@ -101,9 +164,9 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
       pillars: report.pillars,
       daewun: report.daewun || [],
       jijanggan: report.jijanggan,
-      // 분석 결과 (analysis JSONB에서 추출)
-      personality: report.analysis?.personality || null,
-      characteristics: report.analysis?.basicAnalysis || null,
+      // 분석 결과 (analysis JSONB에서 추출 및 클라이언트 형식 변환)
+      personality: transformPersonality(report.analysis?.personality),
+      characteristics: transformCharacteristics(report.analysis?.basicAnalysis),
       aptitude: report.analysis?.aptitude || null,
       wealth: report.analysis?.fortune?.wealth || null,
       romance: report.analysis?.fortune?.romance || null,
