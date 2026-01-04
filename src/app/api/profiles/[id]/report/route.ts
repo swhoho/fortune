@@ -364,107 +364,95 @@ async function startPipelineAsync(
       onStepComplete: async (step, result) => {
         console.log(`[Pipeline] ${step} 완료`);
 
-        // 주요 단계 완료 시 중간 결과 DB 즉시 저장
+        // 현재 리포트 상태 가져오기 (step_statuses + analysis)
+        const { data: current } = await supabase
+          .from('profile_reports')
+          .select('step_statuses, analysis')
+          .eq('id', reportId)
+          .single();
+
+        // step_statuses 업데이트 (현재 단계를 completed로)
+        const updatedStepStatuses = {
+          ...current?.step_statuses,
+          [step]: 'completed',
+        };
+
+        // 단계별 데이터 + step_statuses 함께 저장
         if (step === 'jijanggan' && result) {
           await supabase
             .from('profile_reports')
             .update({
               jijanggan: result,
+              step_statuses: updatedStepStatuses,
               updated_at: new Date().toISOString(),
             })
             .eq('id', reportId);
-          console.log('[Pipeline] 지장간 데이터 DB 저장 완료');
-        }
-
-        if (step === 'basic_analysis' && result) {
-          const { data: current } = await supabase
-            .from('profile_reports')
-            .select('analysis')
-            .eq('id', reportId)
-            .single();
-
+        } else if (step === 'basic_analysis' && result) {
           await supabase
             .from('profile_reports')
             .update({
               analysis: { ...current?.analysis, basicAnalysis: result },
+              step_statuses: updatedStepStatuses,
               updated_at: new Date().toISOString(),
             })
             .eq('id', reportId);
-          console.log('[Pipeline] 기본분석 데이터 DB 저장 완료');
-        }
-
-        if (step === 'personality' && result) {
-          const { data: current } = await supabase
-            .from('profile_reports')
-            .select('analysis')
-            .eq('id', reportId)
-            .single();
-
+        } else if (step === 'personality' && result) {
           await supabase
             .from('profile_reports')
             .update({
               analysis: { ...current?.analysis, personality: result },
+              step_statuses: updatedStepStatuses,
               updated_at: new Date().toISOString(),
             })
             .eq('id', reportId);
-          console.log('[Pipeline] 성격분석 데이터 DB 저장 완료');
-        }
-
-        if (step === 'aptitude' && result) {
-          const { data: current } = await supabase
-            .from('profile_reports')
-            .select('analysis')
-            .eq('id', reportId)
-            .single();
-
+        } else if (step === 'aptitude' && result) {
           await supabase
             .from('profile_reports')
             .update({
               analysis: { ...current?.analysis, aptitude: result },
+              step_statuses: updatedStepStatuses,
               updated_at: new Date().toISOString(),
             })
             .eq('id', reportId);
-          console.log('[Pipeline] 적성분석 데이터 DB 저장 완료');
-        }
-
-        if (step === 'fortune' && result) {
-          const { data: current } = await supabase
-            .from('profile_reports')
-            .select('analysis')
-            .eq('id', reportId)
-            .single();
-
+        } else if (step === 'fortune' && result) {
           await supabase
             .from('profile_reports')
             .update({
               analysis: { ...current?.analysis, fortune: result },
+              step_statuses: updatedStepStatuses,
               updated_at: new Date().toISOString(),
             })
             .eq('id', reportId);
-          console.log('[Pipeline] 재물운 데이터 DB 저장 완료');
-        }
-
-        if (step === 'scoring' && result) {
+        } else if (step === 'scoring' && result) {
           await supabase
             .from('profile_reports')
             .update({
               scores: result,
+              step_statuses: updatedStepStatuses,
               updated_at: new Date().toISOString(),
             })
             .eq('id', reportId);
-          console.log('[Pipeline] 점수 데이터 DB 저장 완료');
-        }
-
-        if (step === 'visualization' && result) {
+        } else if (step === 'visualization' && result) {
           await supabase
             .from('profile_reports')
             .update({
               visualization_url: (result as { pillarImage?: string })?.pillarImage,
+              step_statuses: updatedStepStatuses,
               updated_at: new Date().toISOString(),
             })
             .eq('id', reportId);
-          console.log('[Pipeline] 시각화 데이터 DB 저장 완료');
+        } else {
+          // 다른 단계는 step_statuses만 업데이트
+          await supabase
+            .from('profile_reports')
+            .update({
+              step_statuses: updatedStepStatuses,
+              updated_at: new Date().toISOString(),
+            })
+            .eq('id', reportId);
         }
+
+        console.log(`[Pipeline] ${step} 데이터 + step_statuses DB 저장 완료`);
       },
       onError: async (step, error) => {
         console.error(`[Pipeline] ${step} 실패:`, error);
@@ -551,8 +539,18 @@ async function startPipelineAsync(
   } catch (error) {
     console.error('[Pipeline] 리포트 생성 실패:', error);
 
-    // 실패한 단계 찾기
-    const failedStep = (error as { failedStep?: string })?.failedStep || 'unknown';
+    // DB에서 현재 단계 가져오기 (정확한 실패 단계 추적)
+    const { data: currentReport } = await supabase
+      .from('profile_reports')
+      .select('current_step')
+      .eq('id', reportId)
+      .single();
+
+    // 실패한 단계: DB의 current_step 우선, 없으면 에러 객체에서, 그것도 없으면 unknown
+    const errorFailedStep = (error as { failedStep?: string })?.failedStep;
+    const failedStep = currentReport?.current_step || errorFailedStep || 'unknown';
+
+    console.log(`[Pipeline] 실패 단계: ${failedStep}`);
 
     // 에러 기록
     await supabase

@@ -287,9 +287,10 @@ export default function GeneratingPage({ params }: PageProps) {
   // 시뮬레이션된 상태 계산 (타이머 기반)
   const simulatedState = calculateSimulatedState(elapsedTime);
 
-  // 서버 상태가 있고 진행 중이면 서버 상태 우선, 아니면 시뮬레이션
+  // 서버 stepStatuses 우선 사용 (에러/진행 중 모두)
+  // 에러 화면에서도 완료된 단계를 정확히 표시하기 위함
   const displayStepStatuses =
-    status?.status === 'in_progress' && status?.stepStatuses
+    status?.stepStatuses && Object.keys(status.stepStatuses).length > 0
       ? status.stepStatuses
       : simulatedState.stepStatuses;
 
