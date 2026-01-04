@@ -3,3 +3,4 @@
  * Task 23: 크레딧 연동
  */
 export { InsufficientCreditsDialog } from './InsufficientCreditsDialog';
+export { CreditDeductionDialog } from './CreditDeductionDialog';

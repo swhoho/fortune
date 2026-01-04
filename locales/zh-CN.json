@@ -551,6 +551,14 @@
     "deduction": {
       "reportGeneration": "生成报告",
       "sectionReanalysis": "重新分析部分"
+    },
+    "deductionDialog": {
+      "title": "积分扣除提示",
+      "message": "完整八字分析将扣除{required}积分",
+      "currentBalance": "当前余额",
+      "afterDeduction": "扣除后余额",
+      "cancel": "取消",
+      "confirm": "开始分析"
     }
   },
   "profile": {

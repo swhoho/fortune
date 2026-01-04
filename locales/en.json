@@ -672,6 +672,14 @@
     "deduction": {
       "reportGeneration": "Report Generation",
       "sectionReanalysis": "Section Reanalysis"
+    },
+    "deductionDialog": {
+      "title": "Credit Deduction Notice",
+      "message": "{required}C will be deducted for full destiny analysis",
+      "currentBalance": "Current Balance",
+      "afterDeduction": "After Deduction",
+      "cancel": "Cancel",
+      "confirm": "Start Analysis"
     }
   }
 }

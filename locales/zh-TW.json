@@ -551,6 +551,14 @@
     "deduction": {
       "reportGeneration": "生成報告",
       "sectionReanalysis": "重新分析部分"
+    },
+    "deductionDialog": {
+      "title": "積分扣除提示",
+      "message": "完整八字分析將扣除{required}積分",
+      "currentBalance": "目前餘額",
+      "afterDeduction": "扣除後餘額",
+      "cancel": "取消",
+      "confirm": "開始分析"
     }
   },
   "profile": {

@@ -551,6 +551,14 @@
     "deduction": {
       "reportGeneration": "レポート生成",
       "sectionReanalysis": "セクション再分析"
+    },
+    "deductionDialog": {
+      "title": "クレジット差引のお知らせ",
+      "message": "四柱推命分析に{required}Cが差し引かれます",
+      "currentBalance": "現在の残高",
+      "afterDeduction": "差引後の残高",
+      "cancel": "キャンセル",
+      "confirm": "分析開始"
     }
   },
   "profile": {

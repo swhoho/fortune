@@ -12,7 +12,7 @@ import { Button } from '@/components/ui/button';
 import { Link, useRouter } from '@/i18n/routing';
 import { useProfiles } from '@/hooks/use-profiles';
 import { useReportCreditsCheck } from '@/hooks/use-credits';
-import { InsufficientCreditsDialog } from '@/components/credits';
+import { InsufficientCreditsDialog, CreditDeductionDialog } from '@/components/credits';
 import type { ProfileResponse } from '@/types/profile';
 
 export default function FullAnalysisPage() {
@@ -23,22 +23,33 @@ export default function FullAnalysisPage() {
   const { data: profiles, isLoading } = useProfiles();
   const { data: creditsData } = useReportCreditsCheck();
 
-  const [, setSelectedProfileId] = useState<string | null>(null);
+  const [selectedProfile, setSelectedProfile] = useState<ProfileResponse | null>(null);
   const [showCreditsDialog, setShowCreditsDialog] = useState(false);
+  const [showDeductionDialog, setShowDeductionDialog] = useState(false);
 
   /**
    * 프로필 선택 후 분석 시작
    */
   const handleStartAnalysis = (profile: ProfileResponse) => {
-    // 크레딧 확인
+    // 크레딧 부족 확인
     if (creditsData && !creditsData.sufficient) {
-      setSelectedProfileId(profile.id);
+      setSelectedProfile(profile);
       setShowCreditsDialog(true);
       return;
     }
 
-    // 프로필 상세 페이지로 이동 (거기서 리포트 생성 버튼 클릭)
-    router.push(`/profiles/${profile.id}`);
+    // 크레딧 충분 → 차감 확인 다이얼로그 표시
+    setSelectedProfile(profile);
+    setShowDeductionDialog(true);
+  };
+
+  /**
+   * 크레딧 차감 확인 후 분석 시작
+   */
+  const handleConfirmDeduction = () => {
+    if (!selectedProfile) return;
+    setShowDeductionDialog(false);
+    router.push(`/profiles/${selectedProfile.id}/generating`);
   };
 
   return (
@@ -146,6 +157,15 @@ export default function FullAnalysisPage() {
         required={creditsData?.required ?? 50}
         current={creditsData?.current ?? 0}
         onCharge={() => router.push('/payment')}
+      />
+
+      {/* 크레딧 차감 확인 다이얼로그 */}
+      <CreditDeductionDialog
+        open={showDeductionDialog}
+        onOpenChange={setShowDeductionDialog}
+        required={creditsData?.required ?? 50}
+        current={creditsData?.current ?? 0}
+        onConfirm={handleConfirmDeduction}
       />
     </div>
   );

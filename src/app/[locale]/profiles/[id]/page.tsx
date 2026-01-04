@@ -14,7 +14,7 @@ import { useQuery } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { ProfileInfoCard, DeleteProfileDialog } from '@/components/profile';
-import { InsufficientCreditsDialog } from '@/components/credits';
+import { InsufficientCreditsDialog, CreditDeductionDialog } from '@/components/credits';
 import { useProfile, useUpdateProfile, useDeleteProfile } from '@/hooks/use-profiles';
 import { useReportCreditsCheck } from '@/hooks/use-credits';
 import { Link, useRouter } from '@/i18n/routing';
@@ -32,6 +32,7 @@ export default function ProfileDetailPage({ params }: PageProps) {
   const [id, setId] = useState<string>('');
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [showInsufficientCreditsDialog, setShowInsufficientCreditsDialog] = useState(false);
+  const [showDeductionDialog, setShowDeductionDialog] = useState(false);
 
   // params 처리 (Promise 또는 일반 객체 모두 지원)
   useEffect(() => {
@@ -113,16 +114,24 @@ export default function ProfileDetailPage({ params }: PageProps) {
 
   /**
    * 리포트 생성 핸들러
-   * 크레딧 확인 후 generating 페이지로 이동
+   * 크레딧 확인 후 차감 확인 다이얼로그 표시
    */
   const handleGenerateReport = () => {
-    // 크레딧 확인
+    // 크레딧 부족 확인
     if (creditsData && !creditsData.sufficient) {
       setShowInsufficientCreditsDialog(true);
       return;
     }
 
-    // 리포트 생성 페이지로 이동
+    // 크레딧 충분 → 차감 확인 다이얼로그 표시
+    setShowDeductionDialog(true);
+  };
+
+  /**
+   * 크레딧 차감 확인 후 분석 시작
+   */
+  const handleConfirmDeduction = () => {
+    setShowDeductionDialog(false);
     router.push(`/profiles/${id}/generating`);
   };
 
@@ -203,6 +212,15 @@ export default function ProfileDetailPage({ params }: PageProps) {
         required={creditsData?.required ?? 50}
         current={creditsData?.current ?? 0}
         onCharge={() => router.push('/payment')}
+      />
+
+      {/* 크레딧 차감 확인 다이얼로그 */}
+      <CreditDeductionDialog
+        open={showDeductionDialog}
+        onOpenChange={setShowDeductionDialog}
+        required={creditsData?.required ?? 50}
+        current={creditsData?.current ?? 0}
+        onConfirm={handleConfirmDeduction}
       />
     </div>
   );

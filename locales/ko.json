@@ -672,6 +672,14 @@
     "deduction": {
       "reportGeneration": "리포트 생성",
       "sectionReanalysis": "섹션 재분석"
+    },
+    "deductionDialog": {
+      "title": "크레딧 차감 안내",
+      "message": "전체 사주 분석에 {required}C가 차감됩니다",
+      "currentBalance": "현재 보유",
+      "afterDeduction": "차감 후 잔액",
+      "cancel": "취소",
+      "confirm": "분석 시작"
     }
   }
 }
