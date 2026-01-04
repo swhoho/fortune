@@ -98,6 +98,7 @@ export class AnalysisPipeline {
             stepDurations: this.context.stepDurations,
             parallelExecuted: this.context.enableParallel,
             version: '2.1.0',
+            tokenUsage: this.context.getTokenUsage(),
           },
         },
       };
@@ -165,6 +166,7 @@ export class AnalysisPipeline {
             stepDurations: this.context.stepDurations,
             parallelExecuted: this.context.enableParallel,
             version: '2.1.0',
+            tokenUsage: this.context.getTokenUsage(),
           },
         },
       };
@@ -392,6 +394,15 @@ export class AnalysisPipeline {
     const result = await model.generateContent({
       contents: [{ role: 'user', parts: [{ text: prompt }] }],
     });
+
+    // 토큰 사용량 추출 및 누적
+    const usageMetadata = result.response.usageMetadata;
+    if (usageMetadata) {
+      this.context.addTokenUsage(
+        usageMetadata.promptTokenCount ?? 0,
+        usageMetadata.candidatesTokenCount ?? 0
+      );
+    }
 
     return this.parseJsonResponse<T>(result.response.text());
   }

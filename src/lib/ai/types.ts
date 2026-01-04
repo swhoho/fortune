@@ -166,6 +166,11 @@ export interface FollowUpResponse {
   data?: {
     answer: string;
     questionId: string;
+    /** 토큰 사용량 */
+    tokenUsage?: {
+      inputTokens: number;
+      outputTokens: number;
+    };
   };
   error?: GeminiApiError;
 }
@@ -552,6 +557,15 @@ export interface PipelineOptions {
 }
 
 /**
+ * 토큰 사용량 정보
+ */
+export interface TokenUsage {
+  inputTokens: number;
+  outputTokens: number;
+  totalTokens: number;
+}
+
+/**
  * 파이프라인 메타데이터
  */
 export interface PipelineMetadata {
@@ -559,6 +573,8 @@ export interface PipelineMetadata {
   stepDurations: Partial<Record<PipelineStep, number>>;
   parallelExecuted: boolean;
   version: string;
+  /** Gemini API 토큰 사용량 */
+  tokenUsage?: TokenUsage;
 }
 
 /**

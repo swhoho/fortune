@@ -10,6 +10,7 @@ import { z } from 'zod';
 import { getSupabaseAdmin } from '@/lib/supabase/client';
 import { sajuAnalyzer } from '@/lib/ai/analyzer';
 import { SERVICE_CREDITS } from '@/lib/stripe';
+import { logAiUsage } from '@/lib/ai/usage-logger';
 import type { SajuAnalysisResult, SajuPillarsData, QuestionHistoryItem } from '@/lib/ai/types';
 
 /** 요청 스키마 */
@@ -207,6 +208,22 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
       description: `후속 질문 (프로필: ${profileId})`,
       reference_id: savedQuestion.id,
     });
+
+    // 10. AI 사용량 로깅
+    const tokenUsage = aiResponse.data.tokenUsage;
+    if (tokenUsage) {
+      await logAiUsage({
+        userId,
+        featureType: 'follow_up_question',
+        creditsUsed: SERVICE_CREDITS.question,
+        inputTokens: tokenUsage.inputTokens,
+        outputTokens: tokenUsage.outputTokens,
+        model: 'gemini-3-pro-preview',
+        profileId,
+        reportId: report.id,
+        metadata: { questionLength: question.length },
+      });
+    }
 
     // 11. 성공 응답
     return NextResponse.json({

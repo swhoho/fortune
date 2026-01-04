@@ -185,12 +185,16 @@ export class SajuAnalyzer {
 
     for (let attempt = 0; attempt <= retryCount; attempt++) {
       try {
-        const answer = await this.callGeminiForTextWithTimeout(prompt, timeout);
+        const result = await this.callGeminiForTextWithTimeout(prompt, timeout);
         return {
           success: true,
           data: {
-            answer,
+            answer: result.text,
             questionId: '', // API에서 실제 ID 할당
+            tokenUsage: {
+              inputTokens: result.inputTokens,
+              outputTokens: result.outputTokens,
+            },
           },
         };
       } catch (error) {
@@ -496,8 +500,12 @@ Respond in JSON format.`,
 
   /**
    * 텍스트 응답용 Gemini API 호출 (JSON 파싱 없음)
+   * @returns 텍스트 응답과 토큰 사용량
    */
-  private async callGeminiForTextWithTimeout(prompt: string, timeout: number): Promise<string> {
+  private async callGeminiForTextWithTimeout(
+    prompt: string,
+    timeout: number
+  ): Promise<{ text: string; inputTokens: number; outputTokens: number }> {
     const model = getGeminiModel();
 
     const timeoutPromise = new Promise<never>((_, reject) => {
@@ -517,7 +525,14 @@ Respond in JSON format.`,
       throw new Error('AI 응답이 비어있습니다');
     }
 
-    return responseText.trim();
+    // 토큰 사용량 추출
+    const usageMetadata = result.response.usageMetadata;
+
+    return {
+      text: responseText.trim(),
+      inputTokens: usageMetadata?.promptTokenCount ?? 0,
+      outputTokens: usageMetadata?.candidatesTokenCount ?? 0,
+    };
   }
 
   /**

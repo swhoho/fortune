@@ -20,6 +20,9 @@ export * from './report';
 // 사주 타입 (기존 수동 타입)
 export * from './saju';
 
+// Supabase 데이터베이스 타입
+export * from './database';
+
 /**
  * 편의 타입 별칭 (자주 사용하는 스키마)
  */

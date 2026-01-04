@@ -9,6 +9,7 @@ import { getAuthenticatedUser } from '@/lib/supabase/server';
 
 import { getSupabaseAdmin } from '@/lib/supabase/client';
 import { SERVICE_CREDITS, REANALYZABLE_SECTIONS } from '@/lib/stripe';
+import { logAiUsage } from '@/lib/ai/usage-logger';
 import { z } from 'zod';
 
 /** 재분석 요청 스키마 */
@@ -120,9 +121,10 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
       .eq('id', userId);
 
     // 6. 섹션 재분석 실행
-    // TODO: 실제 파이프라인의 해당 단계만 재실행
-    // 현재는 mock 데이터로 응답
-    const newSectionResult = await reanalyzeSectionAsync(sectionType, existingReport);
+    const { sectionResult: newSectionResult, tokenUsage } = await reanalyzeSectionAsync(
+      sectionType,
+      existingReport
+    );
 
     // 7. 리포트 업데이트
     const updatedAnalysis = {
@@ -146,6 +148,21 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
       section_type: sectionType,
       credits_used: SERVICE_CREDITS.sectionReanalysis,
     });
+
+    // 9. AI 사용량 로깅
+    if (tokenUsage) {
+      await logAiUsage({
+        userId,
+        featureType: 'section_reanalysis',
+        creditsUsed: SERVICE_CREDITS.sectionReanalysis,
+        inputTokens: tokenUsage.inputTokens,
+        outputTokens: tokenUsage.outputTokens,
+        model: 'gemini-3-pro-preview',
+        profileId,
+        reportId: existingReport.id as string,
+        metadata: { sectionType },
+      });
+    }
 
     console.log('[API] 섹션 재분석 완료:', {
       profileId,
@@ -172,7 +189,10 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
 async function reanalyzeSectionAsync(
   sectionType: string,
   existingReport: Record<string, unknown>
-): Promise<Record<string, unknown>> {
+): Promise<{
+  sectionResult: Record<string, unknown>;
+  tokenUsage?: { inputTokens: number; outputTokens: number };
+}> {
   const { createAnalysisPipeline } = await import('@/lib/ai/pipeline');
   // const pythonApiUrl = process.env.PYTHON_API_URL || 'http://localhost:8000';
 
@@ -236,10 +256,18 @@ async function reanalyzeSectionAsync(
   const newSectionResult =
     result.data?.intermediateResults?.[sectionType as keyof typeof result.data.intermediateResults];
 
+  // 토큰 사용량 추출
+  const tokenUsage = result.data?.pipelineMetadata?.tokenUsage;
+
   return {
-    ...(newSectionResult as Record<string, unknown>),
-    reanalyzed: true,
-    reanalyzedAt: new Date().toISOString(),
+    sectionResult: {
+      ...(newSectionResult as Record<string, unknown>),
+      reanalyzed: true,
+      reanalyzedAt: new Date().toISOString(),
+    },
+    tokenUsage: tokenUsage
+      ? { inputTokens: tokenUsage.inputTokens, outputTokens: tokenUsage.outputTokens }
+      : undefined,
   };
 }
 

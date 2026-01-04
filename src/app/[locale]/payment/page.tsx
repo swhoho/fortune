@@ -169,7 +169,7 @@ export default function PaymentPage() {
           className="mb-8"
         >
           <h3 className="mb-4 text-lg font-semibold text-[#1a1a1a]">크레딧 충전</h3>
-          <div className="grid gap-4 grid-cols-2 lg:grid-cols-4">
+          <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
             {CREDIT_PACKAGES.map((pkg, index) => (
               <motion.button
                 key={pkg.id}

@@ -12,6 +12,7 @@ import type {
   PipelineIntermediateResults,
   PipelineOptions,
 } from './types';
+import type { TokenUsage } from '../types';
 import { PIPELINE_STEPS, DEFAULT_STEP_TIMEOUTS, getInitialStepStatuses } from './types';
 
 /**
@@ -29,6 +30,9 @@ export class PipelineContext {
   stepStatuses: Record<PipelineStep, StepStatus>;
   stepDurations: Partial<Record<PipelineStep, number>> = {};
   startedAt: Date | null = null;
+
+  /** Gemini API 토큰 사용량 누적 */
+  private _tokenUsage: TokenUsage = { inputTokens: 0, outputTokens: 0, totalTokens: 0 };
 
   private options?: PipelineOptions;
 
@@ -58,6 +62,23 @@ export class PipelineContext {
     this.intermediateResults = {};
     this.stepDurations = {};
     this.stepStatuses = getInitialStepStatuses();
+    this._tokenUsage = { inputTokens: 0, outputTokens: 0, totalTokens: 0 };
+  }
+
+  /**
+   * 토큰 사용량 누적
+   */
+  addTokenUsage(inputTokens: number, outputTokens: number): void {
+    this._tokenUsage.inputTokens += inputTokens;
+    this._tokenUsage.outputTokens += outputTokens;
+    this._tokenUsage.totalTokens = this._tokenUsage.inputTokens + this._tokenUsage.outputTokens;
+  }
+
+  /**
+   * 현재 토큰 사용량 조회
+   */
+  getTokenUsage(): TokenUsage {
+    return { ...this._tokenUsage };
   }
 
   /**
