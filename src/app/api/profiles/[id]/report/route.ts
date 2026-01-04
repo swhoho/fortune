@@ -364,95 +364,36 @@ async function startPipelineAsync(
       onStepComplete: async (step, result) => {
         console.log(`[Pipeline] ${step} 완료`);
 
-        // 현재 리포트 상태 가져오기 (step_statuses + analysis)
+        // 비-병렬 단계 데이터 저장
+        // NOTE: basic_analysis, personality, aptitude, fortune (병렬 단계)은
+        // 최종 저장에서 일괄 처리하여 race condition 방지
+        const updateData: Record<string, unknown> = {
+          updated_at: new Date().toISOString(),
+        };
+
+        if (step === 'jijanggan' && result) {
+          updateData.jijanggan = result;
+        } else if (step === 'scoring' && result) {
+          updateData.scores = result;
+        } else if (step === 'visualization' && result) {
+          updateData.visualization_url = (result as { pillarImage?: string })?.pillarImage;
+        }
+
+        // step_statuses 업데이트 (읽기-수정-쓰기, 순차 단계는 race condition 없음)
         const { data: current } = await supabase
           .from('profile_reports')
-          .select('step_statuses, analysis')
+          .select('step_statuses')
           .eq('id', reportId)
           .single();
 
-        // step_statuses 업데이트 (현재 단계를 completed로)
-        const updatedStepStatuses = {
-          ...current?.step_statuses,
+        updateData.step_statuses = {
+          ...(current?.step_statuses || {}),
           [step]: 'completed',
         };
 
-        // 단계별 데이터 + step_statuses 함께 저장
-        if (step === 'jijanggan' && result) {
-          await supabase
-            .from('profile_reports')
-            .update({
-              jijanggan: result,
-              step_statuses: updatedStepStatuses,
-              updated_at: new Date().toISOString(),
-            })
-            .eq('id', reportId);
-        } else if (step === 'basic_analysis' && result) {
-          await supabase
-            .from('profile_reports')
-            .update({
-              analysis: { ...current?.analysis, basicAnalysis: result },
-              step_statuses: updatedStepStatuses,
-              updated_at: new Date().toISOString(),
-            })
-            .eq('id', reportId);
-        } else if (step === 'personality' && result) {
-          await supabase
-            .from('profile_reports')
-            .update({
-              analysis: { ...current?.analysis, personality: result },
-              step_statuses: updatedStepStatuses,
-              updated_at: new Date().toISOString(),
-            })
-            .eq('id', reportId);
-        } else if (step === 'aptitude' && result) {
-          await supabase
-            .from('profile_reports')
-            .update({
-              analysis: { ...current?.analysis, aptitude: result },
-              step_statuses: updatedStepStatuses,
-              updated_at: new Date().toISOString(),
-            })
-            .eq('id', reportId);
-        } else if (step === 'fortune' && result) {
-          await supabase
-            .from('profile_reports')
-            .update({
-              analysis: { ...current?.analysis, fortune: result },
-              step_statuses: updatedStepStatuses,
-              updated_at: new Date().toISOString(),
-            })
-            .eq('id', reportId);
-        } else if (step === 'scoring' && result) {
-          await supabase
-            .from('profile_reports')
-            .update({
-              scores: result,
-              step_statuses: updatedStepStatuses,
-              updated_at: new Date().toISOString(),
-            })
-            .eq('id', reportId);
-        } else if (step === 'visualization' && result) {
-          await supabase
-            .from('profile_reports')
-            .update({
-              visualization_url: (result as { pillarImage?: string })?.pillarImage,
-              step_statuses: updatedStepStatuses,
-              updated_at: new Date().toISOString(),
-            })
-            .eq('id', reportId);
-        } else {
-          // 다른 단계는 step_statuses만 업데이트
-          await supabase
-            .from('profile_reports')
-            .update({
-              step_statuses: updatedStepStatuses,
-              updated_at: new Date().toISOString(),
-            })
-            .eq('id', reportId);
-        }
+        await supabase.from('profile_reports').update(updateData).eq('id', reportId);
 
-        console.log(`[Pipeline] ${step} 데이터 + step_statuses DB 저장 완료`);
+        console.log(`[Pipeline] ${step} step_statuses 업데이트 완료`);
       },
       onError: async (step, error) => {
         console.error(`[Pipeline] ${step} 실패:`, error);
@@ -460,7 +401,21 @@ async function startPipelineAsync(
     });
 
     // 재시도인 경우 이전 결과 복원 (existingData 재사용)
+    // 중요: analysis가 없으면 basic_analysis부터 다시 시작
+    let effectiveRetryStep = retryFromStep;
+
     if (retryFromStep && existingData) {
+      const hasAnalysis = existingData.analysis && existingData.analysis.basicAnalysis;
+
+      // analysis가 없는데 saving 이후 단계부터 재시도하려면 basic_analysis부터 시작
+      const laterSteps = ['scoring', 'visualization', 'saving', 'complete'];
+      if (!hasAnalysis && laterSteps.includes(retryFromStep)) {
+        console.log(
+          `[Pipeline] analysis 데이터 없음, ${retryFromStep} 대신 basic_analysis부터 재시작`
+        );
+        effectiveRetryStep = 'basic_analysis';
+      }
+
       pipeline.hydrate(
         {
           manseryeok: {
@@ -473,19 +428,19 @@ async function startPipelineAsync(
           aptitude: existingData.analysis?.aptitude,
           fortune: existingData.analysis?.fortune,
         },
-        retryFromStep as import('@/lib/ai/types').PipelineStep
+        effectiveRetryStep as import('@/lib/ai/types').PipelineStep
       );
     }
 
     // 파이프라인 실행
-    const result = retryFromStep
+    const result = effectiveRetryStep
       ? await pipeline.executeFromStep(
           {
             pillars: manseryeokData.pillars,
             daewun: manseryeokData.daewun || [],
             language: 'ko',
           },
-          retryFromStep as import('@/lib/ai/types').PipelineStep
+          effectiveRetryStep as import('@/lib/ai/types').PipelineStep
         )
       : await pipeline.execute({
           pillars: manseryeokData.pillars,

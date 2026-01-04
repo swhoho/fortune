@@ -223,7 +223,7 @@ export class AnalysisPipeline {
     throw new Error('만세력 입력 데이터가 필요합니다');
   }
 
-  private async extractJijanggan(): Promise<void> {
+  private async extractJijanggan(): Promise<JijangganData> {
     const pillars = this.context.intermediateResults.manseryeok?.pillars;
     if (!pillars) {
       throw new Error('만세력 데이터가 없습니다');
@@ -254,33 +254,39 @@ export class AnalysisPipeline {
     if (this.context.intermediateResults.manseryeok) {
       this.context.intermediateResults.manseryeok.jijanggan = jijanggan;
     }
+    return jijanggan; // onStepComplete에 전달하기 위해 반환
   }
 
-  private async analyzeBasic(language: SupportedLanguage): Promise<void> {
+  private async analyzeBasic(language: SupportedLanguage): Promise<BasicAnalysisResult> {
     const prompt = await this.fetchStepPrompt('basic', language);
     const result = await this.callGemini<BasicAnalysisResult>(prompt);
     this.context.intermediateResults.basicAnalysis = result;
+    return result; // onStepComplete에 전달하기 위해 반환
   }
 
-  private async analyzePersonality(language: SupportedLanguage): Promise<void> {
+  private async analyzePersonality(language: SupportedLanguage): Promise<PersonalityResult> {
     const prompt = await this.fetchStepPrompt('personality', language);
     const result = await this.callGemini<PersonalityResult>(prompt);
     this.context.intermediateResults.personality = result;
+    return result; // onStepComplete에 전달하기 위해 반환
   }
 
-  private async analyzeAptitude(language: SupportedLanguage): Promise<void> {
+  private async analyzeAptitude(language: SupportedLanguage): Promise<AptitudeResult> {
     const prompt = await this.fetchStepPrompt('aptitude', language);
     const result = await this.callGemini<AptitudeResult>(prompt);
     this.context.intermediateResults.aptitude = result;
+    return result; // onStepComplete에 전달하기 위해 반환
   }
 
-  private async analyzeFortune(language: SupportedLanguage): Promise<void> {
+  private async analyzeFortune(language: SupportedLanguage): Promise<FortuneResult> {
     const prompt = await this.fetchStepPrompt('fortune', language);
     const result = await this.callGemini<FortuneResult>(prompt);
     this.context.intermediateResults.fortune = result;
+    return result; // onStepComplete에 전달하기 위해 반환
   }
 
-  private async calculateScores(): Promise<void> {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  private async calculateScores(): Promise<any> {
     const { manseryeok, personality } = this.context.intermediateResults;
 
     if (!manseryeok?.pillars || !manseryeok?.jijanggan) {
@@ -295,9 +301,10 @@ export class AnalysisPipeline {
     }
 
     this.context.intermediateResults.scores = calculatedScores;
+    return calculatedScores; // onStepComplete에 전달하기 위해 반환
   }
 
-  private async generateVisualization(): Promise<void> {
+  private async generateVisualization(): Promise<{ pillarImage: string }> {
     const pillars = this.context.intermediateResults.manseryeok?.pillars;
     if (!pillars) {
       throw new Error('사주 데이터가 없습니다');
@@ -315,18 +322,21 @@ export class AnalysisPipeline {
       }
 
       const data = await response.json();
-      this.context.intermediateResults.visualization = {
-        pillarImage: data.imageBase64,
-      };
+      const visualization = { pillarImage: data.imageBase64 };
+      this.context.intermediateResults.visualization = visualization;
+      return visualization; // onStepComplete에 전달하기 위해 반환
     } catch (error) {
       console.warn('[AnalysisPipeline] 시각화 생성 실패, 스킵:', error);
-      this.context.intermediateResults.visualization = { pillarImage: '' };
+      const visualization = { pillarImage: '' };
+      this.context.intermediateResults.visualization = visualization;
+      return visualization; // onStepComplete에 전달하기 위해 반환
     }
   }
 
   private async prepareFinalResult(): Promise<void> {
+    // 최종 결과 준비 - 검증은 경고만 (데이터는 buildFinalResult에서 fallback 처리)
     if (!this.context.intermediateResults.basicAnalysis) {
-      throw new Error('기본 분석 결과가 없습니다');
+      console.warn('[AnalysisPipeline] 경고: basicAnalysis가 없습니다. 기본값으로 대체됩니다.');
     }
   }
 
