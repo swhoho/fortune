@@ -54,6 +54,12 @@ export interface CreditPackage {
 
 export const CREDIT_PACKAGES: CreditPackage[] = [
   {
+    id: 'basic',
+    name: '베이직',
+    credits: 30,
+    price: 300, // $3.00
+  },
+  {
     id: 'starter',
     name: '스타터',
     credits: 50,
@@ -70,9 +76,9 @@ export const CREDIT_PACKAGES: CreditPackage[] = [
   {
     id: 'premium',
     name: '프리미엄',
-    credits: 300,
-    price: 3000, // $30.00
-    bonus: 50,
+    credits: 200,
+    price: 2000, // $20.00
+    bonus: 30,
   },
 ];
 
