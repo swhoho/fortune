@@ -7,20 +7,24 @@
 import { motion } from 'framer-motion';
 import { useTranslations } from 'next-intl';
 import { Link } from '@/i18n/routing';
-import { Info } from 'lucide-react';
+import { Info, Coins } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { LanguageSwitcher } from '@/components/language-switcher';
 import { BRAND_COLORS } from '@/lib/constants/colors';
 import { useAuth } from '@/hooks/use-user';
+import { useCreditsBalance } from '@/hooks/use-credits';
 
 export function HomeHeader() {
   const tCommon = useTranslations('common');
   const { user, isLoading } = useAuth();
+  const { data: creditsData } = useCreditsBalance();
 
   /** 사용자 표시 이름 (이름 > 이메일 앞부분) */
   const displayName = user?.user_metadata?.name || user?.email?.split('@')[0] || '';
   /** 아바타 이니셜 */
   const initial = displayName.charAt(0).toUpperCase() || '?';
+  /** 현재 크레딧 */
+  const credits = creditsData?.current ?? 0;
 
   return (
     <motion.header
@@ -62,21 +66,33 @@ export function HomeHeader() {
         <div className="[&_button]:rounded-xl [&_button]:text-gray-400 [&_button]:transition-colors [&_button]:hover:bg-white/[0.06] [&_button]:hover:text-white">
           <LanguageSwitcher />
         </div>
-        {/* 사용자 아바타 + 이름 */}
+        {/* 크레딧 + 사용자 아바타 */}
         {isLoading ? (
           <div className="h-8 w-8 animate-pulse rounded-full bg-white/10" />
         ) : user ? (
-          <Link href="/mypage" className="group flex items-center gap-2">
-            <div
-              className="flex h-8 w-8 items-center justify-center rounded-full text-sm font-semibold text-white transition-all group-hover:ring-2 group-hover:ring-white/30"
-              style={{ backgroundColor: BRAND_COLORS.primary }}
+          <div className="flex items-center gap-3">
+            {/* 크레딧 표시 */}
+            <Link
+              href="/payment"
+              className="group flex items-center gap-1.5 rounded-full bg-white/10 px-3 py-1.5 text-sm transition-all hover:bg-white/20"
             >
-              {initial}
-            </div>
-            <span className="hidden text-sm text-gray-300 transition-colors group-hover:text-white md:block">
-              {displayName}
-            </span>
-          </Link>
+              <Coins className="h-4 w-4 text-[#d4af37]" />
+              <span className="font-medium text-white">{credits}</span>
+              <span className="text-gray-400">C</span>
+            </Link>
+            {/* 사용자 아바타 */}
+            <Link href="/mypage" className="group flex items-center gap-2">
+              <div
+                className="flex h-8 w-8 items-center justify-center rounded-full text-sm font-semibold text-white transition-all group-hover:ring-2 group-hover:ring-white/30"
+                style={{ backgroundColor: BRAND_COLORS.primary }}
+              >
+                {initial}
+              </div>
+              <span className="hidden text-sm text-gray-300 transition-colors group-hover:text-white md:block">
+                {displayName}
+              </span>
+            </Link>
+          </div>
         ) : (
           <Button
             variant="ghost"

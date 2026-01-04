@@ -5,9 +5,8 @@
  * PRD 섹션 5.6 참고
  * Stripe Checkout (pre-built UI) 사용
  */
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { useOnboardingStore } from '@/stores/onboarding-store';
 import { FocusAreaLabel } from '@/types/saju';
@@ -26,7 +25,6 @@ const analysisIncludes = [
 ];
 
 export default function PaymentPage() {
-  const router = useRouter();
   const { focusArea, question } = useOnboardingStore();
   const [selectedPackage, setSelectedPackage] = useState<CreditPackage | null>(
     CREDIT_PACKAGES.find((p) => p.popular) || null
@@ -34,12 +32,8 @@ export default function PaymentPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // 필수 데이터가 없으면 리다이렉트
-  useEffect(() => {
-    if (!focusArea) {
-      router.push('/analysis/focus');
-    }
-  }, [focusArea, router]);
+  // focusArea가 없어도 크레딧 충전은 가능하도록 허용
+  // 분석 플로우 외부에서 크레딧 부족 시 결제 페이지로 직접 접근 가능
 
   const requiredCredits = SERVICE_CREDITS.fullAnalysis;
 
@@ -84,30 +78,8 @@ export default function PaymentPage() {
     }
   };
 
-  if (!focusArea) {
-    return null;
-  }
-
   return (
     <div className="flex min-h-screen flex-col items-center justify-center px-6 py-24">
-      {/* 진행 바 */}
-      <div className="fixed left-0 right-0 top-16 px-6">
-        <div className="mx-auto max-w-md">
-          <div className="flex items-center justify-between text-sm text-gray-500">
-            <span>Step 3/3</span>
-            <span>결제</span>
-          </div>
-          <div className="mt-2 h-2 w-full overflow-hidden rounded-full bg-gray-200">
-            <motion.div
-              initial={{ width: '66%' }}
-              animate={{ width: '100%' }}
-              transition={{ duration: 0.5 }}
-              className="h-full bg-gradient-to-r from-[#d4af37] to-[#c19a2e]"
-            />
-          </div>
-        </div>
-      </div>
-
       {/* 메인 콘텐츠 */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
@@ -121,45 +93,47 @@ export default function PaymentPage() {
         </h2>
         <p className="mb-8 text-center text-gray-500">크레딧을 충전하고 분석을 시작하세요</p>
 
-        {/* 서비스 요약 카드 */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2 }}
-          className="mb-8 rounded-xl border border-[#d4af37]/30 bg-white p-6 shadow-md"
-        >
-          <div className="mb-4 flex items-center justify-between">
-            <h3 className="text-lg font-semibold text-[#1a1a1a]">전체 사주 분석</h3>
-            <span className="rounded-full bg-[#d4af37]/10 px-3 py-1 text-sm font-medium text-[#d4af37]">
-              {requiredCredits} Credits
-            </span>
-          </div>
-
-          <div className="mb-4 rounded-lg bg-gray-50 p-3">
-            <p className="text-sm text-gray-600">
-              집중 분석 영역:{' '}
-              <span className="font-medium text-[#1a1a1a]">{FocusAreaLabel[focusArea]}</span>
-            </p>
-            {question && (
-              <p className="mt-1 text-sm text-gray-500">
-                고민: {question.slice(0, 50)}
-                {question.length > 50 && '...'}
-              </p>
-            )}
-          </div>
-
-          <div className="space-y-2">
-            <p className="text-sm font-medium text-gray-600">포함 내용:</p>
-            <div className="grid grid-cols-2 gap-1 text-sm text-gray-500">
-              {analysisIncludes.map((item) => (
-                <div key={item} className="flex items-center gap-1">
-                  <span className="text-[#d4af37]">✓</span>
-                  <span>{item}</span>
-                </div>
-              ))}
+        {/* 서비스 요약 카드 - 분석 플로우에서만 표시 */}
+        {focusArea && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2 }}
+            className="mb-8 rounded-xl border border-[#d4af37]/30 bg-white p-6 shadow-md"
+          >
+            <div className="mb-4 flex items-center justify-between">
+              <h3 className="text-lg font-semibold text-[#1a1a1a]">전체 사주 분석</h3>
+              <span className="rounded-full bg-[#d4af37]/10 px-3 py-1 text-sm font-medium text-[#d4af37]">
+                {requiredCredits} Credits
+              </span>
             </div>
-          </div>
-        </motion.div>
+
+            <div className="mb-4 rounded-lg bg-gray-50 p-3">
+              <p className="text-sm text-gray-600">
+                집중 분석 영역:{' '}
+                <span className="font-medium text-[#1a1a1a]">{FocusAreaLabel[focusArea]}</span>
+              </p>
+              {question && (
+                <p className="mt-1 text-sm text-gray-500">
+                  고민: {question.slice(0, 50)}
+                  {question.length > 50 && '...'}
+                </p>
+              )}
+            </div>
+
+            <div className="space-y-2">
+              <p className="text-sm font-medium text-gray-600">포함 내용:</p>
+              <div className="grid grid-cols-2 gap-1 text-sm text-gray-500">
+                {analysisIncludes.map((item) => (
+                  <div key={item} className="flex items-center gap-1">
+                    <span className="text-[#d4af37]">✓</span>
+                    <span>{item}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </motion.div>
+        )}
 
         {/* 크레딧 패키지 선택 */}
         <motion.div
@@ -212,14 +186,13 @@ export default function PaymentPage() {
           transition={{ delay: 0.6 }}
           className="mb-8 rounded-xl bg-gray-50 p-4"
         >
-          <div className="mb-2 flex items-center justify-between text-sm">
-            <span className="text-gray-500">현재 보유 크레딧</span>
-            <span className="font-medium text-gray-700">0C</span>
-          </div>
-          <div className="mb-2 flex items-center justify-between text-sm">
-            <span className="text-gray-500">필요 크레딧</span>
-            <span className="font-medium text-gray-700">{requiredCredits}C</span>
-          </div>
+          {/* 분석 플로우에서만 필요 크레딧 표시 */}
+          {focusArea && (
+            <div className="mb-2 flex items-center justify-between text-sm">
+              <span className="text-gray-500">필요 크레딧</span>
+              <span className="font-medium text-gray-700">{requiredCredits}C</span>
+            </div>
+          )}
           {selectedPackage && (
             <>
               <div className="mb-2 flex items-center justify-between text-sm">

@@ -11,6 +11,7 @@ import { useUserProfile } from '@/hooks/use-user';
 import {
   MypageSidebar,
   AnalysisHistory,
+  CreditHistory,
   QuestionHistory,
   NotificationSettings,
   ProfileSettings,
@@ -83,6 +84,7 @@ function TabContent({ tab }: { tab: MypageTab }) {
         transition={{ duration: 0.2 }}
       >
         {tab === 'analysis' && <AnalysisHistory />}
+        {tab === 'credits' && <CreditHistory />}
         {tab === 'questions' && <QuestionHistory />}
         {tab === 'notifications' && <NotificationSettings />}
         {tab === 'settings' && <ProfileSettings />}
