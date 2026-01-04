@@ -429,3 +429,263 @@ def format_jijanggan(jijanggan: dict, language: str) -> str:
         get_locale_string('jijanggan_hour', language, stems=', '.join(jijanggan.get('hour', []))),
     ]
     return "\n".join(lines)
+
+
+# ============================================
+# v3.0 추가: 십신/상호작용/신살/격국 포맷팅
+# ============================================
+
+def format_ten_gods_context(ten_god_counts: dict, language: str) -> str:
+    """
+    십신 분포 컨텍스트 포맷팅 (AI 프롬프트용)
+
+    Args:
+        ten_god_counts: 십신별 가중치 딕셔너리
+        language: 언어 코드
+    """
+    headers = {
+        'ko': '## 십신 분포 (十神)',
+        'en': '## Ten Gods Distribution',
+        'ja': '## 十神分布',
+        'zh-CN': '## 十神分布',
+        'zh-TW': '## 十神分布',
+    }
+    lines = [headers.get(language, headers['ko'])]
+
+    # 가중치 0.5 이상만 표시
+    significant = {k: v for k, v in ten_god_counts.items() if v >= 0.5}
+    sorted_items = sorted(significant.items(), key=lambda x: x[1], reverse=True)
+
+    for name, weight in sorted_items:
+        lines.append(f"- {name}: {weight:.1f}")
+
+    return "\n".join(lines)
+
+
+def format_interactions_context(interactions: dict, language: str) -> str:
+    """
+    지지 상호작용 컨텍스트 포맷팅 (AI 프롬프트용)
+
+    Args:
+        interactions: interactions_to_dict() 결과
+            {
+                "combinations": [...],
+                "clashes": [...],
+                "punishments": [...],
+                "harms": [...],
+                "destructions": [...],
+                "summary": "...",
+                "score": 0.0
+            }
+        language: 언어 코드
+    """
+    if not interactions:
+        return ""
+
+    # summary가 있으면 사용
+    summary = interactions.get('summary', '')
+    if summary and summary != "특이 상호작용 없음":
+        headers = {
+            'ko': '## 지지 상호작용 (合沖刑破害)',
+            'en': '## Branch Interactions',
+            'ja': '## 地支相互作用',
+            'zh-CN': '## 地支相互作用',
+            'zh-TW': '## 地支相互作用',
+        }
+        score = interactions.get('score', 0.0)
+        score_label = {
+            'ko': '종합 점수',
+            'en': 'Score',
+            'ja': 'スコア',
+            'zh-CN': '综合分数',
+            'zh-TW': '綜合分數',
+        }
+        lines = [
+            headers.get(language, headers['ko']),
+            summary,
+            f"- {score_label.get(language, score_label['ko'])}: {score:+.1f}"
+        ]
+        return "\n".join(lines)
+
+    return ""
+
+
+def format_sinsal_context(sinsals: dict, language: str) -> str:
+    """
+    신살 컨텍스트 포맷팅 (AI 프롬프트용)
+
+    Args:
+        sinsals: sinsals_to_dict() 결과
+            {
+                "lucky": [{"type": "천을귀인", "position": "...", "description": "..."}],
+                "neutral": [...],
+                "unlucky": [...],
+                "summary": "..."
+            }
+        language: 언어 코드
+    """
+    if not sinsals:
+        return ""
+
+    headers = {
+        'ko': '## 신살 (神煞)',
+        'en': '## Special Stars',
+        'ja': '## 神殺',
+        'zh-CN': '## 神煞',
+        'zh-TW': '## 神煞',
+    }
+    lucky_labels = {
+        'ko': '길신',
+        'en': 'Lucky',
+        'ja': '吉神',
+        'zh-CN': '吉神',
+        'zh-TW': '吉神',
+    }
+    unlucky_labels = {
+        'ko': '흉신/주의',
+        'en': 'Caution',
+        'ja': '凶神/注意',
+        'zh-CN': '凶神/注意',
+        'zh-TW': '凶神/注意',
+    }
+
+    lines = [headers.get(language, headers['ko'])]
+
+    # 길신
+    lucky = sinsals.get('lucky', [])
+    if lucky:
+        lines.append(f"### {lucky_labels.get(language, lucky_labels['ko'])}")
+        for item in lucky:
+            name = item.get('type', item.get('name', '?'))
+            position = item.get('position', '')
+            desc = item.get('description', '')
+            lines.append(f"- {name} ({position}): {desc}")
+
+    # 흉신/주의
+    unlucky = sinsals.get('unlucky', [])
+    neutral = sinsals.get('neutral', [])
+    caution_list = unlucky + neutral
+    if caution_list:
+        lines.append(f"### {unlucky_labels.get(language, unlucky_labels['ko'])}")
+        for item in caution_list:
+            name = item.get('type', item.get('name', '?'))
+            position = item.get('position', '')
+            desc = item.get('description', '')
+            lines.append(f"- {name} ({position}): {desc}")
+
+    if len(lines) == 1:
+        return ""
+
+    return "\n".join(lines)
+
+
+def format_formation_context(formation: dict, language: str) -> str:
+    """
+    격국 컨텍스트 포맷팅 (AI 프롬프트용)
+
+    Args:
+        formation: 격국 정보 {"formation_type": "정관격", "quality": "상", ...}
+        language: 언어 코드
+    """
+    if not formation:
+        return ""
+
+    headers = {
+        'ko': '## 격국 (格局)',
+        'en': '## Structure (格局)',
+        'ja': '## 格局',
+        'zh-CN': '## 格局',
+        'zh-TW': '## 格局',
+    }
+    labels = {
+        'ko': {'type': '격국', 'quality': '품질', 'strength': '일간', 'transparent': '투출'},
+        'en': {'type': 'Type', 'quality': 'Quality', 'strength': 'Day Master', 'transparent': 'Transparent'},
+        'ja': {'type': '格局', 'quality': '品質', 'strength': '日干', 'transparent': '透出'},
+        'zh-CN': {'type': '格局', 'quality': '品质', 'strength': '日干', 'transparent': '透出'},
+        'zh-TW': {'type': '格局', 'quality': '品質', 'strength': '日干', 'transparent': '透出'},
+    }
+    lang_labels = labels.get(language, labels['ko'])
+
+    lines = [headers.get(language, headers['ko'])]
+    lines.append(f"- {lang_labels['type']}: {formation.get('formation_type', '?')}")
+    lines.append(f"- {lang_labels['quality']}: {formation.get('quality', '?')}")
+    lines.append(f"- {lang_labels['strength']}: {formation.get('day_strength', '?')}")
+
+    transparent = formation.get('is_transparent', False)
+    transparent_str = "O" if transparent else "X"
+    lines.append(f"- {lang_labels['transparent']}: {transparent_str}")
+
+    description = formation.get('description', '')
+    if description:
+        lines.append(f"- {description}")
+
+    return "\n".join(lines)
+
+
+def format_daewun_with_relation(
+    daewun: list,
+    day_master: str,
+    current_age: int,
+    language: str,
+    limit: int = 8
+) -> str:
+    """
+    대운 포맷팅 (십신 관계 포함, 현재/다음 대운 하이라이트)
+
+    Args:
+        daewun: 대운 리스트
+        day_master: 일간 (예: "甲")
+        current_age: 현재 나이
+        language: 언어 코드
+        limit: 표시할 대운 수
+    """
+    from manseryeok.ten_gods import determine_ten_god
+
+    headers = {
+        'ko': '## 대운 흐름 (大運) - 십신 관계',
+        'en': '## Luck Pillars - Ten Gods Relation',
+        'ja': '## 大運の流れ - 十神関係',
+        'zh-CN': '## 大运流程 - 十神关系',
+        'zh-TW': '## 大運流程 - 十神關係',
+    }
+    current_labels = {
+        'ko': '← 현재',
+        'en': '← Current',
+        'ja': '← 現在',
+        'zh-CN': '← 当前',
+        'zh-TW': '← 當前',
+    }
+    next_labels = {
+        'ko': '← 다음',
+        'en': '← Next',
+        'ja': '← 次',
+        'zh-CN': '← 下一',
+        'zh-TW': '← 下一',
+    }
+
+    lines = [headers.get(language, headers['ko'])]
+
+    current_found = False
+    for i, d in enumerate(daewun[:limit]):
+        start = d.get('startAge', d.get('age', 0))
+        end = start + 9 if isinstance(start, int) else 0
+        stem = d.get('stem', '?')
+        branch = d.get('branch', '?')
+
+        # 십신 관계 계산
+        ten_god = determine_ten_god(day_master, stem) if stem != '?' else '?'
+
+        # 현재/다음 대운 체크
+        marker = ""
+        if isinstance(start, int) and isinstance(current_age, int):
+            if start <= current_age < end:
+                marker = f" {current_labels.get(language, current_labels['ko'])}"
+                current_found = True
+            elif current_found and not marker:
+                # 바로 다음 대운
+                marker = f" {next_labels.get(language, next_labels['ko'])}"
+                current_found = False  # 한 번만 표시
+
+        lines.append(f"- {start}~{end}세: {stem}{branch} ({ten_god}){marker}")
+
+    return "\n".join(lines)

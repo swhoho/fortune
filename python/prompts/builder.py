@@ -33,6 +33,12 @@ from .locale_strings import (
     format_pillars_table,
     format_daewun_list,
     format_jijanggan,
+    # v3.0: 분석 컨텍스트 포맷팅
+    format_ten_gods_context,
+    format_interactions_context,
+    format_sinsal_context,
+    format_formation_context,
+    format_daewun_with_relation,
 )
 
 
@@ -445,7 +451,13 @@ class PromptBuilder:
         language: LocaleType = 'ko',
         daewun: Optional[List[Dict[str, Any]]] = None,
         jijanggan: Optional[Dict[str, List[str]]] = None,
-        previous_results: Optional[Dict[str, Any]] = None
+        previous_results: Optional[Dict[str, Any]] = None,
+        # v3.0: 분석 컨텍스트 추가
+        ten_god_counts: Optional[Dict[str, float]] = None,
+        interactions: Optional[List[Dict[str, Any]]] = None,
+        sinsals: Optional[List[Dict[str, Any]]] = None,
+        formation: Optional[Dict[str, Any]] = None,
+        current_age: Optional[int] = None,
     ) -> PromptBuildResponse:
         """
         멀티스텝 파이프라인용 단계별 프롬프트 빌드
@@ -457,6 +469,11 @@ class PromptBuilder:
             daewun: 대운 데이터 (선택)
             jijanggan: 지장간 데이터 (선택)
             previous_results: 이전 단계 결과 (컨텍스트용)
+            ten_god_counts: v3.0 십신 분포 (extract_ten_gods 결과)
+            interactions: v3.0 지지 상호작용 (analyze_pillar_interactions 결과)
+            sinsals: v3.0 신살 (analyze_sinsal 결과)
+            formation: v3.0 격국 (determine_formation 결과 → dict)
+            current_age: v3.0 현재 나이 (대운 하이라이트용)
 
         Returns:
             PromptBuildResponse: 단계별 프롬프트
@@ -471,7 +488,13 @@ class PromptBuilder:
             daewun=daewun,
             jijanggan=jijanggan,
             previous_results=previous_results,
-            language=language
+            language=language,
+            # v3.0
+            ten_god_counts=ten_god_counts,
+            interactions=interactions,
+            sinsals=sinsals,
+            formation=formation,
+            current_age=current_age,
         )
 
         # 단계별 출력 스키마
@@ -1141,21 +1164,57 @@ Please respond according to the JSON schema.""",
         daewun: Optional[List[Dict[str, Any]]],
         jijanggan: Optional[Dict[str, List[str]]],
         previous_results: Optional[Dict[str, Any]],
-        language: LocaleType
+        language: LocaleType,
+        # v3.0: 분석 컨텍스트 추가
+        ten_god_counts: Optional[Dict[str, float]] = None,
+        interactions: Optional[List[Dict[str, Any]]] = None,
+        sinsals: Optional[List[Dict[str, Any]]] = None,
+        formation: Optional[Dict[str, Any]] = None,
+        current_age: Optional[int] = None,
     ) -> str:
-        """단계별 사용자 프롬프트 - v2.1 리팩토링 (locale_strings 사용)"""
+        """
+        단계별 사용자 프롬프트 - v3.0 분석 컨텍스트 통합
+
+        v3.0 업데이트:
+        - personality/aptitude/fortune 단계에서 십신/상호작용/신살/격국 컨텍스트 삽입
+        - 대운에 십신 관계 표시 + 현재/다음 대운 하이라이트
+        """
         parts = []
 
         # 사주 정보
         parts.append(cls._format_pillars(pillars, language))
 
-        # 대운 정보
+        # v3.0: 대운 정보 (십신 관계 포함, 성격/적성/재물 단계에서)
         if daewun:
-            parts.append(cls._format_daewun(daewun, language))
+            if step in ('personality', 'aptitude', 'fortune') and current_age is not None:
+                day_master = pillars.get('day', {}).get('stem', '?')
+                parts.append(format_daewun_with_relation(
+                    daewun, day_master, current_age, language
+                ))
+            else:
+                parts.append(cls._format_daewun(daewun, language))
 
         # 지장간 정보 (있으면)
         if jijanggan:
             parts.append(cls._format_jijanggan(jijanggan, language))
+
+        # v3.0: 분석 컨텍스트 삽입 (성격/적성/재물 단계)
+        if step in ('personality', 'aptitude', 'fortune'):
+            # 격국 정보
+            if formation:
+                parts.append(format_formation_context(formation, language))
+
+            # 십신 분포
+            if ten_god_counts:
+                parts.append(format_ten_gods_context(ten_god_counts, language))
+
+            # 지지 상호작용
+            if interactions:
+                parts.append(format_interactions_context(interactions, language))
+
+            # 신살
+            if sinsals:
+                parts.append(format_sinsal_context(sinsals, language))
 
         # 이전 단계 결과 (컨텍스트)
         if previous_results:

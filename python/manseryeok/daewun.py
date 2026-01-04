@@ -81,21 +81,37 @@ def calculate_daewun(
 
 def _calculate_start_age(lunar, direction: int) -> int:
     """
-    대운 시작 나이 계산 (간략화 버전)
+    대운 시작 나이 정밀 계산 (절입 기반)
 
-    Phase 1: 고정값 반환 (1세)
-    Phase 2: 절입까지 남은 일수/3으로 정밀 계산
+    명리학 원칙:
+    - 순행(양남/음녀): 다음 절입까지 남은 일수 / 3 = 대운 시작 나이
+    - 역행(음남/양녀): 이전 절입부터 경과한 일수 / 3 = 대운 시작 나이
+    - 3일 = 1년 (1개월 = 10년 대운)
 
     Args:
         lunar: Lunar 객체
         direction: 순행(1) 또는 역행(-1)
 
     Returns:
-        대운 시작 나이
+        대운 시작 나이 (1~10 사이)
     """
-    # Phase 1: 간략화 - 고정값 반환
-    # 실제로는 절입까지 남은 일수를 계산하여 3으로 나눔
-    return 1
+    birth_solar = lunar.getSolar()
+
+    if direction == 1:  # 순행: 다음 절입까지 남은 일수
+        next_jie = lunar.getNextJie()
+        target_solar = next_jie.getSolar()
+    else:  # 역행: 이전 절입부터 경과한 일수
+        prev_jie = lunar.getPrevJie()
+        target_solar = prev_jie.getSolar()
+
+    # Julian Day를 이용한 정확한 일수 차이 계산
+    days_diff = abs(target_solar.getJulianDay() - birth_solar.getJulianDay())
+
+    # 3일 = 1년, 반올림
+    start_age = round(days_diff / 3)
+
+    # 최소 1세, 최대 10세로 제한
+    return max(1, min(10, start_age))
 
 
 def get_daewun_direction(year_stem: str, gender: str) -> str:
