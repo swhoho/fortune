@@ -21,10 +21,7 @@ const generateReportSchema = z.object({
  * GET /api/profiles/[id]/report
  * 완료된 리포트 조회
  */
-export async function GET(
-  request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const session = await getServerSession(authOptions);
     if (!session?.user?.id) {
@@ -83,10 +80,7 @@ export async function GET(
  * POST /api/profiles/[id]/report
  * 리포트 생성 시작 (백그라운드 작업)
  */
-export async function POST(
-  request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function POST(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const session = await getServerSession(authOptions);
     if (!session?.user?.id) {
@@ -106,7 +100,9 @@ export async function POST(
     }
 
     const validationResult = generateReportSchema.safeParse(body);
-    const retryFromStep = validationResult.success ? validationResult.data.retryFromStep : undefined;
+    const retryFromStep = validationResult.success
+      ? validationResult.data.retryFromStep
+      : undefined;
 
     // 1. 프로필 조회 및 소유권 확인
     const { data: profile, error: profileError } = await supabase

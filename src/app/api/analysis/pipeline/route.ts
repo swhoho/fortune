@@ -90,10 +90,7 @@ export async function POST(request: NextRequest) {
     // 1. 인증 확인
     const session = await getServerSession(authOptions);
     if (!session?.user?.id) {
-      return NextResponse.json(
-        { error: '로그인이 필요합니다' },
-        { status: 401 }
-      );
+      return NextResponse.json({ error: '로그인이 필요합니다' }, { status: 401 });
     }
 
     // 2. 요청 본문 파싱 및 검증
@@ -110,8 +107,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const { pillars, daewun, focusArea, question, language, options } =
-      validationResult.data;
+    const { pillars, daewun, focusArea, question, language, options } = validationResult.data;
 
     // 3. 파이프라인 인스턴스 생성 (팩토리 함수 사용)
     const pipeline = createAnalysisPipeline({
@@ -120,7 +116,7 @@ export async function POST(request: NextRequest) {
       onProgress: (progress: PipelineProgress) => {
         console.log(`[Pipeline API] 진행: ${progress.currentStep} (${progress.progressPercent}%)`);
       },
-      onStepComplete: (step, result) => {
+      onStepComplete: (step, _result) => {
         console.log(`[Pipeline API] 단계 완료: ${step}`);
       },
       onError: (step, error) => {

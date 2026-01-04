@@ -86,17 +86,11 @@ export function TraitGraph({
             className="flex items-center gap-4 text-xs text-gray-400"
           >
             <div className="flex items-center gap-1.5">
-              <span
-                className="h-2.5 w-2.5 rounded-sm"
-                style={{ backgroundColor: '#f59e0b' }}
-              />
+              <span className="h-2.5 w-2.5 rounded-sm" style={{ backgroundColor: '#f59e0b' }} />
               <span>{threshold}%미만</span>
             </div>
             <div className="flex items-center gap-1.5">
-              <span
-                className="h-2.5 w-2.5 rounded-sm"
-                style={{ backgroundColor: '#ef4444' }}
-              />
+              <span className="h-2.5 w-2.5 rounded-sm" style={{ backgroundColor: '#ef4444' }} />
               <span>{threshold}%이상</span>
             </div>
           </motion.div>
@@ -118,9 +112,7 @@ export function TraitGraph({
 
       {/* 빈 상태 */}
       {traits.length === 0 && (
-        <div className="py-8 text-center text-sm text-gray-500">
-          표시할 특성이 없습니다
-        </div>
+        <div className="py-8 text-center text-sm text-gray-500">표시할 특성이 없습니다</div>
       )}
     </motion.div>
   );

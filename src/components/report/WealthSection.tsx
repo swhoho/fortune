@@ -39,10 +39,7 @@ interface WealthSectionProps {
  * 2. 재물복 카드 (ContentCard, highlight)
  * 3. 이성의 존재 카드 (ContentCard)
  */
-export function WealthSection({
-  data,
-  className = '',
-}: WealthSectionProps) {
+export function WealthSection({ data, className = '' }: WealthSectionProps) {
   const { wealthFortune, partnerInfluence, wealthTraits, score } = data;
 
   return (
@@ -71,11 +68,7 @@ export function WealthSection({
             transition={{ duration: 0.5, type: 'spring', stiffness: 200 }}
             className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-[#d4af37] to-[#b8962e]"
           >
-            <svg
-              className="h-4 w-4 text-[#1a1a1a]"
-              fill="currentColor"
-              viewBox="0 0 20 20"
-            >
+            <svg className="h-4 w-4 text-[#1a1a1a]" fill="currentColor" viewBox="0 0 20 20">
               <path d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v1H8a1 1 0 100 2h.5a.5.5 0 01.5.5v1a.5.5 0 01-.5.5H8a1 1 0 100 2h1v1a1 1 0 102 0v-1h.5a1.5 1.5 0 001.5-1.5v-1a1.5 1.5 0 00-1.5-1.5H11V8h.5a1 1 0 100-2H11V5z" />
             </svg>
           </motion.div>

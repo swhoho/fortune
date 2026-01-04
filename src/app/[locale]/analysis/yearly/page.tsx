@@ -29,12 +29,7 @@ export default function YearlyAnalysisPage() {
   const { data: user } = useUserProfile();
   const { data: profiles, isLoading: profilesLoading } = useProfiles();
 
-  const {
-    targetYear,
-    selectedProfileId,
-    setTargetYear,
-    setSelectedProfile,
-  } = useYearlyStore();
+  const { targetYear, selectedProfileId, setTargetYear, setSelectedProfile } = useYearlyStore();
 
   const currentYear = new Date().getFullYear();
   const nextYear = currentYear + 1;
@@ -134,7 +129,9 @@ export default function YearlyAnalysisPage() {
           </div>
           {!hasEnoughCredits && (
             <p className="mt-2 text-sm text-red-600">
-              {t('credits.insufficient', { defaultValue: '크레딧이 부족합니다. 크레딧을 충전해주세요.' })}
+              {t('credits.insufficient', {
+                defaultValue: '크레딧이 부족합니다. 크레딧을 충전해주세요.',
+              })}
             </p>
           )}
           {hasEnoughCredits && !selectedProfileId && (

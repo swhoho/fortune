@@ -228,18 +228,14 @@
             "format": "date-time",
             "title": "Birthdatetime",
             "description": "생년월일시 (ISO 8601 형식)",
-            "examples": [
-              "1990-05-15T14:30:00"
-            ]
+            "examples": ["1990-05-15T14:30:00"]
           },
           "timezone": {
             "type": "string",
             "title": "Timezone",
             "description": "시간대 (예: GMT+9, GMT-5)",
             "default": "GMT+9",
-            "examples": [
-              "GMT+9"
-            ]
+            "examples": ["GMT+9"]
           },
           "isLunar": {
             "type": "boolean",
@@ -252,10 +248,7 @@
           }
         },
         "type": "object",
-        "required": [
-          "birthDatetime",
-          "gender"
-        ],
+        "required": ["birthDatetime", "gender"],
         "title": "CalculateRequest",
         "description": "만세력 계산 요청",
         "example": {
@@ -285,11 +278,7 @@
           }
         },
         "type": "object",
-        "required": [
-          "pillars",
-          "daewun",
-          "jijanggan"
-        ],
+        "required": ["pillars", "daewun", "jijanggan"],
         "title": "CalculateResponse",
         "description": "만세력 계산 응답",
         "example": {
@@ -308,23 +297,10 @@
             }
           ],
           "jijanggan": {
-            "day": [
-              "癸"
-            ],
-            "hour": [
-              "己",
-              "丁",
-              "乙"
-            ],
-            "month": [
-              "戊",
-              "庚",
-              "丙"
-            ],
-            "year": [
-              "己",
-              "丁"
-            ]
+            "day": ["癸"],
+            "hour": ["己", "丁", "乙"],
+            "month": ["戊", "庚", "丙"],
+            "year": ["己", "丁"]
           },
           "pillars": {
             "day": {
@@ -356,51 +332,35 @@
             "type": "integer",
             "title": "Age",
             "description": "시작 나이",
-            "examples": [
-              1
-            ]
+            "examples": [1]
           },
           "stem": {
             "type": "string",
             "title": "Stem",
             "description": "천간",
-            "examples": [
-              "壬"
-            ]
+            "examples": ["壬"]
           },
           "branch": {
             "type": "string",
             "title": "Branch",
             "description": "지지",
-            "examples": [
-              "午"
-            ]
+            "examples": ["午"]
           },
           "startYear": {
             "type": "integer",
             "title": "Startyear",
             "description": "시작 연도",
-            "examples": [
-              1991
-            ]
+            "examples": [1991]
           }
         },
         "type": "object",
-        "required": [
-          "age",
-          "stem",
-          "branch",
-          "startYear"
-        ],
+        "required": ["age", "stem", "branch", "startYear"],
         "title": "DaewunItem",
         "description": "대운 항목"
       },
       "Gender": {
         "type": "string",
-        "enum": [
-          "male",
-          "female"
-        ],
+        "enum": ["male", "female"],
         "title": "Gender",
         "description": "성별 (대운 방향 결정)"
       },
@@ -426,12 +386,7 @@
             "type": "array",
             "title": "Year",
             "description": "연주 지장간",
-            "examples": [
-              [
-                "己",
-                "丁"
-              ]
-            ]
+            "examples": [["己", "丁"]]
           },
           "month": {
             "items": {
@@ -440,13 +395,7 @@
             "type": "array",
             "title": "Month",
             "description": "월주 지장간",
-            "examples": [
-              [
-                "戊",
-                "庚",
-                "丙"
-              ]
-            ]
+            "examples": [["戊", "庚", "丙"]]
           },
           "day": {
             "items": {
@@ -455,11 +404,7 @@
             "type": "array",
             "title": "Day",
             "description": "일주 지장간",
-            "examples": [
-              [
-                "癸"
-              ]
-            ]
+            "examples": [["癸"]]
           },
           "hour": {
             "items": {
@@ -468,22 +413,11 @@
             "type": "array",
             "title": "Hour",
             "description": "시주 지장간",
-            "examples": [
-              [
-                "己",
-                "丁",
-                "乙"
-              ]
-            ]
+            "examples": [["己", "丁", "乙"]]
           }
         },
         "type": "object",
-        "required": [
-          "year",
-          "month",
-          "day",
-          "hour"
-        ],
+        "required": ["year", "month", "day", "hour"],
         "title": "Jijanggan",
         "description": "지장간 (각 지지에 숨어있는 천간)"
       },
@@ -493,33 +427,23 @@
             "type": "string",
             "title": "Stem",
             "description": "천간 (한자)",
-            "examples": [
-              "甲"
-            ]
+            "examples": ["甲"]
           },
           "branch": {
             "type": "string",
             "title": "Branch",
             "description": "지지 (한자)",
-            "examples": [
-              "子"
-            ]
+            "examples": ["子"]
           },
           "element": {
             "type": "string",
             "title": "Element",
             "description": "오행 (한자)",
-            "examples": [
-              "木"
-            ]
+            "examples": ["木"]
           }
         },
         "type": "object",
-        "required": [
-          "stem",
-          "branch",
-          "element"
-        ],
+        "required": ["stem", "branch", "element"],
         "title": "Pillar",
         "description": "사주 기둥 (한 개)"
       },
@@ -543,12 +467,7 @@
           }
         },
         "type": "object",
-        "required": [
-          "year",
-          "month",
-          "day",
-          "hour"
-        ],
+        "required": ["year", "month", "day", "hour"],
         "title": "Pillars",
         "description": "사주 팔자 (4개 기둥)"
       },
@@ -581,12 +500,7 @@
         "properties": {
           "language": {
             "type": "string",
-            "enum": [
-              "ko",
-              "en",
-              "ja",
-              "zh"
-            ],
+            "enum": ["ko", "en", "ja", "zh"],
             "title": "Language",
             "description": "언어",
             "default": "ko"
@@ -618,13 +532,7 @@
             "anyOf": [
               {
                 "type": "string",
-                "enum": [
-                  "wealth",
-                  "love",
-                  "career",
-                  "health",
-                  "overall"
-                ]
+                "enum": ["wealth", "love", "career", "health", "overall"]
               },
               {
                 "type": "null"
@@ -652,9 +560,7 @@
           }
         },
         "type": "object",
-        "required": [
-          "pillars"
-        ],
+        "required": ["pillars"],
         "title": "PromptBuildRequest",
         "description": "프롬프트 빌드 요청",
         "example": {
@@ -722,12 +628,7 @@
           }
         },
         "type": "object",
-        "required": [
-          "systemPrompt",
-          "userPrompt",
-          "outputSchema",
-          "metadata"
-        ],
+        "required": ["systemPrompt", "userPrompt", "outputSchema", "metadata"],
         "title": "PromptBuildResponse",
         "description": "프롬프트 빌드 응답"
       },
@@ -758,12 +659,7 @@
           }
         },
         "type": "object",
-        "required": [
-          "version",
-          "language",
-          "includedModules",
-          "generatedAt"
-        ],
+        "required": ["version", "language", "includedModules", "generatedAt"],
         "title": "PromptMetadata",
         "description": "프롬프트 메타데이터"
       },
@@ -771,24 +667,13 @@
         "properties": {
           "step": {
             "type": "string",
-            "enum": [
-              "basic",
-              "personality",
-              "aptitude",
-              "fortune"
-            ],
+            "enum": ["basic", "personality", "aptitude", "fortune"],
             "title": "Step",
             "description": "분석 단계"
           },
           "language": {
             "type": "string",
-            "enum": [
-              "ko",
-              "en",
-              "ja",
-              "zh-CN",
-              "zh-TW"
-            ],
+            "enum": ["ko", "en", "ja", "zh-CN", "zh-TW"],
             "title": "Language",
             "description": "언어",
             "default": "ko"
@@ -849,10 +734,7 @@
           }
         },
         "type": "object",
-        "required": [
-          "step",
-          "pillars"
-        ],
+        "required": ["step", "pillars"],
         "title": "StepPromptRequest",
         "description": "멀티스텝 파이프라인용 단계별 프롬프트 요청 (Task 8)",
         "example": {
@@ -865,23 +747,10 @@
             }
           ],
           "jijanggan": {
-            "day": [
-              "癸"
-            ],
-            "hour": [
-              "己",
-              "丁",
-              "乙"
-            ],
-            "month": [
-              "戊",
-              "庚",
-              "丙"
-            ],
-            "year": [
-              "己",
-              "丁"
-            ]
+            "day": ["癸"],
+            "hour": ["己", "丁", "乙"],
+            "month": ["戊", "庚", "丙"],
+            "year": ["己", "丁"]
           },
           "language": "ko",
           "pillars": {
@@ -935,11 +804,7 @@
           }
         },
         "type": "object",
-        "required": [
-          "loc",
-          "msg",
-          "type"
-        ],
+        "required": ["loc", "msg", "type"],
         "title": "ValidationError"
       },
       "VisualizationRequest": {
@@ -950,9 +815,7 @@
           }
         },
         "type": "object",
-        "required": [
-          "pillars"
-        ],
+        "required": ["pillars"],
         "title": "VisualizationRequest",
         "description": "명반 시각화 요청",
         "example": {
@@ -989,9 +852,7 @@
           }
         },
         "type": "object",
-        "required": [
-          "imageBase64"
-        ],
+        "required": ["imageBase64"],
         "title": "VisualizationResponse",
         "description": "명반 시각화 응답",
         "example": {
@@ -1002,13 +863,7 @@
         "properties": {
           "language": {
             "type": "string",
-            "enum": [
-              "ko",
-              "en",
-              "ja",
-              "zh-CN",
-              "zh-TW"
-            ],
+            "enum": ["ko", "en", "ja", "zh-CN", "zh-TW"],
             "title": "Language",
             "description": "언어",
             "default": "ko"
@@ -1061,10 +916,7 @@
           },
           "gender": {
             "type": "string",
-            "enum": [
-              "male",
-              "female"
-            ],
+            "enum": ["male", "female"],
             "title": "Gender",
             "description": "성별"
           },
@@ -1074,12 +926,7 @@
           }
         },
         "type": "object",
-        "required": [
-          "targetYear",
-          "birthYear",
-          "pillars",
-          "gender"
-        ],
+        "required": ["targetYear", "birthYear", "pillars", "gender"],
         "title": "YearlyPromptBuildRequest",
         "description": "신년 사주 분석 프롬프트 빌드 요청",
         "example": {

@@ -64,7 +64,9 @@ function QuestionCard({
               <span className="rounded-full bg-gray-100 px-2 py-0.5 text-xs text-gray-500">
                 {question.profileName}
               </span>
-              <span className="text-xs text-gray-400">{formatRelativeTime(question.createdAt)}</span>
+              <span className="text-xs text-gray-400">
+                {formatRelativeTime(question.createdAt)}
+              </span>
             </div>
             <p className="line-clamp-2 font-medium text-[#1a1a1a]">{question.question}</p>
           </div>
@@ -83,7 +85,9 @@ function QuestionCard({
           className="border-t border-gray-100 bg-gradient-to-br from-[#f8f6f0] to-white px-5 py-4"
         >
           <p className="mb-3 text-xs font-medium text-[#d4af37]">AI 답변</p>
-          <p className="whitespace-pre-wrap text-sm leading-relaxed text-gray-700">{question.answer}</p>
+          <p className="whitespace-pre-wrap text-sm leading-relaxed text-gray-700">
+            {question.answer}
+          </p>
           <div className="mt-4 flex justify-end">
             <Button asChild variant="outline" size="sm">
               <Link href={`/profiles/${question.profileId}/report`}>리포트 보기</Link>

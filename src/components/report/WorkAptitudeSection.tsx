@@ -108,9 +108,7 @@ export function WorkAptitudeSection({
         transition={{ duration: 0.4 }}
         className="flex items-center gap-3"
       >
-        <h2 className="font-serif text-xl font-bold text-white">
-          업무 능력과 적성
-        </h2>
+        <h2 className="font-serif text-xl font-bold text-white">업무 능력과 적성</h2>
         <div className="h-px flex-1 bg-gradient-to-r from-[#d4af37]/50 to-transparent" />
       </motion.div>
 

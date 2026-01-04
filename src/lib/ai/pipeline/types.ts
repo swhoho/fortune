@@ -99,10 +99,7 @@ export interface IStepExecutor {
 
 /** 재시도 관리자 인터페이스 */
 export interface IRetryManager {
-  executeWithRetry<T>(
-    executor: () => Promise<T>,
-    step: PipelineStep
-  ): Promise<T>;
+  executeWithRetry<T>(executor: () => Promise<T>, step: PipelineStep): Promise<T>;
 }
 
 /** 진행률 추적기 인터페이스 */

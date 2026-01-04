@@ -7,7 +7,8 @@
 import { motion } from 'framer-motion';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
-import { useProfiles, calculateAge } from '@/hooks/use-profiles';
+import { useProfiles } from '@/hooks/use-profiles';
+import { calculateAge } from '@/lib/date';
 import type { ProfileResponse } from '@/types/profile';
 
 /** 성별 라벨 */

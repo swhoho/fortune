@@ -8,7 +8,7 @@ import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { getSupabaseAdmin } from '@/lib/supabase/client';
 import { sajuAnalyzer } from '@/lib/ai';
-import type { YearlyAnalysisInput, SupportedLanguage, FocusArea } from '@/lib/ai';
+import type { YearlyAnalysisInput, SupportedLanguage } from '@/lib/ai';
 import { z } from 'zod';
 
 /** 신년 분석 크레딧 비용 */

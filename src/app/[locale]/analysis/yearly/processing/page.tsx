@@ -8,7 +8,6 @@
 import { useEffect, useState, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useTranslations } from 'next-intl';
 import { Loader2, CheckCircle2, Circle, AlertCircle } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
@@ -39,7 +38,6 @@ const STEPS_ORDER: YearlyLoadingStep[] = [
 
 export default function YearlyProcessingPage() {
   const router = useRouter();
-  const t = useTranslations('yearly');
 
   const {
     targetYear,
@@ -51,8 +49,7 @@ export default function YearlyProcessingPage() {
     resetYearly,
   } = useYearlyStore();
 
-  const { birthDate, birthTime, timezone, isLunar, gender, pillars, daewun } =
-    useOnboardingStore();
+  const { birthDate, birthTime, timezone, isLunar, gender, pillars, daewun } = useOnboardingStore();
 
   const [error, setError] = useState<string | null>(null);
   const [tipIndex, setTipIndex] = useState(0);
@@ -163,7 +160,21 @@ export default function YearlyProcessingPage() {
     } finally {
       setYearlyLoading(false);
     }
-  }, [targetYear, existingAnalysisId, birthDate, birthTime, timezone, isLunar, gender, pillars, daewun, router, setYearlyResult, setYearlyLoading, setYearlyError]);
+  }, [
+    targetYear,
+    existingAnalysisId,
+    birthDate,
+    birthTime,
+    timezone,
+    isLunar,
+    gender,
+    pillars,
+    daewun,
+    router,
+    setYearlyResult,
+    setYearlyLoading,
+    setYearlyError,
+  ]);
 
   useEffect(() => {
     runAnalysis();
@@ -276,10 +287,7 @@ export default function YearlyProcessingPage() {
             >
               {status === 'completed' && <CheckCircle2 className="h-5 w-5 text-green-500" />}
               {status === 'in_progress' && (
-                <Loader2
-                  className="h-5 w-5 animate-spin"
-                  style={{ color: BRAND_COLORS.primary }}
-                />
+                <Loader2 className="h-5 w-5 animate-spin" style={{ color: BRAND_COLORS.primary }} />
               )}
               {status === 'pending' && <Circle className="h-5 w-5 text-gray-300" />}
               <span

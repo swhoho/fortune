@@ -10,12 +10,12 @@ import type { YearlyAnalysisResult } from '@/lib/ai/types';
 
 /** 신년 분석 로딩 단계 (세분화된 진행 상태) */
 export type YearlyLoadingStep =
-  | 'init'           // 초기화
-  | 'fetch_saju'     // 사주 정보 불러오기
-  | 'build_prompt'   // 신년 분석 준비
-  | 'ai_analysis'    // AI 운세 분석 중
-  | 'save_result'    // 결과 저장
-  | 'complete';      // 완료
+  | 'init' // 초기화
+  | 'fetch_saju' // 사주 정보 불러오기
+  | 'build_prompt' // 신년 분석 준비
+  | 'ai_analysis' // AI 운세 분석 중
+  | 'save_result' // 결과 저장
+  | 'complete'; // 완료
 
 /** 신년 분석 상태 인터페이스 */
 interface YearlyState {

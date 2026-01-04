@@ -12,10 +12,40 @@ import type { TraitModifier } from './types';
 /**
  * 성격 특성 키
  */
-type PersonalityKey = 'willpower' | 'sociability' | 'patience' | 'independence' | 'reliability' | 'consideration' | 'humor' | 'cooperation' | 'expressiveness' | 'diligence';
+type PersonalityKey =
+  | 'willpower'
+  | 'sociability'
+  | 'patience'
+  | 'independence'
+  | 'reliability'
+  | 'consideration'
+  | 'humor'
+  | 'cooperation'
+  | 'expressiveness'
+  | 'diligence';
 type WorkKey = 'planning' | 'drive' | 'execution' | 'completion' | 'management';
-type AptitudeKey = 'analytical' | 'teamwork' | 'learning' | 'creativity' | 'artistry' | 'expression' | 'activity' | 'challenge' | 'business' | 'trustworthiness';
-type LoveKey = 'consideration' | 'humor' | 'emotion' | 'selfEsteem' | 'adventure' | 'sincerity' | 'sociability' | 'finance' | 'trustworthiness' | 'expressiveness';
+type AptitudeKey =
+  | 'analytical'
+  | 'teamwork'
+  | 'learning'
+  | 'creativity'
+  | 'artistry'
+  | 'expression'
+  | 'activity'
+  | 'challenge'
+  | 'business'
+  | 'trustworthiness';
+type LoveKey =
+  | 'consideration'
+  | 'humor'
+  | 'emotion'
+  | 'selfEsteem'
+  | 'adventure'
+  | 'sincerity'
+  | 'sociability'
+  | 'finance'
+  | 'trustworthiness'
+  | 'expressiveness';
 
 /**
  * 성격 특성 매핑 (10개)

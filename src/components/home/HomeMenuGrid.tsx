@@ -8,14 +8,7 @@ import { motion } from 'framer-motion';
 import { useTranslations } from 'next-intl';
 import { HomeMenuCard } from './HomeMenuCard';
 import { BRAND_COLORS } from '@/lib/constants/colors';
-import {
-  UserPlus,
-  Users,
-  Sparkles,
-  Calendar,
-  Heart,
-  User,
-} from 'lucide-react';
+import { UserPlus, Users, Sparkles, Calendar, Heart, User } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 
 /** 메뉴 아이템 정의 */
@@ -62,9 +55,7 @@ const menuSections: MenuSection[] = [
   },
   {
     titleKey: 'sections.account',
-    items: [
-      { titleKey: 'menu.mypage', href: '/mypage', icon: User },
-    ],
+    items: [{ titleKey: 'menu.mypage', href: '/mypage', icon: User }],
   },
 ];
 
@@ -88,18 +79,15 @@ export function HomeMenuGrid() {
           {/* 섹션 제목 */}
           <div className="mb-4 flex items-center gap-2">
             {/* 금색 장식 마커 */}
-            <span
-              className="text-sm font-light"
-              style={{ color: BRAND_COLORS.primary }}
-            >
+            <span className="text-sm font-light" style={{ color: BRAND_COLORS.primary }}>
               ✦
             </span>
-            <h2 className="text-sm font-medium tracking-widest text-gray-400 uppercase">
+            <h2 className="text-sm font-medium uppercase tracking-widest text-gray-400">
               {t(section.titleKey)}
             </h2>
             {/* 장식 라인 */}
             <div
-              className="flex-1 h-px ml-3"
+              className="ml-3 h-px flex-1"
               style={{
                 background: `linear-gradient(to right, ${BRAND_COLORS.primary}30, transparent)`,
               }}
@@ -119,9 +107,7 @@ export function HomeMenuGrid() {
                   href={item.href}
                   icon={item.icon}
                   disabled={item.disabled}
-                  disabledLabel={
-                    item.disabledLabelKey ? t(item.disabledLabelKey) : undefined
-                  }
+                  disabledLabel={item.disabledLabelKey ? t(item.disabledLabelKey) : undefined}
                   delay={delay}
                 />
               );

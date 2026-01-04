@@ -51,7 +51,7 @@ export function CharacteristicsSection({
       className={`relative overflow-hidden rounded-2xl bg-[#1a1a1a] ${className}`}
     >
       {/* 배경 장식 */}
-      <div className="absolute right-0 top-0 h-40 w-40 translate-x-10 -translate-y-10 rounded-full bg-[#d4af37]/5 blur-3xl" />
+      <div className="absolute right-0 top-0 h-40 w-40 -translate-y-10 translate-x-10 rounded-full bg-[#d4af37]/5 blur-3xl" />
       <div className="absolute bottom-0 left-0 h-32 w-32 -translate-x-8 translate-y-8 rounded-full bg-[#d4af37]/5 blur-3xl" />
 
       {/* 헤더 */}
@@ -102,18 +102,12 @@ export function CharacteristicsSection({
                   unwrapDisallowed={true}
                   components={{
                     p: ({ children }) => (
-                      <p className="text-sm leading-relaxed text-gray-300">
-                        {children}
-                      </p>
+                      <p className="text-sm leading-relaxed text-gray-300">{children}</p>
                     ),
                     strong: ({ children }) => (
-                      <strong className="font-semibold text-[#d4af37]">
-                        {children}
-                      </strong>
+                      <strong className="font-semibold text-[#d4af37]">{children}</strong>
                     ),
-                    em: ({ children }) => (
-                      <em className="text-gray-200">{children}</em>
-                    ),
+                    em: ({ children }) => <em className="text-gray-200">{children}</em>,
                   }}
                 >
                   {paragraph}

@@ -13,10 +13,7 @@ import { getSupabaseAdmin } from '@/lib/supabase/client';
  * GET /api/profiles/[id]/report/status
  * 현재 리포트 생성 상태 조회
  */
-export async function GET(
-  request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const session = await getServerSession(authOptions);
     if (!session?.user?.id) {

@@ -5,11 +5,7 @@
  * - 에러 처리 및 재시도 로직
  */
 import { create } from 'zustand';
-import type {
-  PipelineStep,
-  StepStatus,
-  PipelineIntermediateResults,
-} from '@/lib/ai/types';
+import type { PipelineStep, StepStatus, PipelineIntermediateResults } from '@/lib/ai/types';
 
 /** 파이프라인 에러 타입 */
 export interface PipelineError {

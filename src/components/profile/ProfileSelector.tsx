@@ -9,7 +9,7 @@ import { User, UserPlus, Calendar, Loader2 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import Link from 'next/link';
 import type { ProfileResponse } from '@/types/profile';
-import { calculateAge } from '@/hooks/use-profiles';
+import { calculateAge } from '@/lib/date';
 
 /** 달력 유형 라벨 */
 const CALENDAR_LABELS: Record<string, Record<string, string>> = {
@@ -77,7 +77,7 @@ export function ProfileSelector({
       >
         {/* 장식적 배경 */}
         <div className="absolute -right-16 -top-16 h-40 w-40 rounded-full bg-gradient-to-br from-[#d4af37]/5 to-transparent" />
-        <div className="absolute -left-8 -bottom-8 h-24 w-24 rounded-full bg-gradient-to-tr from-[#d4af37]/5 to-transparent" />
+        <div className="absolute -bottom-8 -left-8 h-24 w-24 rounded-full bg-gradient-to-tr from-[#d4af37]/5 to-transparent" />
 
         <div className="relative text-center">
           <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-br from-[#d4af37]/10 to-[#d4af37]/5">
@@ -180,9 +180,7 @@ export function ProfileSelector({
                         : 'bg-gradient-to-br from-[#f8f6f0] to-[#ebe8e0] text-[#d4af37]'
                     }`}
                   >
-                    <span className="font-serif text-lg font-bold">
-                      {profile.name.charAt(0)}
-                    </span>
+                    <span className="font-serif text-lg font-bold">{profile.name.charAt(0)}</span>
                   </div>
 
                   {/* 프로필 정보 */}
@@ -198,13 +196,16 @@ export function ProfileSelector({
                             : 'bg-gray-100 text-gray-600'
                         }`}
                       >
-                        {profile.gender === 'male' ? t('form.male', { defaultValue: '남성' }) : t('form.female', { defaultValue: '여성' })}
+                        {profile.gender === 'male'
+                          ? t('form.male', { defaultValue: '남성' })
+                          : t('form.female', { defaultValue: '여성' })}
                       </span>
                     </div>
                     <div className="mt-1 flex items-center gap-2 text-sm text-gray-500">
                       <Calendar className="h-3.5 w-3.5" />
                       <span>
-                        {formatDate(profile.birthDate)} ({t('detail.age', { age, defaultValue: `${age}세` })})
+                        {formatDate(profile.birthDate)} (
+                        {t('detail.age', { age, defaultValue: `${age}세` })})
                       </span>
                       <span className="text-gray-300">·</span>
                       <span>{getCalendarLabel(profile.calendarType)}</span>
@@ -232,11 +233,7 @@ export function ProfileSelector({
                         stroke="currentColor"
                         strokeWidth={3}
                       >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          d="M5 13l4 4L19 7"
-                        />
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
                       </svg>
                     </motion.div>
                   )}

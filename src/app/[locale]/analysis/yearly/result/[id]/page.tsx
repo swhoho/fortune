@@ -8,16 +8,7 @@
 import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
-import { useTranslations } from 'next-intl';
-import {
-  ArrowLeft,
-  Share2,
-  Download,
-  Sparkles,
-  Calendar,
-  BookOpen,
-  Loader2,
-} from 'lucide-react';
+import { ArrowLeft, Share2, Sparkles, Calendar, BookOpen, Loader2 } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 import {
@@ -28,12 +19,11 @@ import {
 } from '@/components/analysis/yearly';
 import { useYearlyStore } from '@/stores/yearly-store';
 import { BRAND_COLORS } from '@/lib/constants/colors';
-import type { YearlyAnalysisResult, ClassicalReference } from '@/lib/ai/types';
+import type { YearlyAnalysisResult } from '@/lib/ai/types';
 
 export default function YearlyResultPage() {
   const params = useParams();
   const router = useRouter();
-  const t = useTranslations('yearly');
   const analysisId = params.id as string;
 
   const { yearlyResult, setYearlyResult } = useYearlyStore();
@@ -99,9 +89,7 @@ export default function YearlyResultPage() {
       <div className="flex min-h-screen flex-col items-center justify-center px-6">
         <div className="text-center">
           <div className="mb-4 text-6xl">⚠️</div>
-          <h2 className="mb-2 text-xl font-semibold text-gray-900">
-            결과를 불러올 수 없습니다
-          </h2>
+          <h2 className="mb-2 text-xl font-semibold text-gray-900">결과를 불러올 수 없습니다</h2>
           <p className="mb-6 text-gray-500">{error}</p>
           <Button onClick={handleBack} variant="outline">
             마이페이지로 이동
@@ -188,7 +176,7 @@ export default function YearlyResultPage() {
             </div>
 
             {/* 요약 */}
-            <p className="text-gray-700 leading-relaxed">{result.summary}</p>
+            <p className="leading-relaxed text-gray-700">{result.summary}</p>
           </motion.div>
 
           {/* 월별 타임라인 */}
@@ -230,12 +218,8 @@ export default function YearlyResultPage() {
                   <Calendar className="h-5 w-5" style={{ color: BRAND_COLORS.primary }} />
                 </div>
                 <div>
-                  <h3 className="font-serif text-lg font-semibold text-gray-900">
-                    연중 핵심 날짜
-                  </h3>
-                  <p className="text-sm text-gray-500">
-                    {result.year}년 주목해야 할 중요한 날들
-                  </p>
+                  <h3 className="font-serif text-lg font-semibold text-gray-900">연중 핵심 날짜</h3>
+                  <p className="text-sm text-gray-500">{result.year}년 주목해야 할 중요한 날들</p>
                 </div>
               </div>
 
@@ -245,10 +229,10 @@ export default function YearlyResultPage() {
                     key={index}
                     className={`rounded-lg p-4 ${
                       keyDate.type === 'lucky'
-                        ? 'bg-green-50 border border-green-200'
+                        ? 'border border-green-200 bg-green-50'
                         : keyDate.type === 'unlucky'
-                          ? 'bg-red-50 border border-red-200'
-                          : 'bg-gray-50 border border-gray-200'
+                          ? 'border border-red-200 bg-red-50'
+                          : 'border border-gray-200 bg-gray-50'
                     }`}
                   >
                     <div className="flex items-center justify-between">
@@ -314,7 +298,7 @@ export default function YearlyResultPage() {
                         {ref.source}
                       </span>
                     </div>
-                    <p className="font-serif text-gray-700 italic">&ldquo;{ref.quote}&rdquo;</p>
+                    <p className="font-serif italic text-gray-700">&ldquo;{ref.quote}&rdquo;</p>
                     <p className="mt-2 text-sm text-gray-600">{ref.interpretation}</p>
                   </div>
                 ))}

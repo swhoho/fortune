@@ -35,16 +35,11 @@ export function KeywordBadge({
       animate={{ opacity: 1, scale: 1 }}
       transition={{ duration: 0.3, delay }}
       whileHover={{ scale: 1.05, transition: { duration: 0.15 } }}
-      className={`
-        inline-flex cursor-default items-center rounded-md px-2.5 py-1 text-xs font-medium
-        transition-colors duration-200
-        ${
-          isPrimary
-            ? 'bg-[#d4af37] text-[#1a1a1a]'
-            : 'border border-[#d4af37]/40 bg-[#d4af37]/10 text-[#d4af37] hover:bg-[#d4af37]/20'
-        }
-        ${className}
-      `}
+      className={`inline-flex cursor-default items-center rounded-md px-2.5 py-1 text-xs font-medium transition-colors duration-200 ${
+        isPrimary
+          ? 'bg-[#d4af37] text-[#1a1a1a]'
+          : 'border border-[#d4af37]/40 bg-[#d4af37]/10 text-[#d4af37] hover:bg-[#d4af37]/20'
+      } ${className} `}
     >
       {text}
     </motion.span>

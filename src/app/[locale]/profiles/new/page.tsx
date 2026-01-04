@@ -44,9 +44,7 @@ export default function NewProfilePage() {
               <ArrowLeft className="h-5 w-5" />
             </Link>
           </Button>
-          <h1 className="font-serif text-lg font-semibold text-[#1a1a1a]">
-            {t('pageTitle.new')}
-          </h1>
+          <h1 className="font-serif text-lg font-semibold text-[#1a1a1a]">{t('pageTitle.new')}</h1>
           <div className="w-10" /> {/* 균형을 위한 빈 공간 */}
         </div>
       </header>

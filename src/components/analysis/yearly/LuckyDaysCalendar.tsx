@@ -22,7 +22,20 @@ interface LuckyDaysCalendarProps {
 const DAY_NAMES = ['일', '월', '화', '수', '목', '금', '토'];
 
 /** 월 이름 */
-const MONTH_NAMES = ['1월', '2월', '3월', '4월', '5월', '6월', '7월', '8월', '9월', '10월', '11월', '12월'];
+const MONTH_NAMES = [
+  '1월',
+  '2월',
+  '3월',
+  '4월',
+  '5월',
+  '6월',
+  '7월',
+  '8월',
+  '9월',
+  '10월',
+  '11월',
+  '12월',
+];
 
 /** 날짜에서 일자 추출 */
 function extractDay(dateStr: string): number {
@@ -40,9 +53,7 @@ export function LuckyDaysCalendar({ monthlyFortunes, year }: LuckyDaysCalendarPr
   const currentYear = currentDate.getFullYear();
   const currentMonth = currentDate.getMonth() + 1;
 
-  const [selectedMonth, setSelectedMonth] = useState(
-    year === currentYear ? currentMonth : 1
-  );
+  const [selectedMonth, setSelectedMonth] = useState(year === currentYear ? currentMonth : 1);
 
   const monthFortune = monthlyFortunes.find((m) => m.month === selectedMonth);
   const luckyDays = monthFortune?.luckyDays || [];
@@ -170,9 +181,7 @@ export function LuckyDaysCalendar({ monthlyFortunes, year }: LuckyDaysCalendarPr
           const unluckyInfo = unluckyDayMap.get(day);
           const dayOfWeek = (startDayOfWeek + day - 1) % 7;
           const isToday =
-            year === currentYear &&
-            selectedMonth === currentMonth &&
-            day === currentDate.getDate();
+            year === currentYear && selectedMonth === currentMonth && day === currentDate.getDate();
 
           return (
             <motion.div

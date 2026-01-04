@@ -25,7 +25,7 @@ function SignInForm() {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [isGoogleLoading, setIsGoogleLoading] = useState(false);
+  const [isGoogleLoading] = useState(false);
 
   const handleEmailSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -51,28 +51,7 @@ function SignInForm() {
     }
   };
 
-  const handleGoogleSignIn = async () => {
-    setError('');
-    setIsGoogleLoading(true);
-
-    try {
-      const { error } = await supabase.auth.signInWithOAuth({
-        provider: 'google',
-        options: {
-          redirectTo: `${window.location.origin}/api/auth/callback?next=${encodeURIComponent(callbackUrl)}`,
-        },
-      });
-
-      if (error) {
-        setError(error.message);
-        setIsGoogleLoading(false);
-      }
-      // 성공 시 자동 리다이렉트되므로 로딩 상태 유지
-    } catch {
-      setError('Google 로그인 중 오류가 발생했습니다.');
-      setIsGoogleLoading(false);
-    }
-  };
+  // handleGoogleSignIn은 GoogleSignInButton 컴포넌트에서 처리됨
 
   return (
     <Card className="w-full max-w-md border-[#d4af37]/20">

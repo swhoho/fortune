@@ -42,10 +42,7 @@ function toProfileResponse(record: {
  * GET /api/profiles/:id
  * 프로필 상세 조회
  */
-export async function GET(
-  request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const { id } = await params;
 
@@ -92,10 +89,7 @@ export async function GET(
  * PUT /api/profiles/:id
  * 프로필 수정
  */
-export async function PUT(
-  request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function PUT(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const { id } = await params;
 

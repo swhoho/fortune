@@ -28,10 +28,7 @@ import { createEmptyTenGodCounts } from './types';
  * determineTenGod('甲', '丙') // '식신' (甲木生丙火, 같은 양)
  * determineTenGod('甲', '庚') // '편관' (庚金克甲木, 같은 양)
  */
-export function determineTenGod(
-  dayMaster: string,
-  targetStem: string
-): TenGod {
+export function determineTenGod(dayMaster: string, targetStem: string): TenGod {
   const dayElement = STEM_TO_ELEMENT[dayMaster as HeavenlyStem];
   const targetElement = STEM_TO_ELEMENT[targetStem as HeavenlyStem];
   const dayPolarity = STEM_TO_POLARITY[dayMaster as HeavenlyStem];
@@ -68,9 +65,7 @@ export function determineTenGod(
     return samePolarity ? '편인' : '정인';
   }
 
-  throw new Error(
-    `Cannot determine ten god for: ${dayMaster} - ${targetStem}`
-  );
+  throw new Error(`Cannot determine ten god for: ${dayMaster} - ${targetStem}`);
 }
 
 /**
@@ -99,10 +94,7 @@ function isGeneratedBy(dayElement: Element, targetElement: Element): boolean {
  * - 지장간: 정기 1.0, 중기 0.3, 여기 0.3
  * - 일간은 제외 (자기 자신)
  */
-export function extractTenGods(
-  pillars: SajuPillarsData,
-  jijanggan: JijangganData
-): TenGodCounts {
+export function extractTenGods(pillars: SajuPillarsData, jijanggan: JijangganData): TenGodCounts {
   const counts = createEmptyTenGodCounts();
 
   // 일간 추출
@@ -128,12 +120,7 @@ export function extractTenGods(
   }
 
   // 2. 지장간 분석 (4주 모두)
-  const jijangganArrays = [
-    jijanggan.year,
-    jijanggan.month,
-    jijanggan.day,
-    jijanggan.hour,
-  ];
+  const jijangganArrays = [jijanggan.year, jijanggan.month, jijanggan.day, jijanggan.hour];
 
   for (const stems of jijangganArrays) {
     if (!stems || !Array.isArray(stems)) continue;

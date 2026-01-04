@@ -220,9 +220,7 @@ export class SajuAnalyzer {
   /**
    * Python API에서 신년 분석 프롬프트 빌드
    */
-  private async fetchYearlyPrompt(
-    input: YearlyAnalysisInput
-  ): Promise<PromptBuildResponse | null> {
+  private async fetchYearlyPrompt(input: YearlyAnalysisInput): Promise<PromptBuildResponse | null> {
     try {
       const response = await fetch(`${this.pythonApiUrl}/api/prompts/build/yearly`, {
         method: 'POST',

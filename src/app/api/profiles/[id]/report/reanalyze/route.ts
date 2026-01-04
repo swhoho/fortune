@@ -20,10 +20,7 @@ const reanalyzeSchema = z.object({
  * POST /api/profiles/[id]/report/reanalyze
  * 특정 섹션만 재분석 (5C 차감)
  */
-export async function POST(
-  request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function POST(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const session = await getServerSession(authOptions);
     if (!session?.user?.id) {
@@ -52,10 +49,7 @@ export async function POST(
 
     // 허용된 섹션인지 확인
     if (!REANALYZABLE_SECTIONS.includes(sectionType)) {
-      return NextResponse.json(
-        { error: '재분석이 허용되지 않는 섹션입니다' },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: '재분석이 허용되지 않는 섹션입니다' }, { status: 400 });
     }
 
     // 2. 프로필 소유권 확인
@@ -180,7 +174,7 @@ async function reanalyzeSectionAsync(
   existingReport: Record<string, unknown>
 ): Promise<Record<string, unknown>> {
   const { createAnalysisPipeline } = await import('@/lib/ai/pipeline');
-  const pythonApiUrl = process.env.PYTHON_API_URL || 'http://localhost:8000';
+  // const pythonApiUrl = process.env.PYTHON_API_URL || 'http://localhost:8000';
 
   // 기존 만세력 데이터 사용
   const pillars = existingReport.pillars as Record<string, unknown>;
@@ -206,7 +200,8 @@ async function reanalyzeSectionAsync(
         daewun: daewun as unknown as import('@/lib/ai/types').DaewunData[],
         jijanggan: jijanggan as unknown as import('@/lib/ai/types').JijangganData,
       },
-      basicAnalysis: analysis?.basicAnalysis as unknown as import('@/lib/ai/types').BasicAnalysisResult,
+      basicAnalysis:
+        analysis?.basicAnalysis as unknown as import('@/lib/ai/types').BasicAnalysisResult,
       personality:
         sectionType !== 'personality'
           ? (analysis?.personality as unknown as import('@/lib/ai/types').PersonalityResult)
@@ -238,7 +233,8 @@ async function reanalyzeSectionAsync(
   }
 
   // 해당 섹션의 새 결과 반환
-  const newSectionResult = result.data?.intermediateResults?.[sectionType as keyof typeof result.data.intermediateResults];
+  const newSectionResult =
+    result.data?.intermediateResults?.[sectionType as keyof typeof result.data.intermediateResults];
 
   return {
     ...(newSectionResult as Record<string, unknown>),

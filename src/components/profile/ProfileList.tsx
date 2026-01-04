@@ -4,6 +4,7 @@
  * 프로필 목록 컴포넌트
  * Task 4.2: ProfileList
  */
+import { useCallback } from 'react';
 import { motion } from 'framer-motion';
 import { ArrowUpDown } from 'lucide-react';
 import { useTranslations } from 'next-intl';
@@ -32,10 +33,7 @@ function LoadingSkeleton() {
   return (
     <div className="grid gap-4 md:grid-cols-2">
       {[...Array(4)].map((_, i) => (
-        <div
-          key={i}
-          className="animate-pulse rounded-2xl border border-gray-100 bg-white p-5"
-        >
+        <div key={i} className="animate-pulse rounded-2xl border border-gray-100 bg-white p-5">
           <div className="flex items-center gap-3">
             <div className="h-12 w-12 rounded-xl bg-gray-200" />
             <div className="flex-1 space-y-2">
@@ -65,10 +63,10 @@ export function ProfileList({
 }: ProfileListProps) {
   const t = useTranslations('profile');
 
-  // 정렬 토글
-  const toggleSort = () => {
+  // 정렬 토글 (안정적인 참조)
+  const toggleSort = useCallback(() => {
     onSortChange(sortOrder === 'created' ? 'name' : 'created');
-  };
+  }, [sortOrder, onSortChange]);
 
   // 로딩 상태
   if (isLoading) {
@@ -109,7 +107,7 @@ export function ProfileList({
             key={profile.id}
             profile={profile}
             index={index}
-            onClick={() => onSelectProfile?.(profile)}
+            onSelect={onSelectProfile}
           />
         ))}
       </div>

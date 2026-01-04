@@ -4,19 +4,20 @@
  * 프로필 카드 컴포넌트
  * Task 4.3: ProfileCard
  */
+import { memo, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import { User, ChevronRight } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import type { ProfileResponse } from '@/types/profile';
-import { calculateAge } from '@/hooks/use-profiles';
+import { calculateAge } from '@/lib/date';
 
 interface ProfileCardProps {
   /** 프로필 데이터 */
   profile: ProfileResponse;
   /** 애니메이션 인덱스 (stagger) */
   index: number;
-  /** 클릭 핸들러 */
-  onClick?: () => void;
+  /** 선택 핸들러 (프로필 전달) */
+  onSelect?: (profile: ProfileResponse) => void;
 }
 
 /** 달력 유형 라벨 */
@@ -29,19 +30,24 @@ const CALENDAR_LABELS: Record<string, string> = {
 /**
  * 프로필 카드
  */
-export function ProfileCard({ profile, index, onClick }: ProfileCardProps) {
+function ProfileCardComponent({ profile, index, onSelect }: ProfileCardProps) {
   const t = useTranslations('profile');
   const age = calculateAge(profile.birthDate);
 
   // 날짜 포맷팅 (YYYY.MM.DD)
   const formattedDate = profile.birthDate.replace(/-/g, '.');
 
+  // 클릭 핸들러 (안정적인 참조)
+  const handleClick = useCallback(() => {
+    onSelect?.(profile);
+  }, [onSelect, profile]);
+
   return (
     <motion.article
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: index * 0.05 }}
-      onClick={onClick}
+      onClick={handleClick}
       className="group relative cursor-pointer overflow-hidden rounded-2xl border border-gray-100 bg-white p-5 shadow-sm transition-all duration-300 hover:shadow-md"
     >
       {/* 장식적 배경 요소 */}
@@ -59,7 +65,8 @@ export function ProfileCard({ profile, index, onClick }: ProfileCardProps) {
           <div>
             <h3 className="font-serif text-lg font-semibold text-[#1a1a1a]">{profile.name}</h3>
             <p className="text-sm text-gray-500">
-              {formattedDate} ({t('detail.age', { age })}) · {profile.gender === 'male' ? t('form.male') : t('form.female')}
+              {formattedDate} ({t('detail.age', { age })}) ·{' '}
+              {profile.gender === 'male' ? t('form.male') : t('form.female')}
             </p>
           </div>
         </div>
@@ -85,3 +92,5 @@ export function ProfileCard({ profile, index, onClick }: ProfileCardProps) {
     </motion.article>
   );
 }
+
+export const ProfileCard = memo(ProfileCardComponent);

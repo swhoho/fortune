@@ -48,10 +48,7 @@ export interface ApiErrorResponse {
  * 유효한 에러 코드인지 확인
  */
 function isValidErrorCode(code: unknown): code is ErrorCodeType {
-  return (
-    typeof code === 'string' &&
-    Object.values(ErrorCode).includes(code as ErrorCodeType)
-  );
+  return typeof code === 'string' && Object.values(ErrorCode).includes(code as ErrorCodeType);
 }
 
 /** 재시도 가능한 에러 코드 목록 */

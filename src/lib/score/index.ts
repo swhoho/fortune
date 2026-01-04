@@ -45,8 +45,4 @@ export {
 
 // 점수 계산
 export type { ExtendedScoreResult } from './calculator';
-export {
-  calculateTraitScore,
-  calculateAllScores,
-  scoreToTraitItems,
-} from './calculator';
+export { calculateTraitScore, calculateAllScores, scoreToTraitItems } from './calculator';

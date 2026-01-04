@@ -29,7 +29,7 @@ export function HomeHeader() {
       <Button
         variant="ghost"
         size="icon"
-        className="h-10 w-10 rounded-xl text-gray-400 hover:bg-white/[0.06] hover:text-white transition-colors"
+        className="h-10 w-10 rounded-xl text-gray-400 transition-colors hover:bg-white/[0.06] hover:text-white"
         asChild
       >
         <Link href="/about">
@@ -54,13 +54,13 @@ export function HomeHeader() {
 
       {/* 우측: 언어 / 설정 */}
       <div className="flex items-center gap-1">
-        <div className="[&_button]:text-gray-400 [&_button]:hover:text-white [&_button]:hover:bg-white/[0.06] [&_button]:rounded-xl [&_button]:transition-colors">
+        <div className="[&_button]:rounded-xl [&_button]:text-gray-400 [&_button]:transition-colors [&_button]:hover:bg-white/[0.06] [&_button]:hover:text-white">
           <LanguageSwitcher />
         </div>
         <Button
           variant="ghost"
           size="icon"
-          className="h-10 w-10 rounded-xl text-gray-400 hover:bg-white/[0.06] hover:text-white transition-colors"
+          className="h-10 w-10 rounded-xl text-gray-400 transition-colors hover:bg-white/[0.06] hover:text-white"
           asChild
         >
           <Link href="/mypage">

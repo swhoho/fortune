@@ -70,10 +70,7 @@ interface RomanceSectionProps {
  * 3. 성격패턴 카드 (ContentCard, 선택)
  * 4. 연애 특성 그래프 (10개 항목)
  */
-export function RomanceSection({
-  data,
-  className = '',
-}: RomanceSectionProps) {
+export function RomanceSection({ data, className = '' }: RomanceSectionProps) {
   const { datingPsychology, spouseView, personalityPattern, romanceTraits, score } = data;
 
   // 연애 특성 데이터를 TraitItem 배열로 변환
@@ -116,11 +113,7 @@ export function RomanceSection({
             transition={{ duration: 0.5, type: 'spring', stiffness: 200 }}
             className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-pink-500 to-rose-600"
           >
-            <svg
-              className="h-4 w-4 text-white"
-              fill="currentColor"
-              viewBox="0 0 20 20"
-            >
+            <svg className="h-4 w-4 text-white" fill="currentColor" viewBox="0 0 20 20">
               <path
                 fillRule="evenodd"
                 d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z"

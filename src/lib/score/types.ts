@@ -37,17 +37,7 @@ export type Polarity = 'yang' | 'yin';
 /**
  * 천간(天干) 타입
  */
-export type HeavenlyStem =
-  | '甲'
-  | '乙'
-  | '丙'
-  | '丁'
-  | '戊'
-  | '己'
-  | '庚'
-  | '辛'
-  | '壬'
-  | '癸';
+export type HeavenlyStem = '甲' | '乙' | '丙' | '丁' | '戊' | '己' | '庚' | '辛' | '壬' | '癸';
 
 /**
  * 지지(地支) 타입

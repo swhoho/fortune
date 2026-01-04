@@ -12,11 +12,7 @@ import type {
   PipelineIntermediateResults,
   PipelineOptions,
 } from './types';
-import {
-  PIPELINE_STEPS,
-  DEFAULT_STEP_TIMEOUTS,
-  getInitialStepStatuses,
-} from './types';
+import { PIPELINE_STEPS, DEFAULT_STEP_TIMEOUTS, getInitialStepStatuses } from './types';
 
 /**
  * PipelineContext 클래스
@@ -108,9 +104,7 @@ export class PipelineContext {
       (s) => this.stepStatuses[s] === 'completed'
     ).length;
 
-    const progressPercent = Math.round(
-      (completedSteps / (PIPELINE_STEPS.length - 1)) * 100
-    );
+    const progressPercent = Math.round((completedSteps / (PIPELINE_STEPS.length - 1)) * 100);
 
     return {
       currentStep,

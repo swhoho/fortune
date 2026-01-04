@@ -50,10 +50,7 @@ interface AptitudeSectionProps {
  * 7. 학업스타일 - ContentCard
  * 8. 일자리 능력 - TraitGraph
  */
-export function AptitudeSection({
-  data,
-  className = '',
-}: AptitudeSectionProps) {
+export function AptitudeSection({ data, className = '' }: AptitudeSectionProps) {
   const {
     keywords,
     mainTalent,
@@ -95,18 +92,11 @@ export function AptitudeSection({
             <span className="inline-flex items-center rounded-md bg-[#d4af37] px-2.5 py-1 text-xs font-bold text-[#1a1a1a]">
               적성키워드
             </span>
-            <span className="text-sm text-gray-400">
-              당신의 적성을 표시하는 키워드
-            </span>
+            <span className="text-sm text-gray-400">당신의 적성을 표시하는 키워드</span>
           </div>
           <div className="flex flex-wrap gap-2">
             {keywords.map((keyword, index) => (
-              <KeywordBadge
-                key={keyword}
-                text={keyword}
-                variant="secondary"
-                delay={0.05 * index}
-              />
+              <KeywordBadge key={keyword} text={keyword} variant="secondary" delay={0.05 * index} />
             ))}
           </div>
         </motion.div>
@@ -152,12 +142,7 @@ export function AptitudeSection({
           </div>
           <div className="flex flex-wrap gap-2">
             {recommendedJobs.map((job, index) => (
-              <KeywordBadge
-                key={job}
-                text={job}
-                variant="primary"
-                delay={0.05 * index}
-              />
+              <KeywordBadge key={job} text={job} variant="primary" delay={0.05 * index} />
             ))}
           </div>
         </motion.div>

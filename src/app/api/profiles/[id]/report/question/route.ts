@@ -21,10 +21,7 @@ const questionSchema = z.object({
  * POST /api/profiles/:id/report/question
  * 후속 질문 처리
  */
-export async function POST(
-  request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function POST(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     // 1. 인증 확인
     const session = await getServerSession(authOptions);
@@ -102,10 +99,10 @@ export async function POST(
     }
 
     // 5. 크레딧 선차감 (원자적 연산으로 경쟁 조건 방지)
-    const { data: creditResult, error: creditError } = await supabase.rpc(
-      'deduct_credits',
-      { p_user_id: userId, p_amount: SERVICE_CREDITS.question }
-    );
+    const { data: creditResult, error: creditError } = await supabase.rpc('deduct_credits', {
+      p_user_id: userId,
+      p_amount: SERVICE_CREDITS.question,
+    });
 
     if (creditError) {
       console.error('[API] 크레딧 차감 RPC 오류:', creditError);
@@ -164,7 +161,7 @@ export async function POST(
       // 크레딧 환불 (AI 실패 시)
       await supabase.rpc('deduct_credits', {
         p_user_id: userId,
-        p_amount: -SERVICE_CREDITS.question // 음수로 환불
+        p_amount: -SERVICE_CREDITS.question, // 음수로 환불
       });
       return NextResponse.json(
         {
@@ -194,7 +191,7 @@ export async function POST(
       // 크레딧 환불 (저장 실패 시)
       await supabase.rpc('deduct_credits', {
         p_user_id: userId,
-        p_amount: -SERVICE_CREDITS.question
+        p_amount: -SERVICE_CREDITS.question,
       });
       return NextResponse.json(
         { error: '질문 저장에 실패했습니다', code: 'SAVE_ERROR' },
@@ -237,10 +234,7 @@ export async function POST(
  * GET /api/profiles/:id/report/question
  * 질문 히스토리 조회
  */
-export async function GET(
-  request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const session = await getServerSession(authOptions);
     if (!session?.user?.id) {

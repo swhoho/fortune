@@ -2,12 +2,7 @@
  * 에러 핸들링 유틸리티
  * Phase 2: 에러 처리 표준화
  */
-import {
-  AppError,
-  ErrorCode,
-  type ApiErrorResponse,
-  type ErrorCodeType,
-} from './index';
+import { AppError, ErrorCode, type ApiErrorResponse, type ErrorCodeType } from './index';
 
 /**
  * HTTP 상태 코드를 에러 코드로 변환
@@ -38,10 +33,7 @@ function getErrorCodeFromStatus(status: number): ErrorCodeType {
  * @param response fetch Response 객체
  * @param defaultMessage 에러 메시지 파싱 실패 시 기본 메시지
  */
-export async function handleApiError(
-  response: Response,
-  defaultMessage: string
-): Promise<never> {
+export async function handleApiError(response: Response, defaultMessage: string): Promise<never> {
   // HTTP 상태 코드 기반 폴백 코드 계산
   const fallbackCode = getErrorCodeFromStatus(response.status);
 

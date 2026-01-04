@@ -49,22 +49,14 @@ export function DeleteProfileDialog({
           <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-red-100">
             <AlertTriangle className="h-6 w-6 text-red-600" />
           </div>
-          <AlertDialogTitle className="text-center">
-            {t('delete.title')}
-          </AlertDialogTitle>
+          <AlertDialogTitle className="text-center">{t('delete.title')}</AlertDialogTitle>
           <AlertDialogDescription className="text-center">
-            <span className="block">
-              {t('delete.message', { name: profileName })}
-            </span>
-            <span className="mt-2 block text-sm text-red-500">
-              {t('delete.warning')}
-            </span>
+            <span className="block">{t('delete.message', { name: profileName })}</span>
+            <span className="mt-2 block text-sm text-red-500">{t('delete.warning')}</span>
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter className="sm:justify-center">
-          <AlertDialogCancel disabled={isDeleting}>
-            {t('delete.cancel')}
-          </AlertDialogCancel>
+          <AlertDialogCancel disabled={isDeleting}>{t('delete.cancel')}</AlertDialogCancel>
           <AlertDialogAction
             onClick={(e) => {
               e.preventDefault();

@@ -152,11 +152,7 @@ interface AnalysisState {
   // 파이프라인 액션
   startPipeline: () => void;
   updateStepStatus: (step: PipelineStep, status: StepStatus) => void;
-  updatePipelineProgress: (
-    step: PipelineStep,
-    percent: number,
-    remaining: number
-  ) => void;
+  updatePipelineProgress: (step: PipelineStep, percent: number, remaining: number) => void;
   setIntermediateResult: <K extends keyof PipelineIntermediateResults>(
     key: K,
     value: PipelineIntermediateResults[K]

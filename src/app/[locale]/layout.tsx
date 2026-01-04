@@ -54,10 +54,8 @@ export async function generateMetadata({
     ko: '동양 명리학의 지혜와 최신 AI 기술이 만나 당신의 사주를 분석합니다. 자평진전, 궁통보감 기반의 정확한 분석.',
     en: 'Eastern fortune-telling wisdom meets cutting-edge AI to analyze your destiny. Based on classical texts like Ziping Zhenjuan.',
     ja: '東洋の命理学の知恵と最新のAI技術があなたの運命を分析します。子平真詮、窮通宝鑑に基づく正確な分析。',
-    'zh-CN':
-      '东方命理学的智慧与最新AI技术相结合，分析您的命运。基于子平真诠、穷通宝鉴的精准分析。',
-    'zh-TW':
-      '東方命理學的智慧與最新AI技術相結合，分析您的命運。基於子平真詮、窮通寶鑑的精準分析。',
+    'zh-CN': '东方命理学的智慧与最新AI技术相结合，分析您的命运。基于子平真诠、穷通宝鉴的精准分析。',
+    'zh-TW': '東方命理學的智慧與最新AI技術相結合，分析您的命運。基於子平真詮、窮通寶鑑的精準分析。',
   };
 
   // OpenGraph 로케일 매핑

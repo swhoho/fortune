@@ -21,7 +21,7 @@ interface QuestionWithProfile {
  * GET /api/user/questions
  * 모든 프로필의 질문 히스토리 조회
  */
-export async function GET(request: NextRequest) {
+export async function GET(_request: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
     if (!session?.user?.id) {
@@ -34,7 +34,8 @@ export async function GET(request: NextRequest) {
     // 사용자의 모든 질문 조회 (프로필 정보 포함)
     const { data: questions, error } = await supabase
       .from('report_questions')
-      .select(`
+      .select(
+        `
         id,
         question,
         answer,
@@ -43,7 +44,8 @@ export async function GET(request: NextRequest) {
         profiles:profile_id (
           name
         )
-      `)
+      `
+      )
       .eq('user_id', userId)
       .order('created_at', { ascending: false });
 

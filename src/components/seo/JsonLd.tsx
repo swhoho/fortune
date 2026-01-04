@@ -223,7 +223,8 @@ export function FAQJsonLd({ locale }: FAQJsonLdProps) {
       },
       {
         question: '需要提供什么信息？',
-        answer: '您需要提供出生日期、出生时间（可选）和性别。如果您不知道出生时间，将提供日柱分析。',
+        answer:
+          '您需要提供出生日期、出生时间（可选）和性别。如果您不知道出生时间，将提供日柱分析。',
       },
     ],
     'zh-TW': [
@@ -234,7 +235,8 @@ export function FAQJsonLd({ locale }: FAQJsonLdProps) {
       },
       {
         question: '需要提供什麼資訊？',
-        answer: '您需要提供出生日期、出生時間（可選）和性別。如果您不知道出生時間，將提供日柱分析。',
+        answer:
+          '您需要提供出生日期、出生時間（可選）和性別。如果您不知道出生時間，將提供日柱分析。',
       },
     ],
   };

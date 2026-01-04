@@ -53,15 +53,13 @@ export function ProfileInfoHeader({
       className={`relative overflow-hidden rounded-2xl bg-gradient-to-br from-[#1a1a1a] to-[#2a2a2a] p-6 ${className}`}
     >
       {/* 배경 장식 */}
-      <div className="absolute right-0 top-0 h-32 w-32 translate-x-8 -translate-y-8 rounded-full bg-[#d4af37]/5 blur-2xl" />
+      <div className="absolute right-0 top-0 h-32 w-32 -translate-y-8 translate-x-8 rounded-full bg-[#d4af37]/5 blur-2xl" />
       <div className="absolute bottom-0 left-0 h-24 w-24 -translate-x-6 translate-y-6 rounded-full bg-[#d4af37]/5 blur-2xl" />
 
       <div className="relative z-10">
         {/* 이름 + 성별/나이 */}
         <div className="flex items-baseline gap-3">
-          <h2 className="font-serif text-2xl font-bold tracking-wide text-white">
-            {name}
-          </h2>
+          <h2 className="font-serif text-2xl font-bold tracking-wide text-white">{name}</h2>
           <span className="text-sm text-[#d4af37]">
             ({genderText}, {age}세)
           </span>
@@ -81,7 +79,8 @@ export function ProfileInfoHeader({
 
           {/* 만 나이 표시 */}
           <p className="text-xs text-gray-500">
-            만 {age - 1}세 ({Math.floor((age - 1) / 10) * 10 + Math.floor(((age - 1) % 10) / 5) * 5}대)
+            만 {age - 1}세 ({Math.floor((age - 1) / 10) * 10 + Math.floor(((age - 1) % 10) / 5) * 5}
+            대)
           </p>
         </div>
       </div>

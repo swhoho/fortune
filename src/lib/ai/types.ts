@@ -3,7 +3,6 @@
  * docs/fortune_engine.md의 출력 JSON 스키마 기반
  */
 
-import type { SajuPillars, Daewun } from '@/types/saju';
 import type { FocusArea } from '@/types/saju';
 
 // FocusArea 타입 re-export

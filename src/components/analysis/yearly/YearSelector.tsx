@@ -5,9 +5,8 @@
  * Task 20: 연도 선택 드롭다운 (다음 해 자동 선택)
  */
 
-import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Calendar, ChevronDown, Sparkles } from 'lucide-react';
+import { Calendar, Sparkles } from 'lucide-react';
 import {
   Select,
   SelectContent,
@@ -33,7 +32,20 @@ interface YearSelectorProps {
 function getGanZhi(year: number): { stem: string; branch: string; animal: string } {
   const stems = ['庚', '辛', '壬', '癸', '甲', '乙', '丙', '丁', '戊', '己'];
   const branches = ['申', '酉', '戌', '亥', '子', '丑', '寅', '卯', '辰', '巳', '午', '未'];
-  const animals = ['원숭이', '닭', '개', '돼지', '쥐', '소', '호랑이', '토끼', '용', '뱀', '말', '양'];
+  const animals = [
+    '원숭이',
+    '닭',
+    '개',
+    '돼지',
+    '쥐',
+    '소',
+    '호랑이',
+    '토끼',
+    '용',
+    '뱀',
+    '말',
+    '양',
+  ];
 
   const stemIndex = year % 10;
   const branchIndex = year % 12;

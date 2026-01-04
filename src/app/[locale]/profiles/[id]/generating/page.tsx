@@ -9,9 +9,11 @@
  */
 
 import { useEffect, useState, useCallback } from 'react';
-import { useTranslations } from 'next-intl';
 import { useRouter } from '@/i18n/routing';
-import { PipelineProcessingScreen, PIPELINE_STEPS } from '@/components/analysis/PipelineProcessingScreen';
+import {
+  PipelineProcessingScreen,
+  PIPELINE_STEPS,
+} from '@/components/analysis/PipelineProcessingScreen';
 import type { PipelineStep, StepStatus } from '@/lib/ai/types';
 
 /** 폴링 간격 (ms) */
@@ -40,11 +42,10 @@ interface PageProps {
 
 export default function GeneratingPage({ params }: PageProps) {
   const router = useRouter();
-  const t = useTranslations('common');
 
   const [profileId, setProfileId] = useState<string>('');
   const [status, setStatus] = useState<ReportStatusResponse | null>(null);
-  const [pollCount, setPollCount] = useState(0);
+  const [, setPollCount] = useState(0);
   const [error, setError] = useState<{
     step: PipelineStep;
     error: string;

@@ -7,14 +7,7 @@
 
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import {
-  Coins,
-  Heart,
-  Briefcase,
-  Activity,
-  Lightbulb,
-  ChevronRight,
-} from 'lucide-react';
+import { Coins, Heart, Briefcase, Activity, Lightbulb, ChevronRight } from 'lucide-react';
 import { BRAND_COLORS } from '@/lib/constants/colors';
 import type { YearlyAdvice } from '@/lib/ai/types';
 
@@ -84,9 +77,7 @@ export function YearlyAdviceCard({ yearlyAdvice, year }: YearlyAdviceCardProps) 
           <Lightbulb className="h-5 w-5" style={{ color: BRAND_COLORS.primary }} />
         </div>
         <div>
-          <h3 className="font-serif text-lg font-semibold text-gray-900">
-            {year}년 분야별 조언
-          </h3>
+          <h3 className="font-serif text-lg font-semibold text-gray-900">{year}년 분야별 조언</h3>
           <p className="text-sm text-gray-500">각 분야를 탭하여 상세 조언을 확인하세요</p>
         </div>
       </div>
@@ -96,7 +87,6 @@ export function YearlyAdviceCard({ yearlyAdvice, year }: YearlyAdviceCardProps) 
         {AREAS.map((area) => {
           const Icon = area.icon;
           const isSelected = selectedArea === area.key;
-          const advice = yearlyAdvice[area.key];
 
           return (
             <motion.button
@@ -148,9 +138,7 @@ export function YearlyAdviceCard({ yearlyAdvice, year }: YearlyAdviceCardProps) 
               const Icon = area.icon;
 
               return (
-                <div
-                  className={`rounded-xl border-2 p-5 ${area.bgColor} ${area.borderColor}`}
-                >
+                <div className={`rounded-xl border-2 p-5 ${area.bgColor} ${area.borderColor}`}>
                   {/* 헤더 */}
                   <div className="mb-4 flex items-center gap-3">
                     <div

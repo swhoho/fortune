@@ -14,12 +14,9 @@ export default function HomePage() {
   const tCommon = useTranslations('common');
 
   return (
-    <div
-      className="relative min-h-screen"
-      style={{ backgroundColor: BRAND_COLORS.secondary }}
-    >
+    <div className="relative min-h-screen" style={{ backgroundColor: BRAND_COLORS.secondary }}>
       {/* 배경 그래디언트 장식 */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+      <div className="pointer-events-none absolute inset-0 overflow-hidden">
         {/* 우상단 금색 글로우 */}
         <motion.div
           initial={{ opacity: 0 }}
@@ -66,17 +63,12 @@ export default function HomePage() {
                 boxShadow: `0 0 40px ${BRAND_COLORS.primary}20`,
               }}
             >
-              <span
-                className="font-serif text-3xl"
-                style={{ color: BRAND_COLORS.primary }}
-              >
+              <span className="font-serif text-3xl" style={{ color: BRAND_COLORS.primary }}>
                 命
               </span>
             </motion.div>
             <div>
-              <h1 className="font-serif text-xl font-bold text-white">
-                {tCommon('appName')}
-              </h1>
+              <h1 className="font-serif text-xl font-bold text-white">{tCommon('appName')}</h1>
               <p className="text-sm text-gray-500">Version 2.0</p>
             </div>
           </div>

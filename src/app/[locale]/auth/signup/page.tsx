@@ -23,7 +23,7 @@ export default function SignUpPage() {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [isGoogleLoading, setIsGoogleLoading] = useState(false);
+  const [isGoogleLoading] = useState(false);
 
   const handleEmailSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -59,18 +59,7 @@ export default function SignUpPage() {
       }
 
       if (data.user) {
-        // users 테이블에 레코드 생성
-        const { error: insertError } = await supabase.from('users').insert({
-          id: data.user.id,
-          email: data.user.email,
-          name,
-          credits: 0,
-        });
-
-        if (insertError) {
-          console.error('사용자 테이블 생성 오류:', insertError);
-        }
-
+        // users 테이블은 DB 트리거가 자동 생성
         // 회원가입 성공 - 로그인 페이지로 이동
         router.push('/auth/signin?message=signup_success');
       }

@@ -6,13 +6,13 @@
  */
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { User, Calendar, Clock, Edit2, Trash2, FileText, Sparkles } from 'lucide-react';
+import { Calendar, Clock, Edit2, Trash2, FileText, Sparkles } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { Button } from '@/components/ui/button';
 import { ProfileForm } from './ProfileForm';
 import type { ProfileResponse } from '@/types/profile';
 import type { CreateProfileInput } from '@/lib/validations/profile';
-import { calculateAge } from '@/hooks/use-profiles';
+import { calculateAge } from '@/lib/date';
 
 interface ProfileInfoCardProps {
   /** 프로필 데이터 */
@@ -100,7 +100,12 @@ export function ProfileInfoCard({
           </motion.div>
         ) : (
           /* 보기 모드 */
-          <motion.div key="view" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+          <motion.div
+            key="view"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+          >
             {/* 헤더 */}
             <div className="relative border-b border-gray-100 p-6">
               {/* 장식적 배경 */}
@@ -109,18 +114,15 @@ export function ProfileInfoCard({
               <div className="relative flex items-center gap-4">
                 {/* 아바타 */}
                 <div className="flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-br from-[#d4af37] to-[#c19a2e] text-white">
-                  <span className="font-serif text-2xl font-bold">
-                    {profile.name.charAt(0)}
-                  </span>
+                  <span className="font-serif text-2xl font-bold">{profile.name.charAt(0)}</span>
                 </div>
 
                 {/* 이름 + 기본 정보 */}
                 <div>
-                  <h2 className="font-serif text-xl font-bold text-[#1a1a1a]">
-                    {profile.name}
-                  </h2>
+                  <h2 className="font-serif text-xl font-bold text-[#1a1a1a]">{profile.name}</h2>
                   <p className="text-sm text-gray-500">
-                    {profile.gender === 'male' ? t('form.male') : t('form.female')} · {t('detail.age', { age })}
+                    {profile.gender === 'male' ? t('form.male') : t('form.female')} ·{' '}
+                    {t('detail.age', { age })}
                   </p>
                 </div>
               </div>
@@ -194,9 +196,7 @@ export function ProfileInfoCard({
                 </Button>
               ) : (
                 <div className="space-y-3">
-                  <p className="text-center text-sm text-gray-500">
-                    {t('detail.noReport')}
-                  </p>
+                  <p className="text-center text-sm text-gray-500">{t('detail.noReport')}</p>
                   <Button
                     onClick={onGenerateReport}
                     className="w-full bg-gradient-to-r from-[#d4af37] to-[#c19a2e] text-white shadow-lg transition-all hover:scale-[1.02] hover:shadow-xl"

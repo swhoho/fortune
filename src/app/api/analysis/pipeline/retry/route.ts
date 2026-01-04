@@ -66,10 +66,7 @@ export async function POST(request: NextRequest) {
     // 1. 인증 확인
     const session = await getServerSession(authOptions);
     if (!session?.user?.id) {
-      return NextResponse.json(
-        { error: '로그인이 필요합니다' },
-        { status: 401 }
-      );
+      return NextResponse.json({ error: '로그인이 필요합니다' }, { status: 401 });
     }
 
     // 2. 요청 본문 파싱
@@ -110,17 +107,11 @@ export async function POST(request: NextRequest) {
 
     // 4. 이전 결과가 있으면 상태 복원
     if (previousResults && Object.keys(previousResults).length > 0) {
-      pipeline.hydrate(
-        previousResults as PipelineIntermediateResults,
-        fromStep as PipelineStep
-      );
+      pipeline.hydrate(previousResults as PipelineIntermediateResults, fromStep as PipelineStep);
     }
 
     // 5. 특정 단계부터 파이프라인 재실행
-    const result = await pipeline.executeFromStep(
-      geminiInput,
-      fromStep as PipelineStep
-    );
+    const result = await pipeline.executeFromStep(geminiInput, fromStep as PipelineStep);
 
     // 5. 결과 반환
     if (!result.success) {

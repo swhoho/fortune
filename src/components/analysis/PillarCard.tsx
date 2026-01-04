@@ -67,7 +67,7 @@ export function PillarCard({ imageBase64, pillarsData, jijangganData }: PillarCa
           {/* 클릭 영역 오버레이 (4등분) */}
           {hasDetailData && (
             <div className="absolute inset-0 flex p-4">
-              {PILLAR_ORDER.map((pillarKey, index) => (
+              {PILLAR_ORDER.map((pillarKey) => (
                 <button
                   key={pillarKey}
                   onClick={() => handlePillarClick(pillarKey)}

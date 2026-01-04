@@ -4,6 +4,7 @@
  * 홈 메뉴 카드 컴포넌트
  * 각 기능으로 이동하는 카드 버튼 - 동양적 럭셔리 미니멀리즘 스타일
  */
+import { memo } from 'react';
 import { motion } from 'framer-motion';
 import { Link } from '@/i18n/routing';
 import { cn } from '@/lib/utils';
@@ -25,7 +26,7 @@ interface HomeMenuCardProps {
   delay?: number;
 }
 
-export function HomeMenuCard({
+function HomeMenuCardComponent({
   title,
   href,
   icon: Icon,
@@ -40,32 +41,34 @@ export function HomeMenuCard({
       transition={{
         duration: 0.6,
         delay,
-        ease: [0.22, 1, 0.36, 1]
+        ease: [0.22, 1, 0.36, 1],
       }}
-      whileHover={disabled ? undefined : {
-        scale: 1.02,
-        transition: { duration: 0.2 }
-      }}
+      whileHover={
+        disabled
+          ? undefined
+          : {
+              scale: 1.02,
+              transition: { duration: 0.2 },
+            }
+      }
       whileTap={disabled ? undefined : { scale: 0.98 }}
       className={cn(
         'group relative flex flex-col items-center justify-center gap-3',
-        'rounded-2xl p-6 min-h-[120px]',
+        'min-h-[120px] rounded-2xl p-6',
         'border border-white/[0.08] backdrop-blur-md',
         'transition-all duration-300',
         disabled
           ? 'cursor-not-allowed bg-white/[0.03]'
-          : 'cursor-pointer bg-white/[0.06] hover:bg-white/[0.1] hover:border-white/[0.15]'
+          : 'cursor-pointer bg-white/[0.06] hover:border-white/[0.15] hover:bg-white/[0.1]'
       )}
       style={{
-        boxShadow: disabled
-          ? 'none'
-          : `0 4px 24px -8px ${BRAND_COLORS.primary}10`,
+        boxShadow: disabled ? 'none' : `0 4px 24px -8px ${BRAND_COLORS.primary}10`,
       }}
     >
       {/* 호버 시 금색 글로우 효과 */}
       {!disabled && (
         <motion.div
-          className="absolute inset-0 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500"
+          className="absolute inset-0 rounded-2xl opacity-0 transition-opacity duration-500 group-hover:opacity-100"
           style={{
             background: `radial-gradient(circle at 50% 0%, ${BRAND_COLORS.primary}15 0%, transparent 70%)`,
           }}
@@ -94,19 +97,21 @@ export function HomeMenuCard({
         className={cn(
           'relative flex h-12 w-12 items-center justify-center rounded-xl',
           'transition-all duration-300',
-          disabled
-            ? 'bg-white/[0.04]'
-            : 'group-hover:scale-110'
+          disabled ? 'bg-white/[0.04]' : 'group-hover:scale-110'
         )}
-        style={!disabled ? {
-          backgroundColor: `${BRAND_COLORS.primary}15`,
-          boxShadow: `0 0 20px ${BRAND_COLORS.primary}20`,
-        } : undefined}
+        style={
+          !disabled
+            ? {
+                backgroundColor: `${BRAND_COLORS.primary}15`,
+                boxShadow: `0 0 20px ${BRAND_COLORS.primary}20`,
+              }
+            : undefined
+        }
       >
         {/* 아이콘 글로우 */}
         {!disabled && (
           <div
-            className="absolute inset-0 rounded-xl blur-md opacity-0 group-hover:opacity-60 transition-opacity duration-300"
+            className="absolute inset-0 rounded-xl opacity-0 blur-md transition-opacity duration-300 group-hover:opacity-60"
             style={{ backgroundColor: BRAND_COLORS.primary }}
           />
         )}
@@ -142,3 +147,5 @@ export function HomeMenuCard({
     </Link>
   );
 }
+
+export const HomeMenuCard = memo(HomeMenuCardComponent);

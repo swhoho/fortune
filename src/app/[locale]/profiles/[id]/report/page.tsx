@@ -16,9 +16,8 @@
 import { useState, useEffect, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import { ArrowLeft, Share2, Download, Loader2 } from 'lucide-react';
-import { useTranslations } from 'next-intl';
 import { Button } from '@/components/ui/button';
-import { Link, useRouter } from '@/i18n/routing';
+import { Link } from '@/i18n/routing';
 import {
   ProfileInfoHeader,
   SajuTable,
@@ -61,8 +60,8 @@ interface ReportData {
  * 프로필 리포트 페이지 컴포넌트
  */
 export default function ProfileReportPage({ params }: PageProps) {
-  const t = useTranslations('report');
-  const router = useRouter();
+  // const t = useTranslations('report'); // TODO: 다국어 적용 시 사용
+  // const router = useRouter(); // TODO: 다른 페이지 이동 시 사용
   const [id, setId] = useState<string>('');
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -144,7 +143,8 @@ export default function ProfileReportPage({ params }: PageProps) {
           mainTalent: {
             label: '주 재능',
             title: '당신의 핵심 재능은?',
-            content: '기획력과 창의적 사고가 뛰어나며, 새로운 아이디어를 구체화하는 능력이 있습니다.',
+            content:
+              '기획력과 창의적 사고가 뛰어나며, 새로운 아이디어를 구체화하는 능력이 있습니다.',
           },
           talentStatus: {
             label: '재능의 상태',
@@ -179,12 +179,14 @@ export default function ProfileReportPage({ params }: PageProps) {
           wealthFortune: {
             label: '재물복',
             title: '내안에 존재하는 재물복',
-            content: '재물복이 강한 편이며 계산이 빠르고 알뜰살뜰한 절약형이라 쓸데 없는 낭비가 없다. 고수의 위험투자는 좋아하지 않고 안전한 간접투자를 좋아하며 견보기보다 더 실속있는 알부자 타입입니다.',
+            content:
+              '재물복이 강한 편이며 계산이 빠르고 알뜰살뜰한 절약형이라 쓸데 없는 낭비가 없다. 고수의 위험투자는 좋아하지 않고 안전한 간접투자를 좋아하며 견보기보다 더 실속있는 알부자 타입입니다.',
           },
           partnerInfluence: {
             label: '이성의 존재',
             title: '내안에 있는 이성의 존재형태',
-            content: '팔자안에 이성을 만날 조건이 충분히 조성되어 있어 애쓰지 않아도 쉽게 연인을 구하게 된다. 어딜 가도 여자가 많은 환경에 처하게 되며 유혹에 노출되기 쉬우나 현실적이고 실속있게 연애하는 인연이 있다.',
+            content:
+              '팔자안에 이성을 만날 조건이 충분히 조성되어 있어 애쓰지 않아도 쉽게 연인을 구하게 된다. 어딜 가도 여자가 많은 환경에 처하게 되며 유혹에 노출되기 쉬우나 현실적이고 실속있게 연애하는 인연이 있다.',
           },
           wealthTraits: [
             { label: '여운정', value: 46 },
@@ -199,12 +201,14 @@ export default function ProfileReportPage({ params }: PageProps) {
           datingPsychology: {
             label: '연애심리',
             title: '결혼전 연애/데이트 심리',
-            content: '연애에 있어 감성적이고 로맨틱한 면이 있습니다. 상대방에게 진심을 다하며, 깊은 감정적 교류를 원합니다.',
+            content:
+              '연애에 있어 감성적이고 로맨틱한 면이 있습니다. 상대방에게 진심을 다하며, 깊은 감정적 교류를 원합니다.',
           },
           spouseView: {
             label: '배우자관',
             title: '결혼후 배우자를 보는 눈',
-            content: '배우자에게 안정감과 신뢰를 중요시합니다. 가정적이고 책임감 있는 파트너를 원합니다.',
+            content:
+              '배우자에게 안정감과 신뢰를 중요시합니다. 가정적이고 책임감 있는 파트너를 원합니다.',
           },
           personalityPattern: {
             label: '성격패턴',

@@ -152,10 +152,7 @@ export function QuarterlyOverview({ quarterlyHighlights, year }: QuarterlyOvervi
               </div>
 
               {/* 테마 */}
-              <p
-                className="mt-2 text-sm font-medium"
-                style={{ color: BRAND_COLORS.primary }}
-              >
+              <p className="mt-2 text-sm font-medium" style={{ color: BRAND_COLORS.primary }}>
                 {quarter.theme}
               </p>
 

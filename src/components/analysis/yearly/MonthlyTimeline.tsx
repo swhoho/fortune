@@ -29,7 +29,20 @@ interface MonthlyTimelineProps {
 }
 
 /** 월 이름 */
-const MONTH_NAMES = ['1월', '2월', '3월', '4월', '5월', '6월', '7월', '8월', '9월', '10월', '11월', '12월'];
+const MONTH_NAMES = [
+  '1월',
+  '2월',
+  '3월',
+  '4월',
+  '5월',
+  '6월',
+  '7월',
+  '8월',
+  '9월',
+  '10월',
+  '11월',
+  '12월',
+];
 
 /** 점수에 따른 색상 */
 function getScoreColor(score: number): string {
@@ -49,7 +62,9 @@ function TrendIcon({ score }: { score: number }) {
 function CustomTooltip({
   active,
   payload,
-}: TooltipProps<number, string> & { payload?: { payload: MonthlyFortune & { monthName: string } }[] }) {
+}: TooltipProps<number, string> & {
+  payload?: { payload: MonthlyFortune & { monthName: string } }[];
+}) {
   if (!active || !payload || !payload.length) return null;
 
   const data = payload[0]?.payload;
@@ -149,7 +164,11 @@ export function MonthlyTimeline({ monthlyFortunes, year }: MonthlyTimelineProps)
             <Tooltip content={<CustomTooltip />} />
             <ReferenceLine y={50} stroke="#e5e7eb" strokeDasharray="3 3" />
             {year === currentYear && (
-              <ReferenceLine x={MONTH_NAMES[currentMonth - 1]} stroke={BRAND_COLORS.primary} strokeWidth={2} />
+              <ReferenceLine
+                x={MONTH_NAMES[currentMonth - 1]}
+                stroke={BRAND_COLORS.primary}
+                strokeWidth={2}
+              />
             )}
             <Area
               type="monotone"

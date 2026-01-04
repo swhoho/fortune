@@ -90,10 +90,7 @@ const MAX_SCORE = 100;
  * const modifiers = { 비견: 15, 겁재: 12, ... };
  * calculateTraitScore(counts, modifiers); // 79
  */
-export function calculateTraitScore(
-  tenGodCounts: TenGodCounts,
-  modifiers: TraitModifier
-): number {
+export function calculateTraitScore(tenGodCounts: TenGodCounts, modifiers: TraitModifier): number {
   let score = BASE_SCORE;
 
   for (const tenGod of Object.keys(tenGodCounts) as TenGod[]) {
@@ -123,43 +120,16 @@ export function calculateAllScores(
   // 2. 카테고리별 점수 계산
   return {
     personality: {
-      willpower: calculateTraitScore(
-        tenGodCounts,
-        PERSONALITY_MODIFIERS.willpower
-      ),
-      sociability: calculateTraitScore(
-        tenGodCounts,
-        PERSONALITY_MODIFIERS.sociability
-      ),
-      patience: calculateTraitScore(
-        tenGodCounts,
-        PERSONALITY_MODIFIERS.patience
-      ),
-      independence: calculateTraitScore(
-        tenGodCounts,
-        PERSONALITY_MODIFIERS.independence
-      ),
-      reliability: calculateTraitScore(
-        tenGodCounts,
-        PERSONALITY_MODIFIERS.reliability
-      ),
-      consideration: calculateTraitScore(
-        tenGodCounts,
-        PERSONALITY_MODIFIERS.consideration
-      ),
+      willpower: calculateTraitScore(tenGodCounts, PERSONALITY_MODIFIERS.willpower),
+      sociability: calculateTraitScore(tenGodCounts, PERSONALITY_MODIFIERS.sociability),
+      patience: calculateTraitScore(tenGodCounts, PERSONALITY_MODIFIERS.patience),
+      independence: calculateTraitScore(tenGodCounts, PERSONALITY_MODIFIERS.independence),
+      reliability: calculateTraitScore(tenGodCounts, PERSONALITY_MODIFIERS.reliability),
+      consideration: calculateTraitScore(tenGodCounts, PERSONALITY_MODIFIERS.consideration),
       humor: calculateTraitScore(tenGodCounts, PERSONALITY_MODIFIERS.humor),
-      cooperation: calculateTraitScore(
-        tenGodCounts,
-        PERSONALITY_MODIFIERS.cooperation
-      ),
-      expressiveness: calculateTraitScore(
-        tenGodCounts,
-        PERSONALITY_MODIFIERS.expressiveness
-      ),
-      diligence: calculateTraitScore(
-        tenGodCounts,
-        PERSONALITY_MODIFIERS.diligence
-      ),
+      cooperation: calculateTraitScore(tenGodCounts, PERSONALITY_MODIFIERS.cooperation),
+      expressiveness: calculateTraitScore(tenGodCounts, PERSONALITY_MODIFIERS.expressiveness),
+      diligence: calculateTraitScore(tenGodCounts, PERSONALITY_MODIFIERS.diligence),
     },
     work: {
       planning: calculateTraitScore(tenGodCounts, WORK_MODIFIERS.planning),
@@ -169,55 +139,28 @@ export function calculateAllScores(
       management: calculateTraitScore(tenGodCounts, WORK_MODIFIERS.management),
     },
     aptitude: {
-      analytical: calculateTraitScore(
-        tenGodCounts,
-        APTITUDE_MODIFIERS.analytical
-      ),
+      analytical: calculateTraitScore(tenGodCounts, APTITUDE_MODIFIERS.analytical),
       teamwork: calculateTraitScore(tenGodCounts, APTITUDE_MODIFIERS.teamwork),
       learning: calculateTraitScore(tenGodCounts, APTITUDE_MODIFIERS.learning),
-      creativity: calculateTraitScore(
-        tenGodCounts,
-        APTITUDE_MODIFIERS.creativity
-      ),
+      creativity: calculateTraitScore(tenGodCounts, APTITUDE_MODIFIERS.creativity),
       artistry: calculateTraitScore(tenGodCounts, APTITUDE_MODIFIERS.artistry),
-      expression: calculateTraitScore(
-        tenGodCounts,
-        APTITUDE_MODIFIERS.expression
-      ),
+      expression: calculateTraitScore(tenGodCounts, APTITUDE_MODIFIERS.expression),
       activity: calculateTraitScore(tenGodCounts, APTITUDE_MODIFIERS.activity),
-      challenge: calculateTraitScore(
-        tenGodCounts,
-        APTITUDE_MODIFIERS.challenge
-      ),
+      challenge: calculateTraitScore(tenGodCounts, APTITUDE_MODIFIERS.challenge),
       business: calculateTraitScore(tenGodCounts, APTITUDE_MODIFIERS.business),
-      trustworthiness: calculateTraitScore(
-        tenGodCounts,
-        APTITUDE_MODIFIERS.trustworthiness
-      ),
+      trustworthiness: calculateTraitScore(tenGodCounts, APTITUDE_MODIFIERS.trustworthiness),
     },
     love: {
-      consideration: calculateTraitScore(
-        tenGodCounts,
-        LOVE_MODIFIERS.consideration
-      ),
+      consideration: calculateTraitScore(tenGodCounts, LOVE_MODIFIERS.consideration),
       humor: calculateTraitScore(tenGodCounts, LOVE_MODIFIERS.humor),
       emotion: calculateTraitScore(tenGodCounts, LOVE_MODIFIERS.emotion),
       selfEsteem: calculateTraitScore(tenGodCounts, LOVE_MODIFIERS.selfEsteem),
       adventure: calculateTraitScore(tenGodCounts, LOVE_MODIFIERS.adventure),
       sincerity: calculateTraitScore(tenGodCounts, LOVE_MODIFIERS.sincerity),
-      sociability: calculateTraitScore(
-        tenGodCounts,
-        LOVE_MODIFIERS.sociability
-      ),
+      sociability: calculateTraitScore(tenGodCounts, LOVE_MODIFIERS.sociability),
       finance: calculateTraitScore(tenGodCounts, LOVE_MODIFIERS.finance),
-      trustworthiness: calculateTraitScore(
-        tenGodCounts,
-        LOVE_MODIFIERS.trustworthiness
-      ),
-      expressiveness: calculateTraitScore(
-        tenGodCounts,
-        LOVE_MODIFIERS.expressiveness
-      ),
+      trustworthiness: calculateTraitScore(tenGodCounts, LOVE_MODIFIERS.trustworthiness),
+      expressiveness: calculateTraitScore(tenGodCounts, LOVE_MODIFIERS.expressiveness),
     },
   };
 }

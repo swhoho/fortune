@@ -59,9 +59,7 @@ export class AnalysisPipeline {
 
     try {
       // 1. 만세력 계산
-      await this.executor.execute('manseryeok', () =>
-        this.fetchManseryeok(input)
-      );
+      await this.executor.execute('manseryeok', () => this.fetchManseryeok(input));
 
       // 2. 지장간 추출
       await this.executor.execute('jijanggan', () => this.extractJijanggan());
@@ -82,9 +80,7 @@ export class AnalysisPipeline {
       await this.executor.execute('scoring', () => this.calculateScores());
 
       // 8. 시각화 생성
-      await this.executor.execute('visualization', () =>
-        this.generateVisualization()
-      );
+      await this.executor.execute('visualization', () => this.generateVisualization());
 
       // 9. 결과 통합
       await this.executor.execute('saving', () => this.prepareFinalResult());
@@ -127,9 +123,7 @@ export class AnalysisPipeline {
 
     try {
       if (fromIndex <= PIPELINE_STEPS.indexOf('manseryeok')) {
-        await this.executor.execute('manseryeok', () =>
-          this.fetchManseryeok(input)
-        );
+        await this.executor.execute('manseryeok', () => this.fetchManseryeok(input));
       }
       if (fromIndex <= PIPELINE_STEPS.indexOf('jijanggan')) {
         await this.executor.execute('jijanggan', () => this.extractJijanggan());
@@ -153,9 +147,7 @@ export class AnalysisPipeline {
         await this.executor.execute('scoring', () => this.calculateScores());
       }
       if (fromIndex <= PIPELINE_STEPS.indexOf('visualization')) {
-        await this.executor.execute('visualization', () =>
-          this.generateVisualization()
-        );
+        await this.executor.execute('visualization', () => this.generateVisualization());
       }
       if (fromIndex <= PIPELINE_STEPS.indexOf('saving')) {
         await this.executor.execute('saving', () => this.prepareFinalResult());
@@ -194,34 +186,22 @@ export class AnalysisPipeline {
     const parallelStart = Date.now();
 
     const results = await Promise.allSettled([
-      this.executor.execute('personality', () =>
-        this.analyzePersonality(language)
-      ),
+      this.executor.execute('personality', () => this.analyzePersonality(language)),
       this.executor.execute('aptitude', () => this.analyzeAptitude(language)),
       this.executor.execute('fortune', () => this.analyzeFortune(language)),
     ]);
 
-    const failed = results.filter(
-      (r): r is PromiseRejectedResult => r.status === 'rejected'
-    );
+    const failed = results.filter((r): r is PromiseRejectedResult => r.status === 'rejected');
     if (failed.length > 0 && failed[0]) {
       throw failed[0].reason;
     }
 
-    console.log(
-      `[AnalysisPipeline] 병렬 단계 완료: ${Date.now() - parallelStart}ms`
-    );
+    console.log(`[AnalysisPipeline] 병렬 단계 완료: ${Date.now() - parallelStart}ms`);
   }
 
-  private async executeSequentialSteps(
-    language: SupportedLanguage
-  ): Promise<void> {
-    await this.executor.execute('personality', () =>
-      this.analyzePersonality(language)
-    );
-    await this.executor.execute('aptitude', () =>
-      this.analyzeAptitude(language)
-    );
+  private async executeSequentialSteps(language: SupportedLanguage): Promise<void> {
+    await this.executor.execute('personality', () => this.analyzePersonality(language));
+    await this.executor.execute('aptitude', () => this.analyzeAptitude(language));
     await this.executor.execute('fortune', () => this.analyzeFortune(language));
   }
 
@@ -280,9 +260,7 @@ export class AnalysisPipeline {
     this.context.intermediateResults.basicAnalysis = result;
   }
 
-  private async analyzePersonality(
-    language: SupportedLanguage
-  ): Promise<void> {
+  private async analyzePersonality(language: SupportedLanguage): Promise<void> {
     const prompt = await this.fetchStepPrompt('personality', language);
     const result = await this.callGemini<PersonalityResult>(prompt);
     this.context.intermediateResults.personality = result;
@@ -308,10 +286,7 @@ export class AnalysisPipeline {
     }
 
     const { calculateAllScores } = await import('../../score');
-    const calculatedScores = calculateAllScores(
-      manseryeok.pillars,
-      manseryeok.jijanggan
-    );
+    const calculatedScores = calculateAllScores(manseryeok.pillars, manseryeok.jijanggan);
 
     if (personality?.willpower?.score) {
       calculatedScores.personality.willpower = personality.willpower.score;
@@ -327,14 +302,11 @@ export class AnalysisPipeline {
     }
 
     try {
-      const response = await fetch(
-        `${this.context.pythonApiUrl}/api/visualization/pillar`,
-        {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ pillars }),
-        }
-      );
+      const response = await fetch(`${this.context.pythonApiUrl}/api/visualization/pillar`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ pillars }),
+      });
 
       if (!response.ok) {
         throw new Error('시각화 API 실패');
@@ -367,21 +339,18 @@ export class AnalysisPipeline {
     const { manseryeok, basicAnalysis } = this.context.intermediateResults;
 
     try {
-      const response = await fetch(
-        `${this.context.pythonApiUrl}/api/prompts/step`,
-        {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            step,
-            language,
-            pillars: manseryeok?.pillars,
-            daewun: manseryeok?.daewun,
-            jijanggan: manseryeok?.jijanggan,
-            previousResults: step !== 'basic' ? { basicAnalysis } : undefined,
-          }),
-        }
-      );
+      const response = await fetch(`${this.context.pythonApiUrl}/api/prompts/step`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          step,
+          language,
+          pillars: manseryeok?.pillars,
+          daewun: manseryeok?.daewun,
+          jijanggan: manseryeok?.jijanggan,
+          previousResults: step !== 'basic' ? { basicAnalysis } : undefined,
+        }),
+      });
 
       if (!response.ok) {
         throw new Error(`프롬프트 API 실패: ${step}`);
@@ -390,17 +359,12 @@ export class AnalysisPipeline {
       const data: StepPromptResponse = await response.json();
       return `${data.systemPrompt}\n\n${data.userPrompt}`;
     } catch (error) {
-      console.warn(
-        `[AnalysisPipeline] ${step} 프롬프트 API 실패, 폴백 사용:`,
-        error
-      );
+      console.warn(`[AnalysisPipeline] ${step} 프롬프트 API 실패, 폴백 사용:`, error);
       return this.getFallbackPrompt(step);
     }
   }
 
-  private getFallbackPrompt(
-    step: 'basic' | 'personality' | 'aptitude' | 'fortune'
-  ): string {
+  private getFallbackPrompt(step: 'basic' | 'personality' | 'aptitude' | 'fortune'): string {
     const pillars = this.context.intermediateResults.manseryeok?.pillars;
     if (!pillars) {
       throw new Error('사주 데이터가 없습니다');
@@ -512,9 +476,7 @@ export class AnalysisPipeline {
 /**
  * AnalysisPipeline 팩토리 함수
  */
-export function createAnalysisPipeline(
-  options?: PipelineOptions
-): AnalysisPipeline {
+export function createAnalysisPipeline(options?: PipelineOptions): AnalysisPipeline {
   return new AnalysisPipeline(options);
 }
 

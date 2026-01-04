@@ -2,14 +2,7 @@
 
 import { motion } from 'framer-motion';
 import { useState, useEffect } from 'react';
-import {
-  Calendar,
-  User,
-  Star,
-  Briefcase,
-  Coins,
-  Heart,
-} from 'lucide-react';
+import { Calendar, User, Star, Briefcase, Coins, Heart } from 'lucide-react';
 
 /** 네비게이션 섹션 정의 */
 interface NavSection {
@@ -85,7 +78,7 @@ export function ReportNavigation({ className = '' }: ReportNavigationProps) {
       className={`sticky top-16 z-20 border-b border-gray-200 bg-white/90 backdrop-blur-sm ${className}`}
     >
       <div className="mx-auto max-w-4xl px-4">
-        <div className="flex items-center gap-1 overflow-x-auto py-2 scrollbar-hide">
+        <div className="scrollbar-hide flex items-center gap-1 overflow-x-auto py-2">
           {SECTIONS.map((section) => {
             const Icon = section.icon;
             const isActive = activeSection === section.id;
@@ -96,14 +89,9 @@ export function ReportNavigation({ className = '' }: ReportNavigationProps) {
                 onClick={() => handleSectionClick(section.id)}
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
-                className={`
-                  flex items-center gap-1.5 whitespace-nowrap rounded-full px-3 py-1.5 text-sm font-medium transition-colors
-                  ${
-                    isActive
-                      ? 'bg-[#1a1a1a] text-white'
-                      : 'text-gray-600 hover:bg-gray-100'
-                  }
-                `}
+                className={`flex items-center gap-1.5 whitespace-nowrap rounded-full px-3 py-1.5 text-sm font-medium transition-colors ${
+                  isActive ? 'bg-[#1a1a1a] text-white' : 'text-gray-600 hover:bg-gray-100'
+                } `}
               >
                 <Icon className={`h-3.5 w-3.5 ${isActive ? 'text-[#d4af37]' : ''}`} />
                 <span>{section.label}</span>

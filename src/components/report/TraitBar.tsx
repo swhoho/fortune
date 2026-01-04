@@ -85,10 +85,7 @@ export function TraitBar({
         transition={{ duration: 0.3, delay: delay + 0.6 }}
         className="w-10 shrink-0 text-right"
       >
-        <span
-          className="text-sm font-bold tabular-nums"
-          style={{ color: barColor }}
-        >
+        <span className="text-sm font-bold tabular-nums" style={{ color: barColor }}>
           {clampedValue}%
         </span>
       </motion.div>

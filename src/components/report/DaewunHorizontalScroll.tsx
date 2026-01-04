@@ -79,7 +79,7 @@ export function DaewunHorizontalScroll({
       {/* 좌측 스크롤 버튼 */}
       <button
         onClick={() => scroll('left')}
-        className="absolute left-0 top-1/2 z-10 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full bg-[#1a1a1a]/90 text-[#d4af37] shadow-lg backdrop-blur-sm transition-all hover:bg-[#2a2a2a] hover:scale-110"
+        className="absolute left-0 top-1/2 z-10 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full bg-[#1a1a1a]/90 text-[#d4af37] shadow-lg backdrop-blur-sm transition-all hover:scale-110 hover:bg-[#2a2a2a]"
         aria-label="이전 대운"
       >
         <ChevronLeft className="h-5 w-5" />
@@ -88,7 +88,7 @@ export function DaewunHorizontalScroll({
       {/* 우측 스크롤 버튼 */}
       <button
         onClick={() => scroll('right')}
-        className="absolute right-0 top-1/2 z-10 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full bg-[#1a1a1a]/90 text-[#d4af37] shadow-lg backdrop-blur-sm transition-all hover:bg-[#2a2a2a] hover:scale-110"
+        className="absolute right-0 top-1/2 z-10 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full bg-[#1a1a1a]/90 text-[#d4af37] shadow-lg backdrop-blur-sm transition-all hover:scale-110 hover:bg-[#2a2a2a]"
         aria-label="다음 대운"
       >
         <ChevronRight className="h-5 w-5" />
@@ -118,21 +118,16 @@ export function DaewunHorizontalScroll({
               <motion.div
                 key={`${item.age}-${index}`}
                 variants={cardVariants}
-                className={`
-                  flex snap-center flex-col items-center rounded-xl px-4 py-3 transition-all
-                  ${
-                    isCurrent
-                      ? 'bg-gradient-to-b from-[#d4af37]/20 to-[#d4af37]/5 ring-2 ring-[#d4af37] ring-offset-2 ring-offset-[#f8f8f8] dark:ring-offset-[#0a0a0a]'
-                      : 'bg-[#1a1a1a] hover:bg-[#2a2a2a]'
-                  }
-                `}
+                className={`flex snap-center flex-col items-center rounded-xl px-4 py-3 transition-all ${
+                  isCurrent
+                    ? 'bg-gradient-to-b from-[#d4af37]/20 to-[#d4af37]/5 ring-2 ring-[#d4af37] ring-offset-2 ring-offset-[#f8f8f8] dark:ring-offset-[#0a0a0a]'
+                    : 'bg-[#1a1a1a] hover:bg-[#2a2a2a]'
+                } `}
               >
                 {/* 나이 */}
                 <div
                   className={`mb-2 rounded-full px-3 py-1 text-xs font-bold ${
-                    isCurrent
-                      ? 'bg-[#d4af37] text-[#1a1a1a]'
-                      : 'bg-[#2a2a2a] text-gray-400'
+                    isCurrent ? 'bg-[#d4af37] text-[#1a1a1a]' : 'bg-[#2a2a2a] text-gray-400'
                   }`}
                 >
                   {item.age}세
@@ -157,9 +152,7 @@ export function DaewunHorizontalScroll({
                 </span>
 
                 {/* 시작 연도 */}
-                <span className="mt-2 text-[10px] text-gray-500">
-                  {item.startYear}년~
-                </span>
+                <span className="mt-2 text-[10px] text-gray-500">{item.startYear}년~</span>
 
                 {/* 현재 대운 표시 */}
                 {isCurrent && (

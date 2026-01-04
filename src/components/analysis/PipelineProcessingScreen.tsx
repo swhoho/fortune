@@ -10,14 +10,7 @@
 
 import { motion, AnimatePresence } from 'framer-motion';
 import { useEffect, useState } from 'react';
-import {
-  CheckCircle2,
-  Circle,
-  Loader2,
-  AlertCircle,
-  RefreshCcw,
-  Clock,
-} from 'lucide-react';
+import { CheckCircle2, Circle, Loader2, AlertCircle, RefreshCcw, Clock } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
@@ -103,12 +96,7 @@ function StepIcon({ status }: { status: StepStatus }) {
     case 'completed':
       return <CheckCircle2 className="h-5 w-5 text-green-500" />;
     case 'in_progress':
-      return (
-        <Loader2
-          className="h-5 w-5 animate-spin"
-          style={{ color: BRAND_COLORS.primary }}
-        />
-      );
+      return <Loader2 className="h-5 w-5 animate-spin" style={{ color: BRAND_COLORS.primary }} />;
     case 'failed':
       return <AlertCircle className="h-5 w-5 text-red-500" />;
     default:
@@ -171,9 +159,7 @@ export function PipelineProcessingScreen({
                 return (
                   <div key={step} className="flex items-center gap-2 text-sm">
                     <CheckCircle2 className="h-4 w-4 text-green-500" />
-                    <span className="text-green-600">
-                      {getStepLabel(step)} ✓
-                    </span>
+                    <span className="text-green-600">{getStepLabel(step)} ✓</span>
                   </div>
                 );
               }
@@ -193,11 +179,7 @@ export function PipelineProcessingScreen({
               </Button>
             )}
             {onCancel && (
-              <Button
-                variant="outline"
-                onClick={onCancel}
-                className="w-full"
-              >
+              <Button variant="outline" onClick={onCancel} className="w-full">
                 {t('error.cancel')}
               </Button>
             )}
@@ -232,10 +214,7 @@ export function PipelineProcessingScreen({
         ))}
         {/* 중앙 로딩 아이콘 */}
         <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
-          <Loader2
-            className="h-8 w-8 animate-spin"
-            style={{ color: BRAND_COLORS.primary }}
-          />
+          <Loader2 className="h-8 w-8 animate-spin" style={{ color: BRAND_COLORS.primary }} />
         </div>
       </motion.div>
 
@@ -264,10 +243,7 @@ export function PipelineProcessingScreen({
       <div className="mb-6 w-full max-w-md">
         <div className="mb-2 flex justify-between text-sm">
           <span className="text-gray-500">{t('progress')}</span>
-          <span
-            className="font-medium"
-            style={{ color: BRAND_COLORS.primary }}
-          >
+          <span className="font-medium" style={{ color: BRAND_COLORS.primary }}>
             {progressPercent}%
           </span>
         </div>
@@ -298,11 +274,7 @@ export function PipelineProcessingScreen({
                           ? 'text-red-500'
                           : 'text-gray-400'
                   }`}
-                  style={
-                    status === 'in_progress'
-                      ? { color: BRAND_COLORS.primary }
-                      : undefined
-                  }
+                  style={status === 'in_progress' ? { color: BRAND_COLORS.primary } : undefined}
                 >
                   {getStepLabel(step)}
                   {status === 'completed' && ' ✓'}

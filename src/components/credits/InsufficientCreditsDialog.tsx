@@ -62,14 +62,10 @@ export function InsufficientCreditsDialog({
           <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-amber-100">
             <Coins className="h-6 w-6 text-amber-600" />
           </div>
-          <AlertDialogTitle className="text-center">
-            {t('insufficient.title')}
-          </AlertDialogTitle>
+          <AlertDialogTitle className="text-center">{t('insufficient.title')}</AlertDialogTitle>
           <AlertDialogDescription asChild>
             <div className="space-y-4 text-center">
-              <p className="text-gray-600">
-                {t('insufficient.message', { required, current })}
-              </p>
+              <p className="text-gray-600">{t('insufficient.message', { required, current })}</p>
 
               {/* 크레딧 현황 */}
               <div className="mx-auto flex max-w-xs justify-between rounded-lg bg-gray-50 p-4">

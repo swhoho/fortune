@@ -26,7 +26,7 @@ interface PageProps {
 
 export default function ProfileDetailPage({ params }: PageProps) {
   const t = useTranslations('profile');
-  const tCredits = useTranslations('credits');
+  // const tCredits = useTranslations('credits'); // TODO: 다국어 적용 시 사용
   const router = useRouter();
   const searchParams = useSearchParams();
   const [id, setId] = useState<string>('');

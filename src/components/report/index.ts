@@ -29,10 +29,7 @@ export type { ContentCardData, AptitudeSectionData } from './AptitudeSection';
 
 // Task 17: 업무/적성 그래프 섹션
 export { WorkAptitudeSection } from './WorkAptitudeSection';
-export type {
-  WorkAbilityData,
-  AptitudeTraitsData,
-} from './WorkAptitudeSection';
+export type { WorkAbilityData, AptitudeTraitsData } from './WorkAptitudeSection';
 
 // Task 18: 재물운 섹션
 export { WealthSection } from './WealthSection';

@@ -28,9 +28,7 @@ export function EmptyProfiles() {
       </div>
 
       {/* 제목 */}
-      <h3 className="mb-2 font-serif text-xl font-semibold text-[#1a1a1a]">
-        {t('list.empty')}
-      </h3>
+      <h3 className="mb-2 font-serif text-xl font-semibold text-[#1a1a1a]">{t('list.empty')}</h3>
 
       {/* 설명 */}
       <p className="mb-8 max-w-sm text-gray-500">{t('list.emptyDescription')}</p>

@@ -99,9 +99,7 @@ export class StepExecutor {
 
     return Promise.race([
       promise,
-      new Promise<never>((_, reject) =>
-        setTimeout(() => reject(new Error('TIMEOUT')), ms)
-      ),
+      new Promise<never>((_, reject) => setTimeout(() => reject(new Error('TIMEOUT')), ms)),
     ]);
   }
 

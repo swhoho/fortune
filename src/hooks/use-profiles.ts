@@ -3,11 +3,7 @@
  * Task 3-5: 프로필 CRUD 연동
  */
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import type {
-  ProfileResponse,
-  ProfileListResponse,
-  ProfileSingleResponse,
-} from '@/types/profile';
+import type { ProfileResponse, ProfileListResponse, ProfileSingleResponse } from '@/types/profile';
 import type { CreateProfileInput, UpdateProfileInput } from '@/lib/validations/profile';
 import { handleApiError } from '@/lib/errors/handler';
 
@@ -140,22 +136,4 @@ export function useDeleteProfile() {
       queryClient.invalidateQueries({ queryKey: profileKeys.lists() });
     },
   });
-}
-
-/**
- * 나이 계산 유틸리티
- * @param birthDate 생년월일 (YYYY-MM-DD)
- * @returns 만 나이
- */
-export function calculateAge(birthDate: string): number {
-  const today = new Date();
-  const birth = new Date(birthDate);
-  let age = today.getFullYear() - birth.getFullYear();
-  const monthDiff = today.getMonth() - birth.getMonth();
-
-  if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birth.getDate())) {
-    age--;
-  }
-
-  return age;
 }

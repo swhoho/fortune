@@ -37,9 +37,7 @@ export default function ProfilesPage() {
               <ArrowLeft className="h-5 w-5" />
             </Link>
           </Button>
-          <h1 className="font-serif text-lg font-semibold text-[#1a1a1a]">
-            {t('pageTitle.list')}
-          </h1>
+          <h1 className="font-serif text-lg font-semibold text-[#1a1a1a]">{t('pageTitle.list')}</h1>
           <Button variant="ghost" size="icon" asChild>
             <Link href="/profiles/new">
               <Plus className="h-5 w-5" />

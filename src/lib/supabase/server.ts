@@ -19,7 +19,7 @@ export function createClient() {
         set(name: string, value: string, options: CookieOptions) {
           try {
             cookieStore.set({ name, value, ...options });
-          } catch (error) {
+          } catch {
             // Server Component에서는 쿠키를 설정할 수 없습니다.
             // 미들웨어에서 쿠키 리프레시를 처리하므로 여기서는 무시해도 됩니다.
           }
@@ -27,7 +27,7 @@ export function createClient() {
         remove(name: string, options: CookieOptions) {
           try {
             cookieStore.set({ name, value: '', ...options });
-          } catch (error) {
+          } catch {
             // Server Component에서는 쿠키를 삭제할 수 없습니다.
           }
         },
