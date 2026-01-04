@@ -448,11 +448,35 @@ async function startPipelineAsync(
           language: 'ko',
         });
 
+    // 3. AI 사용량 로깅 (성공/실패 모두 기록)
+    const tokenUsage = result.success
+      ? result.data?.pipelineMetadata?.tokenUsage
+      : result.tokenUsage;
+
+    if (tokenUsage && (tokenUsage.inputTokens > 0 || tokenUsage.outputTokens > 0)) {
+      await logAiUsage({
+        userId: profile.user_id as string,
+        featureType: 'report_generation',
+        creditsUsed: result.success ? SERVICE_CREDITS.profileReport : 0, // 실패 시 크레딧 차감 없음
+        inputTokens: tokenUsage.inputTokens,
+        outputTokens: tokenUsage.outputTokens,
+        model: 'gemini-3-pro-preview',
+        profileId: profile.id as string,
+        reportId,
+        metadata: {
+          success: result.success,
+          failedStep: result.failedStep,
+          parallelExecuted: result.data?.pipelineMetadata?.parallelExecuted,
+          totalDuration: result.data?.pipelineMetadata?.totalDuration,
+        },
+      });
+    }
+
     if (!result.success) {
       throw new Error(result.error?.message || '파이프라인 실행 실패');
     }
 
-    // 3. 최종 결과 저장 (finalResult 추가)
+    // 4. 최종 결과 저장 (finalResult 추가)
     await supabase
       .from('profile_reports')
       .update({
@@ -470,25 +494,6 @@ async function startPipelineAsync(
         updated_at: new Date().toISOString(),
       })
       .eq('id', reportId);
-
-    // 4. AI 사용량 로깅
-    const tokenUsage = result.data?.pipelineMetadata?.tokenUsage;
-    if (tokenUsage) {
-      await logAiUsage({
-        userId: profile.user_id as string,
-        featureType: 'report_generation',
-        creditsUsed: SERVICE_CREDITS.profileReport,
-        inputTokens: tokenUsage.inputTokens,
-        outputTokens: tokenUsage.outputTokens,
-        model: 'gemini-3-pro-preview',
-        profileId: profile.id as string,
-        reportId,
-        metadata: {
-          parallelExecuted: result.data?.pipelineMetadata?.parallelExecuted,
-          totalDuration: result.data?.pipelineMetadata?.totalDuration,
-        },
-      });
-    }
 
     console.log('[Pipeline] 리포트 생성 완료:', reportId);
   } catch (error) {

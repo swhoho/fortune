@@ -592,6 +592,8 @@ export interface PipelineResponse {
   partialResults?: PipelineIntermediateResults;
   /** 실패한 단계 */
   failedStep?: PipelineStep;
+  /** 실패 시에도 사용한 토큰 기록 */
+  tokenUsage?: TokenUsage;
 }
 
 /**

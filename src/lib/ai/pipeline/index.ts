@@ -108,6 +108,8 @@ export class AnalysisPipeline {
         error: this.handleError(error),
         partialResults: this.context.intermediateResults,
         failedStep: this.context.getCurrentFailedStep(),
+        // 실패해도 사용한 토큰은 기록
+        tokenUsage: this.context.getTokenUsage(),
       };
     }
   }
@@ -176,6 +178,8 @@ export class AnalysisPipeline {
         error: this.handleError(error),
         partialResults: this.context.intermediateResults,
         failedStep: this.context.getCurrentFailedStep(),
+        // 실패해도 사용한 토큰은 기록
+        tokenUsage: this.context.getTokenUsage(),
       };
     }
   }
