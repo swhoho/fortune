@@ -104,11 +104,14 @@ function StepIcon({ status }: { status: StepStatus }) {
   }
 }
 
+/** 초기 카운트다운 시간 (10분) */
+const INITIAL_COUNTDOWN_SECONDS = 600;
+
 export function PipelineProcessingScreen({
   currentStep,
   stepStatuses,
   progressPercent,
-  estimatedTimeRemaining,
+  estimatedTimeRemaining: _estimatedTimeRemaining, // 서버 값 무시, 내부 카운트다운 사용
   error,
   onRetry,
   onCancel,
@@ -116,6 +119,7 @@ export function PipelineProcessingScreen({
   const t = useTranslations('pipeline');
   const { getStepLabel, getActiveLabel } = usePipelineStepLabels();
   const [currentTipIndex, setCurrentTipIndex] = useState(0);
+  const [countdown, setCountdown] = useState(INITIAL_COUNTDOWN_SECONDS);
 
   /**
    * 남은 시간 포맷 (i18n)
@@ -127,6 +131,17 @@ export function PipelineProcessingScreen({
     const secs = seconds % 60;
     return t('remainingTime.minutes', { minutes, seconds: secs });
   };
+
+  // 10분 카운트다운 (1초씩 감소)
+  useEffect(() => {
+    if (error || progressPercent >= 100) return; // 에러 또는 완료 시 중지
+
+    const interval = setInterval(() => {
+      setCountdown((prev) => (prev > 0 ? prev - 1 : 0));
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, [error, progressPercent]);
 
   // 팁 로테이션 (5초)
   useEffect(() => {
@@ -227,15 +242,15 @@ export function PipelineProcessingScreen({
         {currentStep ? getActiveLabel(currentStep) : t('preparing')}
       </motion.h2>
 
-      {/* 남은 시간 */}
-      {estimatedTimeRemaining > 0 && (
+      {/* 남은 시간 (10분 카운트다운) */}
+      {countdown > 0 && (
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           className="mb-6 flex items-center gap-1 text-sm text-gray-500"
         >
           <Clock className="h-4 w-4" />
-          <span>{formatRemainingTime(estimatedTimeRemaining)}</span>
+          <span>{formatRemainingTime(countdown)}</span>
         </motion.div>
       )}
 
