@@ -646,12 +646,12 @@ locales/*.json                                        # pipeline 번역 키
 
 **완료**: 2026-01-03
 
-- [x] 23.1 리포트 생성 시 30C 차감 (`POST /api/profiles/[id]/report`)
+- [x] 23.1 리포트 생성 시 50C 차감 (`POST /api/profiles/[id]/report`)
 - [x] 23.2 섹션 재분석 시 5C 차감 (`POST /api/profiles/[id]/report/reanalyze`)
 - [x] 23.3 크레딧 부족 시 안내 (`InsufficientCreditsDialog`)
 
 **구현 내용**:
-- `SERVICE_CREDITS.profileReport = 30`, `sectionReanalysis = 5` 추가
+- `SERVICE_CREDITS.profileReport = 50`, `sectionReanalysis = 5` 추가
 - `/api/user/credits/check` 크레딧 확인 API
 - `InsufficientCreditsDialog` 크레딧 부족 다이얼로그
 - `useCreditsBalance`, `useReportCreditsCheck` TanStack Query 훅
@@ -763,7 +763,7 @@ locales/*.json (5개 언어)           # profile.selector, mypage.sidebar.profil
 | 2.0.4 | 2026-01-03 | Task 15~16 완료 - TraitGraph, KeywordBadge, ContentCard, AptitudeSection 컴포넌트 |
 | 2.0.5 | 2026-01-03 | Task 3~5 완료 - 프로필 CRUD UI (등록폼, 목록, 상세+인라인편집), TanStack Query 훅, 5개 언어 번역 |
 | 2.0.6 | 2026-01-03 | Task 17~20 완료 - WorkAptitudeSection, WealthSection, RomanceSection, ReportNavigation, 리포트 페이지, i18n 5개 언어 |
-| 2.0.7 | 2026-01-03 | Task 22~23 완료 - 로딩 UI (폴링 기반 진행률), 크레딧 연동 (30C 리포트, 5C 재분석), 5개 언어 번역 |
+| 2.0.7 | 2026-01-03 | Task 22~23 완료 - 로딩 UI (폴링 기반 진행률), 크레딧 연동 (50C 리포트, 5C 재분석), 5개 언어 번역 |
 | 2.0.8 | 2026-01-04 | Task 24 완료 - 기존 기능 연결 (신년운세→프로필, 마이페이지→프로필목록, 마이그레이션 SQL) |
 
 ---
