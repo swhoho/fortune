@@ -6,7 +6,15 @@
  */
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { ArrowLeft, Loader2, Sparkles, UserPlus } from 'lucide-react';
+import {
+  ArrowLeft,
+  Loader2,
+  Sparkles,
+  UserPlus,
+  AlertTriangle,
+  CheckCircle,
+  RefreshCw,
+} from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { Button } from '@/components/ui/button';
 import { Link, useRouter } from '@/i18n/routing';
@@ -31,6 +39,18 @@ export default function FullAnalysisPage() {
    * 프로필 선택 후 분석 시작
    */
   const handleStartAnalysis = (profile: ProfileResponse) => {
+    // 이미 완료된 리포트가 있는 경우 → 리포트 페이지로 이동
+    if (profile.reportStatus === 'completed') {
+      router.push(`/profiles/${profile.id}/report`);
+      return;
+    }
+
+    // 실패한 리포트가 있는 경우 → 크레딧 차감 없이 재시작
+    if (profile.reportStatus === 'failed' || profile.reportStatus === 'pending') {
+      router.push(`/profiles/${profile.id}/generating`);
+      return;
+    }
+
     // 크레딧 부족 확인
     if (creditsData && !creditsData.sufficient) {
       setSelectedProfile(profile);
@@ -101,26 +121,63 @@ export default function FullAnalysisPage() {
         {/* 프로필 목록 */}
         {!isLoading && profiles && profiles.length > 0 && (
           <div className="space-y-3">
-            {profiles.map((profile, index) => (
-              <motion.button
-                key={profile.id}
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: index * 0.05 }}
-                onClick={() => handleStartAnalysis(profile)}
-                className="w-full rounded-xl border border-gray-100 bg-white p-4 text-left shadow-sm transition-all hover:border-[#d4af37]/30 hover:shadow-md"
-              >
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="font-medium text-[#1a1a1a]">{profile.name}</p>
-                    <p className="mt-0.5 text-sm text-gray-500">
-                      {profile.birthDate} · {profile.gender === 'male' ? '남' : '여'}
-                    </p>
+            {profiles.map((profile, index) => {
+              const isFailed = profile.reportStatus === 'failed';
+              const isCompleted = profile.reportStatus === 'completed';
+              const isPending = profile.reportStatus === 'pending';
+
+              return (
+                <motion.button
+                  key={profile.id}
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: index * 0.05 }}
+                  onClick={() => handleStartAnalysis(profile)}
+                  className={`w-full rounded-xl border p-4 text-left shadow-sm transition-all hover:shadow-md ${
+                    isFailed
+                      ? 'border-red-200 bg-red-50/50 hover:border-red-300'
+                      : isCompleted
+                        ? 'border-green-200 bg-green-50/50 hover:border-green-300'
+                        : 'border-gray-100 bg-white hover:border-[#d4af37]/30'
+                  }`}
+                >
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="font-medium text-[#1a1a1a]">{profile.name}</p>
+                      <p className="mt-0.5 text-sm text-gray-500">
+                        {profile.birthDate} · {profile.gender === 'male' ? '남' : '여'}
+                      </p>
+                      {/* 상태 배지 */}
+                      {isFailed && (
+                        <p className="mt-1 flex items-center gap-1 text-xs text-red-600">
+                          <AlertTriangle className="h-3 w-3" />
+                          분석 실패 - 무료 재시작 가능
+                        </p>
+                      )}
+                      {isPending && (
+                        <p className="mt-1 flex items-center gap-1 text-xs text-yellow-600">
+                          <RefreshCw className="h-3 w-3" />
+                          대기 중 - 재시작 가능
+                        </p>
+                      )}
+                      {isCompleted && (
+                        <p className="mt-1 flex items-center gap-1 text-xs text-green-600">
+                          <CheckCircle className="h-3 w-3" />
+                          분석 완료 - 결과 보기
+                        </p>
+                      )}
+                    </div>
+                    {isFailed ? (
+                      <RefreshCw className="h-5 w-5 text-red-500" />
+                    ) : isCompleted ? (
+                      <CheckCircle className="h-5 w-5 text-green-500" />
+                    ) : (
+                      <Sparkles className="h-5 w-5 text-[#d4af37]" />
+                    )}
                   </div>
-                  <Sparkles className="h-5 w-5 text-[#d4af37]" />
-                </div>
-              </motion.button>
-            ))}
+                </motion.button>
+              );
+            })}
           </div>
         )}
 
