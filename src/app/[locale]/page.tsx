@@ -129,7 +129,7 @@ export default function LandingPage() {
           <Button
             asChild
             size="lg"
-            className="w-full bg-gradient-to-r from-[#d4af37] to-[#c19a2e] px-6 py-5 text-base font-semibold text-white shadow-lg transition-all hover:scale-105 hover:shadow-xl sm:w-auto sm:px-8 sm:py-6 sm:text-lg"
+            className="w-full max-w-sm bg-gradient-to-r from-[#d4af37] to-[#c19a2e] px-6 py-5 text-base font-semibold text-white shadow-lg transition-all whitespace-normal text-center leading-snug hover:scale-105 hover:shadow-xl sm:px-8 sm:py-6 sm:text-lg"
           >
             <Link href="/onboarding/step1">{t('cta')}</Link>
           </Button>
