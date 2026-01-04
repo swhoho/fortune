@@ -5,7 +5,7 @@
  * 5개 노드를 원형으로 배치하고 상생/상극 화살표로 연결
  */
 
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, useMemo } from 'react';
 import * as d3 from 'd3';
 import { motion } from 'framer-motion';
 import { Download } from 'lucide-react';
@@ -83,14 +83,18 @@ export function ElementRelationGraph({ pillars, height = 320 }: ElementRelationG
     element: ElementKey | null;
   }>({ show: false, x: 0, y: 0, element: null });
 
-  // 강한 오행 계산
-  const elementCounts = pillars ? calculateElementCounts(pillars) : null;
-  const maxCount = elementCounts ? Math.max(...Object.values(elementCounts)) : 0;
-  const strongElements = elementCounts
-    ? (Object.entries(elementCounts)
-        .filter(([, count]) => count === maxCount && maxCount > 0)
-        .map(([element]) => element) as ElementKey[])
-    : [];
+  // 강한 오행 계산 (useMemo로 안정적인 참조 유지)
+  const elementCounts = useMemo(
+    () => (pillars ? calculateElementCounts(pillars) : null),
+    [pillars]
+  );
+  const strongElements = useMemo(() => {
+    if (!elementCounts) return [];
+    const maxCount = Math.max(...Object.values(elementCounts));
+    return Object.entries(elementCounts)
+      .filter(([, count]) => count === maxCount && maxCount > 0)
+      .map(([element]) => element) as ElementKey[];
+  }, [elementCounts]);
 
   useEffect(() => {
     if (!svgRef.current || !containerRef.current) return;

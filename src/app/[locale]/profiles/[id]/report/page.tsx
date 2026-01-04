@@ -262,7 +262,6 @@ export default function ProfileReportPage({ params }: PageProps) {
   // PDF 다운로드 핸들러
   const handleDownloadPdf = () => {
     // TODO: PDF 생성 및 다운로드 구현
-    console.log('PDF 다운로드');
   };
 
   // 로딩 상태

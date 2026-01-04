@@ -41,6 +41,7 @@ export default function YearlyAnalysisPage() {
     if (!targetYear) {
       setTargetYear(nextYear);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const handleYearChange = (year: number) => {
