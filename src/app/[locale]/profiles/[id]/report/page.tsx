@@ -199,9 +199,7 @@ export default function ProfileReportPage({ params }: PageProps) {
             <div className="mb-6 rounded-full bg-gradient-to-br from-[#d4af37]/20 to-[#d4af37]/5 p-6">
               <Sparkles className="h-12 w-12 text-[#d4af37]" />
             </div>
-            <h2 className="mb-2 text-xl font-semibold text-[#1a1a1a]">
-              아직 사주 분석이 없습니다
-            </h2>
+            <h2 className="mb-2 text-xl font-semibold text-[#1a1a1a]">아직 사주 분석이 없습니다</h2>
             <p className="mb-8 text-gray-500">
               전체 사주 분석을 시작하여 상세한 리포트를 확인하세요
             </p>

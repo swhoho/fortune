@@ -23,7 +23,7 @@ export default function FullAnalysisPage() {
   const { data: profiles, isLoading } = useProfiles();
   const { data: creditsData } = useReportCreditsCheck();
 
-  const [selectedProfileId, setSelectedProfileId] = useState<string | null>(null);
+  const [, setSelectedProfileId] = useState<string | null>(null);
   const [showCreditsDialog, setShowCreditsDialog] = useState(false);
 
   /**
@@ -72,7 +72,9 @@ export default function FullAnalysisPage() {
                 {t('fullAnalysis.selectProfile', { defaultValue: '분석할 프로필을 선택하세요' })}
               </p>
               <p className="mt-1 text-sm text-gray-500">
-                {t('fullAnalysis.creditInfo', { defaultValue: '전체 사주 분석에는 30 크레딧이 필요합니다' })}
+                {t('fullAnalysis.creditInfo', {
+                  defaultValue: '전체 사주 분석에는 50 크레딧이 필요합니다',
+                })}
               </p>
             </div>
           </div>
@@ -141,7 +143,7 @@ export default function FullAnalysisPage() {
       <InsufficientCreditsDialog
         open={showCreditsDialog}
         onOpenChange={setShowCreditsDialog}
-        required={creditsData?.required ?? 30}
+        required={creditsData?.required ?? 50}
         current={creditsData?.current ?? 0}
         onCharge={() => router.push('/payment')}
       />

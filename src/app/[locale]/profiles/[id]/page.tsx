@@ -200,7 +200,7 @@ export default function ProfileDetailPage({ params }: PageProps) {
       <InsufficientCreditsDialog
         open={showInsufficientCreditsDialog}
         onOpenChange={setShowInsufficientCreditsDialog}
-        required={creditsData?.required ?? 30}
+        required={creditsData?.required ?? 50}
         current={creditsData?.current ?? 0}
         onCharge={() => router.push('/payment')}
       />

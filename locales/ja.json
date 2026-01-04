@@ -127,6 +127,11 @@
     }
   },
   "analysis": {
+    "fullAnalysis": {
+      "title": "全体運勢分析",
+      "selectProfile": "分析するプロフィールを選択してください",
+      "creditInfo": "全体運勢分析には50クレジットが必要です"
+    },
     "focus": {
       "title": "分析エリア選択",
       "headline": "どの分野を集中的に知りたいですか？",

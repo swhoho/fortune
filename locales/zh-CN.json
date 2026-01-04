@@ -127,6 +127,11 @@
     }
   },
   "analysis": {
+    "fullAnalysis": {
+      "title": "全面命理分析",
+      "selectProfile": "请选择要分析的档案",
+      "creditInfo": "全面命理分析需要50积分"
+    },
     "focus": {
       "title": "选择分析领域",
       "headline": "您想集中了解哪个领域？",

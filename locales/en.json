@@ -127,6 +127,11 @@
     }
   },
   "analysis": {
+    "fullAnalysis": {
+      "title": "Full Destiny Analysis",
+      "selectProfile": "Select a profile to analyze",
+      "creditInfo": "Full destiny analysis requires 50 credits"
+    },
     "focus": {
       "title": "Select Focus Area",
       "headline": "What area would you like to focus on?",

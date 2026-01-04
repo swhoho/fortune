@@ -2,7 +2,7 @@
  * /api/profiles/[id]/report API
  * Task 22-23: 리포트 생성 및 조회
  *
- * POST: 리포트 생성 시작 (30C 크레딧 차감)
+ * POST: 리포트 생성 시작 (50C 크레딧 차감)
  * GET: 완료된 리포트 조회
  */
 import { NextRequest, NextResponse } from 'next/server';

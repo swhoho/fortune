@@ -127,6 +127,11 @@
     }
   },
   "analysis": {
+    "fullAnalysis": {
+      "title": "全面命理分析",
+      "selectProfile": "請選擇要分析的檔案",
+      "creditInfo": "全面命理分析需要50積分"
+    },
     "focus": {
       "title": "選擇分析領域",
       "headline": "您想集中了解哪個領域？",
