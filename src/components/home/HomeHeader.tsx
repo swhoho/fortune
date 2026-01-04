@@ -32,16 +32,14 @@ export function HomeHeader() {
       }}
       className="relative flex items-center justify-between px-4 py-4"
     >
-      {/* 좌측: 정보 버튼 */}
+      {/* 좌측: 정보 버튼 (비활성화 - 페이지 미구현) */}
       <Button
         variant="ghost"
         size="icon"
-        className="h-10 w-10 rounded-xl text-gray-400 transition-colors hover:bg-white/[0.06] hover:text-white"
-        asChild
+        className="h-10 w-10 cursor-not-allowed rounded-xl text-gray-400/50"
+        disabled
       >
-        <Link href="/about">
-          <Info className="h-5 w-5" strokeWidth={1.5} />
-        </Link>
+        <Info className="h-5 w-5" strokeWidth={1.5} />
       </Button>
 
       {/* 중앙: 앱 이름 */}
