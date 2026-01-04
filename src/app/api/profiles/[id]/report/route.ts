@@ -47,10 +47,22 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
       return NextResponse.json({ error: '접근 권한이 없습니다' }, { status: 403 });
     }
 
-    // 2. 리포트 조회
+    // 2. 리포트 조회 (profile 정보 JOIN)
     const { data: report, error: reportError } = await supabase
       .from('profile_reports')
-      .select('*')
+      .select(
+        `
+        *,
+        profiles!profile_reports_profile_id_fkey (
+          id,
+          name,
+          birth_date,
+          birth_time,
+          gender,
+          calendar_type
+        )
+      `
+      )
       .eq('profile_id', profileId)
       .eq('status', 'completed')
       .order('created_at', { ascending: false })
@@ -66,9 +78,47 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
       return NextResponse.json({ error: '리포트가 없습니다' }, { status: 404 });
     }
 
+    // 3. 클라이언트 ReportData 형식으로 변환
+    const profileInfo = report.profiles as {
+      id: string;
+      name: string;
+      birth_date: string;
+      birth_time: string | null;
+      gender: string;
+      calendar_type: string;
+    };
+
+    const reportData = {
+      // 프로필 정보
+      profile: {
+        name: profileInfo?.name || '이름 없음',
+        birthDate: profileInfo?.birth_date || '',
+        birthTime: profileInfo?.birth_time || '',
+        gender: profileInfo?.gender || '',
+        calendarType: profileInfo?.calendar_type || 'solar',
+      },
+      // 사주 데이터
+      pillars: report.pillars,
+      daewun: report.daewun || [],
+      jijanggan: report.jijanggan,
+      // 분석 결과 (analysis JSONB에서 추출)
+      personality: report.analysis?.personality || null,
+      characteristics: report.analysis?.basicAnalysis || null,
+      aptitude: report.analysis?.aptitude || null,
+      wealth: report.analysis?.fortune?.wealth || null,
+      romance: report.analysis?.fortune?.romance || null,
+      // 점수 및 시각화
+      scores: report.scores,
+      visualizationUrl: report.visualization_url,
+      // 메타 정보
+      status: report.status,
+      createdAt: report.created_at,
+      updatedAt: report.updated_at,
+    };
+
     return NextResponse.json({
       success: true,
-      data: report,
+      data: reportData,
     });
   } catch (error) {
     console.error('[API] GET /api/profiles/[id]/report 에러:', error);
