@@ -537,18 +537,19 @@
     }
   },
   "credits": {
-    "balance": "持有{credits}積分",
+    "balance": "持有積分",
+    "required": "所需積分",
     "insufficient": {
       "title": "積分不足",
-      "description": "使用此功能需要更多積分。",
-      "required": "所需",
-      "current": "持有",
-      "shortfall": "不足{amount}積分",
-      "charge": "充值積分"
+      "message": "此操作需要{required}積分，但您目前只有{current}積分。",
+      "shortfall": "需要額外充值{amount}積分。",
+      "shortfallLabel": "不足",
+      "chargeCredits": "充值積分",
+      "cancel": "取消"
     },
     "deduction": {
-      "report": "生成檔案報告: -{amount}積分",
-      "reanalysis": "重新分析部分: -{amount}積分"
+      "reportGeneration": "生成報告",
+      "sectionReanalysis": "重新分析部分"
     }
   },
   "profile": {

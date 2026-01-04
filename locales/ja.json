@@ -537,18 +537,19 @@
     }
   },
   "credits": {
-    "balance": "{credits}C保有",
+    "balance": "保有クレジット",
+    "required": "必要クレジット",
     "insufficient": {
       "title": "クレジット不足",
-      "description": "この機能を使用するには、より多くのクレジットが必要です。",
-      "required": "必要",
-      "current": "保有",
-      "shortfall": "{amount}C不足",
-      "charge": "クレジットを充電する"
+      "message": "この操作には{required}Cが必要ですが、現在{current}Cを保有しています。",
+      "shortfall": "追加で{amount}Cを充電する必要があります。",
+      "shortfallLabel": "不足",
+      "chargeCredits": "クレジットを充電",
+      "cancel": "キャンセル"
     },
     "deduction": {
-      "report": "プロファイルレポート生成: -{amount}C",
-      "reanalysis": "セクション再分析: -{amount}C"
+      "reportGeneration": "レポート生成",
+      "sectionReanalysis": "セクション再分析"
     }
   },
   "profile": {

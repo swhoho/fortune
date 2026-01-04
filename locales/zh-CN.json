@@ -537,18 +537,19 @@
     }
   },
   "credits": {
-    "balance": "持有{credits}积分",
+    "balance": "持有积分",
+    "required": "所需积分",
     "insufficient": {
       "title": "积分不足",
-      "description": "使用此功能需要更多积分。",
-      "required": "所需",
-      "current": "持有",
-      "shortfall": "不足{amount}积分",
-      "charge": "充值积分"
+      "message": "此操作需要{required}积分，但您目前只有{current}积分。",
+      "shortfall": "需要额外充值{amount}积分。",
+      "shortfallLabel": "不足",
+      "chargeCredits": "充值积分",
+      "cancel": "取消"
     },
     "deduction": {
-      "report": "生成档案报告: -{amount}积分",
-      "reanalysis": "重新分析部分: -{amount}积分"
+      "reportGeneration": "生成报告",
+      "sectionReanalysis": "重新分析部分"
     }
   },
   "profile": {
