@@ -133,6 +133,49 @@ export default function GeneratingPage({ params }: PageProps) {
   }, [isGenerating]);
 
   /**
+   * 리포트 생성 시작 함수
+   * @param retryFromStep 재시도할 단계 (실패한 경우)
+   */
+  const startReportGeneration = useCallback(
+    (retryFromStep?: string) => {
+      if (!profileId) return;
+
+      // 타이머 시작
+      setIsGenerating(true);
+      setError(null);
+      setElapsedTime(0);
+
+      // 리포트 생성 시작 (비동기로 - 응답 대기하지 않음)
+      fetch(`/api/profiles/${profileId}/report`, {
+        method: 'POST',
+        headers: retryFromStep ? { 'Content-Type': 'application/json' } : undefined,
+        body: retryFromStep ? JSON.stringify({ retryFromStep }) : undefined,
+      })
+        .then(async (startRes) => {
+          if (!startRes.ok) {
+            const errorData = await startRes.json();
+            // 크레딧 부족
+            if (startRes.status === 402) {
+              router.push(`/profiles/${profileId}?error=insufficient_credits`);
+              return;
+            }
+            throw new Error(errorData.error || '리포트 생성 시작 실패');
+          }
+          // 완료됨 - 폴링에서 완료 확인 후 리다이렉트
+        })
+        .catch((err) => {
+          console.error('리포트 생성 실패:', err);
+          setError({
+            step: 'manseryeok',
+            error: err instanceof Error ? err.message : '리포트 생성에 실패했습니다.',
+            retryable: true,
+          });
+        });
+    },
+    [profileId, router]
+  );
+
+  /**
    * 상태 폴링 함수
    */
   const pollStatus = useCallback(async () => {
@@ -144,33 +187,7 @@ export default function GeneratingPage({ params }: PageProps) {
       if (!res.ok) {
         // 404: 아직 생성 시작 안됨
         if (res.status === 404) {
-          // 타이머 시작
-          setIsGenerating(true);
-
-          // 리포트 생성 시작 (비동기로 - 응답 대기하지 않음)
-          fetch(`/api/profiles/${profileId}/report`, {
-            method: 'POST',
-          })
-            .then(async (startRes) => {
-              if (!startRes.ok) {
-                const errorData = await startRes.json();
-                // 크레딧 부족
-                if (startRes.status === 402) {
-                  router.push(`/profiles/${profileId}?error=insufficient_credits`);
-                  return;
-                }
-                throw new Error(errorData.error || '리포트 생성 시작 실패');
-              }
-              // 완료됨 - 폴링에서 완료 확인 후 리다이렉트
-            })
-            .catch((err) => {
-              console.error('리포트 생성 실패:', err);
-              setError({
-                step: 'manseryeok',
-                error: err instanceof Error ? err.message : '리포트 생성에 실패했습니다.',
-                retryable: true,
-              });
-            });
+          startReportGeneration();
           return;
         }
         throw new Error('상태 조회 실패');
@@ -191,19 +208,36 @@ export default function GeneratingPage({ params }: PageProps) {
         setIsGenerating(true);
       }
 
-      // 실패 시 에러 상태 설정
-      if (data.status === 'failed' && data.error) {
+      // pending 상태인 경우 - POST /report 재호출 (기존 실패 후 페이지 재진입 시)
+      if (data.status === 'pending' && !isGenerating) {
+        startReportGeneration();
+        return;
+      }
+
+      // 실패한 경우 - 재시도 가능하면 자동으로 재시작 (크레딧 이미 차감됨)
+      if (data.status === 'failed') {
         if (timerRef.current) clearInterval(timerRef.current);
-        setError({
-          step: data.error.step,
-          error: data.error.message,
-          retryable: data.error.retryable,
-        });
+
+        if (data.error) {
+          // 에러 상태 설정 (재시작 버튼 표시를 위해)
+          setError({
+            step: data.error.step,
+            error: data.error.message,
+            retryable: data.error.retryable,
+          });
+        } else {
+          // 에러 정보 없이 실패한 경우
+          setError({
+            step: 'manseryeok',
+            error: '리포트 생성에 실패했습니다.',
+            retryable: true,
+          });
+        }
       }
     } catch (err) {
       console.error('폴링 오류:', err);
     }
-  }, [profileId, router, isGenerating]);
+  }, [profileId, router, isGenerating, startReportGeneration]);
 
   /**
    * 폴링 루프
@@ -238,43 +272,8 @@ export default function GeneratingPage({ params }: PageProps) {
    * 재시도 핸들러
    */
   const handleRetry = async (step: PipelineStep) => {
-    setError(null);
     setPollCount(0);
-    setElapsedTime(0);
-    setIsGenerating(true);
-
-    try {
-      // 비동기로 재시도 (응답 대기하지 않음)
-      fetch(`/api/profiles/${profileId}/report`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ retryFromStep: step }),
-      })
-        .then(async (res) => {
-          if (!res.ok) {
-            const errorData = await res.json();
-            throw new Error(errorData.error || '재시도 실패');
-          }
-        })
-        .catch((err) => {
-          console.error('재시도 오류:', err);
-          setError({
-            step,
-            error: err instanceof Error ? err.message : '재시도에 실패했습니다.',
-            retryable: true,
-          });
-        });
-
-      // 폴링 재시작
-      pollStatus();
-    } catch (err) {
-      console.error('재시도 오류:', err);
-      setError({
-        step,
-        error: err instanceof Error ? err.message : '재시도에 실패했습니다.',
-        retryable: true,
-      });
-    }
+    startReportGeneration(step);
   };
 
   /**

@@ -59,21 +59,33 @@ export default function ProfileDetailPage({ params }: PageProps) {
   // 크레딧 확인
   const { data: creditsData } = useReportCreditsCheck();
 
-  // 리포트 존재 여부 확인
-  const { data: reportData } = useQuery({
-    queryKey: ['profile-report', id],
+  // 리포트 상태 확인 (status API 사용)
+  const { data: reportStatusData } = useQuery({
+    queryKey: ['profile-report-status', id],
     queryFn: async () => {
       if (!id) return null;
-      const res = await fetch(`/api/profiles/${id}/report`);
-      if (res.status === 404) return null;
-      if (!res.ok) throw new Error('리포트 조회 실패');
+      const res = await fetch(`/api/profiles/${id}/report/status`);
+      if (res.status === 404) return { status: null };
+      if (!res.ok) throw new Error('리포트 상태 조회 실패');
       return res.json();
     },
     enabled: !!id,
     retry: false,
+    refetchInterval: (query) => {
+      const status = query.state.data?.status;
+      // 진행 중이거나 대기 중일 때만 3초마다 폴링
+      if (status === 'in_progress' || status === 'pending') return 3000;
+      return false;
+    },
   });
 
-  const hasReport = !!reportData?.success;
+  const reportStatus = reportStatusData?.status as
+    | 'pending'
+    | 'in_progress'
+    | 'completed'
+    | 'failed'
+    | null;
+  const hasReport = reportStatus === 'completed';
 
   /**
    * 저장 핸들러
@@ -139,8 +151,15 @@ export default function ProfileDetailPage({ params }: PageProps) {
    * 리포트 보기 핸들러
    */
   const handleViewReport = () => {
-    // TODO: 리포트 페이지로 이동
     router.push(`/profiles/${id}/report`);
+  };
+
+  /**
+   * 실패한 리포트 재시작 핸들러 (무료)
+   */
+  const handleRetryReport = () => {
+    // generating 페이지로 이동하면 자동으로 재시작됨
+    router.push(`/profiles/${id}/generating`);
   };
 
   // 로딩 상태
@@ -187,8 +206,10 @@ export default function ProfileDetailPage({ params }: PageProps) {
           <ProfileInfoCard
             profile={profile}
             hasReport={hasReport}
+            reportStatus={reportStatus}
             onGenerateReport={handleGenerateReport}
             onViewReport={handleViewReport}
+            onRetryReport={handleRetryReport}
             onSave={handleSave}
             onDelete={() => setShowDeleteDialog(true)}
             isSaving={isUpdating}

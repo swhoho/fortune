@@ -6,11 +6,20 @@
  */
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Calendar, Clock, Edit2, Trash2, FileText, Sparkles } from 'lucide-react';
+import {
+  Calendar,
+  Clock,
+  Edit2,
+  Trash2,
+  FileText,
+  Sparkles,
+  AlertTriangle,
+  RefreshCw,
+} from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { Button } from '@/components/ui/button';
 import { ProfileForm } from './ProfileForm';
-import type { ProfileResponse } from '@/types/profile';
+import type { ProfileResponse, ReportStatus } from '@/types/profile';
 import type { CreateProfileInput } from '@/lib/validations/profile';
 import { calculateAge } from '@/lib/date';
 
@@ -19,10 +28,14 @@ interface ProfileInfoCardProps {
   profile: ProfileResponse;
   /** 리포트 존재 여부 */
   hasReport?: boolean;
+  /** 리포트 상태 */
+  reportStatus?: ReportStatus;
   /** 리포트 생성 핸들러 */
   onGenerateReport?: () => void;
   /** 리포트 보기 핸들러 */
   onViewReport?: () => void;
+  /** 실패한 리포트 재시작 핸들러 */
+  onRetryReport?: () => void;
   /** 저장 핸들러 */
   onSave?: (data: CreateProfileInput) => void;
   /** 삭제 핸들러 */
@@ -44,8 +57,10 @@ const CALENDAR_LABELS: Record<string, string> = {
 export function ProfileInfoCard({
   profile,
   hasReport = false,
+  reportStatus,
   onGenerateReport,
   onViewReport,
+  onRetryReport,
   onSave,
   onDelete,
   isSaving = false,
@@ -186,7 +201,28 @@ export function ProfileInfoCard({
 
             {/* 리포트 액션 */}
             <div className="border-t border-gray-100 p-6">
-              {hasReport ? (
+              {/* 실패한 리포트 상태 표시 및 재시작 버튼 */}
+              {reportStatus === 'failed' && (
+                <div className="space-y-3">
+                  <div className="flex items-center justify-center gap-2 rounded-lg bg-red-50 p-3 text-red-700">
+                    <AlertTriangle className="h-4 w-4" />
+                    <span className="text-sm font-medium">사주 분석이 실패했습니다</span>
+                  </div>
+                  <Button
+                    onClick={onRetryReport}
+                    className="w-full bg-gradient-to-r from-red-500 to-red-600 text-white shadow-lg transition-all hover:scale-[1.02] hover:shadow-xl"
+                  >
+                    <RefreshCw className="mr-2 h-4 w-4" />
+                    무료로 재시작
+                  </Button>
+                  <p className="text-center text-xs text-gray-400">
+                    이미 크레딧이 차감되어 무료로 재시도됩니다
+                  </p>
+                </div>
+              )}
+
+              {/* 완료된 리포트 보기 */}
+              {hasReport && reportStatus !== 'failed' && (
                 <Button
                   onClick={onViewReport}
                   className="w-full bg-gradient-to-r from-[#d4af37] to-[#c19a2e] text-white shadow-lg transition-all hover:scale-[1.02] hover:shadow-xl"
@@ -194,7 +230,10 @@ export function ProfileInfoCard({
                   <FileText className="mr-2 h-4 w-4" />
                   {t('detail.viewReport')}
                 </Button>
-              ) : (
+              )}
+
+              {/* 신규 리포트 생성 */}
+              {!hasReport && reportStatus !== 'failed' && (
                 <div className="space-y-3">
                   <p className="text-center text-sm text-gray-500">{t('detail.noReport')}</p>
                   <Button

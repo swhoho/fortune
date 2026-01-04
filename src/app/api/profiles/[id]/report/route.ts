@@ -119,15 +119,17 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
       return NextResponse.json({ error: '접근 권한이 없습니다' }, { status: 403 });
     }
 
-    // 2. 이미 진행 중인 리포트가 있는지 확인
+    // 2. 기존 리포트 확인 (pending, in_progress, failed 모두)
     const { data: existingReport } = await supabase
       .from('profile_reports')
-      .select('id, status')
+      .select('id, status, credits_used, current_step')
       .eq('profile_id', profileId)
-      .in('status', ['pending', 'in_progress'])
+      .order('created_at', { ascending: false })
+      .limit(1)
       .maybeSingle();
 
-    if (existingReport && !retryFromStep) {
+    // 이미 진행 중인 리포트가 있는 경우 (재시도 요청이 아닐 때)
+    if (existingReport?.status === 'in_progress' && !retryFromStep) {
       return NextResponse.json({
         success: true,
         message: '이미 리포트 생성이 진행 중입니다',
@@ -136,8 +138,18 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
       });
     }
 
-    // 3. 크레딧 확인 (재시도가 아닌 경우에만)
-    if (!retryFromStep) {
+    // 3. 크레딧 무료 재시도 조건 확인
+    // - 기존 리포트가 있고 credits_used > 0이면 크레딧 차감 없이 재시도
+    // - 재시도 요청(retryFromStep)인 경우도 무료
+    const isRetryWithCredits =
+      existingReport &&
+      existingReport.credits_used > 0 &&
+      (existingReport.status === 'failed' || existingReport.status === 'pending');
+
+    const shouldDeductCredits = !retryFromStep && !isRetryWithCredits;
+
+    // 4. 크레딧 확인 및 차감 (신규 생성인 경우에만)
+    if (shouldDeductCredits) {
       const { data: user, error: userError } = await supabase
         .from('users')
         .select('credits')
@@ -160,7 +172,7 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
         );
       }
 
-      // 4. 크레딧 차감
+      // 크레딧 차감
       const newCredits = user.credits - SERVICE_CREDITS.profileReport;
       await supabase
         .from('users')
@@ -174,18 +186,38 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
     // 5. 리포트 레코드 생성/업데이트
     let reportId: string;
 
-    if (retryFromStep && existingReport) {
+    // 기존 리포트가 있으면 재사용 (failed, pending 상태)
+    if (
+      existingReport &&
+      (existingReport.status === 'failed' || existingReport.status === 'pending')
+    ) {
       // 재시도: 기존 레코드 상태 업데이트
       reportId = existingReport.id;
+      const startStep = retryFromStep || existingReport.current_step || 'manseryeok';
+
       await supabase
         .from('profile_reports')
         .update({
           status: 'pending',
-          current_step: retryFromStep,
+          current_step: startStep,
+          progress_percent: 0,
           error: null,
+          step_statuses: {
+            manseryeok: 'pending',
+            jijanggan: 'pending',
+            basic_analysis: 'pending',
+            personality: 'pending',
+            aptitude: 'pending',
+            fortune: 'pending',
+            scoring: 'pending',
+            visualization: 'pending',
+            saving: 'pending',
+          },
           updated_at: new Date().toISOString(),
         })
         .eq('id', reportId);
+
+      console.log(`[API] 리포트 재시도 (무료): ${reportId}, 시작 단계: ${startStep}`);
     } else {
       // 신규 생성
       const { data: newReport, error: insertError } = await supabase

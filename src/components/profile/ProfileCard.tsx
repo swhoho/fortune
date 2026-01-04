@@ -6,7 +6,7 @@
  */
 import { memo, useCallback } from 'react';
 import { motion } from 'framer-motion';
-import { User, ChevronRight } from 'lucide-react';
+import { User, ChevronRight, AlertTriangle, CheckCircle, Loader2 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import type { ProfileResponse } from '@/types/profile';
 import { calculateAge } from '@/lib/date';
@@ -27,6 +27,33 @@ const CALENDAR_LABELS: Record<string, string> = {
   lunar_leap: '윤달',
 };
 
+/** 리포트 상태별 배지 정보 */
+const REPORT_STATUS_INFO: Record<
+  string,
+  { label: string; className: string; icon: React.ReactNode }
+> = {
+  completed: {
+    label: '분석 완료',
+    className: 'bg-green-100 text-green-700',
+    icon: <CheckCircle className="h-3 w-3" />,
+  },
+  in_progress: {
+    label: '분석 중',
+    className: 'bg-blue-100 text-blue-700',
+    icon: <Loader2 className="h-3 w-3 animate-spin" />,
+  },
+  pending: {
+    label: '대기 중',
+    className: 'bg-yellow-100 text-yellow-700',
+    icon: <Loader2 className="h-3 w-3" />,
+  },
+  failed: {
+    label: '분석 실패',
+    className: 'bg-red-100 text-red-700',
+    icon: <AlertTriangle className="h-3 w-3" />,
+  },
+};
+
 /**
  * 프로필 카드
  */
@@ -42,13 +69,18 @@ function ProfileCardComponent({ profile, index, onSelect }: ProfileCardProps) {
     onSelect?.(profile);
   }, [onSelect, profile]);
 
+  // 리포트 상태 정보
+  const reportStatusInfo = profile.reportStatus ? REPORT_STATUS_INFO[profile.reportStatus] : null;
+
   return (
     <motion.article
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: index * 0.05 }}
       onClick={handleClick}
-      className="group relative cursor-pointer overflow-hidden rounded-2xl border border-gray-100 bg-white p-5 shadow-sm transition-all duration-300 hover:shadow-md"
+      className={`group relative cursor-pointer overflow-hidden rounded-2xl border bg-white p-5 shadow-sm transition-all duration-300 hover:shadow-md ${
+        profile.reportStatus === 'failed' ? 'border-red-200 bg-red-50/30' : 'border-gray-100'
+      }`}
     >
       {/* 장식적 배경 요소 */}
       <div className="absolute -right-12 -top-12 h-32 w-32 rounded-full bg-gradient-to-br from-[#d4af37]/5 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
@@ -86,6 +118,16 @@ function ProfileCardComponent({ profile, index, onSelect }: ProfileCardProps) {
         {profile.birthTime && (
           <span className="inline-flex items-center rounded-full bg-gray-100 px-2.5 py-1 text-xs font-medium text-gray-600">
             {profile.birthTime}
+          </span>
+        )}
+
+        {/* 리포트 상태 배지 */}
+        {reportStatusInfo && (
+          <span
+            className={`inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-medium ${reportStatusInfo.className}`}
+          >
+            {reportStatusInfo.icon}
+            {reportStatusInfo.label}
           </span>
         )}
       </div>

@@ -24,6 +24,9 @@ export interface Profile {
   updatedAt: string; // ISO datetime string
 }
 
+/** 리포트 상태 */
+export type ReportStatus = 'pending' | 'in_progress' | 'completed' | 'failed' | null;
+
 /**
  * API 응답용 프로필 (camelCase)
  */
@@ -36,6 +39,8 @@ export interface ProfileResponse {
   calendarType: CalendarType;
   createdAt: string;
   updatedAt: string;
+  /** 리포트 상태 (목록 조회 시 포함) */
+  reportStatus?: ReportStatus;
 }
 
 /**

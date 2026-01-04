@@ -9,21 +9,24 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getAuthenticatedUser } from '@/lib/supabase/server';
 import { getSupabaseAdmin } from '@/lib/supabase/client';
 import { createProfileSchema } from '@/lib/validations/profile';
-import type { ProfileResponse } from '@/types/profile';
+import type { ProfileResponse, ReportStatus } from '@/types/profile';
 
 /**
  * DB 레코드를 API 응답 형식으로 변환 (snake_case → camelCase)
  */
-function toProfileResponse(record: {
-  id: string;
-  name: string;
-  gender: string;
-  birth_date: string;
-  birth_time: string | null;
-  calendar_type: string;
-  created_at: string;
-  updated_at: string;
-}): ProfileResponse {
+function toProfileResponse(
+  record: {
+    id: string;
+    name: string;
+    gender: string;
+    birth_date: string;
+    birth_time: string | null;
+    calendar_type: string;
+    created_at: string;
+    updated_at: string;
+  },
+  reportStatus?: ReportStatus
+): ProfileResponse {
   return {
     id: record.id,
     name: record.name,
@@ -33,6 +36,7 @@ function toProfileResponse(record: {
     calendarType: record.calendar_type as 'solar' | 'lunar' | 'lunar_leap',
     createdAt: record.created_at,
     updatedAt: record.updated_at,
+    reportStatus,
   };
 }
 
@@ -109,7 +113,7 @@ export async function POST(request: NextRequest) {
 
 /**
  * GET /api/profiles
- * 프로필 목록 조회 (본인 소유만)
+ * 프로필 목록 조회 (본인 소유만, 리포트 상태 포함)
  */
 export async function GET() {
   try {
@@ -122,8 +126,9 @@ export async function GET() {
       );
     }
 
-    // 2. 프로필 목록 조회
     const supabase = getSupabaseAdmin();
+
+    // 2. 프로필 목록 조회
     const { data, error } = await supabase
       .from('profiles')
       .select('id, name, gender, birth_date, birth_time, calendar_type, created_at, updated_at')
@@ -138,8 +143,28 @@ export async function GET() {
       );
     }
 
-    // 3. 응답
-    const profiles = (data || []).map(toProfileResponse);
+    // 3. 각 프로필의 최신 리포트 상태 조회
+    const profileIds = (data || []).map((p) => p.id);
+    const { data: reports } = await supabase
+      .from('profile_reports')
+      .select('profile_id, status')
+      .in('profile_id', profileIds)
+      .order('created_at', { ascending: false });
+
+    // 프로필별 최신 리포트 상태 매핑 (첫 번째가 최신)
+    const reportStatusMap = new Map<string, ReportStatus>();
+    if (reports) {
+      for (const report of reports) {
+        if (!reportStatusMap.has(report.profile_id)) {
+          reportStatusMap.set(report.profile_id, report.status as ReportStatus);
+        }
+      }
+    }
+
+    // 4. 응답
+    const profiles = (data || []).map((profile) =>
+      toProfileResponse(profile, reportStatusMap.get(profile.id) || null)
+    );
 
     return NextResponse.json({
       success: true,
