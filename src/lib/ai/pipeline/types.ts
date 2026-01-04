@@ -26,17 +26,17 @@ export type {
   SupportedLanguage,
 };
 
-/** 단계별 기본 타임아웃 (밀리초) */
+/** 단계별 기본 타임아웃 (밀리초) - AI 분석은 5분, 기타는 1분 */
 export const DEFAULT_STEP_TIMEOUTS: Record<PipelineStep, number> = {
-  manseryeok: 10000, // 10초
-  jijanggan: 5000, // 5초
-  basic_analysis: 15000, // 15초
-  personality: 12000, // 12초
-  aptitude: 12000, // 12초
-  fortune: 12000, // 12초
-  scoring: 2000, // 2초
-  visualization: 8000, // 8초
-  saving: 3000, // 3초
+  manseryeok: 300000, // 5분
+  jijanggan: 60000, // 1분
+  basic_analysis: 300000, // 5분 (Gemini API 응답 대기)
+  personality: 300000, // 5분
+  aptitude: 300000, // 5분
+  fortune: 300000, // 5분
+  scoring: 60000, // 1분
+  visualization: 300000, // 5분
+  saving: 60000, // 1분
   complete: 0,
 };
 

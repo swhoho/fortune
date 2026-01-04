@@ -270,6 +270,7 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
 /**
  * 파이프라인 동기 실행
  * Vercel Serverless에서 완료까지 대기
+ * v2.2: 만세력 재사용 + 단계별 즉시 저장
  */
 async function startPipelineAsync(
   supabase: ReturnType<typeof getSupabaseAdmin>,
@@ -286,28 +287,60 @@ async function startPipelineAsync(
   }
 
   try {
-    // 1. 프로필에서 만세력 계산 (Python API)
-    const birthDate = new Date(profile.birth_date as string);
-    const birthTime = (profile.birth_time as string) || '12:00';
-    const [hour, minute] = birthTime.split(':').map(Number);
-    birthDate.setHours(hour || 12, minute || 0, 0, 0);
+    // 1. 기존 리포트에서 pillars 확인 (재시도 시 재사용)
+    const { data: existingData } = await supabase
+      .from('profile_reports')
+      .select('pillars, daewun, jijanggan, analysis')
+      .eq('id', reportId)
+      .single();
 
-    const manseryeokRes = await fetch(`${pythonApiUrl}/api/manseryeok/calculate`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        birthDatetime: birthDate.toISOString(),
-        timezone: 'GMT+9',
-        isLunar: profile.calendar_type === 'lunar',
-        gender: profile.gender,
-      }),
-    });
+    let manseryeokData: { pillars: unknown; daewun: unknown };
 
-    if (!manseryeokRes.ok) {
-      throw new Error('만세력 계산 실패');
+    // 기존 pillars가 있고 재시도인 경우 재사용 (manseryeok 단계가 아닌 경우)
+    if (existingData?.pillars && retryFromStep && retryFromStep !== 'manseryeok') {
+      console.log('[Pipeline] 기존 만세력 데이터 재사용');
+      manseryeokData = {
+        pillars: existingData.pillars,
+        daewun: existingData.daewun,
+      };
+    } else {
+      // 만세력 API 호출 (신규 또는 manseryeok 단계 재시도)
+      const birthDate = new Date(profile.birth_date as string);
+      const birthTime = (profile.birth_time as string) || '12:00';
+      const [hour, minute] = birthTime.split(':').map(Number);
+      birthDate.setHours(hour || 12, minute || 0, 0, 0);
+
+      console.log('[Pipeline] 만세력 API 호출 시작');
+      const manseryeokRes = await fetch(`${pythonApiUrl}/api/manseryeok/calculate`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          birthDatetime: birthDate.toISOString(),
+          timezone: 'GMT+9',
+          isLunar: profile.calendar_type === 'lunar',
+          gender: profile.gender,
+        }),
+      });
+
+      if (!manseryeokRes.ok) {
+        throw new Error('만세력 계산 실패');
+      }
+
+      manseryeokData = await manseryeokRes.json();
+
+      // 만세력 계산 직후 DB에 즉시 저장
+      await supabase
+        .from('profile_reports')
+        .update({
+          pillars: manseryeokData.pillars,
+          daewun: manseryeokData.daewun,
+          current_step: 'jijanggan',
+          updated_at: new Date().toISOString(),
+        })
+        .eq('id', reportId);
+
+      console.log('[Pipeline] 만세력 데이터 DB 저장 완료');
     }
-
-    const manseryeokData = await manseryeokRes.json();
 
     // 2. 파이프라인 생성 및 실행
     const pipeline = createAnalysisPipeline({
@@ -327,38 +360,132 @@ async function startPipelineAsync(
           })
           .eq('id', reportId);
       },
-      onStepComplete: async (step, _result) => {
+      onStepComplete: async (step, result) => {
         console.log(`[Pipeline] ${step} 완료`);
+
+        // 주요 단계 완료 시 중간 결과 DB 즉시 저장
+        if (step === 'jijanggan' && result) {
+          await supabase
+            .from('profile_reports')
+            .update({
+              jijanggan: result,
+              updated_at: new Date().toISOString(),
+            })
+            .eq('id', reportId);
+          console.log('[Pipeline] 지장간 데이터 DB 저장 완료');
+        }
+
+        if (step === 'basic_analysis' && result) {
+          const { data: current } = await supabase
+            .from('profile_reports')
+            .select('analysis')
+            .eq('id', reportId)
+            .single();
+
+          await supabase
+            .from('profile_reports')
+            .update({
+              analysis: { ...current?.analysis, basicAnalysis: result },
+              updated_at: new Date().toISOString(),
+            })
+            .eq('id', reportId);
+          console.log('[Pipeline] 기본분석 데이터 DB 저장 완료');
+        }
+
+        if (step === 'personality' && result) {
+          const { data: current } = await supabase
+            .from('profile_reports')
+            .select('analysis')
+            .eq('id', reportId)
+            .single();
+
+          await supabase
+            .from('profile_reports')
+            .update({
+              analysis: { ...current?.analysis, personality: result },
+              updated_at: new Date().toISOString(),
+            })
+            .eq('id', reportId);
+          console.log('[Pipeline] 성격분석 데이터 DB 저장 완료');
+        }
+
+        if (step === 'aptitude' && result) {
+          const { data: current } = await supabase
+            .from('profile_reports')
+            .select('analysis')
+            .eq('id', reportId)
+            .single();
+
+          await supabase
+            .from('profile_reports')
+            .update({
+              analysis: { ...current?.analysis, aptitude: result },
+              updated_at: new Date().toISOString(),
+            })
+            .eq('id', reportId);
+          console.log('[Pipeline] 적성분석 데이터 DB 저장 완료');
+        }
+
+        if (step === 'fortune' && result) {
+          const { data: current } = await supabase
+            .from('profile_reports')
+            .select('analysis')
+            .eq('id', reportId)
+            .single();
+
+          await supabase
+            .from('profile_reports')
+            .update({
+              analysis: { ...current?.analysis, fortune: result },
+              updated_at: new Date().toISOString(),
+            })
+            .eq('id', reportId);
+          console.log('[Pipeline] 재물운 데이터 DB 저장 완료');
+        }
+
+        if (step === 'scoring' && result) {
+          await supabase
+            .from('profile_reports')
+            .update({
+              scores: result,
+              updated_at: new Date().toISOString(),
+            })
+            .eq('id', reportId);
+          console.log('[Pipeline] 점수 데이터 DB 저장 완료');
+        }
+
+        if (step === 'visualization' && result) {
+          await supabase
+            .from('profile_reports')
+            .update({
+              visualization_url: (result as { pillarImage?: string })?.pillarImage,
+              updated_at: new Date().toISOString(),
+            })
+            .eq('id', reportId);
+          console.log('[Pipeline] 시각화 데이터 DB 저장 완료');
+        }
       },
       onError: async (step, error) => {
         console.error(`[Pipeline] ${step} 실패:`, error);
       },
     });
 
-    // 재시도인 경우 이전 결과 복원
-    if (retryFromStep) {
-      const { data: prevReport } = await supabase
-        .from('profile_reports')
-        .select('pillars, daewun, jijanggan, analysis')
-        .eq('id', reportId)
-        .single();
-
-      if (prevReport) {
-        pipeline.hydrate(
-          {
-            manseryeok: {
-              pillars: prevReport.pillars,
-              daewun: prevReport.daewun,
-              jijanggan: prevReport.jijanggan,
-            },
-            basicAnalysis: prevReport.analysis?.basicAnalysis,
-            personality: prevReport.analysis?.personality,
-            aptitude: prevReport.analysis?.aptitude,
-            fortune: prevReport.analysis?.fortune,
+    // 재시도인 경우 이전 결과 복원 (existingData 재사용)
+    if (retryFromStep && existingData) {
+      pipeline.hydrate(
+        {
+          manseryeok: {
+            pillars: existingData.pillars || manseryeokData.pillars,
+            daewun: existingData.daewun || manseryeokData.daewun,
+            jijanggan: existingData.jijanggan,
           },
-          retryFromStep as import('@/lib/ai/types').PipelineStep
-        );
-      }
+          basicAnalysis: existingData.analysis?.basicAnalysis,
+          personality: existingData.analysis?.personality,
+          aptitude: existingData.analysis?.aptitude,
+          fortune: existingData.analysis?.fortune,
+        },
+        retryFromStep as import('@/lib/ai/types').PipelineStep
+      );
     }
 
     // 파이프라인 실행
@@ -381,7 +508,7 @@ async function startPipelineAsync(
       throw new Error(result.error?.message || '파이프라인 실행 실패');
     }
 
-    // 3. 결과 저장
+    // 3. 최종 결과 저장 (finalResult 추가)
     await supabase
       .from('profile_reports')
       .update({
@@ -389,9 +516,6 @@ async function startPipelineAsync(
         current_step: null,
         progress_percent: 100,
         estimated_time_remaining: 0,
-        pillars: manseryeokData.pillars,
-        daewun: manseryeokData.daewun,
-        jijanggan: result.data?.intermediateResults?.manseryeok?.jijanggan,
         analysis: {
           basicAnalysis: result.data?.intermediateResults?.basicAnalysis,
           personality: result.data?.intermediateResults?.personality,
@@ -399,8 +523,6 @@ async function startPipelineAsync(
           fortune: result.data?.intermediateResults?.fortune,
           finalResult: result.data?.finalResult,
         },
-        scores: result.data?.intermediateResults?.scores,
-        visualization_url: result.data?.intermediateResults?.visualization?.pillarImage,
         updated_at: new Date().toISOString(),
       })
       .eq('id', reportId);
