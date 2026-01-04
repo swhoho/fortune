@@ -45,7 +45,12 @@ export class SajuAnalyzer {
   constructor(options?: AnalysisOptions) {
     this.defaultTimeout = options?.timeout ?? 30000;
     this.defaultRetryCount = options?.retryCount ?? 2;
-    this.pythonApiUrl = process.env.PYTHON_API_URL || 'http://localhost:8000';
+    // PYTHON_API_URL에 프로토콜 없으면 https:// 자동 추가
+    let apiUrl = process.env.PYTHON_API_URL || 'http://localhost:8000';
+    if (apiUrl && !apiUrl.startsWith('http://') && !apiUrl.startsWith('https://')) {
+      apiUrl = `https://${apiUrl}`;
+    }
+    this.pythonApiUrl = apiUrl;
   }
 
   /**

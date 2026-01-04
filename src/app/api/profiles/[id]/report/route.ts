@@ -249,7 +249,11 @@ async function startPipelineAsync(
   // 비동기로 실행 (응답 차단 안함)
   (async () => {
     const { createAnalysisPipeline } = await import('@/lib/ai/pipeline');
-    const pythonApiUrl = process.env.PYTHON_API_URL || 'http://localhost:8000';
+    // PYTHON_API_URL에 프로토콜 없으면 https:// 자동 추가
+    let pythonApiUrl = process.env.PYTHON_API_URL || 'http://localhost:8000';
+    if (pythonApiUrl && !pythonApiUrl.startsWith('http://') && !pythonApiUrl.startsWith('https://')) {
+      pythonApiUrl = `https://${pythonApiUrl}`;
+    }
 
     try {
       // 1. 프로필에서 만세력 계산 (Python API)

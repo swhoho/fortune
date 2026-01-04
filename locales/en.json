@@ -620,6 +620,7 @@
   },
   "pipeline": {
     "steps": {
+      "unknown": "Processing",
       "manseryeok": "Calendar Calculation",
       "jijanggan": "Hidden Stems Analysis",
       "basic_analysis": "Framework Analysis",

@@ -620,6 +620,7 @@
   },
   "pipeline": {
     "steps": {
+      "unknown": "처리 중",
       "manseryeok": "만세력 계산",
       "jijanggan": "지장간 분석",
       "basic_analysis": "격국/용신 분석",

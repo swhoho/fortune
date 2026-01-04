@@ -500,6 +500,7 @@
   },
   "pipeline": {
     "steps": {
+      "unknown": "処理中",
       "manseryeok": "万年暦計算",
       "jijanggan": "蔵干分析",
       "basic_analysis": "格局/用神分析",
