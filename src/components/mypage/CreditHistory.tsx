@@ -9,7 +9,7 @@ import { motion } from 'framer-motion';
 import { format } from 'date-fns';
 import { ko } from 'date-fns/locale';
 import { ArrowUpCircle, ArrowDownCircle, Loader2 } from 'lucide-react';
-import { createClient } from '@/lib/supabase/client';
+import { supabase } from '@/lib/supabase/client';
 import { cn } from '@/lib/utils';
 
 /** 크레딧 기록 아이템 타입 */
@@ -23,7 +23,6 @@ interface CreditHistoryItem {
 
 /** 충전 기록 조회 */
 async function fetchPurchases(userId: string) {
-  const supabase = createClient();
   const { data, error } = await supabase
     .from('purchases')
     .select('id, credits, amount, created_at, status')
@@ -38,7 +37,6 @@ async function fetchPurchases(userId: string) {
 
 /** 사용 기록 조회 */
 async function fetchUsageLogs(userId: string) {
-  const supabase = createClient();
   const { data, error } = await supabase
     .from('ai_usage_logs')
     .select('id, credits_used, feature_type, created_at')
@@ -63,8 +61,9 @@ export function CreditHistory() {
   const { data: userId } = useQuery({
     queryKey: ['currentUserId'],
     queryFn: async () => {
-      const supabase = createClient();
-      const { data: { user } } = await supabase.auth.getUser();
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
       return user?.id;
     },
   });
