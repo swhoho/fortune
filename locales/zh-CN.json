@@ -533,7 +533,7 @@
     "error": {
       "title": "{step}过程中发生错误",
       "completedSteps": "已完成步骤",
-      "retryFrom": "从{step}重试",
+      "retryFrom": "从检查点继续",
       "cancel": "取消"
     }
   },

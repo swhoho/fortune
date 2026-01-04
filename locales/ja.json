@@ -533,7 +533,7 @@
     "error": {
       "title": "{step}中にエラー発生",
       "completedSteps": "完了したステップ",
-      "retryFrom": "{step}からリトライ",
+      "retryFrom": "処理中からリトライ",
       "cancel": "キャンセル"
     }
   },

@@ -653,7 +653,7 @@
     "tip": "알고 계셨나요?",
     "error": {
       "title": "{step} 중 오류 발생",
-      "retryFrom": "{step}부터 재시도",
+      "retryFrom": "처리 중부터 재시도",
       "cancel": "취소",
       "completedSteps": "완료된 단계"
     }

@@ -196,16 +196,21 @@ export default function GeneratingPage({ params }: PageProps) {
       const data: ReportStatusResponse = await res.json();
       setStatus(data);
 
-      // 완료 시 리포트 페이지로 이동
+      // 완료 시 리포트 페이지로 이동 (에러 화면에서도 백그라운드 완료 감지)
       if (data.status === 'completed') {
         if (timerRef.current) clearInterval(timerRef.current);
+        setError(null); // 에러 상태 초기화
         router.push(`/profiles/${profileId}/report`);
         return;
       }
 
-      // 진행 중이면 타이머 시작 (이미 시작 안된 경우)
-      if (data.status === 'in_progress' && !isGenerating) {
-        setIsGenerating(true);
+      // 진행 중이면 에러 초기화 + 타이머 시작
+      // (504 타임아웃 후에도 서버가 계속 실행 중일 수 있음)
+      if (data.status === 'in_progress') {
+        setError(null); // 에러 상태 초기화 (백그라운드 진행 중)
+        if (!isGenerating) {
+          setIsGenerating(true);
+        }
       }
 
       // pending 상태인 경우 - POST /report 재호출 (기존 실패 후 페이지 재진입 시)
@@ -214,19 +219,16 @@ export default function GeneratingPage({ params }: PageProps) {
         return;
       }
 
-      // 실패한 경우 - 재시도 가능하면 자동으로 재시작 (크레딧 이미 차감됨)
+      // 실패한 경우 - 에러 화면 표시 (폴링은 계속 유지하여 백그라운드 완료 감지)
       if (data.status === 'failed') {
-        if (timerRef.current) clearInterval(timerRef.current);
-
+        // 폴링은 중지하지 않음 - 서버에서 백그라운드로 완료될 수 있음
         if (data.error) {
-          // 에러 상태 설정 (재시작 버튼 표시를 위해)
           setError({
             step: data.error.step,
             error: data.error.message,
             retryable: data.error.retryable,
           });
         } else {
-          // 에러 정보 없이 실패한 경우
           setError({
             step: 'manseryeok',
             error: '리포트 생성에 실패했습니다.',

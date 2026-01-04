@@ -653,7 +653,7 @@
     "tip": "Did you know?",
     "error": {
       "title": "Error during {step}",
-      "retryFrom": "Retry from {step}",
+      "retryFrom": "Resume from checkpoint",
       "cancel": "Cancel",
       "completedSteps": "Completed steps"
     }
