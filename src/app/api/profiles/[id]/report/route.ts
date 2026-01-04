@@ -294,7 +294,8 @@ async function startPipelineAsync(
       .eq('id', reportId)
       .single();
 
-    let manseryeokData: { pillars: unknown; daewun: unknown };
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    let manseryeokData: { pillars: any; daewun: any };
 
     // 기존 pillars가 있고 재시도인 경우 재사용 (manseryeok 단계가 아닌 경우)
     if (existingData?.pillars && retryFromStep && retryFromStep !== 'manseryeok') {
