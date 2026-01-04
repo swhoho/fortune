@@ -49,34 +49,253 @@ function transformPersonality(personality: any) {
 
 /**
  * DB basicAnalysis 데이터를 클라이언트 CharacteristicsSectionData 형식으로 변환
+ * NOTE: DB에서 basicAnalysis.basic_analysis 중첩 구조로 저장될 수 있음
  */
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function transformCharacteristics(basicAnalysis: any) {
   if (!basicAnalysis) return null;
 
+  // 중첩 구조 처리: basicAnalysis.basic_analysis가 있으면 사용
+  const data = basicAnalysis.basic_analysis || basicAnalysis;
+
   const paragraphs: string[] = [];
 
   // 격국 설명
-  if (basicAnalysis.structure?.description) {
-    paragraphs.push(basicAnalysis.structure.description);
+  if (data.structure?.description) {
+    paragraphs.push(data.structure.description);
   }
 
   // 일간 특성
-  if (basicAnalysis.day_master?.characteristics) {
-    paragraphs.push(basicAnalysis.day_master.characteristics);
+  if (data.day_master?.characteristics) {
+    paragraphs.push(data.day_master.characteristics);
   }
 
   // 용신 분석
-  if (basicAnalysis.yongshin_analysis?.reason) {
-    paragraphs.push(basicAnalysis.yongshin_analysis.reason);
+  if (data.yongshin_analysis?.reason) {
+    paragraphs.push(data.yongshin_analysis.reason);
   }
 
   return {
-    title: basicAnalysis.structure?.type || '사주 특성',
-    subtitle: basicAnalysis.day_master?.gan
-      ? `${basicAnalysis.day_master.gan}(${basicAnalysis.day_master.element}) 일간`
+    title: data.structure?.type || '사주 특성',
+    subtitle: data.day_master?.gan
+      ? `${data.day_master.gan}(${data.day_master.element || ''}) 일간`
       : '',
     paragraphs,
+  };
+}
+
+/**
+ * DB aptitude 데이터를 클라이언트 AptitudeSectionData 형식으로 변환
+ */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function transformAptitude(aptitude: any, scores: any) {
+  if (!aptitude) return null;
+
+  // 키워드 추출
+  const keywords: string[] = aptitude.analysis_summary?.keywords || [];
+
+  // 주 재능 (첫 번째 talent 사용)
+  const firstTalent = aptitude.talents?.[0];
+  const mainTalent = {
+    label: '주 재능',
+    title: firstTalent?.name || '재능 분석',
+    content: firstTalent?.description || '',
+  };
+
+  // 재능의 상태
+  const talentUtil = aptitude.talent_utilization;
+  const talentStatus = {
+    label: '재능의 상태',
+    title: talentUtil
+      ? `현재 ${talentUtil.current_level || 0}% → 잠재력 ${talentUtil.potential_level || 0}%`
+      : '재능 활용 상태',
+    content: talentUtil?.advice || '',
+  };
+
+  // 진로선택 (analysis_summary.core_logic 사용)
+  const careerChoice = {
+    label: '진로선택',
+    title: '진로 선택 가이드',
+    content: aptitude.analysis_summary?.core_logic || '',
+  };
+
+  // 추천직종
+  const recommendedJobs: string[] = (aptitude.recommended_fields || []).map(
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (field: any) => (typeof field === 'string' ? field : field.name || field.field || '')
+  );
+
+  // 회피직종 정보도 업무스타일에 포함
+  const avoidedFields = (aptitude.avoided_fields || [])
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    .map((field: any) => (typeof field === 'string' ? field : field.name || field.field || ''))
+    .filter(Boolean);
+
+  // 업무스타일
+  const workStyle = {
+    label: '업무스타일',
+    title: '나의 업무 스타일',
+    content: avoidedFields.length > 0 ? `피해야 할 분야: ${avoidedFields.join(', ')}` : '',
+  };
+
+  // 학업스타일 (기본값)
+  const studyStyle = {
+    label: '학업스타일',
+    title: '나의 학습 방식',
+    content: aptitude.study_style?.description || '',
+  };
+
+  // 일자리 능력 그래프 (scores.work에서 생성)
+  const workScores = scores?.work || {};
+  const jobAbilityTraits = [
+    { label: '기획/연구', value: workScores.planning || 0 },
+    { label: '끈기/정력', value: workScores.perseverance || 0 },
+    { label: '실천/수단', value: workScores.execution || 0 },
+    { label: '완성/판매', value: workScores.completion || 0 },
+    { label: '관리/평가', value: workScores.management || 0 },
+  ];
+
+  return {
+    keywords,
+    mainTalent,
+    talentStatus,
+    careerChoice,
+    recommendedJobs,
+    workStyle,
+    studyStyle,
+    jobAbilityTraits,
+  };
+}
+
+/**
+ * DB wealth 데이터를 클라이언트 WealthSectionData 형식으로 변환
+ */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function transformWealth(wealth: any, scores: any) {
+  // 기본값으로 빈 데이터 반환 (null이 아님)
+  const defaultWealth = {
+    wealthFortune: {
+      label: '재물복',
+      title: '내안에 존재하는 재물복',
+      content: '재물운 분석 데이터가 없습니다.',
+    },
+  };
+
+  if (!wealth) return defaultWealth;
+
+  // 재물복 카드
+  const wealthFortune = {
+    label: wealth.label || '재물복',
+    title: wealth.title || '내안에 존재하는 재물복',
+    content: wealth.description || wealth.content || '',
+  };
+
+  // 이성의 존재 카드 (선택)
+  const partnerInfluence = wealth.partner_influence
+    ? {
+        label: '이성의 존재',
+        title: wealth.partner_influence.title || '내안에 있는 이성의 존재형태',
+        content: wealth.partner_influence.description || wealth.partner_influence.content || '',
+      }
+    : undefined;
+
+  // 재물 특성 그래프 (선택, scores에서 생성 가능)
+  const wealthTraits = scores?.wealth
+    ? Object.entries(scores.wealth).map(([key, value]) => ({
+        label: key,
+        value: typeof value === 'number' ? value : 0,
+      }))
+    : undefined;
+
+  return {
+    wealthFortune,
+    partnerInfluence,
+    wealthTraits,
+    score: wealth.score,
+  };
+}
+
+/**
+ * DB romance 데이터를 클라이언트 RomanceSectionData 형식으로 변환
+ */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function transformRomance(romance: any, scores: any) {
+  // 기본값으로 빈 데이터 반환 (null이 아님)
+  const loveScores = scores?.love || {};
+
+  const defaultRomanceTraits = {
+    consideration: loveScores.consideration || 0,
+    humor: loveScores.humor || 0,
+    artistry: loveScores.artistry || 0,
+    vanity: loveScores.vanity || 0,
+    adventure: loveScores.adventure || 0,
+    sincerity: loveScores.sincerity || 0,
+    sociability: loveScores.sociability || 0,
+    financial: loveScores.financial || 0,
+    reliability: loveScores.reliability || 0,
+    expression: loveScores.expression || 0,
+  };
+
+  const defaultRomance = {
+    datingPsychology: {
+      label: '연애심리',
+      title: '결혼전 연애/데이트 심리',
+      content: '연애운 분석 데이터가 없습니다.',
+    },
+    spouseView: {
+      label: '배우자관',
+      title: '결혼후 배우자를 보는 눈',
+      content: '',
+    },
+    romanceTraits: defaultRomanceTraits,
+  };
+
+  if (!romance) return defaultRomance;
+
+  // 연애심리 카드
+  const datingPsychology = {
+    label: romance.dating_psychology?.label || '연애심리',
+    title: romance.dating_psychology?.title || '결혼전 연애/데이트 심리',
+    content: romance.dating_psychology?.description || romance.dating_psychology?.content || '',
+  };
+
+  // 배우자관 카드
+  const spouseView = {
+    label: romance.spouse_view?.label || '배우자관',
+    title: romance.spouse_view?.title || '결혼후 배우자를 보는 눈',
+    content: romance.spouse_view?.description || romance.spouse_view?.content || '',
+  };
+
+  // 성격패턴 카드 (선택)
+  const personalityPattern = romance.personality_pattern
+    ? {
+        label: romance.personality_pattern.label || '성격패턴',
+        title: romance.personality_pattern.title || '결혼후 성격인 패턴',
+        content:
+          romance.personality_pattern.description || romance.personality_pattern.content || '',
+      }
+    : undefined;
+
+  // 연애 특성 (scores.love에서 생성)
+  const romanceTraits = {
+    consideration: loveScores.consideration || 0,
+    humor: loveScores.humor || 0,
+    artistry: loveScores.artistry || 0,
+    vanity: loveScores.vanity || 0,
+    adventure: loveScores.adventure || 0,
+    sincerity: loveScores.sincerity || 0,
+    sociability: loveScores.sociability || 0,
+    financial: loveScores.financial || 0,
+    reliability: loveScores.reliability || 0,
+    expression: loveScores.expression || 0,
+  };
+
+  return {
+    datingPsychology,
+    spouseView,
+    personalityPattern,
+    romanceTraits,
+    score: romance.score,
   };
 }
 
@@ -167,9 +386,9 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
       // 분석 결과 (analysis JSONB에서 추출 및 클라이언트 형식 변환)
       personality: transformPersonality(report.analysis?.personality),
       characteristics: transformCharacteristics(report.analysis?.basicAnalysis),
-      aptitude: report.analysis?.aptitude || null,
-      wealth: report.analysis?.fortune?.wealth || null,
-      romance: report.analysis?.fortune?.romance || null,
+      aptitude: transformAptitude(report.analysis?.aptitude, report.scores),
+      wealth: transformWealth(report.analysis?.fortune?.wealth, report.scores),
+      romance: transformRomance(report.analysis?.fortune?.romance, report.scores),
       // 점수 및 시각화
       scores: report.scores,
       visualizationUrl: report.visualization_url,

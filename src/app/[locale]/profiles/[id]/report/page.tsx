@@ -49,11 +49,11 @@ interface ReportData {
   profile: ReportProfileInfo;
   pillars: PillarsHanja;
   daewun: ReportDaewunItem[];
-  personality: PersonalitySectionData;
-  characteristics: CharacteristicsSectionData;
-  aptitude: AptitudeSectionData;
-  wealth: WealthSectionData;
-  romance: RomanceSectionData;
+  personality: PersonalitySectionData | null;
+  characteristics: CharacteristicsSectionData | null;
+  aptitude: AptitudeSectionData | null;
+  wealth: WealthSectionData | null;
+  romance: RomanceSectionData | null;
 }
 
 /**
@@ -269,29 +269,39 @@ export default function ProfileReportPage({ params }: PageProps) {
           </section>
 
           {/* 섹션 2: 성격 분석 */}
-          <section id="personality" className="scroll-mt-32">
-            <PersonalitySection {...reportData.personality} />
-          </section>
+          {reportData.personality && (
+            <section id="personality" className="scroll-mt-32">
+              <PersonalitySection {...reportData.personality} />
+            </section>
+          )}
 
           {/* 섹션 3: 사주 특성 */}
-          <section id="characteristics" className="scroll-mt-32">
-            <CharacteristicsSection {...reportData.characteristics} />
-          </section>
+          {reportData.characteristics && (
+            <section id="characteristics" className="scroll-mt-32">
+              <CharacteristicsSection {...reportData.characteristics} />
+            </section>
+          )}
 
           {/* 섹션 4: 적성과 직업 */}
-          <section id="aptitude" className="scroll-mt-32">
-            <AptitudeSection data={reportData.aptitude} />
-          </section>
+          {reportData.aptitude && (
+            <section id="aptitude" className="scroll-mt-32">
+              <AptitudeSection data={reportData.aptitude} />
+            </section>
+          )}
 
           {/* 섹션 5: 재물운 */}
-          <section id="wealth" className="scroll-mt-32">
-            <WealthSection data={reportData.wealth} />
-          </section>
+          {reportData.wealth && (
+            <section id="wealth" className="scroll-mt-32">
+              <WealthSection data={reportData.wealth} />
+            </section>
+          )}
 
           {/* 섹션 6: 연애/결혼 */}
-          <section id="romance" className="scroll-mt-32">
-            <RomanceSection data={reportData.romance} />
-          </section>
+          {reportData.romance && (
+            <section id="romance" className="scroll-mt-32">
+              <RomanceSection data={reportData.romance} />
+            </section>
+          )}
         </div>
 
         {/* 푸터 */}
