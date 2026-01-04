@@ -4,9 +4,9 @@
  * 프로필 리포트 기반 AI 추가 질문 (10 크레딧)
  */
 import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
+import { getAuthenticatedUser } from '@/lib/supabase/server';
 import { z } from 'zod';
-import { authOptions } from '@/lib/auth';
+
 import { getSupabaseAdmin } from '@/lib/supabase/client';
 import { sajuAnalyzer } from '@/lib/ai/analyzer';
 import { SERVICE_CREDITS } from '@/lib/stripe';
@@ -24,8 +24,8 @@ const questionSchema = z.object({
 export async function POST(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     // 1. 인증 확인
-    const session = await getServerSession(authOptions);
-    if (!session?.user?.id) {
+    const user = await getAuthenticatedUser();
+    if (!user) {
       return NextResponse.json(
         { error: '로그인이 필요합니다', code: 'UNAUTHORIZED' },
         { status: 401 }
@@ -33,7 +33,7 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
     }
 
     const { id: profileId } = await params;
-    const userId = session.user.id;
+    const userId = user.id;
     const supabase = getSupabaseAdmin();
 
     // 2. 요청 파싱 및 검증
@@ -236,13 +236,13 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
  */
 export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
-    const session = await getServerSession(authOptions);
-    if (!session?.user?.id) {
+    const user = await getAuthenticatedUser();
+    if (!user) {
       return NextResponse.json({ error: '로그인이 필요합니다' }, { status: 401 });
     }
 
     const { id: profileId } = await params;
-    const userId = session.user.id;
+    const userId = user.id;
     const supabase = getSupabaseAdmin();
 
     // 프로필 소유권 확인

@@ -4,8 +4,8 @@
  * 기존 API 패턴(src/app/api/payment) 참조
  */
 import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth';
+import { getAuthenticatedUser } from '@/lib/supabase/server';
+
 import { sajuAnalyzer } from '@/lib/ai';
 import type { GeminiAnalysisInput, FocusArea } from '@/lib/ai';
 import { z } from 'zod';
@@ -79,8 +79,8 @@ function getStatusCodeFromError(code?: string): number {
 export async function POST(request: NextRequest) {
   try {
     // 1. 인증 확인
-    const session = await getServerSession(authOptions);
-    if (!session?.user?.id) {
+    const user = await getAuthenticatedUser();
+    if (!user) {
       return NextResponse.json({ error: '로그인이 필요합니다' }, { status: 401 });
     }
 
@@ -108,7 +108,7 @@ export async function POST(request: NextRequest) {
 
     // 3. AI 분석 실행 (30초 타임아웃)
     console.log('[API] /api/analysis/gemini 분석 시작', {
-      userId: session.user.id,
+      userId: user.id,
       focusArea: input.focusArea,
       language: input.language,
     });
@@ -135,7 +135,7 @@ export async function POST(request: NextRequest) {
 
     // 5. 성공 응답
     console.log('[API] /api/analysis/gemini 분석 완료', {
-      userId: session.user.id,
+      userId: user.id,
     });
 
     return NextResponse.json({

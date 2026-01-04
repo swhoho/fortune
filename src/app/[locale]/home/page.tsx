@@ -3,15 +3,46 @@
 /**
  * 홈 페이지 - 로그인 후 메인 화면
  * 프로필 관리, 분석, 마이페이지 등 주요 기능 진입점
+ * 비로그인 시 로그인 페이지로 리다이렉트
  */
+import { useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useTranslations } from 'next-intl';
+import { useRouter } from 'next/navigation';
 import { HomeHeader } from '@/components/home/HomeHeader';
 import { HomeMenuGrid } from '@/components/home/HomeMenuGrid';
 import { BRAND_COLORS } from '@/lib/constants/colors';
+import { useAuth } from '@/hooks/use-user';
 
 export default function HomePage() {
   const tCommon = useTranslations('common');
+  const router = useRouter();
+  const { isAuthenticated, isLoading } = useAuth();
+
+  // 비로그인 시 로그인 페이지로 리다이렉트
+  useEffect(() => {
+    if (!isLoading && !isAuthenticated) {
+      router.replace('/auth/signin?callbackUrl=/home');
+    }
+  }, [isLoading, isAuthenticated, router]);
+
+  // 로딩 중이거나 비로그인 상태면 로딩 화면 표시
+  if (isLoading || !isAuthenticated) {
+    return (
+      <div
+        className="flex min-h-screen items-center justify-center"
+        style={{ backgroundColor: BRAND_COLORS.secondary }}
+      >
+        <div className="flex flex-col items-center gap-4">
+          <div
+            className="h-12 w-12 animate-spin rounded-full border-4 border-t-transparent"
+            style={{ borderColor: `${BRAND_COLORS.primary}40`, borderTopColor: 'transparent' }}
+          />
+          <p className="text-sm text-gray-400">로딩 중...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="relative min-h-screen" style={{ backgroundColor: BRAND_COLORS.secondary }}>

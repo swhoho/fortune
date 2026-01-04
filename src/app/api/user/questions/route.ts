@@ -3,8 +3,8 @@
  * 사용자의 전체 질문 히스토리 조회 (v2.0)
  */
 import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth';
+import { getAuthenticatedUser } from '@/lib/supabase/server';
+
 import { getSupabaseAdmin } from '@/lib/supabase/client';
 
 /** 질문 조인 결과 타입 */
@@ -23,12 +23,12 @@ interface QuestionWithProfile {
  */
 export async function GET(_request: NextRequest) {
   try {
-    const session = await getServerSession(authOptions);
-    if (!session?.user?.id) {
+    const user = await getAuthenticatedUser();
+    if (!user) {
       return NextResponse.json({ error: '로그인이 필요합니다' }, { status: 401 });
     }
 
-    const userId = session.user.id;
+    const userId = user.id;
     const supabase = getSupabaseAdmin();
 
     // 사용자의 모든 질문 조회 (프로필 정보 포함)

@@ -35,3 +35,22 @@ export function createClient() {
     }
   );
 }
+
+/**
+ * API Route용 인증된 사용자 조회
+ * Supabase 쿠키에서 세션을 읽어 사용자 정보를 반환합니다.
+ * @returns 인증된 사용자 또는 null
+ */
+export async function getAuthenticatedUser() {
+  const supabase = createClient();
+  const {
+    data: { user },
+    error,
+  } = await supabase.auth.getUser();
+
+  if (error || !user) {
+    return null;
+  }
+
+  return user;
+}

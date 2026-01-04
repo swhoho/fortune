@@ -6,8 +6,7 @@
  * Task 2.2, 2.3
  */
 import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth';
+import { getAuthenticatedUser } from '@/lib/supabase/server';
 import { getSupabaseAdmin } from '@/lib/supabase/client';
 import { createProfileSchema } from '@/lib/validations/profile';
 import type { ProfileResponse } from '@/types/profile';
@@ -43,16 +42,16 @@ function toProfileResponse(record: {
  */
 export async function POST(request: NextRequest) {
   try {
-    // 1. 인증 확인
-    const session = await getServerSession(authOptions);
-    if (!session?.user?.id) {
+    // 1. 인증 확인 (Supabase Auth)
+    const user = await getAuthenticatedUser();
+    if (!user) {
       return NextResponse.json(
         { error: '로그인이 필요합니다', code: 'UNAUTHORIZED' },
         { status: 401 }
       );
     }
 
-    const userId = session.user.id;
+    const userId = user.id;
 
     // 2. 요청 파싱 및 검증
     const body = await request.json();
@@ -114,9 +113,9 @@ export async function POST(request: NextRequest) {
  */
 export async function GET() {
   try {
-    // 1. 인증 확인
-    const session = await getServerSession(authOptions);
-    if (!session?.user?.id) {
+    // 1. 인증 확인 (Supabase Auth)
+    const user = await getAuthenticatedUser();
+    if (!user) {
       return NextResponse.json(
         { error: '로그인이 필요합니다', code: 'UNAUTHORIZED' },
         { status: 401 }
@@ -128,7 +127,7 @@ export async function GET() {
     const { data, error } = await supabase
       .from('profiles')
       .select('id, name, gender, birth_date, birth_time, calendar_type, created_at, updated_at')
-      .eq('user_id', session.user.id)
+      .eq('user_id', user.id)
       .order('created_at', { ascending: false });
 
     if (error) {

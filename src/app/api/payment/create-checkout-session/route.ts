@@ -5,8 +5,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getStripeServer, CREDIT_PACKAGES } from '@/lib/stripe';
 // TODO: NextAuth 세션에서 사용자 ID 가져오기
-// import { getServerSession } from 'next-auth';
-// import { authOptions } from '@/lib/auth';
+// import { getAuthenticatedUser } from '@/lib/supabase/server';
 
 interface CreateCheckoutRequest {
   packageId: string;
@@ -31,8 +30,8 @@ export async function POST(request: NextRequest) {
     }
 
     // TODO: 사용자 인증 확인
-    // const session = await getServerSession(authOptions);
-    // if (!session?.user?.id) {
+    // const user = await getAuthenticatedUser();
+    // if (!user) {
     //   return NextResponse.json(
     //     { error: '로그인이 필요합니다' },
     //     { status: 401 }
@@ -62,7 +61,7 @@ export async function POST(request: NextRequest) {
       metadata: {
         packageId,
         credits: credits.toString(),
-        // userId: session.user.id, // TODO: 실제 사용자 ID
+        // userId: user.id, // TODO: 실제 사용자 ID
         userId: 'temp-user-id', // 임시 사용자 ID (테스트용)
       },
       success_url: `${baseUrl}/payment/success?session_id={CHECKOUT_SESSION_ID}`,

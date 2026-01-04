@@ -5,8 +5,8 @@
  * 허용된 섹션: personality, aptitude, fortune
  */
 import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth';
+import { getAuthenticatedUser } from '@/lib/supabase/server';
+
 import { getSupabaseAdmin } from '@/lib/supabase/client';
 import { SERVICE_CREDITS, REANALYZABLE_SECTIONS } from '@/lib/stripe';
 import { z } from 'zod';
@@ -22,13 +22,13 @@ const reanalyzeSchema = z.object({
  */
 export async function POST(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
-    const session = await getServerSession(authOptions);
-    if (!session?.user?.id) {
+    const user = await getAuthenticatedUser();
+    if (!user) {
       return NextResponse.json({ error: '로그인이 필요합니다' }, { status: 401 });
     }
 
     const { id: profileId } = await params;
-    const userId = session.user.id;
+    const userId = user.id;
     const supabase = getSupabaseAdmin();
 
     // 1. 요청 본문 파싱 및 검증
@@ -87,30 +87,30 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
     }
 
     // 4. 크레딧 확인
-    const { data: user, error: userError } = await supabase
+    const { data: userData, error: userError } = await supabase
       .from('users')
       .select('credits')
       .eq('id', userId)
       .single();
 
-    if (userError || !user) {
+    if (userError || !userData) {
       return NextResponse.json({ error: '사용자 정보를 찾을 수 없습니다' }, { status: 404 });
     }
 
-    if (user.credits < SERVICE_CREDITS.sectionReanalysis) {
+    if (userData.credits < SERVICE_CREDITS.sectionReanalysis) {
       return NextResponse.json(
         {
           error: '크레딧이 부족합니다',
           code: 'INSUFFICIENT_CREDITS',
           required: SERVICE_CREDITS.sectionReanalysis,
-          current: user.credits,
+          current: userData.credits,
         },
         { status: 402 }
       );
     }
 
     // 5. 크레딧 차감
-    const newCredits = user.credits - SERVICE_CREDITS.sectionReanalysis;
+    const newCredits = userData.credits - SERVICE_CREDITS.sectionReanalysis;
     await supabase
       .from('users')
       .update({

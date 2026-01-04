@@ -4,8 +4,8 @@
  * Task 20: 특정 연도에 대한 월별 상세 운세 분석 결과 조회
  */
 import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth';
+import { getAuthenticatedUser } from '@/lib/supabase/server';
+
 import { getSupabaseAdmin } from '@/lib/supabase/client';
 
 /**
@@ -15,13 +15,13 @@ import { getSupabaseAdmin } from '@/lib/supabase/client';
 export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
   try {
     // 1. 인증 확인
-    const session = await getServerSession(authOptions);
-    if (!session?.user?.id) {
+    const user = await getAuthenticatedUser();
+    if (!user) {
       return NextResponse.json({ error: '로그인이 필요합니다' }, { status: 401 });
     }
 
     const analysisId = params.id;
-    const userId = session.user.id;
+    const userId = user.id;
     const supabase = getSupabaseAdmin();
 
     // 2. 신년 분석 결과 조회 (권한 확인 포함)

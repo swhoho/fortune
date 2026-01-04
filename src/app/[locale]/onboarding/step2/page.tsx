@@ -67,6 +67,12 @@ export default function OnboardingStep2() {
       newErrors.gender = '성별을 선택해주세요';
     }
 
+    // 출생 시간 필수 검증
+    const hour = parseInt(formData.hour);
+    if (!formData.hour || isNaN(hour) || hour < 0 || hour > 23) {
+      newErrors.hour = '올바른 시간을 입력해주세요 (0-23)';
+    }
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -83,9 +89,7 @@ export default function OnboardingStep2() {
       parseInt(formData.day)
     );
 
-    const birthTime = formData.hour
-      ? `${formData.hour.padStart(2, '0')}:${(formData.minute || '00').padStart(2, '0')}`
-      : '12:00';
+    const birthTime = `${formData.hour.padStart(2, '0')}:${(formData.minute || '00').padStart(2, '0')}`;
 
     const sajuInput: SajuInput = {
       birthDate,
@@ -178,7 +182,7 @@ export default function OnboardingStep2() {
 
           {/* 출생 시간 */}
           <div className="space-y-2">
-            <Label>출생 시간 (선택)</Label>
+            <Label>출생 시간 *</Label>
             <div className="grid grid-cols-2 gap-2">
               <Input
                 type="number"
@@ -187,6 +191,7 @@ export default function OnboardingStep2() {
                 max={23}
                 value={formData.hour}
                 onChange={(e) => setFormData({ ...formData, hour: e.target.value })}
+                className={errors.hour ? 'border-red-500' : ''}
               />
               <Input
                 type="number"
@@ -197,7 +202,7 @@ export default function OnboardingStep2() {
                 onChange={(e) => setFormData({ ...formData, minute: e.target.value })}
               />
             </div>
-            <p className="text-xs text-gray-400">시간을 모르면 비워두셔도 됩니다</p>
+            {errors.hour && <p className="text-sm text-red-500">{errors.hour}</p>}
           </div>
 
           {/* 양력/음력 */}

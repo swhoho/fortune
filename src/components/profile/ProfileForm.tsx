@@ -12,7 +12,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useTranslations } from 'next-intl';
 import type { ProfileResponse, CalendarType, Gender } from '@/types/profile';
-import type { CreateProfileInput } from '@/lib/validations/profile';
+import { createProfileSchema, type CreateProfileInput } from '@/lib/validations/profile';
 
 interface ProfileFormProps {
   /** 수정 모드일 때 기존 데이터 */
@@ -86,51 +86,65 @@ export function ProfileForm({
   }, [initialData]);
 
   /**
-   * 폼 유효성 검사
+   * 폼 유효성 검사 (Zod 스키마 기반)
    */
   const validateForm = (): boolean => {
     const newErrors: Record<string, string> = {};
 
-    // 이름 검증
-    if (!formData.name.trim()) {
-      newErrors.name = t('validation.nameRequired');
-    } else if (formData.name.length > 50) {
-      newErrors.name = t('validation.nameMaxLength');
+    // 1. 개별 필드 기본 검증 (빈 값 체크)
+    if (!formData.year || !formData.month || !formData.day) {
+      if (!formData.year) newErrors.year = t('validation.invalidDate');
+      if (!formData.month) newErrors.month = t('validation.invalidDate');
+      if (!formData.day) newErrors.day = t('validation.invalidDate');
+      setErrors(newErrors);
+      return false;
     }
 
-    // 연도 검증
-    const year = parseInt(formData.year);
-    if (!formData.year || year < 1900 || year > new Date().getFullYear()) {
-      newErrors.year = t('validation.invalidDate');
+    // 2. 폼 데이터를 스키마 형식으로 변환
+    const birthDate = `${formData.year}-${formData.month.padStart(2, '0')}-${formData.day.padStart(2, '0')}`;
+
+    // 출생 시간 필수 검증
+    if (!formData.hour) {
+      newErrors.hour = t('validation.invalidTime');
+      setErrors(newErrors);
+      return false;
+    }
+    const birthTime = `${formData.hour.padStart(2, '0')}:${(formData.minute || '00').padStart(2, '0')}`;
+
+    const dataToValidate = {
+      name: formData.name.trim(),
+      gender: formData.gender || undefined,
+      birthDate,
+      birthTime,
+      calendarType: formData.calendarType,
+    };
+
+    // 3. Zod 스키마로 검증
+    const result = createProfileSchema.safeParse(dataToValidate);
+
+    if (result.success) {
+      setErrors({});
+      return true;
     }
 
-    // 월 검증
-    const month = parseInt(formData.month);
-    if (!formData.month || month < 1 || month > 12) {
-      newErrors.month = t('validation.invalidDate');
-    }
+    // 4. Zod 에러를 다국어 메시지로 변환
+    // enum 필드는 기본 번역 키 사용 (Zod enum은 커스텀 메시지 미지원)
+    const fieldDefaultMessages: Record<string, string> = {
+      gender: 'validation.genderRequired',
+      calendarType: 'validation.invalidCalendarType',
+    };
 
-    // 일 검증
-    const day = parseInt(formData.day);
-    if (!formData.day || day < 1 || day > 31) {
-      newErrors.day = t('validation.invalidDate');
-    }
-
-    // 날짜 조합 검증
-    if (!newErrors.year && !newErrors.month && !newErrors.day) {
-      const date = new Date(year, month - 1, day);
-      if (date > new Date()) {
-        newErrors.day = t('validation.futureDateNotAllowed');
-      }
-    }
-
-    // 성별 검증
-    if (!formData.gender) {
-      newErrors.gender = t('validation.genderRequired');
-    }
+    result.error.issues.forEach((issue) => {
+      const path = String(issue.path[0]);
+      // birthDate 에러는 year 필드에 표시
+      const fieldKey = path === 'birthDate' ? 'year' : path;
+      // enum 필드는 기본 번역 키 사용, 그 외는 Zod 메시지 사용
+      const messageKey = fieldDefaultMessages[path] || issue.message;
+      newErrors[fieldKey] = t(messageKey);
+    });
 
     setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
+    return false;
   };
 
   /**
@@ -144,11 +158,8 @@ export function ProfileForm({
     // 생년월일 포맷팅
     const birthDate = `${formData.year}-${formData.month.padStart(2, '0')}-${formData.day.padStart(2, '0')}`;
 
-    // 출생시간 포맷팅 (선택사항)
-    const birthTime =
-      formData.hour && formData.minute
-        ? `${formData.hour.padStart(2, '0')}:${formData.minute.padStart(2, '0')}`
-        : null;
+    // 출생시간 포맷팅 (필수)
+    const birthTime = `${formData.hour.padStart(2, '0')}:${(formData.minute || '00').padStart(2, '0')}`;
 
     const profileData: CreateProfileInput = {
       name: formData.name.trim(),
@@ -220,15 +231,16 @@ export function ProfileForm({
         )}
       </div>
 
-      {/* 출생 시간 (선택) */}
+      {/* 출생 시간 */}
       <div className="space-y-2">
-        <Label>{t('form.birthTimeOptional')}</Label>
+        <Label>{t('form.birthTime')} *</Label>
         <div className="grid grid-cols-2 gap-2">
           <Input
             type="number"
             placeholder={t('form.hourPlaceholder')}
             value={formData.hour}
             onChange={(e) => setFormData({ ...formData, hour: e.target.value })}
+            className={errors.hour ? 'border-red-500' : ''}
             min={0}
             max={23}
           />
@@ -241,7 +253,7 @@ export function ProfileForm({
             max={59}
           />
         </div>
-        <p className="text-xs text-gray-400">{t('form.birthTimeHint')}</p>
+        {errors.hour && <p className="text-sm text-red-500">{errors.hour}</p>}
       </div>
 
       {/* 달력 유형 */}

@@ -4,8 +4,7 @@
  * Task 23: 크레딧 연동
  */
 import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth';
+import { getAuthenticatedUser } from '@/lib/supabase/server';
 import { getSupabaseAdmin } from '@/lib/supabase/client';
 import { z } from 'zod';
 
@@ -32,13 +31,13 @@ const querySchema = z.object({
  */
 export async function GET(request: NextRequest) {
   try {
-    // 1. 인증 확인
-    const session = await getServerSession(authOptions);
-    if (!session?.user?.id) {
+    // 1. 인증 확인 (Supabase Auth)
+    const user = await getAuthenticatedUser();
+    if (!user) {
       return NextResponse.json({ error: '로그인이 필요합니다' }, { status: 401 });
     }
 
-    const userId = session.user.id;
+    const userId = user.id;
     const supabase = getSupabaseAdmin();
 
     // 2. 쿼리 파라미터 파싱
@@ -50,18 +49,18 @@ export async function GET(request: NextRequest) {
     const requiredCredits = queryResult.success ? queryResult.data.required : undefined;
 
     // 3. 사용자 크레딧 조회
-    const { data: user, error: userError } = await supabase
+    const { data: userData, error: userError } = await supabase
       .from('users')
       .select('credits')
       .eq('id', userId)
       .single();
 
-    if (userError || !user) {
+    if (userError || !userData) {
       console.error('[API] 사용자 조회 실패:', userError);
       return NextResponse.json({ error: '사용자 정보를 찾을 수 없습니다' }, { status: 404 });
     }
 
-    const currentCredits = user.credits ?? 0;
+    const currentCredits = userData.credits ?? 0;
 
     // 4. 필요 크레딧이 지정된 경우 충분 여부 계산
     if (requiredCredits !== undefined) {

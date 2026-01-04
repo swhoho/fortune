@@ -154,10 +154,10 @@ export default function OnboardingStep3() {
             size="lg"
             className="w-full max-w-md bg-gradient-to-r from-[#d4af37] to-[#c19a2e] py-6 text-lg font-semibold text-white shadow-lg transition-all hover:scale-[1.02] hover:shadow-xl"
           >
-            <Link href="/analysis/focus">분석 영역 선택하기</Link>
+            <Link href="/home">시작하기</Link>
           </Button>
           <p className="mt-4 text-center text-sm text-gray-400">
-            다음 단계에서 집중 분석할 영역을 선택합니다
+            홈에서 프로필을 등록하고 분석을 시작하세요
           </p>
         </motion.div>
       </motion.div>

@@ -57,7 +57,7 @@ function ErrorState() {
           </svg>
         </div>
         <h2 className="mb-2 font-serif text-xl font-semibold text-[#1a1a1a]">
-          프로필을 불러오는데 실패했습니다
+          계정 정보를 불러오는데 실패했습니다
         </h2>
         <p className="mb-6 text-gray-500">잠시 후 다시 시도해주세요</p>
         <button

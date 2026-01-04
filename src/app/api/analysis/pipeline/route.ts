@@ -4,8 +4,8 @@
  * Task 6: v2.0 멀티스텝 파이프라인 설계
  */
 import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth';
+import { getAuthenticatedUser } from '@/lib/supabase/server';
+
 import { createAnalysisPipeline } from '@/lib/ai/pipeline';
 import type { GeminiAnalysisInput, FocusArea, PipelineProgress } from '@/lib/ai';
 import { z } from 'zod';
@@ -88,8 +88,8 @@ export async function POST(request: NextRequest) {
 
   try {
     // 1. 인증 확인
-    const session = await getServerSession(authOptions);
-    if (!session?.user?.id) {
+    const user = await getAuthenticatedUser();
+    if (!user) {
       return NextResponse.json({ error: '로그인이 필요합니다' }, { status: 401 });
     }
 
@@ -133,7 +133,7 @@ export async function POST(request: NextRequest) {
     };
 
     console.log('[Pipeline API] 파이프라인 시작', {
-      userId: session.user.id,
+      userId: user.id,
       language,
       enableParallel: options?.enableParallel ?? true,
     });
@@ -165,7 +165,7 @@ export async function POST(request: NextRequest) {
     const totalDuration = Date.now() - startTime;
 
     console.log('[Pipeline API] 파이프라인 완료', {
-      userId: session.user.id,
+      userId: user.id,
       totalDuration: `${totalDuration}ms`,
       pipelineDuration: `${result.data?.pipelineMetadata.totalDuration}ms`,
     });

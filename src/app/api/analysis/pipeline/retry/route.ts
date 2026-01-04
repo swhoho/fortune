@@ -4,8 +4,8 @@
  * Task 6: 에러 복구 로직
  */
 import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth';
+import { getAuthenticatedUser } from '@/lib/supabase/server';
+
 import { createAnalysisPipeline } from '@/lib/ai/pipeline';
 import type {
   GeminiAnalysisInput,
@@ -14,6 +14,30 @@ import type {
   PipelineIntermediateResults,
 } from '@/lib/ai';
 import { z } from 'zod';
+
+/**
+ * PillarData Zod 스키마
+ * src/lib/ai/types.ts의 PillarData 인터페이스 기반
+ */
+const pillarSchema = z.object({
+  stem: z.string(),
+  branch: z.string(),
+  element: z.string(),
+  stemElement: z.string(),
+  branchElement: z.string(),
+});
+
+/**
+ * DaewunData Zod 스키마
+ * src/lib/ai/types.ts의 DaewunData 인터페이스 기반
+ */
+const daewunSchema = z.object({
+  startAge: z.number(),
+  endAge: z.number(),
+  stem: z.string(),
+  branch: z.string(),
+  description: z.string().optional(),
+});
 
 /**
  * 재시도 요청 스키마
@@ -34,18 +58,18 @@ const retryRequestSchema = z.object({
   // 기존 분석 입력 데이터
   input: z.object({
     pillars: z.object({
-      year: z.any(),
-      month: z.any(),
-      day: z.any(),
-      hour: z.any(),
+      year: pillarSchema,
+      month: pillarSchema,
+      day: pillarSchema,
+      hour: pillarSchema,
     }),
-    daewun: z.array(z.any()).optional(),
+    daewun: z.array(daewunSchema).optional(),
     focusArea: z.string().optional(),
     question: z.string().optional(),
     language: z.string().optional(),
   }),
   // 이전에 완료된 중간 결과 (선택)
-  previousResults: z.record(z.string(), z.any()).optional(),
+  previousResults: z.record(z.string(), z.unknown()).optional(),
   // 파이프라인 옵션
   options: z
     .object({
@@ -64,8 +88,8 @@ export async function POST(request: NextRequest) {
 
   try {
     // 1. 인증 확인
-    const session = await getServerSession(authOptions);
-    if (!session?.user?.id) {
+    const user = await getAuthenticatedUser();
+    if (!user) {
       return NextResponse.json({ error: '로그인이 필요합니다' }, { status: 401 });
     }
 
@@ -86,7 +110,7 @@ export async function POST(request: NextRequest) {
     const { fromStep, input, previousResults, options } = validationResult.data;
 
     console.log('[Pipeline Retry API] 재시도 시작', {
-      userId: session.user.id,
+      userId: user.id,
       fromStep,
       hasPreviousResults: !!previousResults,
     });
@@ -135,7 +159,7 @@ export async function POST(request: NextRequest) {
     const totalDuration = Date.now() - startTime;
 
     console.log('[Pipeline Retry API] 재시도 완료', {
-      userId: session.user.id,
+      userId: user.id,
       fromStep,
       totalDuration: `${totalDuration}ms`,
     });

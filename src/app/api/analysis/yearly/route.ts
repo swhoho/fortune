@@ -4,8 +4,8 @@
  * Task 20: 특정 연도에 대한 월별 상세 운세 분석
  */
 import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth';
+import { getAuthenticatedUser } from '@/lib/supabase/server';
+
 import { getSupabaseAdmin } from '@/lib/supabase/client';
 import { sajuAnalyzer } from '@/lib/ai';
 import type { YearlyAnalysisInput, SupportedLanguage } from '@/lib/ai';
@@ -111,12 +111,12 @@ function getStatusCodeFromError(code?: string): number {
 export async function POST(request: NextRequest) {
   try {
     // 1. 인증 확인
-    const session = await getServerSession(authOptions);
-    if (!session?.user?.id) {
+    const user = await getAuthenticatedUser();
+    if (!user) {
       return NextResponse.json({ error: '로그인이 필요합니다' }, { status: 401 });
     }
 
-    const userId = session.user.id;
+    const userId = user.id;
     const supabase = getSupabaseAdmin();
 
     // 2. 요청 본문 파싱 및 검증
@@ -136,24 +136,24 @@ export async function POST(request: NextRequest) {
     const data = validationResult.data;
 
     // 3. 사용자 크레딧 확인
-    const { data: user, error: userError } = await supabase
+    const { data: userData, error: userError } = await supabase
       .from('users')
       .select('credits')
       .eq('id', userId)
       .single();
 
-    if (userError || !user) {
+    if (userError || !userData) {
       console.error('[API] 사용자 조회 실패:', userError);
       return NextResponse.json({ error: '사용자 정보를 찾을 수 없습니다' }, { status: 404 });
     }
 
-    if (user.credits < YEARLY_ANALYSIS_CREDIT_COST) {
+    if (userData.credits < YEARLY_ANALYSIS_CREDIT_COST) {
       return NextResponse.json(
         {
           error: '크레딧이 부족합니다',
           code: 'INSUFFICIENT_CREDITS',
           required: YEARLY_ANALYSIS_CREDIT_COST,
-          current: user.credits,
+          current: userData.credits,
         },
         { status: 402 }
       );
@@ -318,7 +318,7 @@ export async function POST(request: NextRequest) {
     }
 
     // 9. 크레딧 차감
-    const newCredits = user.credits - YEARLY_ANALYSIS_CREDIT_COST;
+    const newCredits = userData.credits - YEARLY_ANALYSIS_CREDIT_COST;
     const { error: creditError } = await supabase
       .from('users')
       .update({

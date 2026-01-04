@@ -7,8 +7,7 @@
  * Task 2.4, 2.5, 2.6
  */
 import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth';
+import { getAuthenticatedUser } from '@/lib/supabase/server';
 import { getSupabaseAdmin } from '@/lib/supabase/client';
 import { updateProfileSchema } from '@/lib/validations/profile';
 import type { ProfileResponse } from '@/types/profile';
@@ -46,9 +45,9 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
   try {
     const { id } = await params;
 
-    // 1. 인증 확인
-    const session = await getServerSession(authOptions);
-    if (!session?.user?.id) {
+    // 1. 인증 확인 (Supabase Auth)
+    const user = await getAuthenticatedUser();
+    if (!user) {
       return NextResponse.json(
         { error: '로그인이 필요합니다', code: 'UNAUTHORIZED' },
         { status: 401 }
@@ -61,7 +60,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
       .from('profiles')
       .select('id, name, gender, birth_date, birth_time, calendar_type, created_at, updated_at')
       .eq('id', id)
-      .eq('user_id', session.user.id)
+      .eq('user_id', user.id)
       .single();
 
     if (error || !profile) {
@@ -93,9 +92,9 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
   try {
     const { id } = await params;
 
-    // 1. 인증 확인
-    const session = await getServerSession(authOptions);
-    if (!session?.user?.id) {
+    // 1. 인증 확인 (Supabase Auth)
+    const user = await getAuthenticatedUser();
+    if (!user) {
       return NextResponse.json(
         { error: '로그인이 필요합니다', code: 'UNAUTHORIZED' },
         { status: 401 }
@@ -142,7 +141,7 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
       .from('profiles')
       .update(updateData)
       .eq('id', id)
-      .eq('user_id', session.user.id)
+      .eq('user_id', user.id)
       .select('id, name, gender, birth_date, birth_time, calendar_type, created_at, updated_at')
       .single();
 
@@ -178,9 +177,9 @@ export async function DELETE(
   try {
     const { id } = await params;
 
-    // 1. 인증 확인
-    const session = await getServerSession(authOptions);
-    if (!session?.user?.id) {
+    // 1. 인증 확인 (Supabase Auth)
+    const user = await getAuthenticatedUser();
+    if (!user) {
       return NextResponse.json(
         { error: '로그인이 필요합니다', code: 'UNAUTHORIZED' },
         { status: 401 }
@@ -193,7 +192,7 @@ export async function DELETE(
       .from('profiles')
       .delete()
       .eq('id', id)
-      .eq('user_id', session.user.id)
+      .eq('user_id', user.id)
       .select('id')
       .single();
 
