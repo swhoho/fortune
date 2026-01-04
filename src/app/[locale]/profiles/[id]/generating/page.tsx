@@ -52,9 +52,13 @@ export default function GeneratingPage({ params }: PageProps) {
     retryable: boolean;
   } | null>(null);
 
-  // params 처리
+  // params 처리 (Promise 또는 일반 객체 모두 지원)
   useEffect(() => {
-    params.then((p) => setProfileId(p.id));
+    if (params instanceof Promise) {
+      params.then((p) => setProfileId(p.id));
+    } else {
+      setProfileId((params as { id: string }).id);
+    }
   }, [params]);
 
   /**

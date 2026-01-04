@@ -67,9 +67,13 @@ export default function ProfileReportPage({ params }: PageProps) {
   const [error, setError] = useState<string | null>(null);
   const [reportData, setReportData] = useState<ReportData | null>(null);
 
-  // params 처리
+  // params 처리 (Promise 또는 일반 객체 모두 지원)
   useEffect(() => {
-    params.then((p) => setId(p.id));
+    if (params instanceof Promise) {
+      params.then((p) => setId(p.id));
+    } else {
+      setId((params as { id: string; locale: string }).id);
+    }
   }, [params]);
 
   /**

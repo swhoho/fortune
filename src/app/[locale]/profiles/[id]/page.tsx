@@ -33,9 +33,14 @@ export default function ProfileDetailPage({ params }: PageProps) {
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [showInsufficientCreditsDialog, setShowInsufficientCreditsDialog] = useState(false);
 
-  // params 처리
+  // params 처리 (Promise 또는 일반 객체 모두 지원)
   useEffect(() => {
-    params.then((p) => setId(p.id));
+    if (params instanceof Promise) {
+      params.then((p) => setId(p.id));
+    } else {
+      // 클라이언트 사이드 네비게이션 시 일반 객체일 수 있음
+      setId((params as { id: string }).id);
+    }
   }, [params]);
 
   // URL 파라미터에서 에러 확인 (generating 페이지에서 리다이렉트 시)
