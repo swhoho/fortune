@@ -26,7 +26,7 @@ import {
   QuarterlyOverview,
   YearlyAdviceCard,
 } from '@/components/analysis/yearly';
-import { useAnalysisStore } from '@/stores/analysis';
+import { useYearlyStore } from '@/stores/yearly-store';
 import { BRAND_COLORS } from '@/lib/constants/colors';
 import type { YearlyAnalysisResult, ClassicalReference } from '@/lib/ai/types';
 
@@ -36,7 +36,7 @@ export default function YearlyResultPage() {
   const t = useTranslations('yearly');
   const analysisId = params.id as string;
 
-  const { yearlyResult, setYearlyResult } = useAnalysisStore();
+  const { yearlyResult, setYearlyResult } = useYearlyStore();
   const [loading, setLoading] = useState(!yearlyResult);
   const [error, setError] = useState<string | null>(null);
   const [result, setResult] = useState<YearlyAnalysisResult | null>(yearlyResult);
@@ -269,9 +269,9 @@ export default function YearlyResultPage() {
                             : '특별일'}
                       </span>
                     </div>
-                    <p className="mt-1 text-sm text-gray-600">{keyDate.description}</p>
-                    {keyDate.advice && (
-                      <p className="mt-2 text-sm text-gray-500">💡 {keyDate.advice}</p>
+                    <p className="mt-1 text-sm text-gray-600">{keyDate.significance}</p>
+                    {keyDate.recommendation && (
+                      <p className="mt-2 text-sm text-gray-500">💡 {keyDate.recommendation}</p>
                     )}
                   </div>
                 ))}

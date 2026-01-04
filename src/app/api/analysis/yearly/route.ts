@@ -31,6 +31,8 @@ const pillarSchema = z.object({
 const yearlyRequestSchema = z.object({
   // 분석 대상 연도
   targetYear: z.number().min(2000).max(2100),
+  // Task 24.1: 프로필 ID (있으면 프로필에서 사주 정보 가져옴)
+  profileId: z.string().uuid().optional(),
   // 생년월일 정보
   sajuInput: z
     .object({
@@ -41,7 +43,7 @@ const yearlyRequestSchema = z.object({
       gender: z.enum(['male', 'female']),
     })
     .optional(),
-  // 기존 분석 ID (있으면 사주 정보 재사용)
+  // 기존 분석 ID (있으면 사주 정보 재사용) - 레거시 호환
   existingAnalysisId: z.string().uuid().optional(),
   // 사주 기둥 정보 (직접 입력 시)
   pillars: z
@@ -157,13 +159,50 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // 4. 기존 분석 정보 가져오기 (existingAnalysisId가 있는 경우)
+    // 4. 사주 정보 가져오기 (우선순위: profileId > existingAnalysisId > sajuInput)
     let pillars = data.pillars;
     let daewun = data.daewun;
     let gender: 'male' | 'female' = data.sajuInput?.gender || 'male';
     let birthYear: number | undefined;
+    let profileId: string | undefined;
 
-    if (data.existingAnalysisId) {
+    // Task 24.1: 프로필에서 정보 가져오기
+    if (data.profileId) {
+      const { data: profile, error: profileError } = await supabase
+        .from('profiles')
+        .select('id, name, gender, birth_date, birth_time, calendar_type')
+        .eq('id', data.profileId)
+        .eq('user_id', userId)
+        .single();
+
+      if (profileError || !profile) {
+        console.error('[API] 프로필 조회 실패:', profileError);
+        return NextResponse.json({ error: '프로필 정보를 찾을 수 없습니다' }, { status: 404 });
+      }
+
+      profileId = profile.id;
+      gender = profile.gender as 'male' | 'female';
+      birthYear = new Date(profile.birth_date).getFullYear();
+
+      // 프로필에서 기존 리포트 조회하여 pillars/daewun 가져오기
+      const { data: existingReport } = await supabase
+        .from('profile_reports')
+        .select('pillars, daewun')
+        .eq('profile_id', profileId)
+        .order('created_at', { ascending: false })
+        .limit(1)
+        .single();
+
+      if (existingReport) {
+        pillars = existingReport.pillars;
+        daewun = existingReport.daewun || [];
+      } else {
+        // 프로필에는 있지만 기존 리포트가 없는 경우 - 만세력 API 호출 필요
+        // 이 경우 클라이언트에서 만세력 데이터를 함께 보내야 함
+        console.log('[API] 프로필에 기존 리포트 없음, pillars 데이터 필요');
+      }
+    } else if (data.existingAnalysisId) {
+      // 레거시: 기존 분석 ID로 정보 가져오기
       const { data: existingAnalysis, error: analysisError } = await supabase
         .from('analyses')
         .select('pillars, daewun, gender, birth_datetime')
@@ -228,12 +267,9 @@ export async function POST(request: NextRequest) {
     });
 
     const input: YearlyAnalysisInput = {
-      targetYear: data.targetYear,
-      birthYear: birthYear,
-      pillars: pillars,
-      daewun: daewun,
-      currentDaewun: currentDaewun,
-      gender: gender,
+      year: data.targetYear,
+      pillars: pillars as unknown as import('@/lib/ai/types').SajuPillarsData,
+      daewun: daewun as unknown as import('@/lib/ai/types').DaewunData[],
       language: data.language as SupportedLanguage,
     };
 
@@ -271,6 +307,7 @@ export async function POST(request: NextRequest) {
         language: data.language,
         credits_used: YEARLY_ANALYSIS_CREDIT_COST,
         existing_analysis_id: data.existingAnalysisId || null,
+        profile_id: profileId || null, // Task 24.1: 프로필 ID 저장
       })
       .select('id')
       .single();

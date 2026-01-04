@@ -11,4 +11,3 @@ export { ElementRelationGraph } from './ElementRelationGraph';
 export { AnalysisSection } from './AnalysisSection';
 export { AnalysisTabs } from './AnalysisTabs';
 export { DaewunTimeline } from './DaewunTimeline';
-export { FollowUpQuestion } from './FollowUpQuestion';

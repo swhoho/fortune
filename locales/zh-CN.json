@@ -232,7 +232,8 @@
       "analysis": "分析记录",
       "questions": "问题记录",
       "notifications": "通知设置",
-      "settings": "资料设置"
+      "settings": "资料设置",
+      "profiles": "档案管理"
     },
     "analysisHistory": {
       "title": "分析记录",
@@ -366,6 +367,12 @@
       "yourCredits": "持有积分",
       "insufficient": "积分不足，请充值。"
     },
+    "selectProfile": {
+      "required": "请选择要分析的档案。"
+    },
+    "credits": {
+      "insufficient": "积分不足，请充值积分。"
+    },
     "startAnalysis": "开始运势分析",
     "analysisTime": "分析大约需要30-60秒",
     "processing": {
@@ -425,11 +432,198 @@
       }
     }
   },
+  "home": {
+    "sections": {
+      "profile": "档案管理",
+      "analysis": "八字分析",
+      "compatibility": "合婚分析",
+      "account": "账户"
+    },
+    "menu": {
+      "registerProfile": "登记档案",
+      "profileList": "档案列表",
+      "fullAnalysis": "综合分析",
+      "yearlyFortune": "新年运势",
+      "compatibility": "合婚分析",
+      "mypage": "我的页面"
+    },
+    "comingSoon": "即将推出"
+  },
   "language": {
     "ko": "한국어",
     "en": "English",
     "ja": "日本語",
     "zh-CN": "简体中文",
     "zh-TW": "繁體中文"
+  },
+  "report": {
+    "wealth": {
+      "title": "财运与异性",
+      "wealthBlessing": "财运",
+      "wealthBlessingDesc": "您身上存在的财运倾向",
+      "partnerInfluence": "异性的存在",
+      "partnerInfluenceDesc": "您内心深处异性的存在形态",
+      "traits": "财运特性",
+      "traitsDesc": "与财运相关的5个特性",
+      "score": "财运分数"
+    },
+    "romance": {
+      "title": "恋爱与婚姻",
+      "lovePsychology": "恋爱心理",
+      "lovePsychologyDesc": "婚前恋爱/约会心理",
+      "partnerView": "配偶观",
+      "partnerViewDesc": "婚后看待配偶的眼光",
+      "personalityPattern": "性格模式",
+      "personalityPatternDesc": "婚后的性格模式",
+      "traits": "恋爱特性",
+      "traitsDesc": "与恋爱相关的10个特性",
+      "score": "恋爱分数"
+    },
+    "navigation": {
+      "saju": "八字",
+      "personality": "性格",
+      "characteristics": "特性",
+      "aptitude": "适性",
+      "wealth": "财运",
+      "romance": "恋爱"
+    },
+    "actions": {
+      "exportPdf": "导出PDF",
+      "share": "分享",
+      "back": "返回"
+    }
+  },
+  "pipeline": {
+    "steps": {
+      "manseryeok": "万年历计算",
+      "jijanggan": "藏干分析",
+      "basic_analysis": "格局/用神分析",
+      "personality": "性格分析",
+      "aptitude": "适性分析",
+      "fortune": "财运/恋爱分析",
+      "scoring": "评分计算",
+      "visualization": "命盘生成",
+      "saving": "结果保存",
+      "complete": "完成"
+    },
+    "activeMessages": {
+      "manseryeok": "正在计算万年历...",
+      "jijanggan": "正在分析藏干...",
+      "basic_analysis": "正在分析格局和用神...",
+      "personality": "正在分析性格特征...",
+      "aptitude": "正在分析适性和才能...",
+      "fortune": "正在查看财运和恋爱运...",
+      "scoring": "正在计算分析评分...",
+      "visualization": "正在生成八字命盘...",
+      "saving": "正在保存分析结果..."
+    },
+    "preparing": "正在准备分析...",
+    "progress": "进度",
+    "tip": "您知道吗？",
+    "remainingTime": {
+      "seconds": "约{seconds}秒剩余",
+      "minutes": "约{minutes}分{seconds}秒剩余"
+    },
+    "error": {
+      "title": "{step}过程中发生错误",
+      "completedSteps": "已完成步骤",
+      "retryFrom": "从{step}重试",
+      "cancel": "取消"
+    }
+  },
+  "credits": {
+    "balance": "持有{credits}积分",
+    "insufficient": {
+      "title": "积分不足",
+      "description": "使用此功能需要更多积分。",
+      "required": "所需",
+      "current": "持有",
+      "shortfall": "不足{amount}积分",
+      "charge": "充值积分"
+    },
+    "deduction": {
+      "report": "生成档案报告: -{amount}积分",
+      "reanalysis": "重新分析部分: -{amount}积分"
+    }
+  },
+  "profile": {
+    "pageTitle": {
+      "new": "添加档案",
+      "list": "档案列表",
+      "detail": "档案详情",
+      "edit": "编辑档案"
+    },
+    "selector": {
+      "title": "选择档案",
+      "subtitle": "请选择要分析的档案",
+      "addNew": "添加新档案"
+    },
+    "empty": {
+      "title": "暂无档案",
+      "description": "添加档案开始运势分析",
+      "addFirst": "添加档案"
+    },
+    "form": {
+      "name": "姓名",
+      "namePlaceholder": "请输入姓名",
+      "birthDate": "出生日期",
+      "birthTime": "出生时间",
+      "birthTimeOptional": "出生时间（可选）",
+      "birthTimeHint": "如不知道可留空",
+      "calendarType": "历法类型",
+      "solar": "阳历",
+      "lunar": "阴历",
+      "lunarLeap": "闰月",
+      "gender": "性别",
+      "male": "男",
+      "female": "女",
+      "yearPlaceholder": "年",
+      "monthPlaceholder": "月",
+      "dayPlaceholder": "日",
+      "hourPlaceholder": "时",
+      "minutePlaceholder": "分"
+    },
+    "validation": {
+      "nameRequired": "请输入姓名",
+      "nameMaxLength": "姓名不能超过50个字符",
+      "invalidDate": "请输入有效日期",
+      "genderRequired": "请选择性别",
+      "futureDateNotAllowed": "不能输入未来日期"
+    },
+    "list": {
+      "sortByName": "按姓名",
+      "sortByDate": "按日期",
+      "totalCount": "共{count}人",
+      "empty": "暂无档案",
+      "emptyDescription": "添加新档案开始八字分析",
+      "addFirst": "添加第一个档案"
+    },
+    "detail": {
+      "birthInfo": "出生信息",
+      "age": "{age}岁",
+      "generateReport": "生成报告",
+      "viewReport": "查看报告",
+      "noReport": "暂无分析报告"
+    },
+    "actions": {
+      "save": "保存",
+      "cancel": "取消",
+      "edit": "编辑",
+      "delete": "删除",
+      "complete": "完成"
+    },
+    "delete": {
+      "title": "删除档案",
+      "message": "确定要删除「{name}」吗？",
+      "warning": "此操作无法撤销。",
+      "confirm": "删除",
+      "cancel": "取消"
+    },
+    "toast": {
+      "createSuccess": "档案添加成功",
+      "updateSuccess": "档案更新成功",
+      "deleteSuccess": "档案删除成功",
+      "error": "发生错误"
+    }
   }
 }

@@ -29,6 +29,164 @@
 
 ---
 
+## 📊 v2.0 멀티스텝 파이프라인 (Task 6)
+
+### 아키텍처 개요
+
+```
+v1.0: [입력] → [Gemini 1회] → [결과]
+
+v2.0: [입력] → [만세력] → [지장간] → [기본분석] → [성격] → [적성] → [재물/연애] → [점수] → [시각화] → [저장]
+                  ↓          ↓          ↓           ↓         ↓           ↓
+               Python     Python     Gemini#1   Gemini#2  Gemini#3    Gemini#4
+                                       ↘          ↓         ↙
+                                        (병렬 처리: 성격/적성/재물)
+```
+
+### 10단계 파이프라인
+
+| 단계 | 이름 | 설명 | 엔진 | 예상 시간 |
+|------|------|------|------|----------|
+| 1 | `manseryeok` | 만세력 계산 | Python | ~0.5초 |
+| 2 | `jijanggan` | 지장간 추출 | Python | ~0.2초 |
+| 3 | `basic_analysis` | 격국/용신 분석 | Gemini | ~5초 |
+| 4 | `personality` | 성격 분석 | Gemini | ~4초 |
+| 5 | `aptitude` | 적성 분석 | Gemini | ~4초 |
+| 6 | `fortune` | 재물/연애 분석 | Gemini | ~4초 |
+| 7 | `scoring` | 점수 산출 | TypeScript | ~0.1초 |
+| 8 | `visualization` | 명반 생성 | Python | ~1초 |
+| 9 | `saving` | DB 저장 | Prisma | ~0.3초 |
+| 10 | `complete` | 완료 | - | - |
+
+### 병렬 처리 최적화
+
+`personality`, `aptitude`, `fortune` 단계는 `Promise.allSettled`로 병렬 실행:
+- 순차 실행: ~12초
+- 병렬 실행: ~5초 (약 60% 단축)
+
+### 구현 파일
+
+```
+src/lib/ai/
+├── types.ts          # PipelineStep, PipelineIntermediateResults 타입
+├── pipeline.ts       # AnalysisPipeline 클래스 + createAnalysisPipeline 팩토리
+└── index.ts          # export
+
+python/prompts/
+├── builder.py        # build_step() 메서드 (단계별 프롬프트)
+└── classics_summary.py # 멀티스텝용 핵심 요약
+```
+
+### AnalysisPipeline 클래스
+
+```typescript
+// 팩토리 함수 (동시성 안전)
+export function createAnalysisPipeline(options?: PipelineOptions): AnalysisPipeline
+
+// 주요 메서드
+execute(input): Promise<PipelineResponse>           // 전체 실행
+executeFromStep(input, step): Promise<PipelineResponse>  // 특정 단계부터 재실행
+hydrate(results, fromStep): void                    // 상태 복원 (재시도용)
+
+// 옵션
+interface PipelineOptions {
+  enableParallel?: boolean;  // 병렬 처리 (기본: true)
+  retryCount?: number;       // 재시도 횟수 (기본: 1)
+  onProgress?: (progress) => void;
+  onStepComplete?: (step, result) => void;
+  onError?: (step, error) => void;
+}
+```
+
+### 에러 복구 전략
+
+| 에러 유형 | 재시도 | 전략 |
+|----------|--------|------|
+| TIMEOUT | O | 타임아웃 1.5배 후 재시도 |
+| RATE_LIMIT | O | 2초 대기 후 재시도 |
+| PARSE_ERROR | O | 프롬프트 수정 후 재시도 |
+| INVALID_INPUT | X | 사용자에게 안내 |
+
+**부분 실패 처리**:
+- 만세력/기본분석 실패 → 전체 중단
+- 성격/적성/재물 일부 실패 → 부분 결과 제공
+- 점수/시각화 실패 → 텍스트 결과만 제공
+
+### API 엔드포인트
+
+- `POST /api/analysis/pipeline` - 파이프라인 실행 (60초 타임아웃)
+- `POST /api/analysis/pipeline/retry` - 실패 단계부터 재시도
+
+---
+
+## 📈 점수 계산 알고리즘 (Task 21)
+
+### 개요
+
+파이프라인 7단계(`scoring`)에서 실행되는 십신(十神) 기반 특성 점수 계산 모듈.
+
+### 십신(十神) 정의
+
+일간(日干)을 기준으로 다른 천간과의 관계:
+
+| 십신 | 관계 | 성격 특성 |
+|------|------|----------|
+| 비견 | 같은 오행, 같은 음양 | 독립심, 경쟁심, 자존심 |
+| 겁재 | 같은 오행, 다른 음양 | 추진력, 승부욕, 결단력 |
+| 식신 | 내가 생하는 오행, 같은 음양 | 표현력, 여유, 낙천성 |
+| 상관 | 내가 생하는 오행, 다른 음양 | 창의성, 반항, 예리함 |
+| 정재 | 내가 극하는 오행, 다른 음양 | 안정, 성실, 근면 |
+| 편재 | 내가 극하는 오행, 같은 음양 | 사교성, 투자, 변동 |
+| 정관 | 나를 극하는 오행, 다른 음양 | 책임감, 명예, 원칙 |
+| 편관 | 나를 극하는 오행, 같은 음양 | 권력, 카리스마, 결단 |
+| 정인 | 나를 생하는 오행, 다른 음양 | 학습, 인내, 포용력 |
+| 편인 | 나를 생하는 오행, 같은 음양 | 직관, 독창성, 전문성 |
+
+### 점수 계산 공식
+
+```typescript
+// 1. 십신 추출 (가중치 적용)
+const tenGodCounts = extractTenGods(pillars, jijanggan);
+// - 천간: 가중치 1.0
+// - 지장간 정기: 가중치 1.0
+// - 지장간 여기/중기: 가중치 0.3
+
+// 2. 특성 점수 계산
+let score = 50;  // 기본점수
+for (tenGod in counts) {
+  score += TRAIT_MODIFIERS[trait][tenGod] * counts[tenGod];
+}
+return clamp(score, 0, 100);
+```
+
+### 35개 특성 항목
+
+| 카테고리 | 항목 (10개) |
+|---------|------------|
+| 성격 특성 | 의지력, 사교성, 인내력, 독립심, 신뢰성, 배려심, 유머감각, 협동심, 표현력, 성실도 |
+| 업무 능력 | 기획력, 추진력, 실행력, 완성도, 관리력 |
+| 적성 특성 | 분석력, 협동심, 학습력, 창의력, 예술성, 표현력, 활동성, 도전정신, 사업감각, 신뢰성 |
+| 연애 특성 | 배려심, 유머감각, 감성, 자존감, 모험심, 성실도, 사교성, 경제관념, 신뢰성, 표현력 |
+
+### 구현 파일
+
+```
+src/lib/score/
+├── types.ts              # TenGod, TenGodCounts 타입
+├── constants.ts          # 천간/지지/오행 매핑
+├── ten-gods.ts           # 십신 추출 함수
+├── trait-modifiers.ts    # 35개 특성 영향 매핑
+├── calculator.ts         # 점수 계산 로직
+└── index.ts              # 모듈 export
+```
+
+### 테스트
+
+- `tests/unit/lib/score/ten-gods.test.ts` (22개)
+- `tests/unit/lib/score/calculator.test.ts` (16개)
+
+---
+
 ## 1️⃣ 입력 처리 (Input Processing)
 
 ### 필수 입력값
@@ -317,12 +475,133 @@ src/app/api/analysis/gemini/
 }
 ```
 
+### 멀티스텝 분석용 프롬프트 모듈 (Task 7)
+
+**파일**: `python/prompts/classics_summary.py`
+
+v2.0 멀티스텝 파이프라인에서 각 단계별 컨텍스트 효율을 극대화하기 위한 핵심 요약 모듈.
+기존 ziping.py (714줄), qiongtong.py (1410줄)을 300-500토큰으로 압축.
+
+**모듈 구성**:
+| 상수 | 토큰 | 설명 | 사용 단계 |
+|------|------|------|----------|
+| `ZIPING_SUMMARY` | ~300 | 용신 5원칙, 정격 8격, 오행 생극제화 | Step 2 (기본분석) |
+| `QIONGTONG_SUMMARY` | ~400 | 조후론 핵심, 계절별 조후, 한난조습 4원리 | Step 2-3 |
+| `TEN_GODS_GUIDE` | ~350 | 십신 5계열 성격 해석 (비겁/식상/재성/관성/인성) | Step 3 (성격분석) |
+| `DAY_MASTER_TRAITS` | ~600 | 10일간 특성 테이블 (성격/강점/약점/적합분야/조후우선순위) | Step 2-4 |
+
+**헬퍼 함수**:
+```python
+get_ziping_summary(language: str) -> str
+get_qiongtong_summary(language: str) -> str
+get_ten_gods_guide(language: str) -> str
+get_day_master_traits(day_master: str) -> dict
+get_day_master_johu(day_master: str, season: str) -> str
+build_multistep_prompt(step: str, language: str, day_master: str, season: str) -> str
+```
+
+**멀티스텝 파이프라인 연동**:
+```
+[Step 1: 만세력] → 기존 API
+     ↓
+[Step 2: 기본분석] → ZIPING + QIONGTONG + DAY_MASTER_TRAITS
+     ↓
+[Step 3: 성격분석] → TEN_GODS_GUIDE
+     ↓
+[Step 4: 적성분석] → DAY_MASTER_TRAITS['suitable']
+     ↓
+[Step 5: 재물/연애] → 종합 컨텍스트
+```
+
+**다국어 지원**: ko, en, ja, zh-CN, zh-TW (5개 언어)
+
+### 단계별 상세 프롬프트 (Task 9-11)
+
+**파일**: `python/prompts/builder.py` - `_get_step_instructions()`
+
+멀티스텝 파이프라인의 각 분석 단계별 전문화된 프롬프트.
+
+#### Task 9: 성격 분석 프롬프트 (personality)
+
+**분석 항목**:
+| 항목 | 설명 | 점수 범위 |
+|------|------|----------|
+| 의지력 | 비견/겁재 비중 기반 | 0-100 |
+| 겉성격 | 시주 + 일간 조합 | 텍스트 |
+| 속성격 | 월주 + 일간 조합 | 텍스트 |
+| 대인관계 스타일 | 식상/재성/관성 비중 | 주도형/협조형/관망형 |
+
+**분석 원칙**:
+- 비견/겁재 강함 → 의지력/독립심 강함
+- 식상 강함 → 표현력/창의성 뛰어남
+- 재성 강함 → 현실감각/사교성 좋음
+- 관성 강함 → 책임감/규율 중시
+- 인성 강함 → 학습능력/보호본능 강함
+
+**참조 고전**: `get_ten_gods_guide(language)` - 십신 해석 가이드
+
+#### Task 10: 적성 분석 프롬프트 (aptitude)
+
+**분석 항목**:
+| 항목 | 설명 |
+|------|------|
+| 핵심 키워드 | 3-5개 대표 단어 |
+| 타고난 재능 | 재능명, 수준(0-100), 설명 (최소 3개) |
+| 추천 분야 | 분야명, 적합도(0-100), 추천 이유 (최소 5개) |
+| 피해야 할 분야 | 기신 오행 관련 분야 |
+| 재능 활용 상태 | 현재 발휘 수준, 잠재력, 개발 조언 |
+
+**적성 원칙**:
+- 식신/상관 강함 → 창의력, 예술, 표현 분야
+- 정재/편재 강함 → 사업, 금융, 영업 분야
+- 정관/편관 강함 → 공직, 관리, 법률 분야
+- 정인/편인 강함 → 학문, 연구, 교육 분야
+- 비견/겁재 강함 → 독립사업, 경쟁 분야
+
+**참조 고전**: `get_ziping_summary(language)` - 자평진전 격국 원리
+
+#### Task 11: 재물/연애 분석 프롬프트 (fortune)
+
+**재물운 분석**:
+| 항목 | 설명 |
+|------|------|
+| 패턴 유형 | 축재형/소비형/투자형/안정형 |
+| 재물 강점 | 3가지 (구체적 상황 포함) |
+| 재물 리스크 | 3가지 (주의 상황 포함) |
+| 재물 점수 | 0-100 |
+| 재물 조언 | 구체적이고 실천 가능한 조언 |
+
+**연애운 분석**:
+| 항목 | 설명 |
+|------|------|
+| 스타일 유형 | 적극형/수동형/감성형/이성형 |
+| 이상형 특성 | 외모, 성격, 직업 등 |
+| 결혼관 | 결혼에 대한 태도, 적합한 시기 |
+| 궁합 점수 | 0-100 |
+| 주의사항 | 3가지 (피해야 할 패턴) |
+
+**재성/관성 해석 기준**:
+- 정재(正財): 안정적 수입, 저축, 근면, 계획적 재테크
+- 편재(偏財): 투기적 수입, 사교력, 융통성, 기회 포착
+- 남성: 정재=아내, 편재=연인
+- 여성: 정관=남편, 편관=연인
+- 식상: 표현력, 매력, 자녀운
+
+**민감 내용 순화 가이드라인** (프롬프트 내 통합):
+- "이혼" → "결혼 생활의 도전"
+- "파산" → "재정적 어려움"
+- 부정적 표현을 완곡하게 처리
+
+**참조 고전**: `get_ziping_summary()` + `get_qiongtong_summary()` - 자평진전 + 궁통보감 통합
+
 ### 프롬프트 버전 관리
 
 | 버전 | 날짜 | 변경 내용 | 성능 |
 |------|------|----------|------|
 | v1.0 | 2026-01-02 | 초기 버전 | - |
 | v1.1 | 2026-01-02 | 후속 질문 프롬프트 추가 (Task 16) | - |
+| v1.2 | 2026-01-03 | 멀티스텝용 classics_summary.py 추가 (Task 7) | - |
+| v1.3 | 2026-01-03 | 성격/적성/재물·연애 프롬프트 5개 언어 (Task 9-11) | - |
 
 ### 후속 질문 시스템 (Task 16)
 
@@ -642,4 +921,92 @@ python/prompts/yearly_prompt.py
 
 ---
 
-**최종 수정**: 2026-01-03 (Task 20: 신년 사주 분석 - 월별 운세, 길흉일 캘린더, 분기별 분석)
+## 🔧 백엔드 리팩토링 (v2.1) - 완료
+
+### 개요
+
+코드 품질 및 유지보수성 향상을 위한 리팩토링. **Gemini 검증 완료, 3 Phase 모두 구현 완료**.
+
+### Phase 1: PromptBuilder 로케일 딕셔너리화 ✅
+
+**파일**: `python/prompts/locale_strings.py` (431줄 신규)
+
+**변경 사항**:
+- `builder.py`에서 모든 언어별 문자열 추출
+- 5개 언어 지원 (ko, en, ja, zh-CN, zh-TW)
+- 한국어 조사 자동 처리 (`has_batchim()`, `apply_korean_particles()`)
+
+```python
+# 사용 예
+from prompts.locale_strings import get_locale_string, format_pillars_table
+
+title = get_locale_string('pillars_title', 'ko')  # "## 사주 팔자"
+table = format_pillars_table(pillars, 'ja')  # 일본어 테이블
+```
+
+**결과**: `builder.py` 1,469줄 → 1,303줄 (11% 감소)
+
+### Phase 2: AnalysisPipeline 클래스 분해 ✅
+
+**구조**:
+```
+src/lib/ai/pipeline/
+├── index.ts          # AnalysisPipeline 오케스트레이션 (v2.1.0)
+├── step-executor.ts  # StepExecutor: 타임아웃 + 재시도
+├── context.ts        # PipelineContext: 공유 상태 (AbortController)
+└── types.ts          # 상수 + 인터페이스 정의
+```
+
+**핵심 클래스**:
+```typescript
+// PipelineContext - 단일 상태 소스
+class PipelineContext {
+  readonly abortController: AbortController;
+  intermediateResults: PipelineIntermediateResults;
+  stepStatuses: Record<PipelineStep, StepStatus>;
+
+  start(): void;
+  hydrate(results, fromStep): void;  // 재시도용 상태 복원
+  abort(): void;
+}
+
+// StepExecutor - 실행 + 에러 핸들링
+class StepExecutor {
+  async execute<T>(step, executor, options?): Promise<T>;
+  // 타임아웃, 재시도, 에러 분류 통합
+}
+```
+
+**효과**: SRP 준수, 각 모듈 독립 테스트 가능
+
+### Phase 3: Python Code-First 스키마 동기화 ✅
+
+**파일**:
+- `python/export_openapi.py` - OpenAPI JSON 내보내기
+- `scripts/generate-types.sh` - 타입 생성 자동화
+- `src/types/generated.d.ts` - 자동 생성 TypeScript (수정 금지)
+- `src/types/index.ts` - 편의 타입 re-export
+
+**사용법**:
+```bash
+npm run generate:types
+```
+
+**생성되는 타입**:
+```typescript
+import { Pillars, DaewunItem, Jijanggan, CalculateResponse } from '@/types';
+```
+
+**효과**: Python Pydantic이 Single Source of Truth, 타입 불일치 0%
+
+### 리팩토링 요약
+
+| Phase | 영역 | 상태 | 효과 |
+|-------|------|------|------|
+| 1 | PromptBuilder | ✅ 완료 | 11% 코드 감소, 다국어 유지보수 용이 |
+| 2 | AnalysisPipeline | ✅ 완료 | SRP 준수, 모듈별 테스트 가능 |
+| 3 | 스키마 동기화 | ✅ 완료 | 타입 자동 생성, 불일치 방지 |
+
+---
+
+**최종 수정**: 2026-01-04 (백엔드 리팩토링 v2.1 완료)

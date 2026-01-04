@@ -1,38 +1,19 @@
 'use client';
 
 /**
- * 분석 기록 탭 컴포넌트
- * PRD 섹션 5.9 - 분석 기록 리스트
+ * 프로필 리포트 기록 탭 컴포넌트
+ * v2.0: analyses 테이블 → profile_reports + profiles 테이블로 전환
  */
 import { motion } from 'framer-motion';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
-import { useAnalysisList } from '@/hooks/use-user';
-import type { AnalysisItem } from '@/hooks/use-user';
+import { useProfiles, calculateAge } from '@/hooks/use-profiles';
+import type { ProfileResponse } from '@/types/profile';
 
-/** 분석 유형 라벨 */
-const ANALYSIS_TYPE_LABEL: Record<string, string> = {
-  full: '전체 사주 분석',
-  yearly: '신년 사주 분석',
-  compatibility: '궁합 분석',
-};
-
-/** 집중 영역 라벨 */
-const FOCUS_AREA_LABEL: Record<string, string> = {
-  wealth: '재물운',
-  love: '연애운',
-  career: '직장운',
-  health: '건강운',
-  overall: '종합운',
-};
-
-/** 집중 영역 아이콘 */
-const FOCUS_AREA_ICON: Record<string, string> = {
-  wealth: '💰',
-  love: '❤️',
-  career: '💼',
-  health: '🏥',
-  overall: '🌟',
+/** 성별 라벨 */
+const GENDER_LABEL: Record<string, string> = {
+  male: '남성',
+  female: '여성',
 };
 
 /** 날짜 포맷팅 */
@@ -60,8 +41,10 @@ function formatRelativeTime(dateString: string): string {
   return `${Math.floor(days / 365)}년 전`;
 }
 
-/** 분석 카드 컴포넌트 */
-function AnalysisCard({ analysis, index }: { analysis: AnalysisItem; index: number }) {
+/** 프로필 카드 컴포넌트 */
+function ProfileCard({ profile, index }: { profile: ProfileResponse; index: number }) {
+  const age = calculateAge(profile.birthDate);
+
   return (
     <motion.article
       initial={{ opacity: 0, y: 20 }}
@@ -75,63 +58,88 @@ function AnalysisCard({ analysis, index }: { analysis: AnalysisItem; index: numb
       {/* 헤더 */}
       <div className="mb-4 flex items-start justify-between">
         <div className="flex items-center gap-3">
-          {/* 집중 영역 아이콘 */}
+          {/* 프로필 아이콘 */}
           <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-[#f8f6f0] to-[#f0ebe0] text-lg">
-            {FOCUS_AREA_ICON[analysis.focusArea || 'overall'] || '📊'}
+            {profile.gender === 'male' ? '👤' : '👩'}
           </div>
           <div>
-            <p className="text-xs text-gray-400">{formatRelativeTime(analysis.createdAt)}</p>
-            <h3 className="font-serif font-semibold text-[#1a1a1a]">
-              {ANALYSIS_TYPE_LABEL[analysis.type] || '사주 분석'}
-            </h3>
+            <p className="text-xs text-gray-400">{formatRelativeTime(profile.createdAt)}</p>
+            <h3 className="font-serif font-semibold text-[#1a1a1a]">{profile.name}</h3>
           </div>
         </div>
         <span className="rounded-full bg-[#d4af37]/10 px-2.5 py-1 text-xs font-medium text-[#d4af37]">
-          {analysis.creditsUsed}C
+          {GENDER_LABEL[profile.gender] || profile.gender}
         </span>
       </div>
 
       {/* 정보 */}
       <div className="mb-4 flex flex-wrap gap-2">
-        {analysis.focusArea && (
+        <span className="inline-flex items-center rounded-lg bg-gray-100 px-2.5 py-1 text-xs text-gray-600">
+          {formatDate(profile.birthDate)}
+        </span>
+        <span className="inline-flex items-center rounded-lg bg-gray-100 px-2.5 py-1 text-xs text-gray-600">
+          {age}세
+        </span>
+        {profile.birthTime && (
           <span className="inline-flex items-center rounded-lg bg-gray-100 px-2.5 py-1 text-xs text-gray-600">
-            {FOCUS_AREA_LABEL[analysis.focusArea] || analysis.focusArea}
+            {profile.birthTime}
           </span>
         )}
-        <span className="inline-flex items-center rounded-lg bg-gray-100 px-2.5 py-1 text-xs text-gray-600">
-          {formatDate(analysis.createdAt)}
-        </span>
       </div>
 
       {/* 액션 버튼 */}
-      <Button
-        asChild
-        variant="outline"
-        size="sm"
-        className="w-full border-[#d4af37]/30 text-[#d4af37] transition-all hover:border-[#d4af37] hover:bg-[#d4af37]/5"
-      >
-        <Link href={`/analysis/result/${analysis.id}`}>
-          <svg
-            className="mr-2 h-4 w-4"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-            strokeWidth={1.5}
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z"
-            />
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
-            />
-          </svg>
-          결과 보기
-        </Link>
-      </Button>
+      <div className="flex gap-2">
+        <Button
+          asChild
+          variant="outline"
+          size="sm"
+          className="flex-1 border-[#d4af37]/30 text-[#d4af37] transition-all hover:border-[#d4af37] hover:bg-[#d4af37]/5"
+        >
+          <Link href={`/profiles/${profile.id}`}>
+            <svg
+              className="mr-2 h-4 w-4"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              strokeWidth={1.5}
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z"
+              />
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+              />
+            </svg>
+            상세 보기
+          </Link>
+        </Button>
+        <Button
+          asChild
+          size="sm"
+          className="flex-1 bg-gradient-to-r from-[#d4af37] to-[#c19a2e] text-white hover:shadow-md"
+        >
+          <Link href={`/profiles/${profile.id}/report`}>
+            <svg
+              className="mr-2 h-4 w-4"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              strokeWidth={1.5}
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M9 12h3.75M9 15h3.75M9 18h3.75m3 .75H18a2.25 2.25 0 002.25-2.25V6.108c0-1.135-.845-2.098-1.976-2.192a48.424 48.424 0 00-1.123-.08m-5.801 0c-.065.21-.1.433-.1.664 0 .414.336.75.75.75h4.5a.75.75 0 00.75-.75 2.25 2.25 0 00-.1-.664m-5.8 0A2.251 2.251 0 0113.5 2.25H15c1.012 0 1.867.668 2.15 1.586m-5.8 0c-.376.023-.75.05-1.124.08C9.095 4.01 8.25 4.973 8.25 6.108V8.25m0 0H4.875c-.621 0-1.125.504-1.125 1.125v11.25c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125V9.375c0-.621-.504-1.125-1.125-1.125H8.25zM6.75 12h.008v.008H6.75V12zm0 3h.008v.008H6.75V15zm0 3h.008v.008H6.75V18z"
+              />
+            </svg>
+            리포트
+          </Link>
+        </Button>
+      </div>
     </motion.article>
   );
 }
@@ -156,19 +164,19 @@ function EmptyState() {
           <path
             strokeLinecap="round"
             strokeLinejoin="round"
-            d="M9 12h3.75M9 15h3.75M9 18h3.75m3 .75H18a2.25 2.25 0 002.25-2.25V6.108c0-1.135-.845-2.098-1.976-2.192a48.424 48.424 0 00-1.123-.08m-5.801 0c-.065.21-.1.433-.1.664 0 .414.336.75.75.75h4.5a.75.75 0 00.75-.75 2.25 2.25 0 00-.1-.664m-5.8 0A2.251 2.251 0 0113.5 2.25H15c1.012 0 1.867.668 2.15 1.586m-5.8 0c-.376.023-.75.05-1.124.08C9.095 4.01 8.25 4.973 8.25 6.108V8.25m0 0H4.875c-.621 0-1.125.504-1.125 1.125v11.25c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125V9.375c0-.621-.504-1.125-1.125-1.125H8.25zM6.75 12h.008v.008H6.75V12zm0 3h.008v.008H6.75V15zm0 3h.008v.008H6.75V18z"
+            d="M18 18.72a9.094 9.094 0 003.741-.479 3 3 0 00-4.682-2.72m.94 3.198l.001.031c0 .225-.012.447-.037.666A11.944 11.944 0 0112 21c-2.17 0-4.207-.576-5.963-1.584A6.062 6.062 0 016 18.719m12 0a5.971 5.971 0 00-.941-3.197m0 0A5.995 5.995 0 0012 12.75a5.995 5.995 0 00-5.058 2.772m0 0a3 3 0 00-4.681 2.72 8.986 8.986 0 003.74.477m.94-3.197a5.971 5.971 0 00-.94 3.197M15 6.75a3 3 0 11-6 0 3 3 0 016 0zm6 3a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0zm-13.5 0a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0z"
           />
         </svg>
       </div>
       <h3 className="mb-2 font-serif text-xl font-semibold text-[#1a1a1a]">
-        아직 분석 기록이 없습니다
+        등록된 프로필이 없습니다
       </h3>
-      <p className="mb-6 text-gray-500">첫 번째 사주 분석을 시작하고 운명의 흐름을 알아보세요</p>
+      <p className="mb-6 text-gray-500">프로필을 등록하고 사주 리포트를 생성해보세요</p>
       <Button
         asChild
         className="bg-gradient-to-r from-[#d4af37] to-[#c19a2e] px-6 py-3 text-white shadow-md hover:shadow-lg"
       >
-        <Link href="/onboarding/step2">
+        <Link href="/profiles/new">
           <svg
             className="mr-2 h-4 w-4"
             fill="none"
@@ -178,7 +186,7 @@ function EmptyState() {
           >
             <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
           </svg>
-          첫 분석 시작하기
+          프로필 등록하기
         </Link>
       </Button>
     </motion.div>
@@ -202,10 +210,13 @@ function LoadingSkeleton() {
             <div className="h-6 w-10 rounded-full bg-gray-200" />
           </div>
           <div className="mb-4 flex gap-2">
-            <div className="h-6 w-16 rounded-lg bg-gray-200" />
             <div className="h-6 w-24 rounded-lg bg-gray-200" />
+            <div className="h-6 w-12 rounded-lg bg-gray-200" />
           </div>
-          <div className="h-9 w-full rounded-lg bg-gray-200" />
+          <div className="flex gap-2">
+            <div className="h-9 flex-1 rounded-lg bg-gray-200" />
+            <div className="h-9 flex-1 rounded-lg bg-gray-200" />
+          </div>
         </div>
       ))}
     </div>
@@ -213,7 +224,7 @@ function LoadingSkeleton() {
 }
 
 export function AnalysisHistory() {
-  const { data, isLoading } = useAnalysisList();
+  const { data: profiles, isLoading } = useProfiles();
 
   return (
     <div>
@@ -224,25 +235,30 @@ export function AnalysisHistory() {
         className="mb-6 flex items-center justify-between"
       >
         <div>
-          <h2 className="font-serif text-xl font-bold text-[#1a1a1a]">분석 기록</h2>
-          <p className="mt-1 text-sm text-gray-500">지금까지 진행한 사주 분석 기록을 확인하세요</p>
+          <h2 className="font-serif text-xl font-bold text-[#1a1a1a]">프로필 리포트</h2>
+          <p className="mt-1 text-sm text-gray-500">등록된 프로필과 사주 리포트를 확인하세요</p>
         </div>
-        {data?.analyses && data.analyses.length > 0 && (
-          <span className="rounded-full bg-[#1a1a1a]/5 px-3 py-1 text-sm font-medium text-gray-600">
-            총 {data.analyses.length}건
-          </span>
+        {profiles && profiles.length > 0 && (
+          <div className="flex items-center gap-3">
+            <span className="rounded-full bg-[#1a1a1a]/5 px-3 py-1 text-sm font-medium text-gray-600">
+              총 {profiles.length}명
+            </span>
+            <Button asChild size="sm" variant="outline">
+              <Link href="/profiles/new">+ 프로필 추가</Link>
+            </Button>
+          </div>
         )}
       </motion.div>
 
       {/* 콘텐츠 */}
       {isLoading ? (
         <LoadingSkeleton />
-      ) : !data?.analyses || data.analyses.length === 0 ? (
+      ) : !profiles || profiles.length === 0 ? (
         <EmptyState />
       ) : (
         <div className="grid gap-4 md:grid-cols-2">
-          {data.analyses.map((analysis, index) => (
-            <AnalysisCard key={analysis.id} analysis={analysis} index={index} />
+          {profiles.map((profile, index) => (
+            <ProfileCard key={profile.id} profile={profile} index={index} />
           ))}
         </div>
       )}

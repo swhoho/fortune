@@ -9,7 +9,7 @@ import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
-import { useAnalysisStore } from '@/stores/analysis';
+import { useOnboardingStore } from '@/stores/onboarding-store';
 import { FocusAreaLabel } from '@/types/saju';
 import { CREDIT_PACKAGES, SERVICE_CREDITS } from '@/lib/stripe';
 import type { CreditPackage } from '@/lib/stripe';
@@ -27,7 +27,7 @@ const analysisIncludes = [
 
 export default function PaymentPage() {
   const router = useRouter();
-  const { focusArea, question } = useAnalysisStore();
+  const { focusArea, question } = useOnboardingStore();
   const [selectedPackage, setSelectedPackage] = useState<CreditPackage | null>(
     CREDIT_PACKAGES.find((p) => p.popular) || null
   );

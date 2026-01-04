@@ -230,3 +230,402 @@ class TestJohuPrinciples:
             assert '한' in prompt and '난' in prompt
         elif lang == 'en':
             assert 'Cold' in prompt and 'Warm' in prompt
+
+
+# ============================================
+# Task 9~11: 멀티스텝 프롬프트 테스트
+# ============================================
+
+class TestMultistepPrompts:
+    """멀티스텝 파이프라인용 단계별 프롬프트 테스트"""
+
+    # 테스트용 사주 데이터
+    SAMPLE_PILLARS = {
+        'year': {'stem': '甲', 'branch': '子', 'element': '木'},
+        'month': {'stem': '乙', 'branch': '丑', 'element': '木'},
+        'day': {'stem': '丙', 'branch': '寅', 'element': '火', 'stemElement': '火'},
+        'hour': {'stem': '丁', 'branch': '卯', 'element': '火'},
+    }
+
+    @pytest.mark.parametrize("step", ['basic', 'personality', 'aptitude', 'fortune'])
+    @pytest.mark.parametrize("lang", ['ko', 'en', 'ja', 'zh-CN', 'zh-TW'])
+    def test_build_step_all_languages(self, step, lang):
+        """모든 단계/언어에서 프롬프트 생성 성공"""
+        response = PromptBuilder.build_step(
+            step=step,
+            pillars=self.SAMPLE_PILLARS,
+            language=lang
+        )
+
+        assert response.system_prompt is not None
+        assert len(response.system_prompt) > 500
+        assert response.metadata['step'] == step
+        assert response.metadata['language'] == lang
+        assert response.output_schema is not None
+
+    def test_build_step_metadata(self):
+        """빌드 응답 메타데이터 확인"""
+        response = PromptBuilder.build_step(
+            step='basic',
+            pillars=self.SAMPLE_PILLARS,
+            language='ko'
+        )
+
+        assert 'version' in response.metadata
+        assert response.metadata['type'] == 'step'
+        assert 'generated_at' in response.metadata
+
+
+class TestPersonalityPrompt:
+    """Task 9: 성격 분석 프롬프트 테스트"""
+
+    SAMPLE_PILLARS = TestMultistepPrompts.SAMPLE_PILLARS
+
+    def test_personality_korean_key_terms(self):
+        """한국어 성격 프롬프트에 핵심 용어 포함"""
+        response = PromptBuilder.build_step(
+            step='personality',
+            pillars=self.SAMPLE_PILLARS,
+            language='ko'
+        )
+        prompt = response.system_prompt
+
+        # 십신 관련 용어
+        assert '비견' in prompt or '겁재' in prompt
+        assert '식상' in prompt or '재성' in prompt or '관성' in prompt
+        # 분석 항목
+        assert '의지력' in prompt
+        assert '겉성격' in prompt
+        assert '속성격' in prompt
+        assert '대인관계' in prompt
+
+    def test_personality_english_key_terms(self):
+        """영어 성격 프롬프트에 핵심 용어 포함"""
+        response = PromptBuilder.build_step(
+            step='personality',
+            pillars=self.SAMPLE_PILLARS,
+            language='en'
+        )
+        prompt = response.system_prompt
+
+        assert 'Willpower' in prompt
+        assert 'Outer Personality' in prompt or 'outer personality' in prompt.lower()
+        assert 'Inner Personality' in prompt or 'inner personality' in prompt.lower()
+        assert 'Social' in prompt
+
+    def test_personality_japanese_key_terms(self):
+        """일본어 성격 프롬프트에 핵심 용어 포함"""
+        response = PromptBuilder.build_step(
+            step='personality',
+            pillars=self.SAMPLE_PILLARS,
+            language='ja'
+        )
+        prompt = response.system_prompt
+
+        assert '意志力' in prompt
+        assert '外面' in prompt or '内面' in prompt
+        assert '対人関係' in prompt
+
+    def test_personality_chinese_simplified_key_terms(self):
+        """중국어 간체 성격 프롬프트에 핵심 용어 포함"""
+        response = PromptBuilder.build_step(
+            step='personality',
+            pillars=self.SAMPLE_PILLARS,
+            language='zh-CN'
+        )
+        prompt = response.system_prompt
+
+        assert '意志力' in prompt
+        assert '外在性格' in prompt or '内在性格' in prompt
+        assert '人际关系' in prompt
+
+    def test_personality_chinese_traditional_key_terms(self):
+        """중국어 번체 성격 프롬프트에 핵심 용어 포함"""
+        response = PromptBuilder.build_step(
+            step='personality',
+            pillars=self.SAMPLE_PILLARS,
+            language='zh-TW'
+        )
+        prompt = response.system_prompt
+
+        assert '意志力' in prompt
+        assert '外在性格' in prompt or '內在性格' in prompt
+        assert '人際關係' in prompt
+
+
+class TestAptitudePrompt:
+    """Task 10: 적성 분석 프롬프트 테스트"""
+
+    SAMPLE_PILLARS = TestMultistepPrompts.SAMPLE_PILLARS
+
+    def test_aptitude_korean_key_terms(self):
+        """한국어 적성 프롬프트에 핵심 용어 포함"""
+        response = PromptBuilder.build_step(
+            step='aptitude',
+            pillars=self.SAMPLE_PILLARS,
+            language='ko'
+        )
+        prompt = response.system_prompt
+
+        # 분석 원칙
+        assert '식신' in prompt or '상관' in prompt
+        assert '재성' in prompt or '정재' in prompt or '편재' in prompt
+        # 분석 항목
+        assert '핵심 키워드' in prompt or '키워드' in prompt
+        assert '재능' in prompt
+        assert '추천 분야' in prompt
+        assert '피해야 할 분야' in prompt
+
+    def test_aptitude_english_key_terms(self):
+        """영어 적성 프롬프트에 핵심 용어 포함"""
+        response = PromptBuilder.build_step(
+            step='aptitude',
+            pillars=self.SAMPLE_PILLARS,
+            language='en'
+        )
+        prompt = response.system_prompt
+
+        assert 'Keywords' in prompt or 'keywords' in prompt.lower()
+        assert 'Talent' in prompt or 'talent' in prompt.lower()
+        assert 'Recommended' in prompt
+        assert 'Avoid' in prompt
+
+    def test_aptitude_japanese_key_terms(self):
+        """일본어 적성 프롬프트에 핵심 용어 포함"""
+        response = PromptBuilder.build_step(
+            step='aptitude',
+            pillars=self.SAMPLE_PILLARS,
+            language='ja'
+        )
+        prompt = response.system_prompt
+
+        assert 'キーワード' in prompt
+        assert '才能' in prompt
+        assert '推奨分野' in prompt
+        assert '避けるべき' in prompt
+
+    def test_aptitude_chinese_simplified_key_terms(self):
+        """중국어 간체 적성 프롬프트에 핵심 용어 포함"""
+        response = PromptBuilder.build_step(
+            step='aptitude',
+            pillars=self.SAMPLE_PILLARS,
+            language='zh-CN'
+        )
+        prompt = response.system_prompt
+
+        assert '关键词' in prompt
+        assert '才能' in prompt or '天赋' in prompt
+        assert '推荐领域' in prompt
+        assert '避免' in prompt
+
+    def test_aptitude_chinese_traditional_key_terms(self):
+        """중국어 번체 적성 프롬프트에 핵심 용어 포함"""
+        response = PromptBuilder.build_step(
+            step='aptitude',
+            pillars=self.SAMPLE_PILLARS,
+            language='zh-TW'
+        )
+        prompt = response.system_prompt
+
+        assert '關鍵詞' in prompt
+        assert '才能' in prompt or '天賦' in prompt
+        assert '推薦領域' in prompt
+        assert '避免' in prompt
+
+
+class TestFortunePrompt:
+    """Task 11: 재물/연애 분석 프롬프트 테스트"""
+
+    SAMPLE_PILLARS = TestMultistepPrompts.SAMPLE_PILLARS
+
+    def test_fortune_korean_key_terms(self):
+        """한국어 재물/연애 프롬프트에 핵심 용어 포함"""
+        response = PromptBuilder.build_step(
+            step='fortune',
+            pillars=self.SAMPLE_PILLARS,
+            language='ko'
+        )
+        prompt = response.system_prompt
+
+        # 재물운
+        assert '재물운' in prompt
+        assert '정재' in prompt or '편재' in prompt
+        assert '축재형' in prompt or '패턴' in prompt
+        # 연애운
+        assert '연애운' in prompt or '연애' in prompt
+        assert '결혼' in prompt
+
+    def test_fortune_english_key_terms(self):
+        """영어 재물/연애 프롬프트에 핵심 용어 포함"""
+        response = PromptBuilder.build_step(
+            step='fortune',
+            pillars=self.SAMPLE_PILLARS,
+            language='en'
+        )
+        prompt = response.system_prompt
+
+        # Wealth
+        assert 'Wealth' in prompt or 'wealth' in prompt.lower()
+        assert 'Direct Wealth' in prompt or 'Indirect Wealth' in prompt
+        # Love
+        assert 'Love' in prompt or 'love' in prompt.lower()
+        assert 'Marriage' in prompt or 'marriage' in prompt.lower()
+
+    def test_fortune_japanese_key_terms(self):
+        """일본어 재물/연애 프롬프트에 핵심 용어 포함"""
+        response = PromptBuilder.build_step(
+            step='fortune',
+            pillars=self.SAMPLE_PILLARS,
+            language='ja'
+        )
+        prompt = response.system_prompt
+
+        assert '財運' in prompt
+        assert '正財' in prompt or '偏財' in prompt
+        assert '恋愛' in prompt
+        assert '結婚' in prompt
+
+    def test_fortune_chinese_simplified_key_terms(self):
+        """중국어 간체 재물/연애 프롬프트에 핵심 용어 포함"""
+        response = PromptBuilder.build_step(
+            step='fortune',
+            pillars=self.SAMPLE_PILLARS,
+            language='zh-CN'
+        )
+        prompt = response.system_prompt
+
+        assert '财运' in prompt
+        assert '正财' in prompt or '偏财' in prompt
+        assert '恋爱' in prompt
+        assert '婚姻' in prompt
+
+    def test_fortune_chinese_traditional_key_terms(self):
+        """중국어 번체 재물/연애 프롬프트에 핵심 용어 포함"""
+        response = PromptBuilder.build_step(
+            step='fortune',
+            pillars=self.SAMPLE_PILLARS,
+            language='zh-TW'
+        )
+        prompt = response.system_prompt
+
+        assert '財運' in prompt
+        assert '正財' in prompt or '偏財' in prompt
+        assert '戀愛' in prompt
+        assert '婚姻' in prompt
+
+    def test_fortune_sanitization_guidance(self):
+        """순화 가이드라인이 프롬프트에 포함되어 있는지 확인"""
+        response = PromptBuilder.build_step(
+            step='fortune',
+            pillars=self.SAMPLE_PILLARS,
+            language='ko'
+        )
+        prompt = response.system_prompt
+
+        # 순화 지침 확인
+        assert '부정적' in prompt or '순화' in prompt or '완곡' in prompt
+
+    def test_fortune_sanitization_guidance_english(self):
+        """영어 프롬프트에 순화 가이드라인 포함"""
+        response = PromptBuilder.build_step(
+            step='fortune',
+            pillars=self.SAMPLE_PILLARS,
+            language='en'
+        )
+        prompt = response.system_prompt
+
+        # 순화 지침 확인 (Express negative content gently)
+        assert 'negative' in prompt.lower() or 'gently' in prompt.lower()
+
+
+class TestOutputSchemas:
+    """단계별 출력 스키마 테스트"""
+
+    @pytest.mark.parametrize("step", ['basic', 'personality', 'aptitude', 'fortune'])
+    def test_output_schema_structure(self, step):
+        """각 단계의 출력 스키마가 올바른 구조를 가지는지 확인"""
+        schema = PromptBuilder._get_step_output_schema(step)
+
+        assert schema is not None
+        assert 'type' in schema
+        assert schema['type'] == 'object'
+        assert 'properties' in schema
+        assert 'required' in schema
+
+    def test_personality_schema_fields(self):
+        """성격 스키마에 필수 필드가 있는지 확인"""
+        schema = PromptBuilder._get_step_output_schema('personality')
+
+        assert 'willpower' in schema['properties']
+        assert 'outerPersonality' in schema['properties']
+        assert 'innerPersonality' in schema['properties']
+        assert 'socialStyle' in schema['properties']
+
+    def test_aptitude_schema_fields(self):
+        """적성 스키마에 필수 필드가 있는지 확인"""
+        schema = PromptBuilder._get_step_output_schema('aptitude')
+
+        assert 'keywords' in schema['properties']
+        assert 'talents' in schema['properties']
+        assert 'recommendedFields' in schema['properties']
+        assert 'avoidFields' in schema['properties']
+
+    def test_fortune_schema_fields(self):
+        """재물/연애 스키마에 필수 필드가 있는지 확인"""
+        schema = PromptBuilder._get_step_output_schema('fortune')
+
+        assert 'wealth' in schema['properties']
+        assert 'love' in schema['properties']
+
+        # 중첩 구조 확인
+        wealth = schema['properties']['wealth']
+        assert 'properties' in wealth
+        assert 'pattern' in wealth['properties']
+
+        love = schema['properties']['love']
+        assert 'properties' in love
+        assert 'style' in love['properties']
+
+
+class TestClassicsSummaryIntegration:
+    """classics_summary 모듈 통합 테스트"""
+
+    SAMPLE_PILLARS = TestMultistepPrompts.SAMPLE_PILLARS
+
+    def test_personality_includes_ten_gods_guide(self):
+        """성격 분석에 십신 가이드가 포함되는지 확인"""
+        response = PromptBuilder.build_step(
+            step='personality',
+            pillars=self.SAMPLE_PILLARS,
+            language='ko'
+        )
+        prompt = response.system_prompt
+
+        # 십신 가이드 내용이 포함되어야 함
+        assert '십신' in prompt or '十神' in prompt
+        assert '비견' in prompt or '겁재' in prompt
+
+    def test_aptitude_includes_ziping_summary(self):
+        """적성 분석에 자평진전 요약이 포함되는지 확인"""
+        response = PromptBuilder.build_step(
+            step='aptitude',
+            pillars=self.SAMPLE_PILLARS,
+            language='ko'
+        )
+        prompt = response.system_prompt
+
+        # 자평진전 핵심 내용 포함 확인
+        assert '용신' in prompt or '격국' in prompt
+
+    def test_fortune_includes_both_summaries(self):
+        """재물/연애 분석에 자평진전+궁통보감 요약이 포함되는지 확인"""
+        response = PromptBuilder.build_step(
+            step='fortune',
+            pillars=self.SAMPLE_PILLARS,
+            language='ko'
+        )
+        prompt = response.system_prompt
+
+        # 자평진전 + 궁통보감 핵심 내용 포함 확인
+        assert '용신' in prompt or '격국' in prompt
+        assert '조후' in prompt or '한난' in prompt or '寒暖' in prompt

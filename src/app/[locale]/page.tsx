@@ -4,16 +4,46 @@
  * 랜딩 페이지 - Master's Insight AI
  * 30년 명리학 거장이 인정한 AI 사주 분석 서비스
  */
+import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { useTranslations } from 'next-intl';
-import { Link } from '@/i18n/routing';
+import { Link, useRouter } from '@/i18n/routing';
 import { Button } from '@/components/ui/button';
 import { LanguageSwitcher } from '@/components/language-switcher';
+import { supabase } from '@/lib/supabase/client';
 
 export default function LandingPage() {
   const t = useTranslations('landing');
   const tCommon = useTranslations('common');
   const tNav = useTranslations('nav');
+  const router = useRouter();
+  const [isCheckingAuth, setIsCheckingAuth] = useState(true);
+
+  // 로그인 상태 확인 후 홈으로 리다이렉트
+  useEffect(() => {
+    const checkAuth = async () => {
+      try {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (user) {
+          router.replace('/home');
+        } else {
+          setIsCheckingAuth(false);
+        }
+      } catch {
+        setIsCheckingAuth(false);
+      }
+    };
+    checkAuth();
+  }, [router]);
+
+  // 로딩 중 스피너 표시
+  if (isCheckingAuth) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-[#f8f8f8]">
+        <div className="h-8 w-8 animate-spin rounded-full border-4 border-[#d4af37] border-t-transparent" />
+      </div>
+    );
+  }
 
   return (
     <div className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden bg-[#f8f8f8]">

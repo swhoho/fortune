@@ -17,6 +17,15 @@ export type {
   AnalysisResponse,
   AnalysisOptions,
   FocusArea,
+  PipelineStep,
+  PipelineIntermediateResults,
+  StepStatus,
+  PipelineProgress,
+  PipelineOptions,
+  PipelineResponse,
+  YearlyAnalysisInput,
+  YearlyAnalysisResult,
+  SupportedLanguage,
 } from './types';
 
 // Gemini 클라이언트

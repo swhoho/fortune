@@ -12,22 +12,14 @@ import { useTranslations } from 'next-intl';
 import { Loader2, CheckCircle2, Circle, AlertCircle } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
-import { useAnalysisStore } from '@/stores/analysis';
+import { useYearlyStore, type YearlyLoadingStep } from '@/stores/yearly-store';
 import { useOnboardingStore } from '@/stores/onboarding';
 import { BRAND_COLORS, FORTUNE_TIPS } from '@/lib/constants/colors';
 
 /** 한자 천간 (회전 애니메이션용) */
 const HANJA_CHARS = ['甲', '乙', '丙', '丁', '戊', '己', '庚', '辛', '壬', '癸'];
 
-/** 로딩 단계 */
-type YearlyLoadingStep =
-  | 'init'
-  | 'fetch_saju'
-  | 'build_prompt'
-  | 'ai_analysis'
-  | 'save_result'
-  | 'complete';
-
+/** 로딩 단계 라벨 */
 const STEP_LABELS: Record<YearlyLoadingStep, string> = {
   init: '초기화',
   fetch_saju: '사주 정보 불러오기',
@@ -52,18 +44,21 @@ export default function YearlyProcessingPage() {
   const {
     targetYear,
     existingAnalysisId,
+    yearlyLoadingStep,
     setYearlyResult,
     setYearlyLoading,
     setYearlyError,
     resetYearly,
-  } = useAnalysisStore();
+  } = useYearlyStore();
 
   const { birthDate, birthTime, timezone, isLunar, gender, pillars, daewun } =
     useOnboardingStore();
 
-  const [currentStep, setCurrentStep] = useState<YearlyLoadingStep>('init');
   const [error, setError] = useState<string | null>(null);
   const [tipIndex, setTipIndex] = useState(0);
+
+  // 현재 단계 (스토어에서 가져오거나 기본값 'init')
+  const currentStep = yearlyLoadingStep || 'init';
 
   // 팁 로테이션
   useEffect(() => {
@@ -81,11 +76,10 @@ export default function YearlyProcessingPage() {
     }
 
     try {
-      setYearlyLoading(true);
-      setCurrentStep('init');
+      setYearlyLoading(true, 'init');
 
       // 1. 사주 정보 준비
-      setCurrentStep('fetch_saju');
+      setYearlyLoading(true, 'fetch_saju');
       await new Promise((r) => setTimeout(r, 500));
 
       let analysisData: {
@@ -98,8 +92,8 @@ export default function YearlyProcessingPage() {
           gender: 'male' | 'female';
         };
         existingAnalysisId?: string;
-        pillars?: Record<string, unknown>;
-        daewun?: unknown[];
+        pillars?: unknown;
+        daewun?: unknown;
         language: string;
       };
 
@@ -132,11 +126,11 @@ export default function YearlyProcessingPage() {
       }
 
       // 2. 프롬프트 빌드
-      setCurrentStep('build_prompt');
+      setYearlyLoading(true, 'build_prompt');
       await new Promise((r) => setTimeout(r, 500));
 
       // 3. AI 분석
-      setCurrentStep('ai_analysis');
+      setYearlyLoading(true, 'ai_analysis');
 
       const response = await fetch('/api/analysis/yearly', {
         method: 'POST',
@@ -152,11 +146,11 @@ export default function YearlyProcessingPage() {
       const result = await response.json();
 
       // 4. 결과 저장
-      setCurrentStep('save_result');
+      setYearlyLoading(true, 'save_result');
       await new Promise((r) => setTimeout(r, 300));
 
       setYearlyResult(result.data);
-      setCurrentStep('complete');
+      setYearlyLoading(true, 'complete');
 
       // 5. 결과 페이지로 이동
       await new Promise((r) => setTimeout(r, 500));

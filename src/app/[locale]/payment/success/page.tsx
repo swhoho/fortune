@@ -91,11 +91,11 @@ function PaymentSuccessContent() {
           size="lg"
           className="w-full bg-gradient-to-r from-[#d4af37] to-[#c19a2e] py-6 text-lg font-semibold text-white shadow-lg transition-all hover:scale-[1.02] hover:shadow-xl"
         >
-          <Link href="/analysis/processing">분석 시작하기</Link>
+          <Link href="/home">홈으로 이동</Link>
         </Button>
 
         <Button asChild variant="outline" size="lg" className="w-full border-gray-300 py-6 text-lg">
-          <Link href="/">홈으로 돌아가기</Link>
+          <Link href="/profiles">프로필 관리</Link>
         </Button>
       </motion.div>
 

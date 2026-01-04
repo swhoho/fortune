@@ -1,0 +1,1135 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "만세력 계산 API",
+    "description": "만세력 계산 API - 사주 팔자, 대운, 지장간 계산 및 AI 프롬프트 빌드 서비스\n\n**Source of Truth**: Python Pydantic 모델\n**TypeScript 타입 자동 생성**: `npm run generate:types`",
+    "version": "2.1.0"
+  },
+  "paths": {
+    "/api/manseryeok/calculate": {
+      "post": {
+        "summary": "Calculate Saju",
+        "description": "사주 팔자, 대운, 지장간 계산\n\n- **birthDatetime**: 생년월일시 (ISO 8601 형식)\n- **timezone**: 시간대 (예: GMT+9)\n- **isLunar**: 음력 여부\n- **gender**: 성별 (대운 방향 결정)",
+        "operationId": "calculate_saju_api_manseryeok_calculate_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CalculateRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CalculateResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/visualization/pillar": {
+      "post": {
+        "summary": "Generate Pillar Image",
+        "description": "사주 명반 이미지 생성\n\n- **pillars**: 사주 팔자 데이터 (year, month, day, hour)\n\nReturns:\n    Base64 인코딩된 PNG 이미지",
+        "operationId": "generate_pillar_image_api_visualization_pillar_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/VisualizationRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VisualizationResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/prompts/build": {
+      "post": {
+        "summary": "Build Prompt",
+        "description": "AI 분석용 프롬프트 빌드\n\n자평진전, 궁통보감, The Destiny Code 기반 다국어 프롬프트를 생성합니다.\n\n- **language**: 언어 (ko, en, ja, zh)\n- **pillars**: 사주 팔자 데이터\n- **daewun**: 대운 목록 (선택)\n- **focusArea**: 집중 분석 영역 (선택)\n- **question**: 사용자 질문 (선택, 500자 제한)\n- **options**: 프롬프트 빌드 옵션\n\nReturns:\n    시스템 프롬프트, 사용자 프롬프트, 출력 스키마, 메타데이터",
+        "operationId": "build_prompt_api_prompts_build_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PromptBuildRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PromptBuildResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/prompts/step": {
+      "post": {
+        "summary": "Build Step Prompt",
+        "description": "멀티스텝 파이프라인용 단계별 프롬프트 빌드 (Task 8)\n\n4단계 분석 파이프라인:\n- **basic**: 기본 분석 (일간, 격국, 용신)\n- **personality**: 성격 분석 (십신 기반)\n- **aptitude**: 적성 분석 (강점, 약점, 추천 분야)\n- **fortune**: 재물/연애 분석\n\nArgs:\n- **step**: 분석 단계 (basic, personality, aptitude, fortune)\n- **language**: 언어 (ko, en, ja, zh-CN, zh-TW)\n- **pillars**: 사주 팔자 데이터\n- **daewun**: 대운 목록 (선택)\n- **jijanggan**: 지장간 데이터 (선택)\n- **previousResults**: 이전 단계 결과 (컨텍스트용)\n\nReturns:\n    시스템 프롬프트, 사용자 프롬프트, 출력 스키마, 메타데이터",
+        "operationId": "build_step_prompt_api_prompts_step_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/StepPromptRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PromptBuildResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/prompts/build/yearly": {
+      "post": {
+        "summary": "Build Yearly Prompt",
+        "description": "신년 사주 분석용 프롬프트 빌드\n\n특정 연도에 대한 월별 상세 운세 분석 프롬프트를 생성합니다.\n\n- **language**: 언어 (ko, en, ja, zh-CN, zh-TW)\n- **targetYear**: 분석 대상 연도 (예: 2026)\n- **birthYear**: 생년 (만 나이 계산용)\n- **pillars**: 사주 팔자 데이터\n- **daewun**: 대운 목록\n- **currentDaewun**: 현재 대운 (분석 연도 기준)\n- **gender**: 성별\n- **options**: 프롬프트 빌드 옵션\n\nReturns:\n    시스템 프롬프트, 사용자 프롬프트, 출력 스키마, 메타데이터",
+        "operationId": "build_yearly_prompt_api_prompts_build_yearly_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/YearlyPromptBuildRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PromptBuildResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/health": {
+      "get": {
+        "summary": "Health Check",
+        "description": "헬스 체크",
+        "operationId": "health_check_health_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "CalculateRequest": {
+        "properties": {
+          "birthDatetime": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Birthdatetime",
+            "description": "생년월일시 (ISO 8601 형식)",
+            "examples": [
+              "1990-05-15T14:30:00"
+            ]
+          },
+          "timezone": {
+            "type": "string",
+            "title": "Timezone",
+            "description": "시간대 (예: GMT+9, GMT-5)",
+            "default": "GMT+9",
+            "examples": [
+              "GMT+9"
+            ]
+          },
+          "isLunar": {
+            "type": "boolean",
+            "title": "Islunar",
+            "description": "음력 여부",
+            "default": false
+          },
+          "gender": {
+            "$ref": "#/components/schemas/Gender"
+          }
+        },
+        "type": "object",
+        "required": [
+          "birthDatetime",
+          "gender"
+        ],
+        "title": "CalculateRequest",
+        "description": "만세력 계산 요청",
+        "example": {
+          "birthDatetime": "1990-05-15T14:30:00",
+          "gender": "male",
+          "isLunar": false,
+          "timezone": "GMT+9"
+        }
+      },
+      "CalculateResponse": {
+        "properties": {
+          "pillars": {
+            "$ref": "#/components/schemas/Pillars",
+            "description": "사주 팔자"
+          },
+          "daewun": {
+            "items": {
+              "$ref": "#/components/schemas/DaewunItem"
+            },
+            "type": "array",
+            "title": "Daewun",
+            "description": "대운 목록"
+          },
+          "jijanggan": {
+            "$ref": "#/components/schemas/Jijanggan",
+            "description": "지장간"
+          }
+        },
+        "type": "object",
+        "required": [
+          "pillars",
+          "daewun",
+          "jijanggan"
+        ],
+        "title": "CalculateResponse",
+        "description": "만세력 계산 응답",
+        "example": {
+          "daewun": [
+            {
+              "age": 1,
+              "branch": "午",
+              "startYear": 1991,
+              "stem": "壬"
+            },
+            {
+              "age": 11,
+              "branch": "未",
+              "startYear": 2001,
+              "stem": "癸"
+            }
+          ],
+          "jijanggan": {
+            "day": [
+              "癸"
+            ],
+            "hour": [
+              "己",
+              "丁",
+              "乙"
+            ],
+            "month": [
+              "戊",
+              "庚",
+              "丙"
+            ],
+            "year": [
+              "己",
+              "丁"
+            ]
+          },
+          "pillars": {
+            "day": {
+              "branch": "子",
+              "element": "木",
+              "stem": "甲"
+            },
+            "hour": {
+              "branch": "未",
+              "element": "金",
+              "stem": "辛"
+            },
+            "month": {
+              "branch": "巳",
+              "element": "金",
+              "stem": "辛"
+            },
+            "year": {
+              "branch": "午",
+              "element": "金",
+              "stem": "庚"
+            }
+          }
+        }
+      },
+      "DaewunItem": {
+        "properties": {
+          "age": {
+            "type": "integer",
+            "title": "Age",
+            "description": "시작 나이",
+            "examples": [
+              1
+            ]
+          },
+          "stem": {
+            "type": "string",
+            "title": "Stem",
+            "description": "천간",
+            "examples": [
+              "壬"
+            ]
+          },
+          "branch": {
+            "type": "string",
+            "title": "Branch",
+            "description": "지지",
+            "examples": [
+              "午"
+            ]
+          },
+          "startYear": {
+            "type": "integer",
+            "title": "Startyear",
+            "description": "시작 연도",
+            "examples": [
+              1991
+            ]
+          }
+        },
+        "type": "object",
+        "required": [
+          "age",
+          "stem",
+          "branch",
+          "startYear"
+        ],
+        "title": "DaewunItem",
+        "description": "대운 항목"
+      },
+      "Gender": {
+        "type": "string",
+        "enum": [
+          "male",
+          "female"
+        ],
+        "title": "Gender",
+        "description": "성별 (대운 방향 결정)"
+      },
+      "HTTPValidationError": {
+        "properties": {
+          "detail": {
+            "items": {
+              "$ref": "#/components/schemas/ValidationError"
+            },
+            "type": "array",
+            "title": "Detail"
+          }
+        },
+        "type": "object",
+        "title": "HTTPValidationError"
+      },
+      "Jijanggan": {
+        "properties": {
+          "year": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Year",
+            "description": "연주 지장간",
+            "examples": [
+              [
+                "己",
+                "丁"
+              ]
+            ]
+          },
+          "month": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Month",
+            "description": "월주 지장간",
+            "examples": [
+              [
+                "戊",
+                "庚",
+                "丙"
+              ]
+            ]
+          },
+          "day": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Day",
+            "description": "일주 지장간",
+            "examples": [
+              [
+                "癸"
+              ]
+            ]
+          },
+          "hour": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Hour",
+            "description": "시주 지장간",
+            "examples": [
+              [
+                "己",
+                "丁",
+                "乙"
+              ]
+            ]
+          }
+        },
+        "type": "object",
+        "required": [
+          "year",
+          "month",
+          "day",
+          "hour"
+        ],
+        "title": "Jijanggan",
+        "description": "지장간 (각 지지에 숨어있는 천간)"
+      },
+      "Pillar": {
+        "properties": {
+          "stem": {
+            "type": "string",
+            "title": "Stem",
+            "description": "천간 (한자)",
+            "examples": [
+              "甲"
+            ]
+          },
+          "branch": {
+            "type": "string",
+            "title": "Branch",
+            "description": "지지 (한자)",
+            "examples": [
+              "子"
+            ]
+          },
+          "element": {
+            "type": "string",
+            "title": "Element",
+            "description": "오행 (한자)",
+            "examples": [
+              "木"
+            ]
+          }
+        },
+        "type": "object",
+        "required": [
+          "stem",
+          "branch",
+          "element"
+        ],
+        "title": "Pillar",
+        "description": "사주 기둥 (한 개)"
+      },
+      "Pillars": {
+        "properties": {
+          "year": {
+            "$ref": "#/components/schemas/Pillar",
+            "description": "연주 (年柱)"
+          },
+          "month": {
+            "$ref": "#/components/schemas/Pillar",
+            "description": "월주 (月柱)"
+          },
+          "day": {
+            "$ref": "#/components/schemas/Pillar",
+            "description": "일주 (日柱)"
+          },
+          "hour": {
+            "$ref": "#/components/schemas/Pillar",
+            "description": "시주 (時柱)"
+          }
+        },
+        "type": "object",
+        "required": [
+          "year",
+          "month",
+          "day",
+          "hour"
+        ],
+        "title": "Pillars",
+        "description": "사주 팔자 (4개 기둥)"
+      },
+      "PromptBuildOptions": {
+        "properties": {
+          "includeZiping": {
+            "type": "boolean",
+            "title": "Includeziping",
+            "description": "자평진전 포함 여부",
+            "default": true
+          },
+          "includeQiongtong": {
+            "type": "boolean",
+            "title": "Includeqiongtong",
+            "description": "궁통보감 포함 여부",
+            "default": true
+          },
+          "includeWestern": {
+            "type": "boolean",
+            "title": "Includewestern",
+            "description": "서구권 프레임워크 포함 여부",
+            "default": true
+          }
+        },
+        "type": "object",
+        "title": "PromptBuildOptions",
+        "description": "프롬프트 빌드 옵션"
+      },
+      "PromptBuildRequest": {
+        "properties": {
+          "language": {
+            "type": "string",
+            "enum": [
+              "ko",
+              "en",
+              "ja",
+              "zh"
+            ],
+            "title": "Language",
+            "description": "언어",
+            "default": "ko"
+          },
+          "pillars": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Pillars",
+            "description": "사주 팔자"
+          },
+          "daewun": {
+            "anyOf": [
+              {
+                "items": {
+                  "additionalProperties": true,
+                  "type": "object"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Daewun",
+            "description": "대운 목록",
+            "default": []
+          },
+          "focusArea": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "wealth",
+                  "love",
+                  "career",
+                  "health",
+                  "overall"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Focusarea",
+            "description": "집중 분석 영역"
+          },
+          "question": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 500
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Question",
+            "description": "사용자 질문"
+          },
+          "options": {
+            "$ref": "#/components/schemas/PromptBuildOptions",
+            "description": "빌드 옵션"
+          }
+        },
+        "type": "object",
+        "required": [
+          "pillars"
+        ],
+        "title": "PromptBuildRequest",
+        "description": "프롬프트 빌드 요청",
+        "example": {
+          "daewun": [
+            {
+              "age": 1,
+              "branch": "午",
+              "startYear": 1991,
+              "stem": "壬"
+            }
+          ],
+          "focusArea": "career",
+          "language": "ko",
+          "options": {
+            "includeQiongtong": true,
+            "includeWestern": true,
+            "includeZiping": true
+          },
+          "pillars": {
+            "day": {
+              "branch": "子",
+              "element": "木",
+              "stem": "甲"
+            },
+            "hour": {
+              "branch": "未",
+              "element": "金",
+              "stem": "辛"
+            },
+            "month": {
+              "branch": "巳",
+              "element": "金",
+              "stem": "辛"
+            },
+            "year": {
+              "branch": "午",
+              "element": "金",
+              "stem": "庚"
+            }
+          },
+          "question": "올해 이직해도 괜찮을까요?"
+        }
+      },
+      "PromptBuildResponse": {
+        "properties": {
+          "systemPrompt": {
+            "type": "string",
+            "title": "Systemprompt",
+            "description": "시스템 프롬프트"
+          },
+          "userPrompt": {
+            "type": "string",
+            "title": "Userprompt",
+            "description": "사용자 프롬프트"
+          },
+          "outputSchema": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Outputschema",
+            "description": "출력 JSON 스키마"
+          },
+          "metadata": {
+            "$ref": "#/components/schemas/PromptMetadata",
+            "description": "메타데이터"
+          }
+        },
+        "type": "object",
+        "required": [
+          "systemPrompt",
+          "userPrompt",
+          "outputSchema",
+          "metadata"
+        ],
+        "title": "PromptBuildResponse",
+        "description": "프롬프트 빌드 응답"
+      },
+      "PromptMetadata": {
+        "properties": {
+          "version": {
+            "type": "string",
+            "title": "Version",
+            "description": "프롬프트 버전"
+          },
+          "language": {
+            "type": "string",
+            "title": "Language",
+            "description": "언어"
+          },
+          "includedModules": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Includedmodules",
+            "description": "포함된 모듈"
+          },
+          "generatedAt": {
+            "type": "string",
+            "title": "Generatedat",
+            "description": "생성 시각 (ISO 8601)"
+          }
+        },
+        "type": "object",
+        "required": [
+          "version",
+          "language",
+          "includedModules",
+          "generatedAt"
+        ],
+        "title": "PromptMetadata",
+        "description": "프롬프트 메타데이터"
+      },
+      "StepPromptRequest": {
+        "properties": {
+          "step": {
+            "type": "string",
+            "enum": [
+              "basic",
+              "personality",
+              "aptitude",
+              "fortune"
+            ],
+            "title": "Step",
+            "description": "분석 단계"
+          },
+          "language": {
+            "type": "string",
+            "enum": [
+              "ko",
+              "en",
+              "ja",
+              "zh-CN",
+              "zh-TW"
+            ],
+            "title": "Language",
+            "description": "언어",
+            "default": "ko"
+          },
+          "pillars": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Pillars",
+            "description": "사주 팔자"
+          },
+          "daewun": {
+            "anyOf": [
+              {
+                "items": {
+                  "additionalProperties": true,
+                  "type": "object"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Daewun",
+            "description": "대운 목록",
+            "default": []
+          },
+          "jijanggan": {
+            "anyOf": [
+              {
+                "additionalProperties": {
+                  "items": {
+                    "type": "string"
+                  },
+                  "type": "array"
+                },
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Jijanggan",
+            "description": "지장간 데이터"
+          },
+          "previousResults": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Previousresults",
+            "description": "이전 단계 결과 (컨텍스트)"
+          }
+        },
+        "type": "object",
+        "required": [
+          "step",
+          "pillars"
+        ],
+        "title": "StepPromptRequest",
+        "description": "멀티스텝 파이프라인용 단계별 프롬프트 요청 (Task 8)",
+        "example": {
+          "daewun": [
+            {
+              "age": 1,
+              "branch": "午",
+              "startYear": 1991,
+              "stem": "壬"
+            }
+          ],
+          "jijanggan": {
+            "day": [
+              "癸"
+            ],
+            "hour": [
+              "己",
+              "丁",
+              "乙"
+            ],
+            "month": [
+              "戊",
+              "庚",
+              "丙"
+            ],
+            "year": [
+              "己",
+              "丁"
+            ]
+          },
+          "language": "ko",
+          "pillars": {
+            "day": {
+              "branch": "子",
+              "element": "木",
+              "stem": "甲"
+            },
+            "hour": {
+              "branch": "未",
+              "element": "金",
+              "stem": "辛"
+            },
+            "month": {
+              "branch": "巳",
+              "element": "金",
+              "stem": "辛"
+            },
+            "year": {
+              "branch": "午",
+              "element": "金",
+              "stem": "庚"
+            }
+          },
+          "step": "basic"
+        }
+      },
+      "ValidationError": {
+        "properties": {
+          "loc": {
+            "items": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "integer"
+                }
+              ]
+            },
+            "type": "array",
+            "title": "Location"
+          },
+          "msg": {
+            "type": "string",
+            "title": "Message"
+          },
+          "type": {
+            "type": "string",
+            "title": "Error Type"
+          }
+        },
+        "type": "object",
+        "required": [
+          "loc",
+          "msg",
+          "type"
+        ],
+        "title": "ValidationError"
+      },
+      "VisualizationRequest": {
+        "properties": {
+          "pillars": {
+            "$ref": "#/components/schemas/Pillars",
+            "description": "사주 팔자 데이터"
+          }
+        },
+        "type": "object",
+        "required": [
+          "pillars"
+        ],
+        "title": "VisualizationRequest",
+        "description": "명반 시각화 요청",
+        "example": {
+          "pillars": {
+            "day": {
+              "branch": "子",
+              "element": "木",
+              "stem": "甲"
+            },
+            "hour": {
+              "branch": "未",
+              "element": "金",
+              "stem": "辛"
+            },
+            "month": {
+              "branch": "巳",
+              "element": "金",
+              "stem": "辛"
+            },
+            "year": {
+              "branch": "午",
+              "element": "金",
+              "stem": "庚"
+            }
+          }
+        }
+      },
+      "VisualizationResponse": {
+        "properties": {
+          "imageBase64": {
+            "type": "string",
+            "title": "Imagebase64",
+            "description": "Base64 인코딩된 PNG 이미지 (data:image/png;base64,... 형식)"
+          }
+        },
+        "type": "object",
+        "required": [
+          "imageBase64"
+        ],
+        "title": "VisualizationResponse",
+        "description": "명반 시각화 응답",
+        "example": {
+          "imageBase64": "data:image/png;base64,iVBORw0KGgo..."
+        }
+      },
+      "YearlyPromptBuildRequest": {
+        "properties": {
+          "language": {
+            "type": "string",
+            "enum": [
+              "ko",
+              "en",
+              "ja",
+              "zh-CN",
+              "zh-TW"
+            ],
+            "title": "Language",
+            "description": "언어",
+            "default": "ko"
+          },
+          "targetYear": {
+            "type": "integer",
+            "title": "Targetyear",
+            "description": "분석 대상 연도"
+          },
+          "birthYear": {
+            "type": "integer",
+            "title": "Birthyear",
+            "description": "생년"
+          },
+          "pillars": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Pillars",
+            "description": "사주 팔자"
+          },
+          "daewun": {
+            "anyOf": [
+              {
+                "items": {
+                  "additionalProperties": true,
+                  "type": "object"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Daewun",
+            "description": "대운 목록",
+            "default": []
+          },
+          "currentDaewun": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Currentdaewun",
+            "description": "현재 대운"
+          },
+          "gender": {
+            "type": "string",
+            "enum": [
+              "male",
+              "female"
+            ],
+            "title": "Gender",
+            "description": "성별"
+          },
+          "options": {
+            "$ref": "#/components/schemas/PromptBuildOptions",
+            "description": "빌드 옵션"
+          }
+        },
+        "type": "object",
+        "required": [
+          "targetYear",
+          "birthYear",
+          "pillars",
+          "gender"
+        ],
+        "title": "YearlyPromptBuildRequest",
+        "description": "신년 사주 분석 프롬프트 빌드 요청",
+        "example": {
+          "birthYear": 1990,
+          "currentDaewun": {
+            "age": 36,
+            "branch": "申",
+            "startYear": 2026,
+            "stem": "戊"
+          },
+          "daewun": [
+            {
+              "age": 1,
+              "branch": "午",
+              "startYear": 1991,
+              "stem": "壬"
+            }
+          ],
+          "gender": "male",
+          "language": "ko",
+          "options": {
+            "includeQiongtong": true,
+            "includeWestern": true,
+            "includeZiping": true
+          },
+          "pillars": {
+            "day": {
+              "branch": "子",
+              "element": "木",
+              "stem": "甲"
+            },
+            "hour": {
+              "branch": "未",
+              "element": "金",
+              "stem": "辛"
+            },
+            "month": {
+              "branch": "巳",
+              "element": "金",
+              "stem": "辛"
+            },
+            "year": {
+              "branch": "午",
+              "element": "金",
+              "stem": "庚"
+            }
+          },
+          "targetYear": 2026
+        }
+      }
+    }
+  }
+}

@@ -232,7 +232,8 @@
       "analysis": "分析記錄",
       "questions": "問題記錄",
       "notifications": "通知設定",
-      "settings": "資料設定"
+      "settings": "資料設定",
+      "profiles": "檔案管理"
     },
     "analysisHistory": {
       "title": "分析記錄",
@@ -366,6 +367,12 @@
       "yourCredits": "持有積分",
       "insufficient": "積分不足，請充值。"
     },
+    "selectProfile": {
+      "required": "請選擇要分析的檔案。"
+    },
+    "credits": {
+      "insufficient": "積分不足，請充值積分。"
+    },
     "startAnalysis": "開始運勢分析",
     "analysisTime": "分析大約需要30-60秒",
     "processing": {
@@ -425,11 +432,198 @@
       }
     }
   },
+  "home": {
+    "sections": {
+      "profile": "檔案管理",
+      "analysis": "八字分析",
+      "compatibility": "合婚分析",
+      "account": "帳戶"
+    },
+    "menu": {
+      "registerProfile": "登記檔案",
+      "profileList": "檔案列表",
+      "fullAnalysis": "綜合分析",
+      "yearlyFortune": "新年運勢",
+      "compatibility": "合婚分析",
+      "mypage": "我的頁面"
+    },
+    "comingSoon": "即將推出"
+  },
   "language": {
     "ko": "한국어",
     "en": "English",
     "ja": "日本語",
     "zh-CN": "简体中文",
     "zh-TW": "繁體中文"
+  },
+  "report": {
+    "wealth": {
+      "title": "財運與異性",
+      "wealthBlessing": "財運",
+      "wealthBlessingDesc": "您身上存在的財運傾向",
+      "partnerInfluence": "異性的存在",
+      "partnerInfluenceDesc": "您內心深處異性的存在形態",
+      "traits": "財運特性",
+      "traitsDesc": "與財運相關的5個特性",
+      "score": "財運分數"
+    },
+    "romance": {
+      "title": "戀愛與婚姻",
+      "lovePsychology": "戀愛心理",
+      "lovePsychologyDesc": "婚前戀愛/約會心理",
+      "partnerView": "配偶觀",
+      "partnerViewDesc": "婚後看待配偶的眼光",
+      "personalityPattern": "性格模式",
+      "personalityPatternDesc": "婚後的性格模式",
+      "traits": "戀愛特性",
+      "traitsDesc": "與戀愛相關的10個特性",
+      "score": "戀愛分數"
+    },
+    "navigation": {
+      "saju": "八字",
+      "personality": "性格",
+      "characteristics": "特性",
+      "aptitude": "適性",
+      "wealth": "財運",
+      "romance": "戀愛"
+    },
+    "actions": {
+      "exportPdf": "匯出PDF",
+      "share": "分享",
+      "back": "返回"
+    }
+  },
+  "pipeline": {
+    "steps": {
+      "manseryeok": "萬年曆計算",
+      "jijanggan": "藏干分析",
+      "basic_analysis": "格局/用神分析",
+      "personality": "性格分析",
+      "aptitude": "適性分析",
+      "fortune": "財運/戀愛分析",
+      "scoring": "評分計算",
+      "visualization": "命盤生成",
+      "saving": "結果儲存",
+      "complete": "完成"
+    },
+    "activeMessages": {
+      "manseryeok": "正在計算萬年曆...",
+      "jijanggan": "正在分析藏干...",
+      "basic_analysis": "正在分析格局和用神...",
+      "personality": "正在分析性格特徵...",
+      "aptitude": "正在分析適性和才能...",
+      "fortune": "正在查看財運和戀愛運...",
+      "scoring": "正在計算分析評分...",
+      "visualization": "正在生成八字命盤...",
+      "saving": "正在儲存分析結果..."
+    },
+    "preparing": "正在準備分析...",
+    "progress": "進度",
+    "tip": "您知道嗎？",
+    "remainingTime": {
+      "seconds": "約{seconds}秒剩餘",
+      "minutes": "約{minutes}分{seconds}秒剩餘"
+    },
+    "error": {
+      "title": "{step}過程中發生錯誤",
+      "completedSteps": "已完成步驟",
+      "retryFrom": "從{step}重試",
+      "cancel": "取消"
+    }
+  },
+  "credits": {
+    "balance": "持有{credits}積分",
+    "insufficient": {
+      "title": "積分不足",
+      "description": "使用此功能需要更多積分。",
+      "required": "所需",
+      "current": "持有",
+      "shortfall": "不足{amount}積分",
+      "charge": "充值積分"
+    },
+    "deduction": {
+      "report": "生成檔案報告: -{amount}積分",
+      "reanalysis": "重新分析部分: -{amount}積分"
+    }
+  },
+  "profile": {
+    "pageTitle": {
+      "new": "新增檔案",
+      "list": "檔案列表",
+      "detail": "檔案詳情",
+      "edit": "編輯檔案"
+    },
+    "selector": {
+      "title": "選擇檔案",
+      "subtitle": "請選擇要分析的檔案",
+      "addNew": "新增檔案"
+    },
+    "empty": {
+      "title": "暫無檔案",
+      "description": "新增檔案開始運勢分析",
+      "addFirst": "新增檔案"
+    },
+    "form": {
+      "name": "姓名",
+      "namePlaceholder": "請輸入姓名",
+      "birthDate": "出生日期",
+      "birthTime": "出生時間",
+      "birthTimeOptional": "出生時間（選填）",
+      "birthTimeHint": "如不知道可留空",
+      "calendarType": "曆法類型",
+      "solar": "陽曆",
+      "lunar": "陰曆",
+      "lunarLeap": "閏月",
+      "gender": "性別",
+      "male": "男",
+      "female": "女",
+      "yearPlaceholder": "年",
+      "monthPlaceholder": "月",
+      "dayPlaceholder": "日",
+      "hourPlaceholder": "時",
+      "minutePlaceholder": "分"
+    },
+    "validation": {
+      "nameRequired": "請輸入姓名",
+      "nameMaxLength": "姓名不能超過50個字元",
+      "invalidDate": "請輸入有效日期",
+      "genderRequired": "請選擇性別",
+      "futureDateNotAllowed": "不能輸入未來日期"
+    },
+    "list": {
+      "sortByName": "按姓名",
+      "sortByDate": "按日期",
+      "totalCount": "共{count}人",
+      "empty": "暫無檔案",
+      "emptyDescription": "新增檔案開始八字分析",
+      "addFirst": "新增第一個檔案"
+    },
+    "detail": {
+      "birthInfo": "出生資訊",
+      "age": "{age}歲",
+      "generateReport": "產生報告",
+      "viewReport": "查看報告",
+      "noReport": "暫無分析報告"
+    },
+    "actions": {
+      "save": "儲存",
+      "cancel": "取消",
+      "edit": "編輯",
+      "delete": "刪除",
+      "complete": "完成"
+    },
+    "delete": {
+      "title": "刪除檔案",
+      "message": "確定要刪除「{name}」嗎？",
+      "warning": "此操作無法復原。",
+      "confirm": "刪除",
+      "cancel": "取消"
+    },
+    "toast": {
+      "createSuccess": "檔案新增成功",
+      "updateSuccess": "檔案更新成功",
+      "deleteSuccess": "檔案刪除成功",
+      "error": "發生錯誤"
+    }
   }
 }

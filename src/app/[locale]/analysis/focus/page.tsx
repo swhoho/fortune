@@ -8,7 +8,7 @@ import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
-import { useAnalysisStore } from '@/stores/analysis';
+import { useOnboardingStore } from '@/stores/onboarding-store';
 import { FocusArea, FocusAreaLabel } from '@/types/saju';
 
 /** 분석 영역별 상세 정보 */
@@ -37,7 +37,7 @@ const focusAreaDetails: Record<FocusArea, { icon: string; description: string }>
 
 export default function AnalysisFocus() {
   const router = useRouter();
-  const { setFocusArea, setStep } = useAnalysisStore();
+  const { setFocusArea, setStep } = useOnboardingStore();
   const [selected, setSelected] = useState<FocusArea | null>(null);
 
   const handleSelect = (area: FocusArea) => {

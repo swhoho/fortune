@@ -84,4 +84,12 @@ export const SERVICE_CREDITS = {
   yearlyAnalysis: 30, // 신년 사주 분석
   compatibility: 50, // 궁합 분석
   question: 10, // AI 추가 질문
+  sectionReanalysis: 5, // 섹션 재분석 (personality, aptitude, fortune)
+  profileReport: 30, // 프로필 리포트 생성
 } as const;
+
+/**
+ * 재분석 가능한 섹션 목록
+ */
+export const REANALYZABLE_SECTIONS = ['personality', 'aptitude', 'fortune'] as const;
+export type ReanalyzableSection = (typeof REANALYZABLE_SECTIONS)[number];

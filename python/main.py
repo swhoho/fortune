@@ -8,7 +8,7 @@ from fastapi.responses import JSONResponse
 
 from schemas.saju import CalculateRequest, CalculateResponse
 from schemas.visualization import VisualizationRequest, VisualizationResponse
-from schemas.prompt import PromptBuildRequest, PromptBuildResponse, PromptMetadata, YearlyPromptBuildRequest
+from schemas.prompt import PromptBuildRequest, PromptBuildResponse, PromptMetadata, YearlyPromptBuildRequest, StepPromptRequest
 from manseryeok.engine import ManseryeokEngine
 from visualization import SajuVisualizer
 from prompts.builder import (
@@ -133,6 +133,69 @@ async def build_prompt(request: PromptBuildRequest) -> PromptBuildResponse:
         raise HTTPException(
             status_code=500,
             detail=f"프롬프트 빌드 중 오류가 발생했습니다: {str(e)}"
+        )
+
+
+@app.post("/api/prompts/step", response_model=PromptBuildResponse)
+async def build_step_prompt(request: StepPromptRequest) -> PromptBuildResponse:
+    """
+    멀티스텝 파이프라인용 단계별 프롬프트 빌드 (Task 8)
+
+    4단계 분석 파이프라인:
+    - **basic**: 기본 분석 (일간, 격국, 용신)
+    - **personality**: 성격 분석 (십신 기반)
+    - **aptitude**: 적성 분석 (강점, 약점, 추천 분야)
+    - **fortune**: 재물/연애 분석
+
+    Args:
+    - **step**: 분석 단계 (basic, personality, aptitude, fortune)
+    - **language**: 언어 (ko, en, ja, zh-CN, zh-TW)
+    - **pillars**: 사주 팔자 데이터
+    - **daewun**: 대운 목록 (선택)
+    - **jijanggan**: 지장간 데이터 (선택)
+    - **previousResults**: 이전 단계 결과 (컨텍스트용)
+
+    Returns:
+        시스템 프롬프트, 사용자 프롬프트, 출력 스키마, 메타데이터
+    """
+    try:
+        # 프롬프트 빌드
+        result = PromptBuilder.build_step(
+            step=request.step,
+            pillars=request.pillars,
+            language=request.language,
+            daewun=request.daewun,
+            jijanggan=request.jijanggan,
+            previous_results=request.previousResults
+        )
+
+        # 메타데이터 구성
+        included_modules = ["master"]
+        if request.step == 'basic':
+            included_modules.extend(["ziping_summary", "qiongtong_summary"])
+        elif request.step == 'personality':
+            included_modules.append("ten_gods_guide")
+        elif request.step == 'aptitude':
+            included_modules.append("ziping_summary")
+        elif request.step == 'fortune':
+            included_modules.extend(["ziping_summary", "qiongtong_summary"])
+
+        # 응답 반환
+        return PromptBuildResponse(
+            systemPrompt=result.system_prompt,
+            userPrompt=result.user_prompt,
+            outputSchema=result.output_schema,
+            metadata=PromptMetadata(
+                version=result.metadata.get("version", "1.0.0"),
+                language=result.metadata.get("language", request.language),
+                includedModules=included_modules,
+                generatedAt=result.metadata.get("generated_at", "")
+            )
+        )
+    except Exception as e:
+        raise HTTPException(
+            status_code=500,
+            detail=f"단계별 프롬프트 빌드 중 오류가 발생했습니다: {str(e)}"
         )
 
 

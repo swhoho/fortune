@@ -232,7 +232,8 @@
       "analysis": "분석 기록",
       "questions": "질문 기록",
       "notifications": "알림 설정",
-      "settings": "프로필 설정"
+      "settings": "프로필 설정",
+      "profiles": "프로필 관리"
     },
     "analysisHistory": {
       "title": "분석 기록",
@@ -366,6 +367,12 @@
       "yourCredits": "보유 크레딧",
       "insufficient": "크레딧이 부족합니다. 크레딧을 충전해주세요."
     },
+    "selectProfile": {
+      "required": "분석할 프로필을 선택해주세요."
+    },
+    "credits": {
+      "insufficient": "크레딧이 부족합니다. 크레딧을 충전해주세요."
+    },
     "startAnalysis": "운세 분석 시작",
     "analysisTime": "분석에는 약 30~60초가 소요됩니다",
     "processing": {
@@ -425,11 +432,240 @@
       }
     }
   },
+  "home": {
+    "sections": {
+      "profile": "프로필 관리",
+      "analysis": "사주 분석",
+      "compatibility": "궁합 분석",
+      "account": "계정"
+    },
+    "menu": {
+      "registerProfile": "프로필 등록",
+      "profileList": "프로필 목록",
+      "fullAnalysis": "전체 사주 분석",
+      "yearlyFortune": "신년 운세",
+      "compatibility": "궁합 분석",
+      "mypage": "마이페이지"
+    },
+    "comingSoon": "준비중"
+  },
   "language": {
     "ko": "한국어",
     "en": "English",
     "ja": "日本語",
     "zh-CN": "简体中文",
     "zh-TW": "繁體中文"
+  },
+  "report": {
+    "profile": {
+      "title": "프로필 정보",
+      "birthday": "생일",
+      "age": "나이",
+      "solar": "양력",
+      "lunar": "음력",
+      "lunarLeap": "음력(윤달)"
+    },
+    "sajuTable": {
+      "title": "사주명식",
+      "hour": "時",
+      "day": "日",
+      "month": "月",
+      "year": "年",
+      "division": "구분"
+    },
+    "daewun": {
+      "title": "대운",
+      "current": "현재 대운",
+      "scrollHint": "좌우로 스크롤하세요"
+    },
+    "personality": {
+      "title": "성격과 특징",
+      "willpower": "의지력",
+      "willpowerDesc": "마음의 강도, 강할 수록 똥고집",
+      "average": "평균",
+      "weak": "약함",
+      "normal": "보통",
+      "strong": "강함",
+      "outer": "겉성격",
+      "outerDesc": "첫인상 좋은 처음 겉으로 표출되는 성격",
+      "inner": "속성격",
+      "innerDesc": "친해져서 같이 일하거나 여행을 해보면 알 수 있는 진짜 성격",
+      "social": "대인관계",
+      "socialDesc": "가족궁의 환경상황과 대인관계 스타일"
+    },
+    "characteristics": {
+      "title": "사주특징",
+      "subtitle": "사주상에 나타난 특징들"
+    },
+    "wealth": {
+      "title": "재물과 이성",
+      "wealthBlessing": "재물복",
+      "wealthBlessingDesc": "내안에 존재하는 재물복",
+      "partnerInfluence": "이성의 존재",
+      "partnerInfluenceDesc": "내안에 있는 이성의 존재형태",
+      "traits": "재물특성",
+      "traitsDesc": "나의 재물 성향을 나타내는 특성",
+      "score": "재물운"
+    },
+    "romance": {
+      "title": "연애와 결혼",
+      "lovePsychology": "연애심리",
+      "lovePsychologyDesc": "결혼전 연애/데이트 심리",
+      "partnerView": "배우자관",
+      "partnerViewDesc": "결혼후 배우자를 보는 눈",
+      "personalityPattern": "성격패턴",
+      "personalityPatternDesc": "결혼후 성격인 패턴",
+      "traits": "특징그래프",
+      "traitsDesc": "연애적성을 파악하는 특징 10개",
+      "score": "연애운"
+    },
+    "navigation": {
+      "saju": "사주",
+      "personality": "성격",
+      "characteristics": "특성",
+      "aptitude": "적성",
+      "wealth": "재물",
+      "romance": "연애"
+    },
+    "actions": {
+      "exportPdf": "PDF 내보내기",
+      "share": "공유하기",
+      "back": "뒤로"
+    }
+  },
+  "profile": {
+    "pageTitle": {
+      "new": "프로필 등록",
+      "list": "프로필 목록",
+      "detail": "프로필 상세",
+      "edit": "프로필 수정"
+    },
+    "form": {
+      "name": "성명",
+      "namePlaceholder": "이름을 입력하세요",
+      "birthDate": "생년월일",
+      "birthTime": "출생 시간",
+      "birthTimeOptional": "출생 시간 (선택)",
+      "birthTimeHint": "시간을 모르면 비워두셔도 됩니다",
+      "calendarType": "달력 유형",
+      "solar": "양력",
+      "lunar": "음력",
+      "lunarLeap": "윤달",
+      "gender": "성별",
+      "male": "남자",
+      "female": "여자",
+      "yearPlaceholder": "년",
+      "monthPlaceholder": "월",
+      "dayPlaceholder": "일",
+      "hourPlaceholder": "시",
+      "minutePlaceholder": "분"
+    },
+    "validation": {
+      "nameRequired": "이름을 입력해주세요",
+      "nameMaxLength": "이름은 50자 이내로 입력해주세요",
+      "invalidDate": "올바른 날짜를 입력해주세요",
+      "genderRequired": "성별을 선택해주세요",
+      "futureDateNotAllowed": "미래 날짜는 입력할 수 없습니다"
+    },
+    "list": {
+      "sortByName": "이름순",
+      "sortByDate": "등록순",
+      "totalCount": "총 {count}명",
+      "empty": "등록된 프로필이 없습니다",
+      "emptyDescription": "새로운 프로필을 등록하고 사주 분석을 시작하세요",
+      "addFirst": "첫 프로필 등록하기"
+    },
+    "detail": {
+      "birthInfo": "출생 정보",
+      "age": "만 {age}세",
+      "generateReport": "리포트 생성",
+      "viewReport": "리포트 보기",
+      "noReport": "아직 분석 리포트가 없습니다"
+    },
+    "actions": {
+      "save": "저장",
+      "cancel": "취소",
+      "edit": "수정",
+      "delete": "삭제",
+      "complete": "완료"
+    },
+    "delete": {
+      "title": "프로필 삭제",
+      "message": "'{name}' 프로필을 삭제하시겠습니까?",
+      "warning": "이 작업은 되돌릴 수 없습니다.",
+      "confirm": "삭제",
+      "cancel": "취소"
+    },
+    "toast": {
+      "createSuccess": "프로필이 등록되었습니다",
+      "updateSuccess": "프로필이 수정되었습니다",
+      "deleteSuccess": "프로필이 삭제되었습니다",
+      "error": "오류가 발생했습니다"
+    },
+    "selector": {
+      "title": "프로필 선택",
+      "subtitle": "분석할 프로필을 선택하세요",
+      "addNew": "새 프로필 추가"
+    },
+    "empty": {
+      "title": "등록된 프로필이 없습니다",
+      "subtitle": "분석할 프로필을 먼저 등록해주세요",
+      "addButton": "프로필 등록하기"
+    }
+  },
+  "pipeline": {
+    "steps": {
+      "manseryeok": "만세력 계산",
+      "jijanggan": "지장간 분석",
+      "basic_analysis": "격국/용신 분석",
+      "personality": "성격 분석",
+      "aptitude": "적성 분석",
+      "fortune": "재물/연애 분석",
+      "scoring": "점수 산출",
+      "visualization": "명반 생성",
+      "saving": "결과 저장",
+      "complete": "완료"
+    },
+    "activeMessages": {
+      "manseryeok": "만세력을 계산하고 있습니다...",
+      "jijanggan": "지장간을 분석하고 있습니다...",
+      "basic_analysis": "격국과 용신을 분석하고 있습니다...",
+      "personality": "성격 특성을 파악하고 있습니다...",
+      "aptitude": "적성과 재능을 분석하고 있습니다...",
+      "fortune": "재물운과 연애운을 분석하고 있습니다...",
+      "scoring": "종합 점수를 계산하고 있습니다...",
+      "visualization": "사주 명반을 그리고 있습니다...",
+      "saving": "분석 결과를 저장하고 있습니다...",
+      "complete": "분석이 완료되었습니다!"
+    },
+    "preparing": "분석을 준비하고 있습니다...",
+    "progress": "진행률",
+    "remainingTime": {
+      "seconds": "약 {seconds}초",
+      "minutes": "약 {minutes}분 {seconds}초"
+    },
+    "tip": "알고 계셨나요?",
+    "error": {
+      "title": "{step} 중 오류 발생",
+      "retryFrom": "{step}부터 재시도",
+      "cancel": "취소",
+      "completedSteps": "완료된 단계"
+    }
+  },
+  "credits": {
+    "balance": "보유 크레딧",
+    "required": "필요 크레딧",
+    "insufficient": {
+      "title": "크레딧 부족",
+      "message": "이 작업에는 {required}C가 필요하지만, 현재 {current}C를 보유하고 있습니다.",
+      "shortfall": "{amount}C를 추가로 충전해야 합니다.",
+      "shortfallLabel": "부족",
+      "chargeCredits": "크레딧 충전하기",
+      "cancel": "취소"
+    },
+    "deduction": {
+      "reportGeneration": "리포트 생성",
+      "sectionReanalysis": "섹션 재분석"
+    }
   }
 }

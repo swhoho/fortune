@@ -232,7 +232,8 @@
       "analysis": "Analysis History",
       "questions": "Question History",
       "notifications": "Notifications",
-      "settings": "Profile Settings"
+      "settings": "Profile Settings",
+      "profiles": "Manage Profiles"
     },
     "analysisHistory": {
       "title": "Analysis History",
@@ -366,6 +367,12 @@
       "yourCredits": "Your Credits",
       "insufficient": "Insufficient credits. Please recharge."
     },
+    "selectProfile": {
+      "required": "Please select a profile to analyze."
+    },
+    "credits": {
+      "insufficient": "Insufficient credits. Please recharge credits."
+    },
     "startAnalysis": "Start Fortune Analysis",
     "analysisTime": "Analysis takes about 30-60 seconds",
     "processing": {
@@ -425,11 +432,240 @@
       }
     }
   },
+  "home": {
+    "sections": {
+      "profile": "Profile Management",
+      "analysis": "Fortune Analysis",
+      "compatibility": "Compatibility",
+      "account": "Account"
+    },
+    "menu": {
+      "registerProfile": "Register Profile",
+      "profileList": "Profile List",
+      "fullAnalysis": "Full Analysis",
+      "yearlyFortune": "New Year Fortune",
+      "compatibility": "Compatibility Analysis",
+      "mypage": "My Page"
+    },
+    "comingSoon": "Coming Soon"
+  },
   "language": {
     "ko": "한국어",
     "en": "English",
     "ja": "日本語",
     "zh-CN": "简体中文",
     "zh-TW": "繁體中文"
+  },
+  "report": {
+    "profile": {
+      "title": "Profile Information",
+      "birthday": "Birthday",
+      "age": "Age",
+      "solar": "Solar",
+      "lunar": "Lunar",
+      "lunarLeap": "Lunar (Leap)"
+    },
+    "sajuTable": {
+      "title": "Four Pillars Chart",
+      "hour": "Hour",
+      "day": "Day",
+      "month": "Month",
+      "year": "Year",
+      "division": "Info"
+    },
+    "daewun": {
+      "title": "Major Luck Cycles",
+      "current": "Current Cycle",
+      "scrollHint": "Scroll left and right"
+    },
+    "personality": {
+      "title": "Personality & Traits",
+      "willpower": "Willpower",
+      "willpowerDesc": "Mental strength and determination",
+      "average": "Average",
+      "weak": "Weak",
+      "normal": "Normal",
+      "strong": "Strong",
+      "outer": "Outer Personality",
+      "outerDesc": "The personality shown to others at first impression",
+      "inner": "Inner Personality",
+      "innerDesc": "The true personality revealed after getting close",
+      "social": "Social Style",
+      "socialDesc": "Family environment and interpersonal relationship style"
+    },
+    "characteristics": {
+      "title": "Destiny Characteristics",
+      "subtitle": "Traits revealed in your destiny chart"
+    },
+    "wealth": {
+      "title": "Wealth & Relations",
+      "wealthBlessing": "Wealth Fortune",
+      "wealthBlessingDesc": "Your inherent wealth blessing",
+      "partnerInfluence": "Partner Influence",
+      "partnerInfluenceDesc": "The form of romantic presence within you",
+      "traits": "Wealth Traits",
+      "traitsDesc": "Traits representing your wealth tendency",
+      "score": "Wealth Score"
+    },
+    "romance": {
+      "title": "Romance & Marriage",
+      "lovePsychology": "Dating Psychology",
+      "lovePsychologyDesc": "Pre-marriage dating/romance psychology",
+      "partnerView": "Partner View",
+      "partnerViewDesc": "How you see your spouse after marriage",
+      "personalityPattern": "Personality Pattern",
+      "personalityPatternDesc": "Personality patterns after marriage",
+      "traits": "Trait Graph",
+      "traitsDesc": "10 traits to understand your romantic aptitude",
+      "score": "Romance Score"
+    },
+    "navigation": {
+      "saju": "Chart",
+      "personality": "Personality",
+      "characteristics": "Traits",
+      "aptitude": "Aptitude",
+      "wealth": "Wealth",
+      "romance": "Romance"
+    },
+    "actions": {
+      "exportPdf": "Export PDF",
+      "share": "Share",
+      "back": "Back"
+    }
+  },
+  "profile": {
+    "pageTitle": {
+      "new": "New Profile",
+      "list": "Profiles",
+      "detail": "Profile Details",
+      "edit": "Edit Profile"
+    },
+    "selector": {
+      "title": "Select Profile",
+      "subtitle": "Choose a profile for analysis",
+      "addNew": "Add New Profile"
+    },
+    "empty": {
+      "title": "No profiles registered",
+      "description": "Register a profile to start fortune analysis",
+      "addFirst": "Register Profile"
+    },
+    "form": {
+      "name": "Name",
+      "namePlaceholder": "Enter your name",
+      "birthDate": "Birth Date",
+      "birthTime": "Birth Time",
+      "birthTimeOptional": "Birth Time (Optional)",
+      "birthTimeHint": "Leave blank if unknown",
+      "calendarType": "Calendar Type",
+      "solar": "Solar",
+      "lunar": "Lunar",
+      "lunarLeap": "Lunar Leap",
+      "gender": "Gender",
+      "male": "Male",
+      "female": "Female",
+      "yearPlaceholder": "Year",
+      "monthPlaceholder": "Month",
+      "dayPlaceholder": "Day",
+      "hourPlaceholder": "Hour",
+      "minutePlaceholder": "Min"
+    },
+    "validation": {
+      "nameRequired": "Please enter a name",
+      "nameMaxLength": "Name must be 50 characters or less",
+      "invalidDate": "Please enter a valid date",
+      "genderRequired": "Please select a gender",
+      "futureDateNotAllowed": "Future dates are not allowed"
+    },
+    "list": {
+      "sortByName": "By Name",
+      "sortByDate": "By Date",
+      "totalCount": "{count} profiles",
+      "empty": "No profiles yet",
+      "emptyDescription": "Register a new profile to start your fortune analysis",
+      "addFirst": "Add First Profile"
+    },
+    "detail": {
+      "birthInfo": "Birth Information",
+      "age": "{age} years old",
+      "generateReport": "Generate Report",
+      "viewReport": "View Report",
+      "noReport": "No analysis report yet"
+    },
+    "actions": {
+      "save": "Save",
+      "cancel": "Cancel",
+      "edit": "Edit",
+      "delete": "Delete",
+      "complete": "Done"
+    },
+    "delete": {
+      "title": "Delete Profile",
+      "message": "Are you sure you want to delete '{name}'?",
+      "warning": "This action cannot be undone.",
+      "confirm": "Delete",
+      "cancel": "Cancel"
+    },
+    "toast": {
+      "createSuccess": "Profile created successfully",
+      "updateSuccess": "Profile updated successfully",
+      "deleteSuccess": "Profile deleted successfully",
+      "error": "An error occurred"
+    }
+  },
+  "pipeline": {
+    "steps": {
+      "manseryeok": "Calendar Calculation",
+      "jijanggan": "Hidden Stems Analysis",
+      "basic_analysis": "Framework Analysis",
+      "personality": "Personality Analysis",
+      "aptitude": "Aptitude Analysis",
+      "fortune": "Wealth & Romance",
+      "scoring": "Score Calculation",
+      "visualization": "Chart Generation",
+      "saving": "Saving Results",
+      "complete": "Complete"
+    },
+    "activeMessages": {
+      "manseryeok": "Calculating the calendar...",
+      "jijanggan": "Analyzing hidden stems...",
+      "basic_analysis": "Analyzing framework and useful elements...",
+      "personality": "Identifying personality traits...",
+      "aptitude": "Analyzing aptitude and talents...",
+      "fortune": "Analyzing wealth and romance fortune...",
+      "scoring": "Calculating comprehensive scores...",
+      "visualization": "Generating fortune chart...",
+      "saving": "Saving analysis results...",
+      "complete": "Analysis complete!"
+    },
+    "preparing": "Preparing analysis...",
+    "progress": "Progress",
+    "remainingTime": {
+      "seconds": "About {seconds} seconds",
+      "minutes": "About {minutes} min {seconds} sec"
+    },
+    "tip": "Did you know?",
+    "error": {
+      "title": "Error during {step}",
+      "retryFrom": "Retry from {step}",
+      "cancel": "Cancel",
+      "completedSteps": "Completed steps"
+    }
+  },
+  "credits": {
+    "balance": "Credit Balance",
+    "required": "Required Credits",
+    "insufficient": {
+      "title": "Insufficient Credits",
+      "message": "This action requires {required}C, but you only have {current}C.",
+      "shortfall": "You need {amount}C more credits.",
+      "shortfallLabel": "Shortage",
+      "chargeCredits": "Charge Credits",
+      "cancel": "Cancel"
+    },
+    "deduction": {
+      "reportGeneration": "Report Generation",
+      "sectionReanalysis": "Section Reanalysis"
+    }
   }
 }

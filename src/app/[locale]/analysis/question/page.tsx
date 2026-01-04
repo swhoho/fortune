@@ -8,7 +8,7 @@ import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
-import { useAnalysisStore } from '@/stores/analysis';
+import { useOnboardingStore } from '@/stores/onboarding-store';
 import { FocusArea, FocusAreaLabel } from '@/types/saju';
 
 /** 분석 영역별 예시 질문 */
@@ -44,7 +44,7 @@ const MAX_LENGTH = 500;
 
 export default function AnalysisQuestion() {
   const router = useRouter();
-  const { focusArea, setQuestion, setStep } = useAnalysisStore();
+  const { focusArea, setQuestion, setStep } = useOnboardingStore();
   const [text, setText] = useState('');
   const [noQuestion, setNoQuestion] = useState(false);
 

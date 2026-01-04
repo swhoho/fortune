@@ -39,9 +39,9 @@ function getGanZhi(year: number): { stem: string; branch: string; animal: string
   const branchIndex = year % 12;
 
   return {
-    stem: stems[stemIndex],
-    branch: branches[branchIndex],
-    animal: animals[branchIndex],
+    stem: stems[stemIndex] ?? '',
+    branch: branches[branchIndex] ?? '',
+    animal: animals[branchIndex] ?? '',
   };
 }
 

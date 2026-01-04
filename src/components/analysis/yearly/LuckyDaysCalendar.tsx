@@ -28,10 +28,11 @@ const MONTH_NAMES = ['1월', '2월', '3월', '4월', '5월', '6월', '7월', '8�
 function extractDay(dateStr: string): number {
   // "2026-01-15" 또는 "15일" 형식 처리
   if (dateStr.includes('-')) {
-    return parseInt(dateStr.split('-')[2], 10);
+    const day = dateStr.split('-')[2];
+    return day ? parseInt(day, 10) : 0;
   }
   const match = dateStr.match(/(\d+)/);
-  return match ? parseInt(match[1], 10) : 0;
+  return match?.[1] ? parseInt(match[1], 10) : 0;
 }
 
 export function LuckyDaysCalendar({ monthlyFortunes, year }: LuckyDaysCalendarProps) {

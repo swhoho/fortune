@@ -89,6 +89,45 @@ class PromptBuildResponse(BaseModel):
     metadata: PromptMetadata = Field(..., description="메타데이터")
 
 
+class StepPromptRequest(BaseModel):
+    """멀티스텝 파이프라인용 단계별 프롬프트 요청 (Task 8)"""
+    step: Literal['basic', 'personality', 'aptitude', 'fortune'] = Field(
+        ..., description="분석 단계"
+    )
+    language: Literal['ko', 'en', 'ja', 'zh-CN', 'zh-TW'] = Field(
+        'ko', description="언어"
+    )
+    pillars: Dict[str, Any] = Field(..., description="사주 팔자")
+    daewun: Optional[List[Dict[str, Any]]] = Field(default=[], description="대운 목록")
+    jijanggan: Optional[Dict[str, List[str]]] = Field(None, description="지장간 데이터")
+    previousResults: Optional[Dict[str, Any]] = Field(
+        None, description="이전 단계 결과 (컨텍스트)"
+    )
+
+    class Config:
+        json_schema_extra = {
+            "example": {
+                "step": "basic",
+                "language": "ko",
+                "pillars": {
+                    "year": {"stem": "庚", "branch": "午", "element": "金"},
+                    "month": {"stem": "辛", "branch": "巳", "element": "金"},
+                    "day": {"stem": "甲", "branch": "子", "element": "木"},
+                    "hour": {"stem": "辛", "branch": "未", "element": "金"}
+                },
+                "daewun": [
+                    {"age": 1, "stem": "壬", "branch": "午", "startYear": 1991}
+                ],
+                "jijanggan": {
+                    "year": ["己", "丁"],
+                    "month": ["戊", "庚", "丙"],
+                    "day": ["癸"],
+                    "hour": ["己", "丁", "乙"]
+                }
+            }
+        }
+
+
 class YearlyPromptBuildRequest(BaseModel):
     """신년 사주 분석 프롬프트 빌드 요청"""
     language: Literal['ko', 'en', 'ja', 'zh-CN', 'zh-TW'] = Field('ko', description="언어")

@@ -16,7 +16,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { useAnalysisStore } from '@/stores/analysis';
+import { useOnboardingStore } from '@/stores/onboarding-store';
 import type { SajuInput } from '@/types/saju';
 
 const timezones = [
@@ -30,7 +30,7 @@ const timezones = [
 
 export default function OnboardingStep2() {
   const router = useRouter();
-  const { setSajuInput } = useAnalysisStore();
+  const { setSajuInput } = useOnboardingStore();
 
   const [formData, setFormData] = useState({
     year: '',

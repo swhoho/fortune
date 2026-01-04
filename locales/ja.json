@@ -232,7 +232,8 @@
       "analysis": "分析履歴",
       "questions": "質問履歴",
       "notifications": "通知設定",
-      "settings": "プロフィール設定"
+      "settings": "プロフィール設定",
+      "profiles": "プロフィール管理"
     },
     "analysisHistory": {
       "title": "分析履歴",
@@ -366,6 +367,12 @@
       "yourCredits": "保有クレジット",
       "insufficient": "クレジットが不足しています。チャージしてください。"
     },
+    "selectProfile": {
+      "required": "分析するプロフィールを選択してください。"
+    },
+    "credits": {
+      "insufficient": "クレジットが不足しています。クレジットをチャージしてください。"
+    },
     "startAnalysis": "運勢分析を開始",
     "analysisTime": "分析には約30〜60秒かかります",
     "processing": {
@@ -425,11 +432,198 @@
       }
     }
   },
+  "home": {
+    "sections": {
+      "profile": "プロファイル管理",
+      "analysis": "四柱推命分析",
+      "compatibility": "相性分析",
+      "account": "アカウント"
+    },
+    "menu": {
+      "registerProfile": "プロファイル登録",
+      "profileList": "プロファイル一覧",
+      "fullAnalysis": "総合分析",
+      "yearlyFortune": "新年運勢",
+      "compatibility": "相性分析",
+      "mypage": "マイページ"
+    },
+    "comingSoon": "準備中"
+  },
   "language": {
     "ko": "한국어",
     "en": "English",
     "ja": "日本語",
     "zh-CN": "简体中文",
     "zh-TW": "繁體中文"
+  },
+  "report": {
+    "wealth": {
+      "title": "財運と異性",
+      "wealthBlessing": "財運",
+      "wealthBlessingDesc": "あなたに宿る財運の傾向",
+      "partnerInfluence": "異性の存在",
+      "partnerInfluenceDesc": "あなたの中にある異性の存在形態",
+      "traits": "財運特性",
+      "traitsDesc": "財運に関する特性5つ",
+      "score": "財運点数"
+    },
+    "romance": {
+      "title": "恋愛と結婚",
+      "lovePsychology": "恋愛心理",
+      "lovePsychologyDesc": "結婚前の恋愛・デート心理",
+      "partnerView": "配偶者観",
+      "partnerViewDesc": "結婚後の配偶者を見る目",
+      "personalityPattern": "性格パターン",
+      "personalityPatternDesc": "結婚後の性格パターン",
+      "traits": "恋愛特性",
+      "traitsDesc": "恋愛に関する特性10個",
+      "score": "恋愛点数"
+    },
+    "navigation": {
+      "saju": "四柱",
+      "personality": "性格",
+      "characteristics": "特性",
+      "aptitude": "適性",
+      "wealth": "財運",
+      "romance": "恋愛"
+    },
+    "actions": {
+      "exportPdf": "PDF出力",
+      "share": "共有",
+      "back": "戻る"
+    }
+  },
+  "pipeline": {
+    "steps": {
+      "manseryeok": "万年暦計算",
+      "jijanggan": "蔵干分析",
+      "basic_analysis": "格局/用神分析",
+      "personality": "性格分析",
+      "aptitude": "適性分析",
+      "fortune": "財運/恋愛分析",
+      "scoring": "スコア算出",
+      "visualization": "命盤生成",
+      "saving": "結果保存",
+      "complete": "完了"
+    },
+    "activeMessages": {
+      "manseryeok": "万年暦を計算しています...",
+      "jijanggan": "蔵干を分析しています...",
+      "basic_analysis": "格局と用神を分析しています...",
+      "personality": "性格特性を把握しています...",
+      "aptitude": "適性と才能を分析しています...",
+      "fortune": "財運と恋愛運を調べています...",
+      "scoring": "分析スコアを計算しています...",
+      "visualization": "四柱命盤を生成しています...",
+      "saving": "分析結果を保存しています..."
+    },
+    "preparing": "分析を準備しています...",
+    "progress": "進行状況",
+    "tip": "ご存知ですか？",
+    "remainingTime": {
+      "seconds": "約{seconds}秒残り",
+      "minutes": "約{minutes}分{seconds}秒残り"
+    },
+    "error": {
+      "title": "{step}中にエラー発生",
+      "completedSteps": "完了したステップ",
+      "retryFrom": "{step}からリトライ",
+      "cancel": "キャンセル"
+    }
+  },
+  "credits": {
+    "balance": "{credits}C保有",
+    "insufficient": {
+      "title": "クレジット不足",
+      "description": "この機能を使用するには、より多くのクレジットが必要です。",
+      "required": "必要",
+      "current": "保有",
+      "shortfall": "{amount}C不足",
+      "charge": "クレジットを充電する"
+    },
+    "deduction": {
+      "report": "プロファイルレポート生成: -{amount}C",
+      "reanalysis": "セクション再分析: -{amount}C"
+    }
+  },
+  "profile": {
+    "pageTitle": {
+      "new": "プロフィール登録",
+      "list": "プロフィール一覧",
+      "detail": "プロフィール詳細",
+      "edit": "プロフィール編集"
+    },
+    "selector": {
+      "title": "プロフィール選択",
+      "subtitle": "分析するプロフィールを選択してください",
+      "addNew": "新しいプロフィールを追加"
+    },
+    "empty": {
+      "title": "登録されたプロフィールがありません",
+      "description": "プロフィールを登録して運勢分析を始めましょう",
+      "addFirst": "プロフィールを登録"
+    },
+    "form": {
+      "name": "氏名",
+      "namePlaceholder": "名前を入力してください",
+      "birthDate": "生年月日",
+      "birthTime": "出生時間",
+      "birthTimeOptional": "出生時間（任意）",
+      "birthTimeHint": "不明な場合は空欄で構いません",
+      "calendarType": "暦の種類",
+      "solar": "新暦",
+      "lunar": "旧暦",
+      "lunarLeap": "閏月",
+      "gender": "性別",
+      "male": "男性",
+      "female": "女性",
+      "yearPlaceholder": "年",
+      "monthPlaceholder": "月",
+      "dayPlaceholder": "日",
+      "hourPlaceholder": "時",
+      "minutePlaceholder": "分"
+    },
+    "validation": {
+      "nameRequired": "名前を入力してください",
+      "nameMaxLength": "名前は50文字以内で入力してください",
+      "invalidDate": "正しい日付を入力してください",
+      "genderRequired": "性別を選択してください",
+      "futureDateNotAllowed": "未来の日付は入力できません"
+    },
+    "list": {
+      "sortByName": "名前順",
+      "sortByDate": "登録順",
+      "totalCount": "全{count}件",
+      "empty": "登録されたプロフィールはありません",
+      "emptyDescription": "新しいプロフィールを登録して四柱推命分析を始めましょう",
+      "addFirst": "最初のプロフィールを登録"
+    },
+    "detail": {
+      "birthInfo": "出生情報",
+      "age": "{age}歳",
+      "generateReport": "レポート作成",
+      "viewReport": "レポートを見る",
+      "noReport": "まだ分析レポートがありません"
+    },
+    "actions": {
+      "save": "保存",
+      "cancel": "キャンセル",
+      "edit": "編集",
+      "delete": "削除",
+      "complete": "完了"
+    },
+    "delete": {
+      "title": "プロフィール削除",
+      "message": "「{name}」を削除しますか？",
+      "warning": "この操作は取り消せません。",
+      "confirm": "削除",
+      "cancel": "キャンセル"
+    },
+    "toast": {
+      "createSuccess": "プロフィールを登録しました",
+      "updateSuccess": "プロフィールを更新しました",
+      "deleteSuccess": "プロフィールを削除しました",
+      "error": "エラーが発生しました"
+    }
   }
 }
