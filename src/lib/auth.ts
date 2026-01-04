@@ -4,7 +4,7 @@
  */
 import { NextAuthOptions } from 'next-auth';
 import CredentialsProvider from 'next-auth/providers/credentials';
-import { supabase } from './supabase/client';
+import { createClient } from '@supabase/supabase-js';
 
 export const authOptions: NextAuthOptions = {
   providers: [
@@ -18,6 +18,12 @@ export const authOptions: NextAuthOptions = {
         if (!credentials?.email || !credentials?.password) {
           throw new Error('이메일과 비밀번호를 입력해주세요.');
         }
+
+        // 서버 환경용 Supabase 클라이언트 생성
+        const supabase = createClient(
+          process.env.NEXT_PUBLIC_SUPABASE_URL!,
+          process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+        );
 
         // Supabase Auth로 로그인
         const { data, error } = await supabase.auth.signInWithPassword({

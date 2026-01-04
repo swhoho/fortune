@@ -12,8 +12,9 @@ import { createServerClient } from '@supabase/ssr';
 
 /**
  * 공개 페이지 목록
+ * /payment/success는 Stripe 결제 후 리다이렉트되므로 공개 처리
  */
-const publicPages = ['/', '/auth/signin', '/auth/signup', '/auth/error'];
+const publicPages = ['/', '/auth/signin', '/auth/signup', '/auth/error', '/payment/success'];
 
 /**
  * next-intl 미들웨어 생성
