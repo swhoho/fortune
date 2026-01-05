@@ -63,8 +63,12 @@ export interface ReportDaewunItem {
   favorablePercent: number;
   /** 역풍운 비율 (0-100) */
   unfavorablePercent: number;
-  /** 나이에 맞는 대운 설명 (AI 생성) */
-  description: string;
+  /** 점수 근거 - 왜 이런 순풍/역풍 비율인지 명리학적 설명 (80-150자) */
+  scoreReasoning: string;
+  /** 상세 요약 - 해당 나이대에 맞는 대운 분석 (300-500자) */
+  summary: string;
+  /** @deprecated 기존 호환용 - 새 데이터는 summary 사용 */
+  description?: string;
 }
 
 /** 대운 기본 아이템 (Python 계산 결과, AI 분석 전) */

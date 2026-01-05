@@ -57,6 +57,10 @@ function transformDaewun(daewunList: any[]) {
     tenGodType: dw.tenGodType || '알수없음',
     favorablePercent: dw.favorablePercent ?? 50,
     unfavorablePercent: dw.unfavorablePercent ?? 50,
+    // 새 필드: 점수 근거 + 상세 요약
+    scoreReasoning: dw.scoreReasoning || '',
+    summary: dw.summary || dw.description || getDefaultDaewunDescription(dw.tenGod, dw.age),
+    // 기존 호환용
     description: dw.description || getDefaultDaewunDescription(dw.tenGod, dw.age),
   }));
 }

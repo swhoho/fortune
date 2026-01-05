@@ -1,7 +1,8 @@
 'use client';
 
-import { motion } from 'framer-motion';
-import { Compass, Sparkles, Calendar } from 'lucide-react';
+import { useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Compass, Sparkles, Calendar, ChevronDown, Info, Lock } from 'lucide-react';
 import { FavorableBar } from './FavorableBar';
 import type { ReportDaewunItem } from '@/types/report';
 
@@ -23,6 +24,19 @@ export function DaewunDetailSection({
   currentAge,
   className = '',
 }: DaewunDetailSectionProps) {
+  /** 점수 근거 펼침 상태 (각 대운별) */
+  const [expandedReasoning, setExpandedReasoning] = useState<Record<number, boolean>>({});
+
+  /**
+   * 점수 근거 토글
+   */
+  const toggleReasoning = (index: number) => {
+    setExpandedReasoning((prev) => ({
+      ...prev,
+      [index]: !prev[index],
+    }));
+  };
+
   /**
    * 현재 대운인지 확인
    */
@@ -198,8 +212,63 @@ export function DaewunDetailSection({
                   />
                 </div>
 
-                {/* 설명 텍스트 */}
-                <p className="text-sm leading-relaxed text-gray-300">{item.description}</p>
+                {/* 점수 근거 토글 */}
+                {item.scoreReasoning && (
+                  <div className="mb-4">
+                    <button
+                      onClick={() => toggleReasoning(index)}
+                      className="flex w-full items-center justify-between rounded-lg border border-[#333] bg-[#1a1a1a] px-3 py-2 text-left transition-colors hover:bg-[#242424]"
+                    >
+                      <div className="flex items-center gap-2">
+                        <Info className="h-4 w-4 text-[#d4af37]" />
+                        <span className="text-sm font-medium text-gray-300">점수 근거</span>
+                      </div>
+                      <ChevronDown
+                        className={`h-4 w-4 text-gray-400 transition-transform duration-200 ${
+                          expandedReasoning[index] ? 'rotate-180' : ''
+                        }`}
+                      />
+                    </button>
+                    <AnimatePresence>
+                      {expandedReasoning[index] && (
+                        <motion.div
+                          initial={{ height: 0, opacity: 0 }}
+                          animate={{ height: 'auto', opacity: 1 }}
+                          exit={{ height: 0, opacity: 0 }}
+                          transition={{ duration: 0.2 }}
+                          className="overflow-hidden"
+                        >
+                          <div className="mt-2 rounded-lg border border-[#333] bg-[#111] p-3">
+                            <p className="text-sm leading-relaxed text-gray-400">
+                              {item.scoreReasoning}
+                            </p>
+                          </div>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+                  </div>
+                )}
+
+                {/* 상세 요약 (summary) */}
+                <div className="mb-4">
+                  <p className="text-sm leading-relaxed text-gray-300">
+                    {item.summary || item.description}
+                  </p>
+                </div>
+
+                {/* 시기별 상세 분석 버튼 (유료 - 구현 예정) */}
+                <div className="mt-4 border-t border-[#333] pt-4">
+                  <button
+                    disabled
+                    className="flex w-full items-center justify-center gap-2 rounded-lg border border-[#d4af37]/30 bg-gradient-to-r from-[#d4af37]/5 to-[#d4af37]/10 px-4 py-3 text-sm font-medium text-[#d4af37]/70 transition-all hover:from-[#d4af37]/10 hover:to-[#d4af37]/15 disabled:cursor-not-allowed disabled:opacity-60"
+                  >
+                    <Lock className="h-4 w-4" />
+                    <span>시기별 상세 분석 (구현 예정)</span>
+                  </button>
+                  <p className="mt-2 text-center text-xs text-gray-500">
+                    초반/중반/후반 각 시기별 상세 운세를 확인하세요
+                  </p>
+                </div>
               </div>
             </motion.div>
           );
