@@ -196,7 +196,7 @@ export default async function LocaleLayout({ children, params }: Props) {
 
   return (
     <html lang={locale} className="overflow-x-hidden">
-      <body className={`${geistSans.variable} ${geistMono.variable} antialiased overflow-x-hidden`}>
+      <body className={`${geistSans.variable} ${geistMono.variable} overflow-x-hidden antialiased`}>
         <OrganizationJsonLd locale={locale} />
         <NextIntlClientProvider locale={locale} messages={messages}>
           <Providers>{children}</Providers>

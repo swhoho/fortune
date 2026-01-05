@@ -106,6 +106,8 @@ export function useAskQuestion() {
 
     let attempts = 0;
     const maxAttempts = 60; // 최대 2분 (2초 간격)
+    // eslint-disable-next-line prefer-const
+    // eslint-disable-next-line prefer-const
     let intervalId: NodeJS.Timeout;
 
     const poll = async () => {
@@ -261,6 +263,7 @@ export function useReanalyzeSection() {
 
     let attempts = 0;
     const maxAttempts = 90; // 최대 3분 (2초 간격)
+    // eslint-disable-next-line prefer-const
     let intervalId: NodeJS.Timeout;
 
     const poll = async () => {

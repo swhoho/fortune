@@ -8,7 +8,11 @@ import { motion } from 'framer-motion';
 import { Menu, Loader2, AlertCircle, Sparkles, RefreshCw } from 'lucide-react';
 import { ChatMessage } from './ChatMessage';
 import { ChatInput } from './ChatInput';
-import { useConsultationMessages, useSendMessage, useInvalidateConsultation } from '@/hooks/use-consultation';
+import {
+  useConsultationMessages,
+  useSendMessage,
+  useInvalidateConsultation,
+} from '@/hooks/use-consultation';
 import type { ConsultationMessage } from '@/types/consultation';
 
 /** 폴링 간격 (ms) */
@@ -54,9 +58,7 @@ export function ChatArea({
   );
 
   // 실패한 메시지 (DB에서 가져온 것)
-  const failedMessage = data?.messages?.find(
-    (m: ConsultationMessage) => m.status === 'failed'
-  );
+  const failedMessage = data?.messages?.find((m: ConsultationMessage) => m.status === 'failed');
 
   // 새 메시지 시 스크롤
   useEffect(() => {
@@ -82,18 +84,15 @@ export function ChatArea({
     }
 
     setIsPolling(true);
-    console.log('[ChatArea] 폴링 시작:', generatingMessage.id);
 
     const pollInterval = setInterval(async () => {
-      console.log('[ChatArea] 폴링 중...');
       await refetch();
     }, POLLING_INTERVAL);
 
     return () => {
       clearInterval(pollInterval);
-      console.log('[ChatArea] 폴링 종료');
     };
-  }, [generatingMessage?.id, refetch]);
+  }, [generatingMessage, refetch]);
 
   // 폴링 완료 시 세션 목록도 갱신 (question_count 업데이트)
   useEffect(() => {

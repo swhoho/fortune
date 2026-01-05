@@ -42,7 +42,10 @@ export async function GET(request: NextRequest, context: RouteContext) {
       .single();
 
     if (sessionError || !session) {
-      return NextResponse.json({ success: false, error: '세션을 찾을 수 없습니다' }, { status: 404 });
+      return NextResponse.json(
+        { success: false, error: '세션을 찾을 수 없습니다' },
+        { status: 404 }
+      );
     }
 
     if (session.user_id !== user.id) {
@@ -58,19 +61,24 @@ export async function GET(request: NextRequest, context: RouteContext) {
 
     if (messagesError) {
       console.error('[ConsultationMessages] 조회 오류:', messagesError);
-      return NextResponse.json({ success: false, error: '메시지를 불러올 수 없습니다' }, { status: 500 });
+      return NextResponse.json(
+        { success: false, error: '메시지를 불러올 수 없습니다' },
+        { status: 500 }
+      );
     }
 
-    const messages = (messagesData || []).map((msg: ConsultationMessageRow & { status?: string; error_message?: string }) => ({
-      id: msg.id,
-      sessionId: msg.session_id,
-      type: msg.message_type,
-      content: msg.content,
-      questionRound: msg.question_round,
-      createdAt: msg.created_at,
-      status: msg.status || 'completed',
-      errorMessage: msg.error_message,
-    }));
+    const messages = (messagesData || []).map(
+      (msg: ConsultationMessageRow & { status?: string; error_message?: string }) => ({
+        id: msg.id,
+        sessionId: msg.session_id,
+        type: msg.message_type,
+        content: msg.content,
+        questionRound: msg.question_round,
+        createdAt: msg.created_at,
+        status: msg.status || 'completed',
+        errorMessage: msg.error_message,
+      })
+    );
 
     const response: GetMessagesResponse = {
       success: true,
@@ -89,7 +97,10 @@ export async function GET(request: NextRequest, context: RouteContext) {
     return NextResponse.json(response);
   } catch (error) {
     console.error('[ConsultationMessages] GET 오류:', error);
-    return NextResponse.json({ success: false, error: '서버 오류가 발생했습니다' }, { status: 500 });
+    return NextResponse.json(
+      { success: false, error: '서버 오류가 발생했습니다' },
+      { status: 500 }
+    );
   }
 }
 
@@ -114,7 +125,10 @@ export async function POST(request: NextRequest, context: RouteContext) {
     }
 
     if (body.content.length > 500) {
-      return NextResponse.json({ success: false, error: '메시지는 500자 이내로 입력해주세요' }, { status: 400 });
+      return NextResponse.json(
+        { success: false, error: '메시지는 500자 이내로 입력해주세요' },
+        { status: 400 }
+      );
     }
 
     // 세션 조회 및 소유권 확인
@@ -126,7 +140,10 @@ export async function POST(request: NextRequest, context: RouteContext) {
       .single();
 
     if (sessionError || !session) {
-      return NextResponse.json({ success: false, error: '세션을 찾을 수 없습니다' }, { status: 404 });
+      return NextResponse.json(
+        { success: false, error: '세션을 찾을 수 없습니다' },
+        { status: 404 }
+      );
     }
 
     if (session.user_id !== user.id) {
@@ -166,7 +183,10 @@ export async function POST(request: NextRequest, context: RouteContext) {
 
     if (userMsgError || !userMessage) {
       console.error('[ConsultationMessages] 사용자 메시지 저장 오류:', userMsgError);
-      return NextResponse.json({ success: false, error: '메시지 저장 중 오류가 발생했습니다' }, { status: 500 });
+      return NextResponse.json(
+        { success: false, error: '메시지 저장 중 오류가 발생했습니다' },
+        { status: 500 }
+      );
     }
 
     // 2. AI placeholder 메시지 저장 (status: generating)
@@ -185,7 +205,10 @@ export async function POST(request: NextRequest, context: RouteContext) {
 
     if (aiMsgError || !aiMessage) {
       console.error('[ConsultationMessages] AI placeholder 저장 오류:', aiMsgError);
-      return NextResponse.json({ success: false, error: 'AI 응답 준비 중 오류가 발생했습니다' }, { status: 500 });
+      return NextResponse.json(
+        { success: false, error: 'AI 응답 준비 중 오류가 발생했습니다' },
+        { status: 500 }
+      );
     }
 
     // 3. 백그라운드에서 AI 생성 (fire and forget 패턴)
@@ -227,7 +250,10 @@ export async function POST(request: NextRequest, context: RouteContext) {
     return NextResponse.json(response);
   } catch (error) {
     console.error('[ConsultationMessages] POST 오류:', error);
-    return NextResponse.json({ success: false, error: '서버 오류가 발생했습니다' }, { status: 500 });
+    return NextResponse.json(
+      { success: false, error: '서버 오류가 발생했습니다' },
+      { status: 500 }
+    );
   }
 }
 
@@ -243,7 +269,15 @@ async function generateAIResponse(params: {
   skipClarification: boolean;
   currentRound: number;
 }) {
-  const { aiMessageId, sessionId, profileReportId, userContent, messageType, skipClarification, currentRound } = params;
+  const {
+    aiMessageId,
+    sessionId,
+    profileReportId,
+    userContent,
+    messageType,
+    skipClarification,
+    currentRound,
+  } = params;
 
   // 새 Supabase 클라이언트 생성 (after 컨텍스트에서)
   const supabase = createClient();
@@ -275,7 +309,11 @@ async function generateAIResponse(params: {
     for (const msg of previousMessages || []) {
       if (msg.message_type === 'user_question') {
         currentQuestion = msg.content;
-      } else if (msg.message_type === 'ai_answer' && msg.status === 'completed' && currentQuestion) {
+      } else if (
+        msg.message_type === 'ai_answer' &&
+        msg.status === 'completed' &&
+        currentQuestion
+      ) {
         sessionHistory.push({ question: currentQuestion, answer: msg.content });
         currentQuestion = null;
       }
@@ -297,12 +335,17 @@ async function generateAIResponse(params: {
       const clarificationResult = await consultationAI.generateClarification(userContent);
 
       if (clarificationResult.success && clarificationResult.data) {
-        if (clarificationResult.data.needsClarification && clarificationResult.data.clarificationQuestions.length > 0) {
+        if (
+          clarificationResult.data.needsClarification &&
+          clarificationResult.data.clarificationQuestions.length > 0
+        ) {
           finalMessageType = 'ai_clarification';
           const questions = clarificationResult.data.clarificationQuestions;
           aiContent = `더 정확한 상담을 위해 몇 가지 여쭤볼게요:\n\n${questions.map((q, i) => `${i + 1}. ${q}`).join('\n')}`;
         } else if (!clarificationResult.data.isValidQuestion) {
-          aiContent = clarificationResult.data.invalidReason || '죄송합니다. 사주 상담과 관련된 질문을 부탁드립니다.';
+          aiContent =
+            clarificationResult.data.invalidReason ||
+            '죄송합니다. 사주 상담과 관련된 질문을 부탁드립니다.';
         } else {
           // 구체적인 질문 → 바로 답변
           const answerResult = await consultationAI.generateAnswer({
@@ -335,9 +378,10 @@ async function generateAIResponse(params: {
       }
     } else {
       // 추가 정보 응답 또는 건너뛰기 → 최종 답변
-      const originalQuestion = (previousMessages || [])
-        .filter((m) => m.message_type === 'user_question' && m.question_round === currentRound)
-        .pop()?.content || userContent;
+      const originalQuestion =
+        (previousMessages || [])
+          .filter((m) => m.message_type === 'user_question' && m.question_round === currentRound)
+          .pop()?.content || userContent;
 
       const answerResult = await consultationAI.generateAnswer({
         question: originalQuestion,

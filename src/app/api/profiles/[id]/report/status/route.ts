@@ -94,18 +94,24 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
 
     // 4. 실패한 경우 - 에러 정보 포함
     if (report.status === 'failed') {
-      const errorInfo = report.error as { step?: string; message?: string; retryable?: boolean } | null;
+      const errorInfo = report.error as {
+        step?: string;
+        message?: string;
+        retryable?: boolean;
+      } | null;
       return NextResponse.json({
         status: 'failed' as const,
         currentStep: report.current_step as PipelineStep | null,
         progressPercent: report.progress_percent || 0,
         stepStatuses: report.step_statuses as Record<PipelineStep, StepStatus>,
         estimatedTimeRemaining: 0,
-        error: errorInfo ? {
-          step: errorInfo.step || report.current_step || 'unknown',
-          message: errorInfo.message || '분석에 실패했습니다',
-          retryable: errorInfo.retryable ?? true,
-        } : null,
+        error: errorInfo
+          ? {
+              step: errorInfo.step || report.current_step || 'unknown',
+              message: errorInfo.message || '분석에 실패했습니다',
+              retryable: errorInfo.retryable ?? true,
+            }
+          : null,
       });
     }
 
@@ -141,7 +147,11 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
               stepStatuses: statusData.step_statuses || report.step_statuses,
               estimatedTimeRemaining: 0,
               error: {
-                step: statusData.error_step || statusData.current_step || report.current_step || 'unknown',
+                step:
+                  statusData.error_step ||
+                  statusData.current_step ||
+                  report.current_step ||
+                  'unknown',
                 message: statusData.error || '분석에 실패했습니다',
                 retryable: statusData.retryable ?? true,
               },
