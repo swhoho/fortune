@@ -97,7 +97,32 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
       );
     }
 
-    // 5. 크레딧 선차감 (원자적 연산으로 경쟁 조건 방지)
+    // 5. 기존 generating 상태 질문 확인 (중복 방지)
+    const { data: existingQuestion } = await supabase
+      .from('report_questions')
+      .select('id, status, question')
+      .eq('profile_id', profileId)
+      .eq('user_id', userId)
+      .eq('question', question)
+      .eq('status', 'generating')
+      .maybeSingle();
+
+    // 이미 같은 질문이 generating 중이면 기존 ID 반환
+    if (existingQuestion) {
+      return NextResponse.json({
+        success: true,
+        message: '이미 처리 중인 질문입니다',
+        data: {
+          questionId: existingQuestion.id,
+          status: 'generating',
+          pollUrl: `/api/profiles/${profileId}/report/question/${existingQuestion.id}`,
+          creditsUsed: 0,
+          remainingCredits: -1,
+        },
+      });
+    }
+
+    // 6. 크레딧 선차감 (원자적 연산으로 경쟁 조건 방지)
     const { data: creditResult, error: creditError } = await supabase.rpc('deduct_credits', {
       p_user_id: userId,
       p_amount: SERVICE_CREDITS.question,
@@ -132,7 +157,7 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
 
     const newCredits = deductResult.new_credits;
 
-    // 6. 질문 레코드 생성 (status: generating)
+    // 7. 질문 레코드 생성 (status: generating)
     const { data: savedQuestion, error: saveError } = await supabase
       .from('report_questions')
       .insert({
@@ -160,7 +185,7 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
       );
     }
 
-    // 7. 이전 질문 히스토리 조회 (최근 5개)
+    // 8. 이전 질문 히스토리 조회 (최근 5개)
     const { data: prevQuestions } = await supabase
       .from('report_questions')
       .select('question, answer, created_at')
@@ -175,7 +200,7 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
       createdAt: q.created_at,
     }));
 
-    // 8. Python 백엔드에 비동기 작업 위임
+    // 9. Python 백엔드에 비동기 작업 위임
     const pythonApiUrl = process.env.PYTHON_API_URL || 'http://localhost:8000';
 
     try {
@@ -204,7 +229,7 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
       // (나중에 수동으로 재시도 가능)
     }
 
-    // 9. 크레딧 사용 로그 기록
+    // 10. 크레딧 사용 로그 기록
     await supabase.from('credit_transactions').insert({
       user_id: userId,
       amount: -SERVICE_CREDITS.question,
@@ -213,7 +238,7 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
       reference_id: savedQuestion.id,
     });
 
-    // 10. 즉시 응답 (폴링 URL 제공)
+    // 11. 즉시 응답 (폴링 URL 제공)
     return NextResponse.json({
       success: true,
       data: {

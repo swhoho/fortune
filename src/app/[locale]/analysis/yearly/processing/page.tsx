@@ -66,6 +66,7 @@ export default function YearlyProcessingPage() {
   const pollCountRef = useRef(0);
   const pollingIntervalRef = useRef<NodeJS.Timeout | null>(null);
   const hasStartedRef = useRef(false);
+  const isRequestingRef = useRef(false);
 
   // 팁 로테이션
   useEffect(() => {
@@ -165,13 +166,15 @@ export default function YearlyProcessingPage() {
    * 분석 시작 함수
    */
   const startAnalysis = useCallback(async () => {
-    if (!targetYear || isStarted) {
+    // 중복 요청 방지
+    if (!targetYear || isStarted || isRequestingRef.current) {
       if (!targetYear) {
         router.push('/analysis/yearly');
       }
       return;
     }
 
+    isRequestingRef.current = true;
     setIsStarted(true);
     setError(null);
     setCurrentStep('init');
@@ -247,6 +250,15 @@ export default function YearlyProcessingPage() {
 
       const result = await response.json();
 
+      // completed 상태면 결과 페이지로 이동
+      if (result.status === 'completed' && result.redirectUrl) {
+        setCurrentStep('complete');
+        setProgressPercent(100);
+        setYearlyLoading(false);
+        router.push(result.redirectUrl);
+        return;
+      }
+
       if (!result.analysisId) {
         throw new Error('분석 ID를 받지 못했습니다.');
       }
@@ -268,6 +280,8 @@ export default function YearlyProcessingPage() {
       setYearlyError(message);
       setYearlyLoading(false);
       setIsStarted(false);
+    } finally {
+      isRequestingRef.current = false;
     }
   }, [
     targetYear,
@@ -308,7 +322,8 @@ export default function YearlyProcessingPage() {
     setError(null);
     setIsStarted(false);
     pollCountRef.current = 0;
-    hasStartedRef.current = false; // ref 리셋
+    hasStartedRef.current = false;
+    isRequestingRef.current = false; // ref 리셋
     if (pollingIntervalRef.current) {
       clearInterval(pollingIntervalRef.current);
     }

@@ -138,6 +138,49 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // 3.5 기존 분석 확인 (completed, pending, in_progress)
+    // profileId가 있으면 프로필 단위로, 없으면 사용자 단위로 체크
+    let existingAnalysisQuery = supabase
+      .from('yearly_analyses')
+      .select('id, status')
+      .eq('user_id', userId)
+      .eq('target_year', data.targetYear);
+
+    // 프로필 기반 분석이면 profile_id도 체크
+    if (data.profileId) {
+      existingAnalysisQuery = existingAnalysisQuery.eq('profile_id', data.profileId);
+    } else {
+      // 프로필 없이 온보딩 기반이면 profile_id가 null인 것만
+      existingAnalysisQuery = existingAnalysisQuery.is('profile_id', null);
+    }
+
+    const { data: existingAnalysis } = await existingAnalysisQuery
+      .order('created_at', { ascending: false })
+      .limit(1)
+      .maybeSingle();
+
+    // 이미 완료된 분석이 있으면 결과 페이지로 안내
+    if (existingAnalysis?.status === 'completed') {
+      return NextResponse.json({
+        success: true,
+        message: '이미 완료된 분석이 있습니다',
+        analysisId: existingAnalysis.id,
+        status: 'completed',
+        redirectUrl: `/analysis/yearly/result/${existingAnalysis.id}`,
+      });
+    }
+
+    // pending/in_progress 상태면 중복 생성 방지
+    if (existingAnalysis?.status === 'pending' || existingAnalysis?.status === 'in_progress') {
+      return NextResponse.json({
+        success: true,
+        message: '이미 분석이 진행 중입니다',
+        analysisId: existingAnalysis.id,
+        status: existingAnalysis.status,
+        pollUrl: `/api/analysis/yearly/${existingAnalysis.id}`,
+      });
+    }
+
     // 4. 사주 정보 가져오기
     let pillars = data.pillars;
     let daewun = data.daewun;

@@ -3,7 +3,7 @@
  * v2.1: 비동기/폴링 방식 지원
  */
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 
 /** 질문 상태 타입 */
 export type QuestionStatus = 'generating' | 'completed' | 'failed';
@@ -99,6 +99,7 @@ export function useAskQuestion() {
   const [pollingQuestionId, setPollingQuestionId] = useState<string | null>(null);
   const [pollingProfileId, setPollingProfileId] = useState<string | null>(null);
   const [pollResult, setPollResult] = useState<QuestionPollResponse | null>(null);
+  const isSubmittingRef = useRef(false);
 
   // 폴링 로직
   useEffect(() => {
@@ -168,19 +169,29 @@ export function useAskQuestion() {
 
   const mutation = useMutation<AskQuestionResponse, Error, AskQuestionData>({
     mutationFn: async ({ profileId, question }) => {
-      const res = await fetch(`/api/profiles/${profileId}/report/question`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ question }),
-      });
-
-      if (!res.ok) {
-        const error = await res.json();
-        throw new Error(error.error || '질문 실패');
+      // 중복 요청 방지
+      if (isSubmittingRef.current) {
+        throw new Error('이미 요청 중입니다');
       }
+      isSubmittingRef.current = true;
 
-      const json = await res.json();
-      return json.data;
+      try {
+        const res = await fetch(`/api/profiles/${profileId}/report/question`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ question }),
+        });
+
+        if (!res.ok) {
+          const error = await res.json();
+          throw new Error(error.error || '질문 실패');
+        }
+
+        const json = await res.json();
+        return json.data;
+      } finally {
+        isSubmittingRef.current = false;
+      }
     },
     onSuccess: (data, variables) => {
       // 폴링 시작
