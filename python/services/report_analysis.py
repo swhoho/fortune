@@ -27,9 +27,9 @@ logger = logging.getLogger(__name__)
 # 시각화 인스턴스
 visualizer = SajuVisualizer()
 
-# Supabase 설정
-SUPABASE_URL = os.getenv("SUPABASE_URL", "")
-SUPABASE_SERVICE_KEY = os.getenv("SUPABASE_SERVICE_KEY", "")
+# Supabase 설정 (Railway와 로컬 환경 모두 지원)
+SUPABASE_URL = os.getenv("SUPABASE_URL") or os.getenv("NEXT_PUBLIC_SUPABASE_URL", "")
+SUPABASE_SERVICE_KEY = os.getenv("SUPABASE_SERVICE_KEY") or os.getenv("SUPABASE_SERVICE_ROLE_KEY", "")
 
 
 class JobStore:

@@ -20,11 +20,11 @@ logger = logging.getLogger(__name__)
 
 
 def get_supabase_client() -> Client:
-    """Supabase 클라이언트 생성"""
-    url = os.getenv("SUPABASE_URL")
+    """Supabase 클라이언트 생성 (Railway와 로컬 환경 모두 지원)"""
+    url = os.getenv("SUPABASE_URL") or os.getenv("NEXT_PUBLIC_SUPABASE_URL")
     key = os.getenv("SUPABASE_SERVICE_ROLE_KEY")
     if not url or not key:
-        raise ValueError("SUPABASE_URL 또는 SUPABASE_SERVICE_ROLE_KEY 환경변수가 설정되지 않았습니다")
+        raise ValueError("SUPABASE_URL/NEXT_PUBLIC_SUPABASE_URL 또는 SUPABASE_SERVICE_ROLE_KEY 환경변수가 설정되지 않았습니다")
     return create_client(url, key)
 
 
