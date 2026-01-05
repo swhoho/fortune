@@ -37,18 +37,18 @@ export function WillpowerGauge({
       className={`rounded-xl bg-[#1a1a1a] p-5 ${className}`}
     >
       {/* 헤더 영역 */}
-      <div className="mb-4 flex items-start justify-between">
+      <div className="mb-4 flex items-start justify-between gap-3">
         <div className="flex items-center gap-3">
           {/* 라벨 태그 */}
-          <span className="inline-flex items-center rounded-md bg-[#d4af37] px-2.5 py-1 text-xs font-bold text-[#1a1a1a]">
+          <span className="inline-flex flex-shrink-0 items-center whitespace-nowrap rounded-md bg-[#d4af37] px-2.5 py-1 text-xs font-bold text-[#1a1a1a]">
             의지력
           </span>
           {/* 설명 텍스트 */}
-          <span className="text-sm text-gray-400">{description}</span>
+          <span className="text-sm leading-relaxed text-gray-400">{description}</span>
         </div>
 
         {/* 평균 표시 */}
-        <span className="text-xs text-gray-500">평균 {averageLine}%</span>
+        <span className="flex-shrink-0 text-xs text-gray-500">평균 {averageLine}%</span>
       </div>
 
       {/* 게이지 영역 */}

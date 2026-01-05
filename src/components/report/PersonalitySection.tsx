@@ -39,14 +39,14 @@ export function PersonalitySection({
         className="flex items-center gap-3"
       >
         <div className="h-6 w-1 rounded-full bg-[#d4af37]" />
-        <h2 className="font-serif text-xl font-bold text-[#1a1a1a] dark:text-white">성격과 특징</h2>
+        <h2 className="font-serif text-xl font-bold text-white">성격과 특징</h2>
       </motion.div>
 
       {/* 의지력 게이지 */}
       <WillpowerGauge score={willpower.score} description={willpower.description} />
 
-      {/* 성격 카드 그리드 - 항상 가로 3열 */}
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+      {/* 성격 카드 - 전체 너비 세로 배치 */}
+      <div className="flex flex-col gap-4">
         {/* 겉성격 */}
         <PersonalityCard
           label={outerPersonality.label}

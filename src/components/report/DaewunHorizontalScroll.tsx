@@ -95,15 +95,15 @@ export function DaewunHorizontalScroll({
       </button>
 
       {/* 좌측 그라데이션 */}
-      <div className="pointer-events-none absolute left-8 top-0 z-[5] h-full w-8 bg-gradient-to-r from-[#0a0a0a] to-transparent" />
+      <div className="pointer-events-none absolute left-8 top-0 z-[5] h-full w-6 bg-gradient-to-r from-[#0a0a0a] to-transparent" />
 
       {/* 우측 그라데이션 */}
-      <div className="pointer-events-none absolute right-8 top-0 z-[5] h-full w-8 bg-gradient-to-l from-[#0a0a0a] to-transparent" />
+      <div className="pointer-events-none absolute right-8 top-0 z-[5] h-full w-6 bg-gradient-to-l from-[#0a0a0a] to-transparent" />
 
       {/* 스크롤 컨테이너 */}
       <div
         ref={scrollRef}
-        className="scrollbar-hide flex snap-x snap-mandatory gap-3 overflow-x-auto px-10 py-4"
+        className="scrollbar-hide flex snap-x snap-mandatory gap-3 overflow-x-auto px-12 py-4"
         style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
       >
         <motion.div

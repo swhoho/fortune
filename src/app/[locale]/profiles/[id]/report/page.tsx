@@ -69,12 +69,15 @@ export default function ProfileReportPage({ params }: PageProps) {
 
   // 탭 상태 관리
   const [activeTab, setActiveTab] = useState<ReportTabType>('saju');
+  // 대운 탭 미확인 표시 (처음 방문 시에만 보여줌)
+  const [showDaewunIndicator, setShowDaewunIndicator] = useState(true);
 
   // URL의 tab 파라미터 감지
   useEffect(() => {
     const tab = searchParams.get('tab');
     if (tab === 'daewun') {
       setActiveTab('daewun');
+      setShowDaewunIndicator(false); // URL로 대운 탭 접근 시 indicator 숨김
     } else {
       setActiveTab('saju');
     }
@@ -94,6 +97,10 @@ export default function ProfileReportPage({ params }: PageProps) {
    */
   const handleTabChange = (tab: ReportTabType) => {
     setActiveTab(tab);
+    // 대운 탭 방문 시 indicator 숨김
+    if (tab === 'daewun') {
+      setShowDaewunIndicator(false);
+    }
     // URL 업데이트 (히스토리 오염 방지를 위해 replace 사용)
     const newUrl = tab === 'saju' ? `/profiles/${id}/report` : `/profiles/${id}/report?tab=${tab}`;
     router.replace(newUrl);
@@ -303,7 +310,11 @@ export default function ProfileReportPage({ params }: PageProps) {
       </header>
 
       {/* 탭 네비게이션 */}
-      <ReportNavigation activeTab={activeTab} onTabChange={handleTabChange} />
+      <ReportNavigation
+        activeTab={activeTab}
+        onTabChange={handleTabChange}
+        showDaewunIndicator={showDaewunIndicator}
+      />
 
       {/* 메인 콘텐츠 */}
       <main className="mx-auto max-w-4xl px-6 py-8">

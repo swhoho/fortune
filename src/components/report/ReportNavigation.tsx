@@ -21,6 +21,8 @@ interface ReportNavigationProps {
   activeTab: ReportTabType;
   /** 탭 변경 핸들러 */
   onTabChange: (tab: ReportTabType) => void;
+  /** 대운 탭 미확인 표시 */
+  showDaewunIndicator?: boolean;
   /** 추가 클래스 */
   className?: string;
 }
@@ -32,6 +34,7 @@ interface ReportNavigationProps {
 export function ReportNavigation({
   activeTab,
   onTabChange,
+  showDaewunIndicator = false,
   className = '',
 }: ReportNavigationProps) {
   return (
@@ -56,7 +59,17 @@ export function ReportNavigation({
                   isActive ? 'text-white' : 'text-gray-500 hover:text-gray-300'
                 }`}
               >
-                <span>{tab.label}</span>
+                <span className="relative">
+                  {tab.label}
+                  {/* 대운 탭 미확인 표시 */}
+                  {tab.id === 'daewun' && showDaewunIndicator && !isActive && (
+                    <motion.span
+                      initial={{ scale: 0 }}
+                      animate={{ scale: 1 }}
+                      className="absolute -right-2 -top-1 h-2 w-2 rounded-full bg-[#d4af37]"
+                    />
+                  )}
+                </span>
                 {isActive && (
                   <motion.div
                     layoutId="activeTabIndicator"
