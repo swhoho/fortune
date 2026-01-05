@@ -54,14 +54,16 @@ function SignInForm() {
   // handleGoogleSignIn은 GoogleSignInButton 컴포넌트에서 처리됨
 
   return (
-    <Card className="w-full max-w-md border-[#d4af37]/20">
+    <Card className="w-full max-w-md border-[#333] bg-[#1a1a1a]">
       <CardHeader className="text-center">
-        <CardTitle className="text-2xl font-bold text-[#1a1a1a]">로그인</CardTitle>
-        <CardDescription>Master&apos;s Insight AI에 오신 것을 환영합니다</CardDescription>
+        <CardTitle className="text-2xl font-bold text-white">로그인</CardTitle>
+        <CardDescription className="text-gray-400">
+          Master&apos;s Insight AI에 오신 것을 환영합니다
+        </CardDescription>
       </CardHeader>
       <CardContent>
         {message === 'signup_success' && (
-          <div className="mb-4 rounded-md bg-green-50 p-3 text-sm text-green-600">
+          <div className="mb-4 rounded-md bg-green-900/30 p-3 text-sm text-green-400">
             회원가입이 완료되었습니다. 로그인해주세요.
           </div>
         )}
@@ -71,18 +73,22 @@ function SignInForm() {
 
           <div className="relative">
             <div className="absolute inset-0 flex items-center">
-              <span className="w-full border-t" />
+              <span className="w-full border-t border-[#333]" />
             </div>
             <div className="relative flex justify-center text-xs uppercase">
-              <span className="bg-white px-2 text-muted-foreground">또는 이메일로 계속</span>
+              <span className="bg-[#1a1a1a] px-2 text-gray-500">또는 이메일로 계속</span>
             </div>
           </div>
 
           <form onSubmit={handleEmailSignIn} className="space-y-4">
-            {error && <div className="rounded-md bg-red-50 p-3 text-sm text-red-600">{error}</div>}
+            {error && (
+              <div className="rounded-md bg-red-900/30 p-3 text-sm text-red-400">{error}</div>
+            )}
 
             <div className="space-y-2">
-              <Label htmlFor="email">이메일</Label>
+              <Label htmlFor="email" className="text-gray-300">
+                이메일
+              </Label>
               <Input
                 id="email"
                 type="email"
@@ -91,11 +97,14 @@ function SignInForm() {
                 onChange={(e) => setEmail(e.target.value)}
                 required
                 disabled={isLoading || isGoogleLoading}
+                className="border-[#333] bg-[#2a2a2a] text-white placeholder:text-gray-500"
               />
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="password">비밀번호</Label>
+              <Label htmlFor="password" className="text-gray-300">
+                비밀번호
+              </Label>
               <Input
                 id="password"
                 type="password"
@@ -103,6 +112,7 @@ function SignInForm() {
                 onChange={(e) => setPassword(e.target.value)}
                 required
                 disabled={isLoading || isGoogleLoading}
+                className="border-[#333] bg-[#2a2a2a] text-white placeholder:text-gray-500"
               />
             </div>
 
@@ -116,7 +126,7 @@ function SignInForm() {
             </Button>
           </form>
 
-          <div className="mt-4 text-center text-sm text-gray-600">
+          <div className="mt-4 text-center text-sm text-gray-400">
             계정이 없으신가요?{' '}
             <Link href="/auth/signup" className="text-[#d4af37] hover:underline">
               회원가입
@@ -130,15 +140,15 @@ function SignInForm() {
 
 function LoadingFallback() {
   return (
-    <Card className="w-full max-w-md border-[#d4af37]/20">
+    <Card className="w-full max-w-md border-[#333] bg-[#1a1a1a]">
       <CardHeader className="text-center">
-        <div className="mx-auto h-8 w-24 animate-pulse rounded bg-gray-100" />
-        <div className="mx-auto mt-2 h-4 w-48 animate-pulse rounded bg-gray-100" />
+        <div className="mx-auto h-8 w-24 animate-pulse rounded bg-[#242424]" />
+        <div className="mx-auto mt-2 h-4 w-48 animate-pulse rounded bg-[#242424]" />
       </CardHeader>
       <CardContent className="space-y-4">
-        <div className="h-10 w-full animate-pulse rounded bg-gray-100" />
-        <div className="h-10 w-full animate-pulse rounded bg-gray-100" />
-        <div className="h-10 w-full animate-pulse rounded bg-gray-100" />
+        <div className="h-10 w-full animate-pulse rounded bg-[#242424]" />
+        <div className="h-10 w-full animate-pulse rounded bg-[#242424]" />
+        <div className="h-10 w-full animate-pulse rounded bg-[#242424]" />
       </CardContent>
     </Card>
   );
@@ -146,7 +156,7 @@ function LoadingFallback() {
 
 export default function SignInPage() {
   return (
-    <div className="flex min-h-screen items-center justify-center bg-[#f8f8f8] px-4">
+    <div className="flex min-h-screen items-center justify-center bg-[#0a0a0a] px-4">
       <Suspense fallback={<LoadingFallback />}>
         <SignInForm />
       </Suspense>

@@ -71,11 +71,13 @@ export default function SignUpPage() {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-[#f8f8f8] px-4">
-      <Card className="w-full max-w-md border-[#d4af37]/20">
+    <div className="flex min-h-screen items-center justify-center bg-[#0a0a0a] px-4">
+      <Card className="w-full max-w-md border-[#333] bg-[#1a1a1a]">
         <CardHeader className="text-center">
-          <CardTitle className="text-2xl font-bold text-[#1a1a1a]">회원가입</CardTitle>
-          <CardDescription>새 계정을 만들어 사주 분석을 시작하세요</CardDescription>
+          <CardTitle className="text-2xl font-bold text-white">회원가입</CardTitle>
+          <CardDescription className="text-gray-400">
+            새 계정을 만들어 사주 분석을 시작하세요
+          </CardDescription>
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
@@ -83,20 +85,22 @@ export default function SignUpPage() {
 
             <div className="relative">
               <div className="absolute inset-0 flex items-center">
-                <span className="w-full border-t" />
+                <span className="w-full border-t border-[#333]" />
               </div>
               <div className="relative flex justify-center text-xs uppercase">
-                <span className="bg-white px-2 text-muted-foreground">또는 이메일로 가입</span>
+                <span className="bg-[#1a1a1a] px-2 text-gray-500">또는 이메일로 가입</span>
               </div>
             </div>
 
             <form onSubmit={handleEmailSignUp} className="space-y-4">
               {error && (
-                <div className="rounded-md bg-red-50 p-3 text-sm text-red-600">{error}</div>
+                <div className="rounded-md bg-red-900/30 p-3 text-sm text-red-400">{error}</div>
               )}
 
               <div className="space-y-2">
-                <Label htmlFor="name">이름</Label>
+                <Label htmlFor="name" className="text-gray-300">
+                  이름
+                </Label>
                 <Input
                   id="name"
                   type="text"
@@ -105,11 +109,14 @@ export default function SignUpPage() {
                   onChange={(e) => setName(e.target.value)}
                   required
                   disabled={isLoading || isGoogleLoading}
+                  className="border-[#333] bg-[#2a2a2a] text-white placeholder:text-gray-500"
                 />
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="email">이메일</Label>
+                <Label htmlFor="email" className="text-gray-300">
+                  이메일
+                </Label>
                 <Input
                   id="email"
                   type="email"
@@ -118,11 +125,14 @@ export default function SignUpPage() {
                   onChange={(e) => setEmail(e.target.value)}
                   required
                   disabled={isLoading || isGoogleLoading}
+                  className="border-[#333] bg-[#2a2a2a] text-white placeholder:text-gray-500"
                 />
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="password">비밀번호</Label>
+                <Label htmlFor="password" className="text-gray-300">
+                  비밀번호
+                </Label>
                 <Input
                   id="password"
                   type="password"
@@ -131,11 +141,14 @@ export default function SignUpPage() {
                   onChange={(e) => setPassword(e.target.value)}
                   required
                   disabled={isLoading || isGoogleLoading}
+                  className="border-[#333] bg-[#2a2a2a] text-white placeholder:text-gray-500"
                 />
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="confirmPassword">비밀번호 확인</Label>
+                <Label htmlFor="confirmPassword" className="text-gray-300">
+                  비밀번호 확인
+                </Label>
                 <Input
                   id="confirmPassword"
                   type="password"
@@ -143,6 +156,7 @@ export default function SignUpPage() {
                   onChange={(e) => setConfirmPassword(e.target.value)}
                   required
                   disabled={isLoading || isGoogleLoading}
+                  className="border-[#333] bg-[#2a2a2a] text-white placeholder:text-gray-500"
                 />
               </div>
 
@@ -156,7 +170,7 @@ export default function SignUpPage() {
               </Button>
             </form>
 
-            <div className="mt-4 text-center text-sm text-gray-600">
+            <div className="mt-4 text-center text-sm text-gray-400">
               이미 계정이 있으신가요?{' '}
               <Link href="/auth/signin" className="text-[#d4af37] hover:underline">
                 로그인

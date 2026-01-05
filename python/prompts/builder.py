@@ -4,7 +4,7 @@
 
 v2.1: locale_strings 모듈로 다국어 문자열 중앙집중화
 """
-from typing import Literal, Optional, Dict, List, Any
+from typing import Literal, Optional, Dict, List, Any, TypedDict
 from dataclasses import dataclass, field
 from datetime import datetime
 
@@ -24,7 +24,14 @@ from .schemas import (
 from .classics_summary import (
     get_ziping_summary,
     get_qiongtong_summary,
-    get_ten_gods_guide
+    get_ten_gods_guide,
+    DAY_MASTER_TRAITS,  # Task 2.2: 일간별 특성
+)
+# Task 2.1: 조후 매트릭스
+from .classics.qiongtong_matrix import (
+    JohuEntry,
+    get_johu_entry,
+    build_johu_prompt,
 )
 # v2.1: 로케일 문자열 중앙집중화
 from .locale_strings import (
@@ -1360,3 +1367,472 @@ Please respond according to the JSON schema.""",
             }
         }
         return schemas.get(step, {})
+
+
+# =============================================================================
+# Task 2: 프롬프트 최적화
+# =============================================================================
+
+# =============================================================================
+# Task 2.1: 동적 고전 선택 시스템
+# =============================================================================
+
+# 2.1.1: 분석 유형별 필요 고전 매핑 테이블
+STEP_CLASSIC_MAP: Dict[str, List[str]] = {
+    'basic': ['ziping_core', 'qiongtong_johu'],      # 격국/용신 + 조후론
+    'personality': ['ten_gods_guide'],               # 십신 해석 가이드
+    'aptitude': ['ziping_core'],                     # 격국/십신 기반 적성
+    'fortune': ['ziping_core', 'qiongtong_johu']     # 재물/연애 = 용신 + 조후
+}
+
+
+# 2.1.3: 일간별 조후 필터링 함수
+def build_filtered_johu_prompt(
+    johu_entry: JohuEntry,
+    language: str
+) -> str:
+    """
+    일간+월령에 해당하는 조후 정보만 추출하여 프롬프트 생성
+    (전체 120개 조합 대신 1개만)
+
+    Args:
+        johu_entry: JohuEntry 객체
+        language: 언어 코드
+
+    Returns:
+        필터링된 조후 프롬프트 문자열
+    """
+    return build_johu_prompt(johu_entry, language)
+
+
+# 2.1.2: 동적 시스템 프롬프트 빌드 함수
+def build_system_prompt_v3(
+    step: Literal['basic', 'personality', 'aptitude', 'fortune'],
+    language: str,
+    day_master: str,
+    month_branch: str
+) -> str:
+    """
+    단계별 동적 고전 선택 시스템 프롬프트 빌드
+
+    Args:
+        step: 분석 단계
+        language: 언어 코드 (ko, en, ja, zh-CN, zh-TW)
+        day_master: 일간 (甲~癸)
+        month_branch: 월지 (寅~丑)
+
+    Returns:
+        최적화된 시스템 프롬프트
+    """
+    parts = []
+
+    # 1. 마스터 프롬프트 (공통)
+    parts.append(MasterPrompt.build(language))
+
+    # 언어 정규화
+    normalized_lang = language if language != 'zh' else 'zh-CN'
+
+    # 2. 단계별 필요 고전만 선택
+    required_classics = STEP_CLASSIC_MAP.get(step, [])
+
+    for classic in required_classics:
+        if classic == 'ziping_core':
+            parts.append("\n\n---\n")
+            parts.append(get_ziping_summary(normalized_lang))
+        elif classic == 'qiongtong_johu':
+            # 일간별 조후 필터링 (해당 월령만)
+            johu_entry = get_johu_entry(day_master, month_branch)
+            if johu_entry:
+                parts.append("\n\n---\n")
+                parts.append(build_filtered_johu_prompt(johu_entry, normalized_lang))
+            else:
+                # 조후 정보가 없으면 일반 요약 사용
+                parts.append("\n\n---\n")
+                parts.append(get_qiongtong_summary(normalized_lang))
+        elif classic == 'ten_gods_guide':
+            parts.append("\n\n---\n")
+            parts.append(get_ten_gods_guide(normalized_lang))
+
+    # 3. 단계별 전문 지시
+    parts.append("\n\n---\n")
+    parts.append(PromptBuilder._get_step_instructions(step, language))
+
+    return "".join(parts)
+
+
+# =============================================================================
+# Task 2.2: 사주 정보 구조화
+# =============================================================================
+
+# 2.2.1: JSON 기반 사주 데이터 포맷 정의
+class DayMasterInfo(TypedDict):
+    """일간 정보"""
+    stem: str           # 甲~癸
+    element: str        # 木火土金水
+    strength: Literal["strong", "weak", "balanced"]
+    symbol: str         # 일간 상징 (예: "큰 나무", "용광로")
+
+
+class TenGodInfo(TypedDict):
+    """십신 정보"""
+    god: str            # 십신 (比肩, 正官 등)
+    meaning: str        # 의미 (예: "특수재능", "책임감")
+    strength: float     # 강도 (0.0 ~ 1.0)
+
+
+class StructuredPillarsData(TypedDict):
+    """구조화된 사주 데이터"""
+    day_master: DayMasterInfo
+    ten_gods: Dict[str, TenGodInfo]  # month, hour 기준
+    formation: Optional[str]          # 격국 후보
+    useful_god: Optional[str]         # 용신 후보
+
+
+# 2.2.2: 일간 심볼 다국어 매핑
+DAY_MASTER_SYMBOLS: Dict[str, Dict[str, str]] = {
+    '甲': {'ko': '큰 나무', 'en': 'Large Tree', 'ja': '大きな木', 'zh-CN': '大树', 'zh-TW': '大樹'},
+    '乙': {'ko': '꽃과 덩굴', 'en': 'Flower and Vine', 'ja': '花と蔓', 'zh-CN': '花草', 'zh-TW': '花草'},
+    '丙': {'ko': '태양', 'en': 'The Sun', 'ja': '太陽', 'zh-CN': '太阳', 'zh-TW': '太陽'},
+    '丁': {'ko': '촛불', 'en': 'Candlelight', 'ja': '蝋燭', 'zh-CN': '蜡烛', 'zh-TW': '蠟燭'},
+    '戊': {'ko': '큰 산', 'en': 'Mountain', 'ja': '大山', 'zh-CN': '大山', 'zh-TW': '大山'},
+    '己': {'ko': '농토', 'en': 'Farmland', 'ja': '田畑', 'zh-CN': '田地', 'zh-TW': '田地'},
+    '庚': {'ko': '쇠칼', 'en': 'Sword', 'ja': '剣', 'zh-CN': '钢刀', 'zh-TW': '鋼刀'},
+    '辛': {'ko': '보석', 'en': 'Jewel', 'ja': '宝石', 'zh-CN': '宝石', 'zh-TW': '寶石'},
+    '壬': {'ko': '큰 바다', 'en': 'Ocean', 'ja': '大海', 'zh-CN': '大海', 'zh-TW': '大海'},
+    '癸': {'ko': '이슬비', 'en': 'Dew', 'ja': '露', 'zh-CN': '露水', 'zh-TW': '露水'}
+}
+
+# 십신 의미 다국어 매핑
+TEN_GOD_MEANINGS: Dict[str, Dict[str, str]] = {
+    '比肩': {'ko': '자립심, 경쟁심', 'en': 'Independence, Competition', 'ja': '自立心、競争心', 'zh-CN': '自立心、竞争心', 'zh-TW': '自立心、競爭心'},
+    '劫財': {'ko': '추진력, 결단력', 'en': 'Drive, Decisiveness', 'ja': '推進力、決断力', 'zh-CN': '推动力、决断力', 'zh-TW': '推動力、決斷力'},
+    '食神': {'ko': '창의력, 여유', 'en': 'Creativity, Ease', 'ja': '創造力、余裕', 'zh-CN': '创造力、从容', 'zh-TW': '創造力、從容'},
+    '傷官': {'ko': '표현력, 재능', 'en': 'Expression, Talent', 'ja': '表現力、才能', 'zh-CN': '表达力、才华', 'zh-TW': '表達力、才華'},
+    '正財': {'ko': '안정, 근면', 'en': 'Stability, Diligence', 'ja': '安定、勤勉', 'zh-CN': '稳定、勤勉', 'zh-TW': '穩定、勤勉'},
+    '偏財': {'ko': '사업수완, 융통성', 'en': 'Business Acumen, Flexibility', 'ja': '商才、融通性', 'zh-CN': '商才、灵活性', 'zh-TW': '商才、靈活性'},
+    '正官': {'ko': '책임감, 명예', 'en': 'Responsibility, Honor', 'ja': '責任感、名誉', 'zh-CN': '责任感、名誉', 'zh-TW': '責任感、名譽'},
+    '偏官': {'ko': '권위, 결단', 'en': 'Authority, Decision', 'ja': '権威、決断', 'zh-CN': '权威、决断', 'zh-TW': '權威、決斷'},
+    '正印': {'ko': '학문, 보호', 'en': 'Learning, Protection', 'ja': '学問、保護', 'zh-CN': '学问、保护', 'zh-TW': '學問、保護'},
+    '偏印': {'ko': '특수재능, 독창성', 'en': 'Special Talent, Originality', 'ja': '特殊才能、独創性', 'zh-CN': '特殊才能、独创性', 'zh-TW': '特殊才能、獨創性'},
+}
+
+# 오행 매핑
+STEM_TO_ELEMENT: Dict[str, str] = {
+    '甲': '木', '乙': '木',
+    '丙': '火', '丁': '火',
+    '戊': '土', '己': '土',
+    '庚': '金', '辛': '金',
+    '壬': '水', '癸': '水'
+}
+
+
+def structure_pillars_data(
+    pillars: Dict[str, Any],
+    ten_god_counts: Dict[str, float],
+    formation: Optional[Dict[str, Any]],
+    language: str
+) -> StructuredPillarsData:
+    """
+    사주 원시 데이터를 구조화된 JSON 형태로 변환
+
+    Args:
+        pillars: 기존 사주 데이터
+        ten_god_counts: 십신 분포
+        formation: 격국 정보 (Task 3.2)
+        language: 언어 코드
+
+    Returns:
+        StructuredPillarsData
+    """
+    # 언어 정규화
+    lang = language if language != 'zh' else 'zh-CN'
+
+    # 일간 정보 추출
+    day_stem = pillars.get('day', {}).get('stem', '?')
+    element = STEM_TO_ELEMENT.get(day_stem, '?')
+
+    # 일간 강약 판단 (십신 분포 기반)
+    supporting = ten_god_counts.get('比肩', 0) + ten_god_counts.get('劫財', 0) + \
+                 ten_god_counts.get('正印', 0) + ten_god_counts.get('偏印', 0)
+    draining = ten_god_counts.get('食神', 0) + ten_god_counts.get('傷官', 0) + \
+               ten_god_counts.get('正財', 0) + ten_god_counts.get('偏財', 0) + \
+               ten_god_counts.get('正官', 0) + ten_god_counts.get('偏官', 0)
+
+    if supporting > draining + 1.5:
+        strength = "strong"
+    elif draining > supporting + 1.5:
+        strength = "weak"
+    else:
+        strength = "balanced"
+
+    # 일간 심볼
+    symbol = DAY_MASTER_SYMBOLS.get(day_stem, {}).get(lang, day_stem)
+
+    day_master_info: DayMasterInfo = {
+        'stem': day_stem,
+        'element': element,
+        'strength': strength,
+        'symbol': symbol
+    }
+
+    # 십신 정보 (월간/시간 기준)
+    ten_gods_info: Dict[str, TenGodInfo] = {}
+
+    # 가장 강한 십신들 추출
+    sorted_gods = sorted(ten_god_counts.items(), key=lambda x: x[1], reverse=True)
+    for i, (god, count) in enumerate(sorted_gods[:3]):  # 상위 3개
+        meaning = TEN_GOD_MEANINGS.get(god, {}).get(lang, god)
+        ten_gods_info[f"top_{i+1}"] = {
+            'god': god,
+            'meaning': meaning,
+            'strength': min(count / 3.0, 1.0)  # 정규화
+        }
+
+    # 격국 정보
+    formation_type = None
+    useful_god = None
+    if formation:
+        formation_type = formation.get('formation_type')
+        # 용신은 별도 로직 필요 (여기선 기본값)
+
+    return {
+        'day_master': day_master_info,
+        'ten_gods': ten_gods_info,
+        'formation': formation_type,
+        'useful_god': useful_god
+    }
+
+
+# 2.2.3: 격국 후보 자동 추출 로직
+def extract_formation_candidates(
+    pillars: Dict[str, Any],
+    ten_god_counts: Dict[str, float]
+) -> List[str]:
+    """
+    십신 분포 기반 격국 후보 추출
+
+    Args:
+        pillars: 사주 데이터
+        ten_god_counts: 십신 분포
+
+    Returns:
+        격국 후보 리스트 (예: ['정관격', '편인격'])
+    """
+    candidates = []
+
+    # 십신별 격국 매핑
+    god_to_formation = {
+        '正官': '정관격',
+        '偏官': '편관격',
+        '正印': '정인격',
+        '偏印': '편인격',
+        '食神': '식신격',
+        '傷官': '상관격',
+        '正財': '정재격',
+        '偏財': '편재격',
+        '比肩': '건록격',
+        '劫財': '양인격',
+    }
+
+    # 강한 십신 순으로 격국 후보 추출
+    sorted_gods = sorted(ten_god_counts.items(), key=lambda x: x[1], reverse=True)
+
+    for god, count in sorted_gods:
+        if count >= 1.0:  # 충분히 강한 십신만
+            formation = god_to_formation.get(god)
+            if formation and formation not in candidates:
+                candidates.append(formation)
+                if len(candidates) >= 3:  # 최대 3개
+                    break
+
+    return candidates
+
+
+# =============================================================================
+# Task 2.3: 조후 가능성 분석
+# =============================================================================
+
+@dataclass
+class JohuFeasibility:
+    """조후 가능성 분석 결과"""
+    required_element: str       # 필요 오행 (예: "癸水")
+    available: bool             # 사주 내 존재 여부
+    strength_level: int         # 강도 (1-10)
+    positions: List[str]        # 위치 (예: ["月", "寅宮"])
+    urgency: Literal["high", "medium", "low"]  # 긴급도
+    daewun_supplement: Optional[str]  # 대운에서 보충 가능성
+
+
+# 오행 이름 매핑
+ELEMENT_NAMES: Dict[str, str] = {
+    '木': '木', '火': '火', '土': '土', '金': '金', '水': '水'
+}
+
+
+def get_element(stem: str) -> str:
+    """천간에서 오행 추출"""
+    return STEM_TO_ELEMENT.get(stem, '')
+
+
+def get_element_name(element: str) -> str:
+    """오행 이름 반환"""
+    return ELEMENT_NAMES.get(element, element)
+
+
+# 2.3.1: 조후 가능성 분석 함수
+def analyze_johu_feasibility(
+    pillars: Dict[str, Any],
+    daewun: List[Dict[str, Any]],
+    day_master: str,
+    month_branch: str,
+    current_age: int
+) -> JohuFeasibility:
+    """
+    조후 필요 오행의 사주 내 존재 여부 및 보충 가능성 분석
+
+    Args:
+        pillars: 사주 팔자
+        daewun: 대운 리스트
+        day_master: 일간
+        month_branch: 월지
+        current_age: 현재 나이
+
+    Returns:
+        JohuFeasibility 객체
+    """
+    # 1. 궁통보감에서 조후 필요 오행 조회
+    johu_entry = get_johu_entry(day_master, month_branch)
+
+    if not johu_entry:
+        # 조후 정보가 없는 경우 기본값 반환
+        return JohuFeasibility(
+            required_element="정보없음",
+            available=False,
+            strength_level=0,
+            positions=[],
+            urgency="low",
+            daewun_supplement=None
+        )
+
+    required = johu_entry.primary_god  # 예: '丙'
+    required_element = get_element(required)
+
+    # 2.3.2: 필요 오행의 유무/강도/위치 계산
+    positions = []
+    strength = 0
+
+    pillar_names = {
+        'year': {'ko': '年', 'en': 'Year'},
+        'month': {'ko': '月', 'en': 'Month'},
+        'day': {'ko': '日', 'en': 'Day'},
+        'hour': {'ko': '時', 'en': 'Hour'},
+    }
+
+    for pillar_name, pillar in pillars.items():
+        if not isinstance(pillar, dict):
+            continue
+
+        stem = pillar.get('stem', '')
+        branch = pillar.get('branch', '')
+        name_ko = pillar_names.get(pillar_name, {}).get('ko', pillar_name)
+
+        # 천간에서 필요 오행 확인
+        if get_element(stem) == required_element:
+            positions.append(f"{name_ko}干")
+            strength += 3  # 천간은 강도 3
+            if stem == required:
+                strength += 1  # 정확히 일치하면 추가 점수
+
+        # 지지에서 필요 오행 확인 (지장간 고려)
+        branch_element = _get_branch_main_element(branch)
+        if branch_element == required_element:
+            positions.append(f"{name_ko}支")
+            strength += 2  # 지지는 강도 2
+
+    # 강도 제한 (1-10)
+    strength = max(1, min(strength, 10))
+
+    # 2.3.3: 대운에서 조후 보충 가능성 분석
+    daewun_supplement = None
+    for dw in daewun or []:
+        start_age = dw.get('start_age', 0)
+        if start_age <= current_age + 10:  # 향후 10년 내
+            dw_stem = dw.get('stem', '')
+            dw_branch = dw.get('branch', '')
+            if get_element(dw_stem) == required_element:
+                daewun_supplement = f"{dw_stem}{dw_branch} (나이 {start_age}세)"
+                break
+
+    # 긴급도 결정
+    if strength < 3:
+        urgency = "high"
+    elif strength < 6:
+        urgency = "medium"
+    else:
+        urgency = "low"
+
+    return JohuFeasibility(
+        required_element=f"{required}{required_element}",
+        available=len(positions) > 0,
+        strength_level=strength,
+        positions=positions,
+        urgency=urgency,
+        daewun_supplement=daewun_supplement
+    )
+
+
+def _get_branch_main_element(branch: str) -> str:
+    """지지의 주요 오행 반환 (정기 기준)"""
+    branch_elements = {
+        '寅': '木', '卯': '木',
+        '巳': '火', '午': '火',
+        '辰': '土', '戌': '土', '丑': '土', '未': '土',
+        '申': '金', '酉': '金',
+        '亥': '水', '子': '水',
+    }
+    return branch_elements.get(branch, '')
+
+
+# 조후 분석 결과를 프롬프트로 포맷팅
+def format_johu_feasibility(
+    feasibility: JohuFeasibility,
+    language: str = 'ko'
+) -> str:
+    """
+    조후 가능성 분석 결과를 프롬프트용 문자열로 포맷팅
+
+    Args:
+        feasibility: JohuFeasibility 객체
+        language: 언어 코드
+
+    Returns:
+        포맷팅된 문자열
+    """
+    if language == 'en':
+        urgency_map = {'high': 'High', 'medium': 'Medium', 'low': 'Low'}
+        available_str = "Yes" if feasibility.available else "No"
+        lines = [
+            "## Climate Balance Analysis (調候)",
+            f"- Required Element: {feasibility.required_element}",
+            f"- Available in Chart: {available_str}",
+            f"- Strength Level: {feasibility.strength_level}/10",
+            f"- Positions: {', '.join(feasibility.positions) if feasibility.positions else 'None'}",
+            f"- Urgency: {urgency_map.get(feasibility.urgency, feasibility.urgency)}",
+        ]
+        if feasibility.daewun_supplement:
+            lines.append(f"- Luck Cycle Support: {feasibility.daewun_supplement}")
+    else:
+        urgency_map = {'high': '높음', 'medium': '보통', 'low': '낮음'}
+        available_str = "있음" if feasibility.available else "없음"
+        lines = [
+            "## 조후(調候) 분석",
+            f"- 필요 오행: {feasibility.required_element}",
+            f"- 사주 내 존재: {available_str}",
+            f"- 강도: {feasibility.strength_level}/10",
+            f"- 위치: {', '.join(feasibility.positions) if feasibility.positions else '없음'}",
+            f"- 긴급도: {urgency_map.get(feasibility.urgency, feasibility.urgency)}",
+        ]
+        if feasibility.daewun_supplement:
+            lines.append(f"- 대운 보충: {feasibility.daewun_supplement}")
+
+    return "\n".join(lines)

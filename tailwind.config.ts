@@ -58,7 +58,16 @@ const config: Config = {
   			water: '#1e3a8a',
   			/* 브랜드 색상 */
   			gold: '#d4af37',
-  			ink: '#1a1a1a'
+  			ink: '#1a1a1a',
+  			/* 다크 테마 색상 계층 */
+  			dark: {
+  				page: '#0a0a0a',      // L0: 페이지 배경
+  				section: '#111111',   // L1: 섹션 배경
+  				card: '#1a1a1a',      // L2: 카드 배경
+  				hover: '#242424',     // L3: 호버/강조
+  				input: '#2a2a2a',     // L4: 입력 필드
+  				border: '#333333',    // 구분선/테두리
+  			}
   		},
   		borderRadius: {
   			lg: 'var(--radius)',

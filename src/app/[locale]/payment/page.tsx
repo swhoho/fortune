@@ -1,9 +1,9 @@
 'use client';
 
 /**
- * 결제 페이지
- * PRD 섹션 5.6 참고
- * Stripe Checkout (pre-built UI) 사용
+ * Payment Page
+ * PRD Section 5.6
+ * Uses Stripe Checkout (pre-built UI)
  */
 import { useState } from 'react';
 import { motion } from 'framer-motion';
@@ -12,8 +12,13 @@ import { useOnboardingStore } from '@/stores/onboarding-store';
 import { FocusAreaLabel } from '@/types/saju';
 import { CREDIT_PACKAGES, SERVICE_CREDITS } from '@/lib/stripe';
 import type { CreditPackage } from '@/lib/stripe';
+import {
+  HeroSection,
+  PillarsSection,
+  SocialProofSection,
+} from '@/components/payment/PaymentSections';
 
-/** 분석 포함 내용 */
+/** Analysis Includes */
 const analysisIncludes = [
   '평생 총운 분석',
   '성격 및 기질 분석',
@@ -24,7 +29,7 @@ const analysisIncludes = [
   '건강 및 수명',
 ];
 
-export default function PaymentPage() {
+export default function PaymentPage({ params: { locale } }: { params: { locale: string } }) {
   const { focusArea, question } = useOnboardingStore();
   const [selectedPackage, setSelectedPackage] = useState<CreditPackage | null>(
     CREDIT_PACKAGES.find((p) => p.popular) || null
@@ -79,172 +84,163 @@ export default function PaymentPage() {
   };
 
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center px-6 py-24">
-      {/* 메인 콘텐츠 */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
-        className="w-full max-w-2xl"
-      >
-        {/* 타이틀 */}
-        <h2 className="mb-2 text-center font-serif text-2xl font-bold text-[#1a1a1a] md:text-3xl">
-          결제하기
-        </h2>
-        <p className="mb-8 text-center text-gray-500">크레딧을 충전하고 분석을 시작하세요</p>
+    <div className="flex min-h-screen flex-col bg-[#0a0a0a]">
+      {/* 1. Hero Content */}
+      <HeroSection currentLocale={locale} />
 
-        {/* 서비스 요약 카드 - 분석 플로우에서만 표시 */}
-        {focusArea && (
+      {/* 2. Evidence (5 Pillars) */}
+      <PillarsSection currentLocale={locale} />
+
+      {/* 3. Social Proof */}
+      <SocialProofSection currentLocale={locale} />
+
+      {/* 4. Payment Action */}
+      <div className="relative px-6 py-24">
+        {/* Background Gradient for Package Section */}
+        <div className="absolute inset-0 z-0 bg-gradient-to-t from-[#0a0a0a] via-[#1a1a1a]/50 to-[#0a0a0a]" />
+
+        <div className="relative z-10 mx-auto max-w-5xl">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2 }}
-            className="mb-8 rounded-xl border border-[#d4af37]/30 bg-white p-6 shadow-md"
+            transition={{ duration: 0.5 }}
           >
-            <div className="mb-4 flex items-center justify-between">
-              <h3 className="text-lg font-semibold text-[#1a1a1a]">전체 사주 분석</h3>
-              <span className="rounded-full bg-[#d4af37]/10 px-3 py-1 text-sm font-medium text-[#d4af37]">
-                {requiredCredits} Credits
-              </span>
-            </div>
+            {/* 타이틀 */}
+            <h2 className="mb-12 text-center font-serif text-3xl font-bold text-white">
+              Start Your Analysis
+            </h2>
 
-            <div className="mb-4 rounded-lg bg-gray-50 p-3">
-              <p className="text-sm text-gray-600">
-                집중 분석 영역:{' '}
-                <span className="font-medium text-[#1a1a1a]">{FocusAreaLabel[focusArea]}</span>
-              </p>
-              {question && (
-                <p className="mt-1 text-sm text-gray-500">
-                  고민: {question.slice(0, 50)}
-                  {question.length > 50 && '...'}
-                </p>
-              )}
-            </div>
+            <div className="grid gap-12 lg:grid-cols-2">
+              {/* Left Column: Service Summary */}
+              <div>
+                {focusArea ? (
+                  <div className="h-full rounded-2xl border border-[#d4af37]/30 bg-[#1a1a1a]/80 p-8 backdrop-blur-sm">
+                    <div className="mb-6 flex items-center justify-between">
+                      <h3 className="text-xl font-semibold text-white">전체 사주 분석</h3>
+                      <span className="rounded-full bg-[#d4af37]/10 px-4 py-1.5 text-sm font-bold text-[#d4af37]">
+                        {requiredCredits} Credits
+                      </span>
+                    </div>
 
-            <div className="space-y-2">
-              <p className="text-sm font-medium text-gray-600">포함 내용:</p>
-              <div className="grid grid-cols-2 gap-1 text-sm text-gray-500">
-                {analysisIncludes.map((item) => (
-                  <div key={item} className="flex items-center gap-1">
-                    <span className="text-[#d4af37]">✓</span>
-                    <span>{item}</span>
+                    <div className="mb-8 rounded-xl bg-[#242424]/50 p-4">
+                      <p className="flex items-center gap-2 text-sm text-gray-300">
+                        <span className="text-[#d4af37]">●</span>
+                        집중 분석 영역:{' '}
+                        <span className="font-semibold text-white">
+                          {FocusAreaLabel[focusArea]}
+                        </span>
+                      </p>
+                      {question && (
+                        <p className="mt-3 border-t border-white/5 pt-3 text-sm text-gray-400 italic">
+                          &quot;{question.slice(0, 80)}{question.length > 80 && '...'}&quot;
+                        </p>
+                      )}
+                    </div>
+
+                    <div className="space-y-4">
+                      <p className="text-sm font-medium uppercase tracking-widest text-gray-400">
+                        Included in Report
+                      </p>
+                      <div className="space-y-3">
+                        {analysisIncludes.map((item) => (
+                          <div key={item} className="flex items-center gap-3 text-gray-300">
+                            <div className="flex h-5 w-5 items-center justify-center rounded-full bg-[#d4af37]/20">
+                              <span className="text-xs text-[#d4af37]">✓</span>
+                            </div>
+                            <span>{item}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
                   </div>
-                ))}
-              </div>
-            </div>
-          </motion.div>
-        )}
-
-        {/* 크레딧 패키지 선택 */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.3 }}
-          className="mb-8"
-        >
-          <h3 className="mb-4 text-lg font-semibold text-[#1a1a1a]">크레딧 충전</h3>
-          <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
-            {CREDIT_PACKAGES.map((pkg, index) => (
-              <motion.button
-                key={pkg.id}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.4 + index * 0.1 }}
-                onClick={() => setSelectedPackage(pkg)}
-                className={`relative rounded-xl border-2 p-4 text-center transition-all hover:shadow-lg ${
-                  selectedPackage?.id === pkg.id
-                    ? 'border-[#d4af37] bg-[#d4af37]/5 shadow-lg'
-                    : 'border-gray-200 bg-white hover:border-[#d4af37]/50'
-                }`}
-              >
-                {pkg.popular && (
-                  <span className="absolute -top-2 left-1/2 -translate-x-1/2 rounded-full bg-[#d4af37] px-2 py-0.5 text-xs font-medium text-white">
-                    인기
-                  </span>
+                ) : (
+                  // Fallback if no focus area (direct access)
+                  <div className="flex h-full flex-col justify-center rounded-2xl border border-white/5 bg-[#1a1a1a] p-8 text-center text-gray-400">
+                    <p>Select a credit package to recharge.</p>
+                  </div>
                 )}
-                <p className="mb-1 text-2xl font-bold text-[#1a1a1a]">
-                  {pkg.credits}C
-                  {pkg.bonus && (
-                    <span className="ml-1 text-sm font-normal text-[#d4af37]">+{pkg.bonus}</span>
+              </div>
+
+              {/* Right Column: Packages & Checkout */}
+              <div className="flex flex-col">
+                <div className="mb-8 grid grid-cols-2 gap-4">
+                  {CREDIT_PACKAGES.map((pkg) => (
+                    <motion.button
+                      key={pkg.id}
+                      onClick={() => setSelectedPackage(pkg)}
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                      className={`relative flex flex-col justify-between rounded-xl border-2 p-5 text-left transition-all ${selectedPackage?.id === pkg.id
+                        ? 'border-[#d4af37] bg-[#d4af37]/10 shadow-[0_0_20px_rgba(212,175,55,0.2)]'
+                        : 'border-[#333] bg-[#1a1a1a] hover:border-[#d4af37]/50'
+                        }`}
+                    >
+                      {pkg.popular && (
+                        <span className="absolute -top-3 right-4 rounded-full bg-[#d4af37] px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-black">
+                          Popular
+                        </span>
+                      )}
+                      <div>
+                        <p className="mb-1 text-2xl font-bold text-white">{pkg.credits}C</p>
+                        {pkg.bonus && (
+                          <p className="text-xs font-medium text-[#d4af37]">+{pkg.bonus} Bonus</p>
+                        )}
+                      </div>
+                      <div className="mt-4 border-t border-white/10 pt-3">
+                        <p className="text-lg font-medium text-gray-300">
+                          ${(pkg.price / 100).toFixed(2)}
+                        </p>
+                      </div>
+                    </motion.button>
+                  ))}
+                </div>
+
+                {/* Summary & CTA */}
+                <div className="mt-auto rounded-xl border border-white/5 bg-[#1a1a1a] p-6">
+                  {selectedPackage ? (
+                    <>
+                      <div className="mb-4 flex items-center justify-between text-sm">
+                        <span className="text-gray-400">Total Credits</span>
+                        <span className="text-lg font-bold text-[#d4af37]">
+                          {selectedPackage.credits + (selectedPackage.bonus || 0)} C
+                        </span>
+                      </div>
+                      <div className="mb-6 flex items-center justify-between border-t border-white/10 pt-4">
+                        <span className="text-gray-300">Total Price</span>
+                        <span className="text-2xl font-bold text-white">
+                          ${(selectedPackage.price / 100).toFixed(2)}
+                        </span>
+                      </div>
+
+                      {error && (
+                        <div className="mb-4 rounded-lg bg-red-900/20 p-3 text-center text-sm text-red-400">
+                          {error}
+                        </div>
+                      )}
+
+                      <Button
+                        onClick={handleCheckout}
+                        disabled={isLoading}
+                        size="lg"
+                        className="w-full bg-gradient-to-r from-[#d4af37] to-[#b08d2b] py-6 text-lg font-bold text-black hover:from-[#e5bd43] hover:to-[#c19a2e] disabled:opacity-50"
+                      >
+                        {isLoading ? 'Processing...' : 'Secure Checkout'}
+                      </Button>
+                      <p className="mt-3 text-center text-xs text-gray-500">
+                        Powered by Stripe • Secure Encryption
+                      </p>
+                    </>
+                  ) : (
+                    <div className="py-4 text-center text-gray-500">
+                      Select a package to continue
+                    </div>
                   )}
-                </p>
-                <p className="text-lg font-medium text-gray-600">${(pkg.price / 100).toFixed(2)}</p>
-                {pkg.bonus && (
-                  <p className="mt-1 text-xs text-[#d4af37]">
-                    {Math.round((pkg.bonus / (pkg.credits + pkg.bonus)) * 100)}% 보너스
-                  </p>
-                )}
-              </motion.button>
-            ))}
-          </div>
-        </motion.div>
-
-        {/* 결제 요약 */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.6 }}
-          className="mb-8 rounded-xl bg-gray-50 p-4"
-        >
-          {/* 분석 플로우에서만 필요 크레딧 표시 */}
-          {focusArea && (
-            <div className="mb-2 flex items-center justify-between text-sm">
-              <span className="text-gray-500">필요 크레딧</span>
-              <span className="font-medium text-gray-700">{requiredCredits}C</span>
-            </div>
-          )}
-          {selectedPackage && (
-            <>
-              <div className="mb-2 flex items-center justify-between text-sm">
-                <span className="text-gray-500">충전 크레딧</span>
-                <span className="font-medium text-[#d4af37]">
-                  +{selectedPackage.credits + (selectedPackage.bonus || 0)}C
-                </span>
-              </div>
-              <div className="border-t border-gray-200 pt-2">
-                <div className="flex items-center justify-between">
-                  <span className="font-medium text-gray-700">결제 금액</span>
-                  <span className="text-xl font-bold text-[#1a1a1a]">
-                    ${(selectedPackage.price / 100).toFixed(2)}
-                  </span>
                 </div>
               </div>
-            </>
-          )}
-        </motion.div>
-
-        {/* 에러 메시지 */}
-        {error && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            className="mb-4 rounded-lg bg-red-50 p-4 text-center text-sm text-red-600"
-          >
-            {error}
+            </div>
           </motion.div>
-        )}
-
-        {/* CTA */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.7 }}
-          className="flex flex-col items-center"
-        >
-          <Button
-            onClick={handleCheckout}
-            disabled={!selectedPackage || isLoading}
-            size="lg"
-            className="w-full max-w-md bg-gradient-to-r from-[#d4af37] to-[#c19a2e] py-6 text-lg font-semibold text-white shadow-lg transition-all hover:scale-[1.02] hover:shadow-xl disabled:opacity-50 disabled:hover:scale-100"
-          >
-            {isLoading ? '처리 중...' : '결제하기'}
-          </Button>
-          <p className="mt-4 flex items-center gap-2 text-center text-sm text-gray-400">
-            <span>🔒</span>
-            <span>안전한 결제 (Stripe 보안)</span>
-          </p>
-        </motion.div>
-      </motion.div>
+        </div>
+      </div>
     </div>
   );
 }

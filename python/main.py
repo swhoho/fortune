@@ -139,7 +139,7 @@ async def build_prompt(request: PromptBuildRequest) -> PromptBuildResponse:
 @app.post("/api/prompts/step", response_model=PromptBuildResponse)
 async def build_step_prompt(request: StepPromptRequest) -> PromptBuildResponse:
     """
-    멀티스텝 파이프라인용 단계별 프롬프트 빌드 (Task 8)
+    멀티스텝 파이프라인용 단계별 프롬프트 빌드 (Task 8, v3.0)
 
     4단계 분석 파이프라인:
     - **basic**: 기본 분석 (일간, 격국, 용신)
@@ -154,19 +154,30 @@ async def build_step_prompt(request: StepPromptRequest) -> PromptBuildResponse:
     - **daewun**: 대운 목록 (선택)
     - **jijanggan**: 지장간 데이터 (선택)
     - **previousResults**: 이전 단계 결과 (컨텍스트용)
+    - **tenGodCounts**: v3.0 십신 분포 (선택)
+    - **interactions**: v3.0 지지 상호작용 (선택)
+    - **sinsals**: v3.0 신살 목록 (선택)
+    - **formation**: v3.0 격국 분석 결과 (선택)
+    - **currentAge**: v3.0 현재 나이 (선택)
 
     Returns:
         시스템 프롬프트, 사용자 프롬프트, 출력 스키마, 메타데이터
     """
     try:
-        # 프롬프트 빌드
+        # 프롬프트 빌드 (v3.0 컨텍스트 포함)
         result = PromptBuilder.build_step(
             step=request.step,
             pillars=request.pillars,
             language=request.language,
             daewun=request.daewun,
             jijanggan=request.jijanggan,
-            previous_results=request.previousResults
+            previous_results=request.previousResults,
+            # v3.0: 분석 컨텍스트 전달
+            ten_god_counts=request.tenGodCounts,
+            interactions=request.interactions,
+            sinsals=request.sinsals,
+            formation=request.formation,
+            current_age=request.currentAge,
         )
 
         # 메타데이터 구성

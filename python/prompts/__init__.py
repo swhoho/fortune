@@ -8,6 +8,20 @@ from .builder import (
     PromptBuildRequest,
     PromptBuildResponse,
     YearlyPromptBuildRequest,
+    # Task 2: 프롬프트 최적화
+    STEP_CLASSIC_MAP,
+    build_system_prompt_v3,
+    build_filtered_johu_prompt,
+    DayMasterInfo,
+    TenGodInfo,
+    StructuredPillarsData,
+    DAY_MASTER_SYMBOLS,
+    TEN_GOD_MEANINGS,
+    structure_pillars_data,
+    extract_formation_candidates,
+    JohuFeasibility,
+    analyze_johu_feasibility,
+    format_johu_feasibility,
 )
 from .schemas import (
     OUTPUT_JSON_SCHEMA,
@@ -54,6 +68,20 @@ __all__ = [
     "get_day_master_traits",
     "get_day_master_johu",
     "build_multistep_prompt",
+    # Task 2: 프롬프트 최적화
+    "STEP_CLASSIC_MAP",
+    "build_system_prompt_v3",
+    "build_filtered_johu_prompt",
+    "DayMasterInfo",
+    "TenGodInfo",
+    "StructuredPillarsData",
+    "DAY_MASTER_SYMBOLS",
+    "TEN_GOD_MEANINGS",
+    "structure_pillars_data",
+    "extract_formation_candidates",
+    "JohuFeasibility",
+    "analyze_johu_feasibility",
+    "format_johu_feasibility",
 ]
 
-__version__ = "1.2.0"
+__version__ = "1.3.0"  # Task 2 프롬프트 최적화

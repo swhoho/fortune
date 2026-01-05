@@ -19,6 +19,8 @@ import type {
   JijangganData,
   StepPromptResponse,
 } from '../types';
+import { extractTenGods } from '../../score/ten-gods';
+import type { TenGodCounts } from '../../score/types';
 import type {
   PipelineStep,
   PipelineOptions,
@@ -354,6 +356,16 @@ export class AnalysisPipeline {
   ): Promise<string> {
     const { manseryeok, basicAnalysis } = this.context.intermediateResults;
 
+    // v3.0: 십신 분포 계산 (personality, aptitude, fortune 단계)
+    let tenGodCounts: TenGodCounts | undefined;
+    if (step !== 'basic' && manseryeok?.pillars && manseryeok?.jijanggan) {
+      try {
+        tenGodCounts = extractTenGods(manseryeok.pillars, manseryeok.jijanggan);
+      } catch (e) {
+        console.warn('[AnalysisPipeline] 십신 추출 실패:', e);
+      }
+    }
+
     try {
       const response = await fetch(`${this.context.pythonApiUrl}/api/prompts/step`, {
         method: 'POST',
@@ -365,6 +377,8 @@ export class AnalysisPipeline {
           daewun: manseryeok?.daewun,
           jijanggan: manseryeok?.jijanggan,
           previousResults: step !== 'basic' ? { basicAnalysis } : undefined,
+          // v3.0: 십신 분포 전달
+          tenGodCounts: tenGodCounts,
         }),
       });
 

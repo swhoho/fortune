@@ -165,7 +165,7 @@ export default function ProfileDetailPage({ params }: PageProps) {
   // 로딩 상태
   if (isLoading || !id) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-[#f8f8f8]">
+      <div className="flex min-h-screen items-center justify-center bg-[#0a0a0a]">
         <Loader2 className="h-8 w-8 animate-spin text-[#d4af37]" />
       </div>
     );
@@ -174,9 +174,13 @@ export default function ProfileDetailPage({ params }: PageProps) {
   // 프로필 없음
   if (!profile) {
     return (
-      <div className="flex min-h-screen flex-col items-center justify-center bg-[#f8f8f8]">
-        <p className="mb-4 text-gray-500">프로필을 찾을 수 없습니다.</p>
-        <Button asChild variant="outline">
+      <div className="flex min-h-screen flex-col items-center justify-center bg-[#0a0a0a]">
+        <p className="mb-4 text-gray-400">프로필을 찾을 수 없습니다.</p>
+        <Button
+          asChild
+          variant="outline"
+          className="border-[#333] bg-[#1a1a1a] text-white hover:bg-[#242424]"
+        >
           <Link href="/profiles">목록으로 돌아가기</Link>
         </Button>
       </div>
@@ -184,18 +188,16 @@ export default function ProfileDetailPage({ params }: PageProps) {
   }
 
   return (
-    <div className="min-h-screen bg-[#f8f8f8]">
+    <div className="min-h-screen bg-[#0a0a0a]">
       {/* 헤더 */}
-      <header className="sticky top-0 z-10 border-b border-gray-100 bg-white/80 backdrop-blur-sm">
+      <header className="sticky top-0 z-10 border-b border-[#333] bg-[#111111]/90 backdrop-blur-sm">
         <div className="mx-auto flex max-w-2xl items-center justify-between px-6 py-4">
-          <Button variant="ghost" size="icon" asChild>
+          <Button variant="ghost" size="icon" asChild className="text-white hover:bg-[#242424]">
             <Link href="/profiles">
               <ArrowLeft className="h-5 w-5" />
             </Link>
           </Button>
-          <h1 className="font-serif text-lg font-semibold text-[#1a1a1a]">
-            {t('pageTitle.detail')}
-          </h1>
+          <h1 className="font-serif text-lg font-semibold text-white">{t('pageTitle.detail')}</h1>
           <div className="w-10" /> {/* 균형을 위한 빈 공간 */}
         </div>
       </header>

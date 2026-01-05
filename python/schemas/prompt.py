@@ -90,7 +90,7 @@ class PromptBuildResponse(BaseModel):
 
 
 class StepPromptRequest(BaseModel):
-    """멀티스텝 파이프라인용 단계별 프롬프트 요청 (Task 8)"""
+    """멀티스텝 파이프라인용 단계별 프롬프트 요청 (Task 8, v3.0)"""
     step: Literal['basic', 'personality', 'aptitude', 'fortune'] = Field(
         ..., description="분석 단계"
     )
@@ -102,6 +102,22 @@ class StepPromptRequest(BaseModel):
     jijanggan: Optional[Dict[str, List[str]]] = Field(None, description="지장간 데이터")
     previousResults: Optional[Dict[str, Any]] = Field(
         None, description="이전 단계 결과 (컨텍스트)"
+    )
+    # v3.0: 분석 컨텍스트 추가
+    tenGodCounts: Optional[Dict[str, float]] = Field(
+        None, description="십신 분포 (extractTenGods 결과)"
+    )
+    interactions: Optional[List[Dict[str, Any]]] = Field(
+        None, description="지지 상호작용 (합/충/형/파/해)"
+    )
+    sinsals: Optional[List[Dict[str, Any]]] = Field(
+        None, description="신살 목록"
+    )
+    formation: Optional[Dict[str, Any]] = Field(
+        None, description="격국 분석 결과"
+    )
+    currentAge: Optional[int] = Field(
+        None, description="현재 나이 (대운 하이라이트용)"
     )
 
     class Config:

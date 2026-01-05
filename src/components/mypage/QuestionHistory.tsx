@@ -48,12 +48,12 @@ function QuestionCard({
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: index * 0.05 }}
-      className="overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm"
+      className="overflow-hidden rounded-2xl bg-[#1a1a1a]"
     >
       {/* 헤더 */}
       <button
         onClick={() => setIsExpanded(!isExpanded)}
-        className="flex w-full items-start justify-between p-5 text-left transition-colors hover:bg-gray-50"
+        className="flex w-full items-start justify-between p-5 text-left transition-colors hover:bg-[#242424]"
       >
         <div className="flex items-start gap-3">
           <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-[#d4af37]/10 to-[#d4af37]/5">
@@ -61,17 +61,17 @@ function QuestionCard({
           </div>
           <div className="min-w-0 flex-1">
             <div className="mb-1 flex items-center gap-2">
-              <span className="rounded-full bg-gray-100 px-2 py-0.5 text-xs text-gray-500">
+              <span className="rounded-full bg-[#242424] px-2 py-0.5 text-xs text-gray-400">
                 {question.profileName}
               </span>
-              <span className="text-xs text-gray-400">
+              <span className="text-xs text-gray-500">
                 {formatRelativeTime(question.createdAt)}
               </span>
             </div>
-            <p className="line-clamp-2 font-medium text-[#1a1a1a]">{question.question}</p>
+            <p className="line-clamp-2 font-medium text-white">{question.question}</p>
           </div>
         </div>
-        <div className="ml-3 flex-shrink-0 text-gray-400">
+        <div className="ml-3 flex-shrink-0 text-gray-500">
           {isExpanded ? <ChevronUp className="h-5 w-5" /> : <ChevronDown className="h-5 w-5" />}
         </div>
       </button>
@@ -82,14 +82,19 @@ function QuestionCard({
           initial={{ opacity: 0, height: 0 }}
           animate={{ opacity: 1, height: 'auto' }}
           exit={{ opacity: 0, height: 0 }}
-          className="border-t border-gray-100 bg-gradient-to-br from-[#f8f6f0] to-white px-5 py-4"
+          className="border-t border-[#333] bg-[#242424] px-5 py-4"
         >
           <p className="mb-3 text-xs font-medium text-[#d4af37]">AI 답변</p>
-          <p className="whitespace-pre-wrap text-sm leading-relaxed text-gray-700">
+          <p className="whitespace-pre-wrap text-sm leading-relaxed text-gray-300">
             {question.answer}
           </p>
           <div className="mt-4 flex justify-end">
-            <Button asChild variant="outline" size="sm">
+            <Button
+              asChild
+              variant="outline"
+              size="sm"
+              className="border-[#333] bg-[#1a1a1a] text-white hover:bg-[#2a2a2a]"
+            >
               <Link href={`/profiles/${question.profileId}/report`}>리포트 보기</Link>
             </Button>
           </div>
@@ -105,13 +110,13 @@ function EmptyState() {
     <motion.div
       initial={{ opacity: 0, scale: 0.95 }}
       animate={{ opacity: 1, scale: 1 }}
-      className="flex flex-col items-center rounded-2xl border-2 border-dashed border-gray-200 bg-gradient-to-br from-gray-50 to-white px-8 py-16 text-center"
+      className="flex flex-col items-center rounded-2xl border-2 border-dashed border-[#333] bg-[#1a1a1a] px-8 py-16 text-center"
     >
       <div className="mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-gradient-to-br from-[#d4af37]/10 to-[#d4af37]/5">
         <MessageCircle className="h-10 w-10 text-[#d4af37]" />
       </div>
-      <h3 className="mb-2 font-serif text-xl font-semibold text-[#1a1a1a]">아직 질문이 없습니다</h3>
-      <p className="mb-6 max-w-md text-gray-500">
+      <h3 className="mb-2 font-serif text-xl font-semibold text-white">아직 질문이 없습니다</h3>
+      <p className="mb-6 max-w-md text-gray-400">
         프로필 리포트에서 AI에게 추가 질문을 해보세요.
         <br />더 깊이 있는 사주 분석을 받아볼 수 있습니다.
       </p>
@@ -127,15 +132,15 @@ function LoadingSkeleton() {
   return (
     <div className="space-y-4">
       {[1, 2, 3].map((i) => (
-        <div key={i} className="animate-pulse rounded-2xl border border-gray-100 bg-white p-5">
+        <div key={i} className="animate-pulse rounded-2xl bg-[#1a1a1a] p-5">
           <div className="flex items-start gap-3">
-            <div className="h-10 w-10 rounded-xl bg-gray-200" />
+            <div className="h-10 w-10 rounded-xl bg-[#242424]" />
             <div className="flex-1">
               <div className="mb-2 flex gap-2">
-                <div className="h-5 w-16 rounded-full bg-gray-200" />
-                <div className="h-5 w-12 rounded bg-gray-200" />
+                <div className="h-5 w-16 rounded-full bg-[#242424]" />
+                <div className="h-5 w-12 rounded bg-[#242424]" />
               </div>
-              <div className="h-5 w-3/4 rounded bg-gray-200" />
+              <div className="h-5 w-3/4 rounded bg-[#242424]" />
             </div>
           </div>
         </div>
@@ -156,11 +161,11 @@ export function QuestionHistory() {
         className="mb-6 flex items-center justify-between"
       >
         <div>
-          <h2 className="font-serif text-xl font-bold text-[#1a1a1a]">질문 기록</h2>
-          <p className="mt-1 text-sm text-gray-500">AI에게 했던 추가 질문과 답변을 확인하세요</p>
+          <h2 className="font-serif text-xl font-bold text-white">질문 기록</h2>
+          <p className="mt-1 text-sm text-gray-400">AI에게 했던 추가 질문과 답변을 확인하세요</p>
         </div>
         {questions && questions.length > 0 && (
-          <span className="rounded-full bg-[#1a1a1a]/5 px-3 py-1 text-sm font-medium text-gray-600">
+          <span className="rounded-full bg-[#242424] px-3 py-1 text-sm font-medium text-gray-400">
             총 {questions.length}개
           </span>
         )}

@@ -128,11 +128,11 @@ interface MypageSidebarProps {
 export function MypageSidebar({ profile, activeTab, onTabChange }: MypageSidebarProps) {
   return (
     <aside className="w-full shrink-0 md:w-64">
-      {/* 프로필 카드 - 한지 질감 배경 */}
+      {/* 프로필 카드 - 다크 테마 */}
       <motion.div
         initial={{ opacity: 0, x: -20 }}
         animate={{ opacity: 1, x: 0 }}
-        className="relative mb-6 overflow-hidden rounded-2xl border border-[#d4af37]/20 bg-gradient-to-br from-white via-[#fefdfb] to-[#f8f6f0] p-6 shadow-lg"
+        className="relative mb-6 overflow-hidden rounded-2xl border border-[#d4af37]/20 bg-[#1a1a1a] p-6"
       >
         {/* 장식적 요소 - 우측 상단 금색 원 */}
         <div className="absolute -right-8 -top-8 h-24 w-24 rounded-full bg-gradient-to-br from-[#d4af37]/10 to-transparent" />
@@ -144,16 +144,16 @@ export function MypageSidebar({ profile, activeTab, onTabChange }: MypageSidebar
             {profile?.name?.charAt(0) || profile?.email?.charAt(0)?.toUpperCase() || '?'}
           </div>
           <div className="min-w-0 flex-1">
-            <p className="truncate font-serif text-lg font-semibold text-[#1a1a1a]">
+            <p className="truncate font-serif text-lg font-semibold text-white">
               {profile?.name || '사용자'}
             </p>
-            <p className="truncate text-sm text-gray-500">{profile?.email}</p>
+            <p className="truncate text-sm text-gray-400">{profile?.email}</p>
           </div>
         </div>
 
         {/* 크레딧 표시 */}
-        <div className="relative flex items-center justify-between rounded-xl bg-[#1a1a1a]/5 px-4 py-3">
-          <span className="text-sm text-gray-600">보유 크레딧</span>
+        <div className="relative flex items-center justify-between rounded-xl bg-[#242424] px-4 py-3">
+          <span className="text-sm text-gray-400">보유 크레딧</span>
           <div className="flex items-baseline gap-1">
             <span className="font-serif text-2xl font-bold text-[#d4af37]">
               {profile?.credits || 0}
@@ -184,7 +184,7 @@ export function MypageSidebar({ profile, activeTab, onTabChange }: MypageSidebar
         initial={{ opacity: 0, x: -20 }}
         animate={{ opacity: 1, x: 0 }}
         transition={{ delay: 0.1 }}
-        className="rounded-2xl border border-gray-100 bg-white p-2 shadow-sm"
+        className="rounded-2xl bg-[#1a1a1a] p-2"
       >
         <ul className="space-y-1">
           {TAB_MENU.map((item, index) => (
@@ -200,7 +200,7 @@ export function MypageSidebar({ profile, activeTab, onTabChange }: MypageSidebar
                   'group flex w-full items-center gap-3 rounded-xl px-4 py-3 text-left transition-all',
                   activeTab === item.id
                     ? 'bg-gradient-to-r from-[#d4af37]/10 to-[#d4af37]/5 text-[#d4af37]'
-                    : 'text-gray-600 hover:bg-gray-50 hover:text-[#1a1a1a]'
+                    : 'text-gray-400 hover:bg-[#242424] hover:text-white'
                 )}
               >
                 <span
@@ -208,7 +208,7 @@ export function MypageSidebar({ profile, activeTab, onTabChange }: MypageSidebar
                     'transition-colors',
                     activeTab === item.id
                       ? 'text-[#d4af37]'
-                      : 'text-gray-400 group-hover:text-gray-600'
+                      : 'text-gray-500 group-hover:text-gray-300'
                   )}
                 >
                   {item.icon}
@@ -229,13 +229,13 @@ export function MypageSidebar({ profile, activeTab, onTabChange }: MypageSidebar
             initial={{ opacity: 0, x: -10 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 0.35 }}
-            className="border-t border-gray-100 pt-2"
+            className="border-t border-[#333] pt-2"
           >
             <Link
               href="/profiles"
-              className="group flex w-full items-center gap-3 rounded-xl px-4 py-3 text-left text-gray-600 transition-all hover:bg-gray-50 hover:text-[#1a1a1a]"
+              className="group flex w-full items-center gap-3 rounded-xl px-4 py-3 text-left text-gray-400 transition-all hover:bg-[#242424] hover:text-white"
             >
-              <span className="text-gray-400 transition-colors group-hover:text-gray-600">
+              <span className="text-gray-500 transition-colors group-hover:text-gray-300">
                 <svg
                   className="h-5 w-5"
                   fill="none"
@@ -252,7 +252,7 @@ export function MypageSidebar({ profile, activeTab, onTabChange }: MypageSidebar
               </span>
               <span className="font-medium">프로필 관리</span>
               <svg
-                className="ml-auto h-4 w-4 text-gray-400"
+                className="ml-auto h-4 w-4 text-gray-500"
                 fill="none"
                 viewBox="0 0 24 24"
                 stroke="currentColor"
@@ -276,9 +276,9 @@ export function MypageSidebar({ profile, activeTab, onTabChange }: MypageSidebar
                 await supabase.auth.signOut();
                 window.location.href = '/';
               }}
-              className="group flex w-full items-center gap-3 rounded-xl px-4 py-3 text-left text-gray-600 transition-all hover:bg-red-50 hover:text-red-500"
+              className="group flex w-full items-center gap-3 rounded-xl px-4 py-3 text-left text-gray-400 transition-all hover:bg-red-900/30 hover:text-red-400"
             >
-              <span className="text-gray-400 transition-colors group-hover:text-red-500">
+              <span className="text-gray-500 transition-colors group-hover:text-red-400">
                 <svg
                   className="h-5 w-5"
                   fill="none"

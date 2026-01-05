@@ -51,21 +51,21 @@ function ProfileCard({ profile, index }: { profile: ProfileResponse; index: numb
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: index * 0.05 }}
-      className="group relative overflow-hidden rounded-2xl border border-gray-100 bg-white p-5 shadow-sm transition-all hover:border-[#d4af37]/30 hover:shadow-md"
+      className="group relative overflow-hidden rounded-2xl bg-[#1a1a1a] p-5 transition-all hover:bg-[#242424]"
     >
       {/* 장식적 배경 요소 */}
-      <div className="absolute -right-12 -top-12 h-32 w-32 rounded-full bg-gradient-to-br from-[#d4af37]/5 to-transparent opacity-0 transition-opacity group-hover:opacity-100" />
+      <div className="absolute -right-12 -top-12 h-32 w-32 rounded-full bg-gradient-to-br from-[#d4af37]/10 to-transparent opacity-0 transition-opacity group-hover:opacity-100" />
 
       {/* 헤더 */}
       <div className="mb-4 flex items-start justify-between">
         <div className="flex items-center gap-3">
           {/* 프로필 아이콘 */}
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-[#f8f6f0] to-[#f0ebe0] text-lg">
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#242424] text-lg">
             {profile.gender === 'male' ? '👤' : '👩'}
           </div>
           <div>
-            <p className="text-xs text-gray-400">{formatRelativeTime(profile.createdAt)}</p>
-            <h3 className="font-serif font-semibold text-[#1a1a1a]">{profile.name}</h3>
+            <p className="text-xs text-gray-500">{formatRelativeTime(profile.createdAt)}</p>
+            <h3 className="font-serif font-semibold text-white">{profile.name}</h3>
           </div>
         </div>
         <span className="rounded-full bg-[#d4af37]/10 px-2.5 py-1 text-xs font-medium text-[#d4af37]">
@@ -75,14 +75,14 @@ function ProfileCard({ profile, index }: { profile: ProfileResponse; index: numb
 
       {/* 정보 */}
       <div className="mb-4 flex flex-wrap gap-2">
-        <span className="inline-flex items-center rounded-lg bg-gray-100 px-2.5 py-1 text-xs text-gray-600">
+        <span className="inline-flex items-center rounded-lg bg-[#242424] px-2.5 py-1 text-xs text-gray-400">
           {formatDate(profile.birthDate)}
         </span>
-        <span className="inline-flex items-center rounded-lg bg-gray-100 px-2.5 py-1 text-xs text-gray-600">
+        <span className="inline-flex items-center rounded-lg bg-[#242424] px-2.5 py-1 text-xs text-gray-400">
           {age}세
         </span>
         {profile.birthTime && (
-          <span className="inline-flex items-center rounded-lg bg-gray-100 px-2.5 py-1 text-xs text-gray-600">
+          <span className="inline-flex items-center rounded-lg bg-[#242424] px-2.5 py-1 text-xs text-gray-400">
             {profile.birthTime}
           </span>
         )}
@@ -151,7 +151,7 @@ function EmptyState() {
     <motion.div
       initial={{ opacity: 0, scale: 0.95 }}
       animate={{ opacity: 1, scale: 1 }}
-      className="flex flex-col items-center rounded-2xl border-2 border-dashed border-gray-200 bg-gradient-to-br from-gray-50 to-white px-8 py-16 text-center"
+      className="flex flex-col items-center rounded-2xl border-2 border-dashed border-[#333] bg-[#1a1a1a] px-8 py-16 text-center"
     >
       {/* 장식적 아이콘 */}
       <div className="mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-gradient-to-br from-[#d4af37]/10 to-[#d4af37]/5">
@@ -169,10 +169,8 @@ function EmptyState() {
           />
         </svg>
       </div>
-      <h3 className="mb-2 font-serif text-xl font-semibold text-[#1a1a1a]">
-        등록된 프로필이 없습니다
-      </h3>
-      <p className="mb-6 text-gray-500">프로필을 등록하고 사주 리포트를 생성해보세요</p>
+      <h3 className="mb-2 font-serif text-xl font-semibold text-white">등록된 프로필이 없습니다</h3>
+      <p className="mb-6 text-gray-400">프로필을 등록하고 사주 리포트를 생성해보세요</p>
       <Button
         asChild
         className="bg-gradient-to-r from-[#d4af37] to-[#c19a2e] px-6 py-3 text-white shadow-md hover:shadow-lg"
@@ -199,24 +197,24 @@ function LoadingSkeleton() {
   return (
     <div className="grid gap-4 md:grid-cols-2">
       {[1, 2, 3, 4].map((i) => (
-        <div key={i} className="animate-pulse rounded-2xl border border-gray-100 bg-white p-5">
+        <div key={i} className="animate-pulse rounded-2xl bg-[#1a1a1a] p-5">
           <div className="mb-4 flex items-start justify-between">
             <div className="flex items-center gap-3">
-              <div className="h-10 w-10 rounded-xl bg-gray-200" />
+              <div className="h-10 w-10 rounded-xl bg-[#242424]" />
               <div>
-                <div className="mb-1 h-3 w-12 rounded bg-gray-200" />
-                <div className="h-4 w-24 rounded bg-gray-200" />
+                <div className="mb-1 h-3 w-12 rounded bg-[#242424]" />
+                <div className="h-4 w-24 rounded bg-[#242424]" />
               </div>
             </div>
-            <div className="h-6 w-10 rounded-full bg-gray-200" />
+            <div className="h-6 w-10 rounded-full bg-[#242424]" />
           </div>
           <div className="mb-4 flex gap-2">
-            <div className="h-6 w-24 rounded-lg bg-gray-200" />
-            <div className="h-6 w-12 rounded-lg bg-gray-200" />
+            <div className="h-6 w-24 rounded-lg bg-[#242424]" />
+            <div className="h-6 w-12 rounded-lg bg-[#242424]" />
           </div>
           <div className="flex gap-2">
-            <div className="h-9 flex-1 rounded-lg bg-gray-200" />
-            <div className="h-9 flex-1 rounded-lg bg-gray-200" />
+            <div className="h-9 flex-1 rounded-lg bg-[#242424]" />
+            <div className="h-9 flex-1 rounded-lg bg-[#242424]" />
           </div>
         </div>
       ))}
@@ -236,15 +234,20 @@ export function AnalysisHistory() {
         className="mb-6 flex items-center justify-between"
       >
         <div>
-          <h2 className="font-serif text-xl font-bold text-[#1a1a1a]">프로필 리포트</h2>
-          <p className="mt-1 text-sm text-gray-500">등록된 프로필과 사주 리포트를 확인하세요</p>
+          <h2 className="font-serif text-xl font-bold text-white">프로필 리포트</h2>
+          <p className="mt-1 text-sm text-gray-400">등록된 프로필과 사주 리포트를 확인하세요</p>
         </div>
         {profiles && profiles.length > 0 && (
           <div className="flex items-center gap-3">
-            <span className="rounded-full bg-[#1a1a1a]/5 px-3 py-1 text-sm font-medium text-gray-600">
+            <span className="rounded-full bg-[#242424] px-3 py-1 text-sm font-medium text-gray-400">
               총 {profiles.length}명
             </span>
-            <Button asChild size="sm" variant="outline">
+            <Button
+              asChild
+              size="sm"
+              variant="outline"
+              className="border-[#333] bg-[#1a1a1a] text-white hover:bg-[#242424]"
+            >
               <Link href="/profiles/new">+ 프로필 추가</Link>
             </Button>
           </div>

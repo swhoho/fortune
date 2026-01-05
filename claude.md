@@ -50,6 +50,13 @@ src/
 python/
 ├── manseryeok/             # 만세력 엔진
 ├── prompts/                # AI 프롬프트
+│   ├── classics/           # 고전 명리학 모듈
+│   │   ├── qiongtong_matrix.py  # 조후 매트릭스 (10일간×12월)
+│   │   ├── qiongtong.py         # 궁통보감 프롬프트
+│   │   ├── ziping.py            # 자평진전 프롬프트
+│   │   └── ziping_yongsin.py    # 용신 5원칙 (10격국×3강약)
+│   └── western/            # 서구권 현대화 프레임워크
+│       └── destiny_code.py      # The Destiny Code (십신×강약 조언, 대운 분석)
 └── visualization/          # 이미지 생성
 ```
 
@@ -232,5 +239,5 @@ cd python && pytest  # Python
 
 ---
 
-**Version**: 1.26.0
-**Last Updated**: 2026-01-04 (v2.0 후속 질문 기능 추가, 크레딧 RPC 원자적 차감)
+**Version**: 1.27.0
+**Last Updated**: 2026-01-05 (Task 4.3 The Destiny Code 현대화 프레임워크 완료)

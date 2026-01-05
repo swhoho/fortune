@@ -115,13 +115,13 @@ export function CreditHistory() {
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="rounded-2xl border border-gray-100 bg-white p-8 text-center shadow-sm"
+        className="rounded-2xl bg-[#1a1a1a] p-8 text-center"
       >
-        <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-gray-100">
-          <ArrowUpCircle className="h-8 w-8 text-gray-400" />
+        <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-[#242424]">
+          <ArrowUpCircle className="h-8 w-8 text-gray-500" />
         </div>
-        <h3 className="mb-2 font-serif text-lg font-semibold text-[#1a1a1a]">기록이 없습니다</h3>
-        <p className="text-gray-500">크레딧 충전 및 사용 기록이 여기에 표시됩니다</p>
+        <h3 className="mb-2 font-serif text-lg font-semibold text-white">기록이 없습니다</h3>
+        <p className="text-gray-400">크레딧 충전 및 사용 기록이 여기에 표시됩니다</p>
       </motion.div>
     );
   }
@@ -133,35 +133,35 @@ export function CreditHistory() {
       className="space-y-4"
     >
       <div className="mb-6">
-        <h2 className="font-serif text-xl font-bold text-[#1a1a1a]">크레딧 기록</h2>
-        <p className="mt-1 text-sm text-gray-500">충전 및 사용 내역을 확인하세요</p>
+        <h2 className="font-serif text-xl font-bold text-white">크레딧 기록</h2>
+        <p className="mt-1 text-sm text-gray-400">충전 및 사용 내역을 확인하세요</p>
       </div>
 
       {/* 통계 요약 */}
       <div className="grid gap-4 sm:grid-cols-2">
-        <div className="rounded-xl border border-green-100 bg-green-50 p-4">
+        <div className="rounded-xl bg-green-900/30 p-4">
           <div className="flex items-center gap-2">
-            <ArrowUpCircle className="h-5 w-5 text-green-600" />
-            <span className="text-sm text-green-700">총 충전</span>
+            <ArrowUpCircle className="h-5 w-5 text-green-400" />
+            <span className="text-sm text-green-400">총 충전</span>
           </div>
-          <p className="mt-2 text-2xl font-bold text-green-700">
+          <p className="mt-2 text-2xl font-bold text-green-400">
             {purchases.reduce((sum, p) => sum + p.credits, 0)}C
           </p>
         </div>
-        <div className="rounded-xl border border-red-100 bg-red-50 p-4">
+        <div className="rounded-xl bg-red-900/30 p-4">
           <div className="flex items-center gap-2">
-            <ArrowDownCircle className="h-5 w-5 text-red-600" />
-            <span className="text-sm text-red-700">총 사용</span>
+            <ArrowDownCircle className="h-5 w-5 text-red-400" />
+            <span className="text-sm text-red-400">총 사용</span>
           </div>
-          <p className="mt-2 text-2xl font-bold text-red-700">
+          <p className="mt-2 text-2xl font-bold text-red-400">
             {usageLogs.reduce((sum, u) => sum + u.credits_used, 0)}C
           </p>
         </div>
       </div>
 
       {/* 기록 목록 */}
-      <div className="rounded-2xl border border-gray-100 bg-white shadow-sm">
-        <div className="divide-y divide-gray-100">
+      <div className="rounded-2xl bg-[#1a1a1a]">
+        <div className="divide-y divide-[#333]">
           {historyItems.map((item, index) => (
             <motion.div
               key={item.id}
@@ -174,17 +174,17 @@ export function CreditHistory() {
                 <div
                   className={cn(
                     'flex h-8 w-8 items-center justify-center rounded-full',
-                    item.type === 'charge' ? 'bg-green-100' : 'bg-red-100'
+                    item.type === 'charge' ? 'bg-green-900/30' : 'bg-red-900/30'
                   )}
                 >
                   {item.type === 'charge' ? (
-                    <ArrowUpCircle className="h-4 w-4 text-green-600" />
+                    <ArrowUpCircle className="h-4 w-4 text-green-400" />
                   ) : (
-                    <ArrowDownCircle className="h-4 w-4 text-red-600" />
+                    <ArrowDownCircle className="h-4 w-4 text-red-400" />
                   )}
                 </div>
                 <div>
-                  <p className="font-medium text-[#1a1a1a]">{item.description}</p>
+                  <p className="font-medium text-white">{item.description}</p>
                   <p className="text-xs text-gray-500">
                     {format(new Date(item.createdAt), 'yyyy.MM.dd HH:mm', { locale: ko })}
                   </p>
@@ -193,7 +193,7 @@ export function CreditHistory() {
               <span
                 className={cn(
                   'font-semibold',
-                  item.type === 'charge' ? 'text-green-600' : 'text-red-600'
+                  item.type === 'charge' ? 'text-green-400' : 'text-red-400'
                 )}
               >
                 {item.type === 'charge' ? '+' : '-'}

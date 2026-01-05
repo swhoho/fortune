@@ -167,6 +167,63 @@ Stripe 웹훅 (checkout.session.completed 처리)
 
 ---
 
+## Python 프롬프트 모듈 API
+
+### prompts.western (The Destiny Code)
+
+서구권 BaZi 현대화 프레임워크
+
+```python
+from prompts.western import (
+    TEN_GODS_MAPPING,           # 십신 다국어 매핑
+    FIVE_FACTORS_MAPPING,       # 오행 다국어 매핑
+    get_destiny_advice,         # 십신별 조언 조회
+    get_ten_god_name,           # 십신 이름 변환
+    build_luck_cycle_prompt,    # 대운 프롬프트 생성
+    build_destiny_code_analysis_prompt,  # 분석 프롬프트 생성
+)
+```
+
+#### `get_destiny_advice(ten_god, strength, language) -> Dict`
+
+십신과 강약에 따른 조언 조회
+
+| 파라미터 | 타입 | 설명 |
+|----------|------|------|
+| ten_god | str | 십신 키 (정관, 편관, 정재, 식신 등) |
+| strength | str | `"strong"` \| `"weak"` \| `"balanced"` |
+| language | str | `"ko"` \| `"en"` \| `"ja"` \| `"zh-CN"` \| `"zh-TW"` |
+
+**반환값**: `{ ten_god, career_advice, relationship_advice, action_items, avoid_items, insight }`
+
+```python
+advice = get_destiny_advice('정관', 'strong', 'en')
+# {'ten_god': 'Direct Officer', 'career_advice': 'Structured organizations with...', ...}
+```
+
+#### `build_luck_cycle_prompt(cycle_type, stem, branch, interaction, is_favorable, language) -> str`
+
+대운/세운 분석 프롬프트 생성
+
+| 파라미터 | 타입 | 설명 |
+|----------|------|------|
+| cycle_type | str | `"daewun"` \| `"year"` \| `"month"` |
+| stem | str | 천간 (甲~癸) |
+| branch | str | 지지 (寅~丑) |
+| interaction | str | 상호작용 유형 (합/충/형/해/파) |
+| is_favorable | bool | True=용신운, False=기신운 |
+| language | str | 언어 코드 |
+
+**반환값**: 마크다운 형식 프롬프트 문자열
+
+#### `build_destiny_code_analysis_prompt(ten_god, strength, language) -> str`
+
+십신 분석 전체 프롬프트 생성
+
+**반환값**: 마크다운 형식 분석 결과 문자열
+
+---
+
 ## v1.x → v2.0 API 마이그레이션
 
 v2.0에서 `analyses` 테이블 기반 API가 `profiles` + `profile_reports` 테이블 기반으로 전환되었습니다.

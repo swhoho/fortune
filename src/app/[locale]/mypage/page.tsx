@@ -23,14 +23,14 @@ function LoadingSkeleton() {
   return (
     <div className="flex min-h-screen flex-col px-6 py-24 md:flex-row md:gap-8">
       <div className="w-full animate-pulse md:w-64">
-        <div className="mb-6 h-48 rounded-2xl bg-gray-200" />
-        <div className="h-56 rounded-2xl bg-gray-200" />
+        <div className="mb-6 h-48 rounded-2xl bg-[#1a1a1a]" />
+        <div className="h-56 rounded-2xl bg-[#1a1a1a]" />
       </div>
       <div className="mt-8 flex-1 md:mt-0">
-        <div className="mb-6 h-12 w-48 rounded-lg bg-gray-200" />
+        <div className="mb-6 h-12 w-48 rounded-lg bg-[#1a1a1a]" />
         <div className="grid gap-4 md:grid-cols-2">
-          <div className="h-40 rounded-2xl bg-gray-200" />
-          <div className="h-40 rounded-2xl bg-gray-200" />
+          <div className="h-40 rounded-2xl bg-[#1a1a1a]" />
+          <div className="h-40 rounded-2xl bg-[#1a1a1a]" />
         </div>
       </div>
     </div>
@@ -42,9 +42,9 @@ function ErrorState() {
   return (
     <div className="flex min-h-screen flex-col items-center justify-center px-6 py-24">
       <div className="text-center">
-        <div className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-red-100">
+        <div className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-red-900/30">
           <svg
-            className="h-10 w-10 text-red-500"
+            className="h-10 w-10 text-red-400"
             fill="none"
             viewBox="0 0 24 24"
             stroke="currentColor"
@@ -57,10 +57,10 @@ function ErrorState() {
             />
           </svg>
         </div>
-        <h2 className="mb-2 font-serif text-xl font-semibold text-[#1a1a1a]">
+        <h2 className="mb-2 font-serif text-xl font-semibold text-white">
           계정 정보를 불러오는데 실패했습니다
         </h2>
-        <p className="mb-6 text-gray-500">잠시 후 다시 시도해주세요</p>
+        <p className="mb-6 text-gray-400">잠시 후 다시 시도해주세요</p>
         <button
           onClick={() => window.location.reload()}
           className="rounded-xl bg-gradient-to-r from-[#d4af37] to-[#c19a2e] px-6 py-3 font-medium text-white shadow-md transition-all hover:shadow-lg"
@@ -100,7 +100,7 @@ export default function MyPage() {
   // 로딩 상태
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-[#f8f8f8] via-[#fefdfb] to-[#f8f6f0]">
+      <div className="min-h-screen bg-[#0a0a0a]">
         <div className="mx-auto max-w-6xl">
           <LoadingSkeleton />
         </div>
@@ -111,18 +111,18 @@ export default function MyPage() {
   // 에러 상태
   if (error) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-[#f8f8f8] via-[#fefdfb] to-[#f8f6f0]">
+      <div className="min-h-screen bg-[#0a0a0a]">
         <ErrorState />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#f8f8f8] via-[#fefdfb] to-[#f8f6f0]">
+    <div className="min-h-screen bg-[#0a0a0a]">
       {/* 장식적 배경 요소 */}
       <div className="pointer-events-none fixed inset-0 overflow-hidden">
-        <div className="absolute -right-40 -top-40 h-96 w-96 rounded-full bg-gradient-to-br from-[#d4af37]/5 to-transparent blur-3xl" />
-        <div className="absolute -bottom-40 -left-40 h-96 w-96 rounded-full bg-gradient-to-tr from-[#d4af37]/5 to-transparent blur-3xl" />
+        <div className="absolute -right-40 -top-40 h-96 w-96 rounded-full bg-gradient-to-br from-[#d4af37]/10 to-transparent blur-3xl" />
+        <div className="absolute -bottom-40 -left-40 h-96 w-96 rounded-full bg-gradient-to-tr from-[#d4af37]/10 to-transparent blur-3xl" />
       </div>
 
       <div className="relative mx-auto max-w-6xl px-6 py-24">
@@ -132,8 +132,8 @@ export default function MyPage() {
           animate={{ opacity: 1, y: 0 }}
           className="mb-8"
         >
-          <h1 className="font-serif text-2xl font-bold text-[#1a1a1a] md:text-3xl">마이페이지</h1>
-          <p className="mt-2 text-gray-500">분석 기록과 계정 설정을 관리하세요</p>
+          <h1 className="font-serif text-2xl font-bold text-white md:text-3xl">마이페이지</h1>
+          <p className="mt-2 text-gray-400">분석 기록과 계정 설정을 관리하세요</p>
         </motion.div>
 
         {/* 메인 레이아웃 */}

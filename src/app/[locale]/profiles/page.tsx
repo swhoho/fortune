@@ -28,17 +28,17 @@ export default function ProfilesPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#f8f8f8]">
+    <div className="min-h-screen bg-[#0a0a0a]">
       {/* 헤더 */}
-      <header className="sticky top-0 z-10 border-b border-gray-100 bg-white/80 backdrop-blur-sm">
+      <header className="sticky top-0 z-10 border-b border-[#333] bg-[#111111]/90 backdrop-blur-sm">
         <div className="mx-auto flex max-w-2xl items-center justify-between px-6 py-4">
-          <Button variant="ghost" size="icon" asChild>
+          <Button variant="ghost" size="icon" asChild className="text-white hover:bg-[#242424]">
             <Link href="/home">
               <ArrowLeft className="h-5 w-5" />
             </Link>
           </Button>
-          <h1 className="font-serif text-lg font-semibold text-[#1a1a1a]">{t('pageTitle.list')}</h1>
-          <Button variant="ghost" size="icon" asChild>
+          <h1 className="font-serif text-lg font-semibold text-white">{t('pageTitle.list')}</h1>
+          <Button variant="ghost" size="icon" asChild className="text-white hover:bg-[#242424]">
             <Link href="/profiles/new">
               <Plus className="h-5 w-5" />
             </Link>

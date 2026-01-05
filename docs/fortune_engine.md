@@ -602,6 +602,170 @@ build_multistep_prompt(step: str, language: str, day_master: str, season: str) -
 | v1.1 | 2026-01-02 | 후속 질문 프롬프트 추가 (Task 16) | - |
 | v1.2 | 2026-01-03 | 멀티스텝용 classics_summary.py 추가 (Task 7) | - |
 | v1.3 | 2026-01-03 | 성격/적성/재물·연애 프롬프트 5개 언어 (Task 9-11) | - |
+| v1.4 | 2026-01-05 | 궁통보감 조후 매트릭스 완성 (Task 4.1) | - |
+
+---
+
+## 조후 분석 시스템 (Task 4.1)
+
+궁통보감(窮通寶鑑) 기반 10일간 × 12월 = 120개 조후 용신 데이터.
+
+### 파일 구조
+
+```
+python/prompts/classics/
+├── __init__.py          # 모듈 export
+├── qiongtong.py         # 기존 프롬프트
+├── qiongtong_matrix.py  # 조후 매트릭스 (120개) ← 신규
+└── ziping.py            # 자평진전
+```
+
+### JohuEntry 데이터 구조
+
+```python
+@dataclass
+class JohuEntry:
+    day_master: str      # 일간 (甲~癸)
+    month: str           # 월지 (寅~丑)
+    primary_god: str     # 1순위 용신
+    secondary_god: str   # 2순위 용신
+    condition: Dict[str, str]  # 조건 (ko/en/ja/zh-CN/zh-TW)
+    outcome: Dict[str, str]    # 결과/효과
+    warning: Dict[str, str]    # 주의사항
+    original: str              # 원문 (한자)
+```
+
+### 사용 예시
+
+```python
+from prompts.classics import get_johu_entry, build_johu_prompt
+
+# 개별 조후 조회
+entry = get_johu_entry("甲", "寅")
+print(entry.primary_god)      # "丙"
+print(entry.condition["ko"])  # "초봄 한기가 남아있어 調候(조후)가 급선무"
+
+# 프롬프트 생성
+prompt = build_johu_prompt("甲", "寅", language="ko")
+```
+
+### 지원 언어
+
+| 코드 | 언어 | 특징 |
+|------|------|------|
+| `ko` | 한국어 | 한자(읽기) 형태 (예: 丙(병)火) |
+| `en` | 영어 | 로마자 표기 |
+| `ja` | 일본어 | 한자 + 히라가나 |
+| `zh-CN` | 중국어 간체 | 원문 기반 |
+| `zh-TW` | 중국어 번체 | 원문 기반 |
+
+---
+
+## The Destiny Code 프레임워크 (Task 4.3)
+
+Joey Yap의 "BaZi - The Destiny Code" 기반 서구권 적합 현대적 BaZi 프레임워크.
+
+### 파일 구조
+
+```
+python/prompts/western/
+├── __init__.py          # 모듈 export
+└── destiny_code.py      # The Destiny Code 프레임워크
+```
+
+### 핵심 컴포넌트
+
+#### 1. 십신 다국어 매핑 (`TEN_GODS_MAPPING`)
+
+```python
+TEN_GODS_MAPPING = {
+    "비견": {"ko": "비견(比肩)", "en": "Friend", "ja": "比肩（ひけん）", ...},
+    "겁재": {"ko": "겁재(劫財)", "en": "Rob Wealth", ...},
+    "식신": {"ko": "식신(食神)", "en": "Eating God", ...},
+    "상관": {"ko": "상관(傷官)", "en": "Hurting Officer", ...},
+    "정재": {"ko": "정재(正財)", "en": "Direct Wealth", ...},
+    "편재": {"ko": "편재(偏財)", "en": "Indirect Wealth", ...},
+    "정관": {"ko": "정관(正官)", "en": "Direct Officer", ...},
+    "편관": {"ko": "편관(偏官)", "en": "Seven Killings", ...},
+    "정인": {"ko": "정인(正印)", "en": "Direct Resource", ...},
+    "편인": {"ko": "편인(偏印)", "en": "Indirect Resource", ...},
+}
+```
+
+#### 2. DestinyAdvice 데이터클래스
+
+```python
+@dataclass
+class DestinyAdvice:
+    ten_god: str                           # 십신
+    strength: Literal["strong", "weak", "balanced"]
+    career_advice: Dict[str, str]          # 직업 조언 (5개 언어)
+    relationship_advice: Dict[str, str]    # 관계 조언
+    action_items: Dict[str, List[str]]     # 실천 항목
+    avoid_items: Dict[str, List[str]]      # 피해야 할 것
+    insight: Dict[str, str]                # 핵심 통찰
+```
+
+#### 3. LuckCycleEntry 프레임워크
+
+```python
+@dataclass
+class LuckCycleEntry:
+    cycle_type: Literal["daewun", "year", "month"]  # 대운/세운/월운
+    pillar_stem: str                         # 천간
+    pillar_branch: str                       # 지지
+    interaction_with_chart: str              # 상호작용 유형
+    theme: Dict[str, str]                    # 주제 (5개 언어)
+    opportunities: Dict[str, List[str]]      # 기회
+    challenges: Dict[str, List[str]]         # 도전
+    action_advice: Dict[str, str]            # 실천 조언
+    timing_quality: Literal["excellent", "good", "neutral", "challenging", "difficult"]
+```
+
+### 헬퍼 함수
+
+```python
+from prompts.western import (
+    get_destiny_advice,
+    build_luck_cycle_prompt,
+    build_destiny_code_analysis_prompt
+)
+
+# 십신별 조언 조회
+advice = get_destiny_advice('정관', 'strong', 'ko')
+print(advice['career_advice'])  # "체계적인 조직에서 승진 경로가..."
+
+# 대운 프롬프트 생성
+prompt = build_luck_cycle_prompt('daewun', '甲', '子', '충', True, 'ko')
+
+# 분석 프롬프트 생성
+analysis = build_destiny_code_analysis_prompt('정관', 'strong', 'en')
+```
+
+### 지원 십신 × 강약
+
+| 십신 | strong | weak | balanced |
+|------|--------|------|----------|
+| 정관 | ✅ | ✅ | ✅ |
+| 편관 | ✅ | ✅ | ✅ |
+| 정재 | ✅ | ✅ | ✅ |
+| 식신 | ✅ | ✅ | ✅ |
+
+(추후 나머지 십신 확장 예정)
+
+### 대운 상호작용 유형
+
+| 유형 | 설명 |
+|------|------|
+| 합(合) | 새로운 인연과 협력의 기회 |
+| 충(冲) | 변화와 이동의 시기 |
+| 형(刑) | 시험과 갈등의 시기 |
+| 해(害) | 숨겨진 장애물의 시기 |
+| 파(破) | 기존 구조가 깨지는 시기 |
+| 용신운 | 유리한 에너지의 황금기 |
+| 기신운 | 도전적 에너지의 시기 |
+
+---
 
 ### 후속 질문 시스템 (Task 16)
 
