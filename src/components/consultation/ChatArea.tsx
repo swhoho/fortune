@@ -3,12 +3,20 @@
 /**
  * 채팅 영역 컴포넌트
  */
-import { useRef, useEffect, useState } from 'react';
+import { useRef, useEffect, useState, useCallback } from 'react';
 import { motion } from 'framer-motion';
-import { Menu, Loader2, AlertCircle, Sparkles } from 'lucide-react';
+import { Menu, Loader2, AlertCircle, Sparkles, RefreshCw } from 'lucide-react';
 import { ChatMessage } from './ChatMessage';
 import { ChatInput } from './ChatInput';
 import { useConsultationMessages, useSendMessage } from '@/hooks/use-consultation';
+
+/** 실패한 메시지 상태 */
+interface FailedMessage {
+  content: string;
+  messageType: 'user_question' | 'user_clarification';
+  skipClarification: boolean;
+  error: string;
+}
 
 interface ChatAreaProps {
   /** 프로필 ID */
@@ -40,6 +48,9 @@ export function ChatArea({
   // clarification 대기 상태
   const [awaitingClarification, setAwaitingClarification] = useState(false);
 
+  // 실패한 메시지 상태 (재시도용)
+  const [failedMessage, setFailedMessage] = useState<FailedMessage | null>(null);
+
   // 새 메시지 시 스크롤
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -56,28 +67,59 @@ export function ChatArea({
   /**
    * 메시지 전송
    */
-  const handleSendMessage = async (content: string, skipClarification = false) => {
-    if (!sessionId) return;
+  const handleSendMessage = useCallback(
+    async (content: string, skipClarification = false) => {
+      if (!sessionId) return;
 
-    const messageType = awaitingClarification ? 'user_clarification' : 'user_question';
+      const messageType = awaitingClarification ? 'user_clarification' : 'user_question';
 
-    try {
-      await sendMessage.mutateAsync({
-        profileId,
-        sessionId,
-        content,
-        messageType,
-        skipClarification,
-      });
+      // 이전 실패 메시지 초기화
+      setFailedMessage(null);
 
-      // clarification 응답 후 상태 리셋
-      if (messageType === 'user_clarification') {
-        setAwaitingClarification(false);
+      try {
+        await sendMessage.mutateAsync({
+          profileId,
+          sessionId,
+          content,
+          messageType,
+          skipClarification,
+        });
+
+        // clarification 응답 후 상태 리셋
+        if (messageType === 'user_clarification') {
+          setAwaitingClarification(false);
+        }
+      } catch (err) {
+        const errorMessage = err instanceof Error ? err.message : 'AI 응답 생성에 실패했습니다';
+        console.error('[ChatArea] 메시지 전송 실패:', err);
+
+        // 실패한 메시지 저장 (재시도용)
+        setFailedMessage({
+          content,
+          messageType,
+          skipClarification,
+          error: errorMessage,
+        });
       }
-    } catch (error) {
-      console.error('[ChatArea] 메시지 전송 실패:', error);
-    }
-  };
+    },
+    [sessionId, profileId, awaitingClarification, sendMessage]
+  );
+
+  /**
+   * 실패한 메시지 재시도
+   */
+  const handleRetry = useCallback(() => {
+    if (!failedMessage) return;
+
+    handleSendMessage(failedMessage.content, failedMessage.skipClarification);
+  }, [failedMessage, handleSendMessage]);
+
+  /**
+   * 실패 메시지 취소
+   */
+  const handleDismissError = useCallback(() => {
+    setFailedMessage(null);
+  }, []);
 
   // 세션 미선택 상태
   if (!sessionId) {
@@ -178,6 +220,38 @@ export function ChatArea({
               >
                 <Loader2 className="h-4 w-4 animate-spin" />
                 <span className="text-sm">답변 생성 중...</span>
+              </motion.div>
+            )}
+
+            {/* 에러 발생 시 재시도 UI */}
+            {failedMessage && !sendMessage.isPending && (
+              <motion.div
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="rounded-lg border border-red-900/50 bg-red-950/30 p-4"
+              >
+                <div className="flex items-start gap-3">
+                  <AlertCircle className="mt-0.5 h-5 w-5 flex-shrink-0 text-red-400" />
+                  <div className="flex-1">
+                    <p className="text-sm font-medium text-red-400">응답 생성 실패</p>
+                    <p className="mt-1 text-xs text-gray-400">{failedMessage.error}</p>
+                    <div className="mt-3 flex gap-2">
+                      <button
+                        onClick={handleRetry}
+                        className="flex items-center gap-1.5 rounded-md bg-[#d4af37] px-3 py-1.5 text-xs font-medium text-white transition-colors hover:bg-[#c19a2e]"
+                      >
+                        <RefreshCw className="h-3.5 w-3.5" />
+                        재시도
+                      </button>
+                      <button
+                        onClick={handleDismissError}
+                        className="rounded-md px-3 py-1.5 text-xs text-gray-400 transition-colors hover:bg-[#242424] hover:text-white"
+                      >
+                        취소
+                      </button>
+                    </div>
+                  </div>
+                </div>
               </motion.div>
             )}
 

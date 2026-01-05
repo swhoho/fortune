@@ -262,8 +262,13 @@ export async function POST(request: NextRequest, context: RouteContext) {
         });
 
         if (!answerResult.success || !answerResult.data) {
+          console.error('[ConsultationMessages] AI 응답 생성 실패:', answerResult.error);
           return NextResponse.json(
-            { success: false, error: 'AI 상담 응답 생성에 실패했습니다' },
+            {
+              success: false,
+              error: answerResult.error?.message || 'AI 상담 응답 생성에 실패했습니다',
+              code: answerResult.error?.code,
+            },
             { status: 500 }
           );
         }
@@ -296,8 +301,13 @@ export async function POST(request: NextRequest, context: RouteContext) {
         });
 
         if (!answerResult.success || !answerResult.data) {
+          console.error('[ConsultationMessages] AI 응답 생성 실패 (구체적 질문):', answerResult.error);
           return NextResponse.json(
-            { success: false, error: 'AI 상담 응답 생성에 실패했습니다' },
+            {
+              success: false,
+              error: answerResult.error?.message || 'AI 상담 응답 생성에 실패했습니다',
+              code: answerResult.error?.code,
+            },
             { status: 500 }
           );
         }
@@ -324,8 +334,13 @@ export async function POST(request: NextRequest, context: RouteContext) {
       });
 
       if (!answerResult.success || !answerResult.data) {
+        console.error('[ConsultationMessages] AI 최종 응답 생성 실패:', answerResult.error);
         return NextResponse.json(
-          { success: false, error: 'AI 상담 응답 생성에 실패했습니다' },
+          {
+            success: false,
+            error: answerResult.error?.message || 'AI 상담 응답 생성에 실패했습니다',
+            code: answerResult.error?.code,
+          },
           { status: 500 }
         );
       }
