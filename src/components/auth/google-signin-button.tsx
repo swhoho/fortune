@@ -17,7 +17,7 @@ interface GoogleSignInButtonProps {
 function GoogleSignInButtonInner({
   text = 'Sign in with Google',
   className,
-  callbackUrl = '/onboarding/step1',
+  callbackUrl = '/home',
 }: GoogleSignInButtonProps) {
   const [isLoading, setIsLoading] = useState(false);
   const searchParams = useSearchParams();

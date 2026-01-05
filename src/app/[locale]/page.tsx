@@ -124,15 +124,24 @@ export default function LandingPage() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.9 }}
-          className="mb-8 w-full sm:mb-12 sm:w-auto"
+          className="mb-8 w-full sm:mb-12"
         >
-          <Button
-            asChild
-            size="lg"
-            className="w-full max-w-sm whitespace-normal bg-gradient-to-r from-[#d4af37] to-[#c19a2e] px-6 py-5 text-center text-base font-semibold leading-snug text-white shadow-lg transition-all hover:scale-105 hover:shadow-xl sm:px-8 sm:py-6 sm:text-lg"
+          <motion.div
+            whileHover={{ scale: 1.03 }}
+            whileTap={{ scale: 0.98 }}
+            className="mx-auto max-w-md"
           >
-            <Link href="/onboarding/step1">{t('cta')}</Link>
-          </Button>
+            <Button
+              asChild
+              size="lg"
+              className="group relative w-full overflow-hidden whitespace-normal rounded-xl bg-gradient-to-r from-[#d4af37] via-[#e5c157] to-[#c19a2e] px-8 py-7 text-center text-lg font-bold leading-snug text-white shadow-[0_8px_30px_rgba(212,175,55,0.4)] transition-all duration-300 hover:shadow-[0_12px_40px_rgba(212,175,55,0.6)] sm:px-10 sm:py-8 sm:text-xl"
+            >
+              <Link href="/home">
+                <span className="relative z-10">{t('cta')}</span>
+                <span className="absolute inset-0 bg-gradient-to-r from-[#e5c157] via-[#d4af37] to-[#c19a2e] opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
+              </Link>
+            </Button>
+          </motion.div>
         </motion.div>
 
         {/* 신뢰 요소 */}

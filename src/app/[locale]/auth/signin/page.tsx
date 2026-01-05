@@ -19,7 +19,7 @@ function SignInForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const message = searchParams.get('message');
-  const callbackUrl = searchParams.get('callbackUrl') || '/onboarding/step1';
+  const callbackUrl = searchParams.get('callbackUrl') || '/home';
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');

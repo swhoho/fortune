@@ -11,9 +11,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   // 공개 페이지 목록 (SEO 대상)
   const publicRoutes = [
     '', // 홈
-    '/onboarding/step1', // 온보딩 1
-    '/onboarding/step2', // 온보딩 2
-    '/onboarding/step3', // 온보딩 3
+    '/home', // 메인 홈
     '/analysis/focus', // 분석 영역 선택
     '/analysis/question', // 분석 질문 입력
   ];
