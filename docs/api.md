@@ -50,6 +50,33 @@ Supabase Auth 사용 (`@supabase/ssr`)
 ### GET /api/profiles/:id/report
 완료된 리포트 조회 | **인증**: 필수
 
+**대운(daewun) 응답 필드**:
+```json
+{
+  "daewun": [{
+    "age": 7,
+    "endAge": 16,
+    "stem": "壬",
+    "branch": "午",
+    "startYear": 1997,
+    "startDate": "1997-05-15",
+    "tenGod": "편인",
+    "tenGodType": "인성운",
+    "favorablePercent": 65,
+    "unfavorablePercent": 35,
+    "description": "학업 성장기, 부모 영향력, 기초 다지기"
+  }]
+}
+```
+
+| 필드 | 타입 | 설명 |
+|------|------|------|
+| tenGod | string | 십신 (비견, 겁재, 식신, 상관, 정재, 편재, 정관, 편관, 정인, 편인) |
+| tenGodType | string | 십신 유형 (비겁운, 식상운, 재성운, 관성운, 인성운) |
+| favorablePercent | number | 순풍운 비율 (0-100) |
+| unfavorablePercent | number | 역풍운 비율 (0-100) |
+| description | string | 나이에 맞는 대운 설명 |
+
 ### GET /api/profiles/:id/report/status
 리포트 생성 상태 폴링 (5초 간격) | **인증**: 필수
 
@@ -321,4 +348,4 @@ if (!result.success) {
 
 ---
 
-**최종 수정**: 2026-01-04 (v2.0 후속 질문 API 추가, Coming Soon 제거)
+**최종 수정**: 2026-01-05 (대운 십신 계산 필드 추가)

@@ -154,10 +154,14 @@ const tenGodCounts = extractTenGods(pillars, jijanggan);
 // 2. 특성 점수 계산
 let score = 50;  // 기본점수
 for (tenGod in counts) {
+  // modifier 범위: max ±11 (v2.1, 이전 v2.0은 ±15)
   score += TRAIT_MODIFIERS[trait][tenGod] * counts[tenGod];
 }
 return clamp(score, 0, 100);
 ```
+
+> **v2.1 변경사항**: modifier 스케일 ×0.75 축소 (max ±15 → ±11)
+> 목표: 10~90점 골고루 분포, 0점/100점 극단값 회피
 
 ### 35개 특성 항목
 
@@ -184,6 +188,90 @@ src/lib/score/
 
 - `tests/unit/lib/score/ten-gods.test.ts` (22개)
 - `tests/unit/lib/score/calculator.test.ts` (16개)
+
+---
+
+## 📈 사건 강도 점수 (Task 5)
+
+### 개요
+
+세운(流年) 분석을 위한 규칙 기반 점수 계산 모듈. 사주 원국(Natal)과 세운(Dynamic)의 길흉을 수치화하여 AI 분석의 일관성과 투명성을 제공.
+
+### 점수 공식
+
+```
+최종점수 = clamp(기본점수 + 세운조정값, -100, +100)
+
+기본점수(Natal) = 격국품질점수 + 신살점수 + 원국상호작용점수
+                  (-20~+30)     (-20~+20)   (-20~+20)
+
+세운조정값(Dynamic) = 세운십신점수 + 세운지지상호작용점수
+                      (-30~+30)     (-20~+20)
+```
+
+### 사건 강도 테이블
+
+| 점수 범위 | 강도 | 라벨(한/영/일/중) |
+|-----------|------|------------------|
+| 60 ~ 100 | HIGH | 대길 / Highly Favorable / 大吉 / 大吉 |
+| 20 ~ 60 | MID | 길 / Favorable / 吉 / 吉 |
+| -20 ~ 20 | LOW | 평 / Neutral / 平 / 平 |
+| -60 ~ -20 | WARNING | 주의 / Caution / 注意 / 注意 |
+| -100 ~ -60 | CRITICAL | 흉 / Challenging / 凶 / 凶 |
+
+### 구현 파일
+
+```
+python/scoring/
+├── __init__.py           # 모듈 export
+├── event_score.py        # 점수 계산 (Task 5.1)
+│   ├── EventScore        # 결과 데이터클래스
+│   ├── EventIntensity    # 강도 데이터클래스
+│   ├── calculate_event_score()    # 메인 함수
+│   ├── format_score_context()     # AI 프롬프트용 포맷
+│   └── 개별 점수 함수들
+└── validation.py         # 일관성 검증 (Task 5.3)
+    ├── validate_score_narrative_consistency()
+    └── validate_event_prediction_consistency()
+
+python/prompts/
+├── mulsangron.py         # 물상론 DB (Task 5.2)
+│   ├── MULSANGRON        # 십신별 길흉 매핑
+│   ├── INTERACTION_MULSANG  # 합충형해파 물상
+│   └── generate_event_prediction_template()
+└── builder.py            # Hybrid 통합 (Task 5.3)
+    └── YearlyPromptBuildRequest.score_context
+```
+
+### 물상론 (物象論)
+
+십신별 예상 사건 매핑 (5개 언어 지원):
+
+| 십신 | 길(吉) 사건 | 흉(凶) 사건 |
+|------|-------------|-------------|
+| 정관 | 승진, 관직, 명예 | 관재, 송사, 해고 |
+| 정재 | 급여 인상, 저축, 부동산 | 재정 손실, 도난 |
+| 편재 | 횡재, 투자 대박, 유산 | 투기 실패, 사기 |
+| 정인 | 학업 성취, 자격증 | 문서 사기, 의존성 |
+| ... | (전체 10개 십신) | |
+
+상호작용별 물상:
+
+| 유형 | 의미 | 예상 사건 |
+|------|------|----------|
+| 합(合) | 조화, 결합 | 결혼, 계약, 취업 |
+| 충(沖) | 충돌, 변화 | 이사, 이직, 이별 |
+| 형(刑) | 형벌, 고난 | 소송, 수술, 질병 |
+| 해(害) | 해침, 손상 | 뒷담화, 건강 저하 |
+| 파(破) | 파괴, 해체 | 계획 실패, 약속 파기 |
+
+### Hybrid 모델 통합
+
+```
+[Python 규칙] → [점수 컨텍스트] → [AI 프롬프트] → [Gemini 서술] → [일관성 검증]
+                     ↓                                    ↓
+              format_score_context()           validate_score_narrative_consistency()
+```
 
 ---
 
@@ -262,12 +350,44 @@ def calculate_daewun(gender, year_stem):
     """
     yang_stems = ['甲', '丙', '戊', '庚', '壬']
     is_yang_year = year_stem in yang_stems
-    
+
     if (gender == 'male' and is_yang_year) or (gender == 'female' and not is_yang_year):
         return 'forward'  # 순행
     else:
         return 'backward'  # 역행
 ```
+
+### 대운 십신 계산 (Task 6 확장)
+
+일간 기준 대운 천간과의 십신 관계를 계산합니다.
+
+```python
+def get_ten_god_relation(day_stem, target_stem):
+    """
+    일간과 대상 천간 사이의 십신 관계 계산
+    - 같은 오행 같은 음양 = 비견, 다른 음양 = 겁재
+    - 내가 생하는 오행 같은 음양 = 식신, 다른 음양 = 상관
+    - 내가 극하는 오행 같은 음양 = 편재, 다른 음양 = 정재
+    - 나를 극하는 오행 같은 음양 = 편관, 다른 음양 = 정관
+    - 나를 생하는 오행 같은 음양 = 편인, 다른 음양 = 정인
+    """
+```
+
+### DaewunItem 확장 필드
+
+| 필드 | 타입 | 설명 |
+|------|------|------|
+| age | int | 시작 나이 |
+| endAge | int | 종료 나이 (age + 9) |
+| stem | str | 천간 |
+| branch | str | 지지 |
+| startYear | int | 시작 연도 |
+| startDate | str | 시작 날짜 (양력 YYYY-MM-DD) |
+| tenGod | str | 십신 (비견, 겁재, 식신, 상관, 정재, 편재, 정관, 편관, 정인, 편인) |
+| tenGodType | str | 십신 유형 (비겁운, 식상운, 재성운, 관성운, 인성운) |
+| favorablePercent | int | 순풍운 비율 (0-100) - AI 분석 |
+| unfavorablePercent | int | 역풍운 비율 (0-100) - AI 분석 |
+| description | str | 나이에 맞는 대운 설명 - AI 분석 |
 
 ### 지장간 (支藏干)
 
@@ -894,6 +1014,73 @@ src/stores/analysis.ts                        # 질문 상태 관리
   - 지지: 한자 + 오행 + 음양
   - 지장간: 3개 숨겨진 천간 (오행별 색상 적용)
 
+### 대운 상세 분석 컴포넌트 (Task 6 확장)
+
+**FavorableBar** (`src/components/report/FavorableBar.tsx`)
+
+순풍운/역풍운 비율을 시각적으로 표시하는 프로그레스 바 컴포넌트.
+
+| Props | 타입 | 설명 |
+|-------|------|------|
+| favorablePercent | number | 순풍운 비율 (0-100) |
+| unfavorablePercent | number | 역풍운 비율 (0-100) |
+
+**DaewunDetailSection** (`src/components/report/DaewunDetailSection.tsx`)
+
+대운별 상세 분석 카드 섹션.
+
+| Props | 타입 | 설명 |
+|-------|------|------|
+| daewun | ReportDaewunItem[] | 대운 목록 (십신 정보 포함) |
+| currentAge | number | 현재 나이 (현재 대운 하이라이트용) |
+
+**표시 정보**:
+- 나이 범위 배지 (예: "7세~16세")
+- 십신 유형 (비겁운, 식상운, 재성운, 관성운, 인성운)
+- 시작 시기 (양력 YYYY년 MM월 DD일 경부터)
+- FavorableBar (순풍/역풍 비율)
+- 대운 설명 (AI 생성, 나이에 맞는 키워드)
+
+### 대운 분석 프롬프트 (Task 6 확장)
+
+**파일**: `python/prompts/daewun_analysis.py`
+
+대운별 순풍/역풍 비율과 나이에 맞는 설명을 생성하는 Gemini 프롬프트.
+
+**프롬프트 구조**:
+```python
+DAEWUN_ANALYSIS_PROMPT = """
+당신은 30년 경력의 명리학 거장입니다.
+대운의 특성을 분석하여 JSON 형식으로 응답합니다.
+
+분석 기준:
+- 일간과 대운 천간의 십신 관계
+- 대운 지지와 사주 원국의 합충형파해
+- 해당 나이대의 생애 주기 특성
+
+응답 형식:
+{
+  "daewun": [{
+    "age": 7,
+    "favorablePercent": 65,
+    "unfavorablePercent": 35,
+    "description": "키워드1, 키워드2, 키워드3"
+  }]
+}
+"""
+```
+
+**생애 주기 키워드**:
+| 나이대 | 주제 |
+|--------|------|
+| 1~10세 | 가정환경, 부모 영향, 건강 기초 |
+| 11~20세 | 학업, 진로 탐색, 또래 관계 |
+| 21~30세 | 취업, 연애, 자아 확립 |
+| 31~40세 | 결혼, 자녀, 커리어 성장 |
+| 41~50세 | 성취, 관리직, 중년 전환 |
+| 51~60세 | 건강 관리, 노후 준비, 인생 정리 |
+| 61세 이상 | 은퇴 생활, 건강, 가족 관계 |
+
 ### SVG 다운로드 (Task 15 완료)
 
 **유틸리티**: `src/lib/utils/svg-download.ts`
@@ -939,6 +1126,8 @@ src/stores/analysis.ts                        # 질문 상태 관리
 | 2026-01-02 | 자평진전/궁통보감 | 한국어 고정 | 5개 언어 다국어화 (고전 원리) | Task 18 |
 | 2026-01-02 | 영어 십신 용어 | 일반 용어 | PRD/The Destiny Code 스타일 | Task 18 |
 | 2026-01-02 | 중국어 로케일 | zh 단일 | zh-CN/zh-TW 분리 (간체/번체) | Task 18 |
+| 2026-01-05 | 대운 십신 계산 | 미구현 | Python 십신 계산 + AI 분석 통합 | Task 6 확장 |
+| 2026-01-05 | 대운 상세 분석 UI | 미구현 | FavorableBar + DaewunDetailSection 구현 | Task 6 확장 |
 
 ### 구현 상세
 
@@ -1173,4 +1362,4 @@ import { Pillars, DaewunItem, Jijanggan, CalculateResponse } from '@/types';
 
 ---
 
-**최종 수정**: 2026-01-04 (백엔드 리팩토링 v2.1 완료)
+**최종 수정**: 2026-01-05 (대운 십신 계산 및 상세 분석 UI 구현)

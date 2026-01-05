@@ -78,11 +78,19 @@ class Pillars(BaseModel):
 
 
 class DaewunItem(BaseModel):
-    """대운 항목"""
-    age: int = Field(..., description="시작 나이", examples=[1])
+    """대운 항목 (십신 정보 포함)"""
+    age: int = Field(..., description="시작 나이", examples=[7])
+    endAge: int = Field(default=0, description="종료 나이 (age + 9)", examples=[16])
     stem: str = Field(..., description="천간", examples=["壬"])
     branch: str = Field(..., description="지지", examples=["午"])
-    startYear: int = Field(..., description="시작 연도", examples=[1991])
+    startYear: int = Field(..., description="시작 연도", examples=[1997])
+    startDate: str | None = Field(default=None, description="시작 날짜 (양력 YYYY-MM-DD)")
+    tenGod: str | None = Field(default=None, description="십신 (비견, 겁재, 식신, 상관, 정재, 편재, 정관, 편관, 정인, 편인)")
+    tenGodType: str | None = Field(default=None, description="십신 유형 (비겁운, 식상운, 재성운, 관성운, 인성운)")
+    # AI 분석 후 채워지는 필드
+    favorablePercent: int | None = Field(default=None, description="순풍운 비율 (0-100)")
+    unfavorablePercent: int | None = Field(default=None, description="역풍운 비율 (0-100)")
+    description: str | None = Field(default=None, description="나이에 맞는 대운 설명")
 
 
 class Jijanggan(BaseModel):

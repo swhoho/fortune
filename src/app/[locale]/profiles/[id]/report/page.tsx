@@ -22,6 +22,7 @@ import {
   ProfileInfoHeader,
   SajuTable,
   DaewunHorizontalScroll,
+  DaewunDetailSection,
   PersonalitySection,
   CharacteristicsSection,
   AptitudeSection,
@@ -267,6 +268,23 @@ export default function ProfileReportPage({ params }: PageProps) {
               <DaewunHorizontalScroll daewun={reportData.daewun} />
             </motion.div>
           </section>
+
+          {/* 섹션 1.5: 대운 상세 분석 */}
+          {reportData.daewun && reportData.daewun.length > 0 && (
+            <section id="daewun" className="scroll-mt-32">
+              <DaewunDetailSection
+                daewun={reportData.daewun}
+                currentAge={
+                  reportData.profile.birthDate
+                    ? Math.floor(
+                        (Date.now() - new Date(reportData.profile.birthDate).getTime()) /
+                          (365.25 * 24 * 60 * 60 * 1000)
+                      )
+                    : undefined
+                }
+              />
+            </section>
+          )}
 
           {/* 섹션 2: 성격 분석 */}
           {reportData.personality && (

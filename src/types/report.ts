@@ -43,10 +43,39 @@ export interface CharacteristicsSectionData {
 
 /** 대운 아이템 (saju.ts의 DaewunItem과 호환) */
 export interface ReportDaewunItem {
+  /** 시작 나이 */
+  age: number;
+  /** 종료 나이 (age + 9) */
+  endAge: number;
+  /** 천간 */
+  stem: string;
+  /** 지지 */
+  branch: string;
+  /** 시작 연도 */
+  startYear: number;
+  /** 시작 날짜 (양력 YYYY-MM-DD) */
+  startDate?: string;
+  /** 십신 (비견, 겁재, 식신, 상관, 정재, 편재, 정관, 편관, 정인, 편인) */
+  tenGod: string;
+  /** 십신 유형 (비겁운, 식상운, 재성운, 관성운, 인성운) */
+  tenGodType: string;
+  /** 순풍운 비율 (0-100) */
+  favorablePercent: number;
+  /** 역풍운 비율 (0-100) */
+  unfavorablePercent: number;
+  /** 나이에 맞는 대운 설명 (AI 생성) */
+  description: string;
+}
+
+/** 대운 기본 아이템 (Python 계산 결과, AI 분석 전) */
+export interface BaseDaewunItem {
   age: number;
   stem: string;
   branch: string;
   startYear: number;
+  startDate?: string;
+  tenGod?: string;
+  tenGodType?: string;
 }
 
 /**

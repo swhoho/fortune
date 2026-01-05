@@ -47,6 +47,8 @@ from .locale_strings import (
     format_formation_context,
     format_daewun_with_relation,
 )
+# Task 5: 점수 계산 및 물상론 통합
+from .mulsangron import generate_event_prediction_template
 
 
 LocaleType = Literal['ko', 'en', 'ja', 'zh-CN', 'zh-TW']
@@ -92,6 +94,9 @@ class YearlyPromptBuildRequest:
     pillars: Optional[Dict[str, Any]] = None         # 사주 팔자
     daewun: Optional[List[Dict[str, Any]]] = None    # 대운
     options: PromptBuildOptions = field(default_factory=PromptBuildOptions)
+    # Task 5: 점수 컨텍스트 (선택사항)
+    score_context: Optional[str] = None              # format_score_context() 결과
+    event_prediction_context: Optional[str] = None   # generate_event_prediction_template() 결과
 
 
 class PromptBuilder:
@@ -340,12 +345,14 @@ class PromptBuilder:
             include_western=options.include_western
         )
 
-        # 사용자 프롬프트 빌드
+        # 사용자 프롬프트 빌드 (Task 5: 점수 컨텍스트 포함)
         user_prompt = cls._build_yearly_user_prompt(
             pillars=request.pillars,
             daewun=request.daewun,
             year=year,
-            language=language
+            language=language,
+            score_context=request.score_context,
+            event_prediction_context=request.event_prediction_context
         )
 
         # 포함된 모듈 목록
@@ -425,7 +432,10 @@ class PromptBuilder:
         pillars: Optional[Dict[str, Any]],
         daewun: Optional[List[Dict[str, Any]]],
         year: int,
-        language: LocaleType
+        language: LocaleType,
+        # Task 5: 점수 컨텍스트
+        score_context: Optional[str] = None,
+        event_prediction_context: Optional[str] = None
     ) -> str:
         """신년 분석 사용자 프롬프트 - v2.1 리팩토링 (locale_strings 사용)"""
         parts = []
@@ -437,6 +447,16 @@ class PromptBuilder:
         # 대운 정보
         if daewun:
             parts.append(cls._format_daewun(daewun, language))
+
+        # Task 5: 점수 컨텍스트 삽입
+        if score_context:
+            parts.append("\n---\n")
+            parts.append(score_context)
+
+        # Task 5: 사건 예측 컨텍스트 삽입
+        if event_prediction_context:
+            parts.append("\n---\n")
+            parts.append(event_prediction_context)
 
         # 신년 분석 요청 (locale_strings 사용)
         parts.append(get_locale_string('yearly_analysis_header', language, year=year))

@@ -8,6 +8,10 @@ export { ProfileInfoHeader } from './ProfileInfoHeader';
 export { SajuTable } from './SajuTable';
 export { DaewunHorizontalScroll } from './DaewunHorizontalScroll';
 
+// 대운 상세 분석 섹션
+export { FavorableBar } from './FavorableBar';
+export { DaewunDetailSection } from './DaewunDetailSection';
+
 // Task 13: 성격 분석 섹션
 export { WillpowerGauge } from './WillpowerGauge';
 export { PersonalityCard } from './PersonalityCard';

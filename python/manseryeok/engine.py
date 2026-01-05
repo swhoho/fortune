@@ -14,7 +14,7 @@ from schemas.saju import (
 )
 from .calendar import get_solar_from_lunar_datetime
 from .pillars import calculate_pillars
-from .daewun import calculate_daewun
+from .daewun import calculate_daewun, calculate_daewun_with_ten_god
 from .jijanggan import extract_jijanggan
 
 
@@ -44,10 +44,15 @@ class ManseryeokEngine:
         # 2. 사주 팔자 계산 (입춘/절입 기준)
         pillars_data = calculate_pillars(birth_dt)
 
-        # 3. 대운 계산 (양남음녀/음남양녀 순역 판단)
-        daewun_data = calculate_daewun(birth_dt, request.gender.value)
+        # 3. 일간 추출 (십신 계산용)
+        day_stem = pillars_data["day"]["stem"]
 
-        # 4. 지장간 추출
+        # 4. 대운 계산 (십신 정보 포함)
+        daewun_data = calculate_daewun_with_ten_god(
+            birth_dt, request.gender.value, day_stem
+        )
+
+        # 5. 지장간 추출
         jijanggan_data = extract_jijanggan(pillars_data)
 
         # 5. 응답 모델 생성

@@ -328,6 +328,10 @@ export interface YearlyAnalysisInput {
   daewun?: DaewunData[];
   /** 언어 */
   language?: SupportedLanguage;
+  /** 생년 (Task 5 점수 계산용) */
+  birthYear?: number;
+  /** 성별 (Task 5 점수 계산용) */
+  gender?: 'male' | 'female';
 }
 
 /**

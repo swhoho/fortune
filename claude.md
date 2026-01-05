@@ -34,7 +34,7 @@ src/
 │       └── user/credits/          # 크레딧 API
 ├── components/
 │   ├── profile/            # 프로필 컴포넌트
-│   ├── report/             # 리포트 UI
+│   ├── report/             # 리포트 UI (FavorableBar, DaewunDetailSection)
 │   ├── credits/            # 크레딧 다이얼로그
 │   └── analysis/           # 분석 UI (PipelineProcessingScreen)
 ├── lib/
@@ -48,8 +48,8 @@ src/
 └── stores/analysis.ts      # 파이프라인 상태
 
 python/
-├── manseryeok/             # 만세력 엔진
-├── prompts/                # AI 프롬프트
+├── manseryeok/             # 만세력 엔진 (대운 십신 계산 포함)
+├── prompts/                # AI 프롬프트 (daewun_analysis.py 포함)
 │   ├── classics/           # 고전 명리학 모듈
 │   │   ├── qiongtong_matrix.py  # 조후 매트릭스 (10일간×12월)
 │   │   ├── qiongtong.py         # 궁통보감 프롬프트
@@ -88,6 +88,12 @@ python/
 | 리포트 생성 | 50C |
 | 섹션 재분석 | 5C |
 | AI 질문 | 10C |
+
+### 점수 계산 (v2.1)
+
+- 공식: `50 + Σ(modifier × tenGodCount)` → clamp(0, 100)
+- Modifier 범위: max ±11 (v2.0 ±15에서 축소)
+- 목표 분포: 10~90점 골고루 분포, 0점/100점 극단값 회피
 
 ### 오행 색상
 
@@ -280,5 +286,5 @@ cd python && pytest  # Python
 
 ---
 
-**Version**: 1.28.0
-**Last Updated**: 2026-01-05 (Task 5 점수 계산 고도화 완료)
+**Version**: 1.29.0
+**Last Updated**: 2026-01-05 (대운 십신 계산 및 상세 분석 UI 구현)

@@ -131,3 +131,185 @@ def get_daewun_direction(year_stem: str, gender: str) -> str:
         return "forward"  # 순행
     else:
         return "backward"  # 역행
+
+
+# ============================================
+# 십신 계산 (일간 기준)
+# ============================================
+
+# 오행 상생 관계: 나를 생하는 오행 (인성)
+ELEMENT_GENERATES_ME = {
+    "木": "水",  # 수생목
+    "火": "木",  # 목생화
+    "土": "火",  # 화생토
+    "金": "土",  # 토생금
+    "水": "金",  # 금생수
+}
+
+# 오행 상생 관계: 내가 생하는 오행 (식상)
+I_GENERATE_ELEMENT = {
+    "木": "火",  # 목생화
+    "火": "土",  # 화생토
+    "土": "金",  # 토생금
+    "金": "水",  # 금생수
+    "水": "木",  # 수생목
+}
+
+# 오행 상극 관계: 내가 극하는 오행 (재성)
+I_OVERCOME_ELEMENT = {
+    "木": "土",  # 목극토
+    "火": "金",  # 화극금
+    "土": "水",  # 토극수
+    "金": "木",  # 금극목
+    "水": "火",  # 수극화
+}
+
+# 오행 상극 관계: 나를 극하는 오행 (관성)
+ELEMENT_OVERCOMES_ME = {
+    "木": "金",  # 금극목
+    "火": "水",  # 수극화
+    "土": "木",  # 목극토
+    "金": "火",  # 화극금
+    "水": "土",  # 토극수
+}
+
+# 천간 → 오행 매핑
+STEM_TO_ELEMENT = {
+    "甲": "木", "乙": "木",
+    "丙": "火", "丁": "火",
+    "戊": "土", "己": "土",
+    "庚": "金", "辛": "金",
+    "壬": "水", "癸": "水",
+}
+
+# 십신 유형 매핑
+TEN_GOD_TYPE_MAP = {
+    "비견": "비겁운",
+    "겁재": "비겁운",
+    "식신": "식상운",
+    "상관": "식상운",
+    "정재": "재성운",
+    "편재": "재성운",
+    "정관": "관성운",
+    "편관": "관성운",
+    "정인": "인성운",
+    "편인": "인성운",
+}
+
+
+def get_ten_god_relation(day_stem: str, target_stem: str) -> str:
+    """
+    일간과 대상 천간 사이의 십신 관계를 계산
+
+    십신 계산 로직:
+    - 같은 오행 같은 음양 = 비견, 같은 오행 다른 음양 = 겁재
+    - 내가 생하는 오행 같은 음양 = 식신, 다른 음양 = 상관
+    - 내가 극하는 오행 같은 음양 = 편재, 다른 음양 = 정재
+    - 나를 극하는 오행 같은 음양 = 편관, 다른 음양 = 정관
+    - 나를 생하는 오행 같은 음양 = 편인, 다른 음양 = 정인
+
+    Args:
+        day_stem: 일간 (甲~癸)
+        target_stem: 대상 천간 (甲~癸)
+
+    Returns:
+        십신 (비견, 겁재, 식신, 상관, 정재, 편재, 정관, 편관, 정인, 편인)
+    """
+    if day_stem not in STEM_TO_ELEMENT or target_stem not in STEM_TO_ELEMENT:
+        return "알수없음"
+
+    day_element = STEM_TO_ELEMENT[day_stem]
+    target_element = STEM_TO_ELEMENT[target_stem]
+
+    # 음양 판별 (양간: 甲丙戊庚壬)
+    is_day_yang = day_stem in YANG_STEMS
+    is_target_yang = target_stem in YANG_STEMS
+    same_polarity = is_day_yang == is_target_yang
+
+    # 1. 같은 오행 (비겁)
+    if day_element == target_element:
+        return "비견" if same_polarity else "겁재"
+
+    # 2. 내가 생하는 오행 (식상)
+    if I_GENERATE_ELEMENT[day_element] == target_element:
+        return "식신" if same_polarity else "상관"
+
+    # 3. 내가 극하는 오행 (재성)
+    if I_OVERCOME_ELEMENT[day_element] == target_element:
+        return "편재" if same_polarity else "정재"
+
+    # 4. 나를 극하는 오행 (관성)
+    if ELEMENT_OVERCOMES_ME[day_element] == target_element:
+        return "편관" if same_polarity else "정관"
+
+    # 5. 나를 생하는 오행 (인성)
+    if ELEMENT_GENERATES_ME[day_element] == target_element:
+        return "편인" if same_polarity else "정인"
+
+    return "알수없음"
+
+
+def get_ten_god_type(ten_god: str) -> str:
+    """
+    십신에서 십신 유형(운) 반환
+
+    Args:
+        ten_god: 십신 (비견, 겁재, 식신, 상관, 정재, 편재, 정관, 편관, 정인, 편인)
+
+    Returns:
+        십신 유형 (비겁운, 식상운, 재성운, 관성운, 인성운)
+    """
+    return TEN_GOD_TYPE_MAP.get(ten_god, "알수없음")
+
+
+def calculate_daewun_with_ten_god(
+    birth_dt: datetime,
+    gender: str,
+    day_stem: str,
+    count: int = 10
+) -> list[dict]:
+    """
+    대운 계산 (십신 포함)
+
+    Args:
+        birth_dt: 양력 생년월일시
+        gender: "male" 또는 "female"
+        day_stem: 일간 (甲~癸)
+        count: 대운 개수 (기본 10개 = 100년)
+
+    Returns:
+        [
+            {
+                "age": 7,
+                "endAge": 16,
+                "stem": "壬",
+                "branch": "午",
+                "startYear": 1997,
+                "startDate": "1997-07-26",
+                "tenGod": "편인",
+                "tenGodType": "인성운"
+            },
+            ...
+        ]
+    """
+    # 기본 대운 계산
+    basic_daewun = calculate_daewun(birth_dt, gender, count)
+
+    # 십신 정보 추가
+    result = []
+    for dw in basic_daewun:
+        ten_god = get_ten_god_relation(day_stem, dw["stem"])
+        ten_god_type = get_ten_god_type(ten_god)
+
+        result.append({
+            "age": dw["age"],
+            "endAge": dw["age"] + 9,
+            "stem": dw["stem"],
+            "branch": dw["branch"],
+            "startYear": dw["startYear"],
+            "startDate": f"{dw['startYear']}-01-01",  # TODO: 정확한 절입일 계산
+            "tenGod": ten_god,
+            "tenGodType": ten_god_type,
+        })
+
+    return result

@@ -17,6 +17,14 @@ from prompts.builder import (
     PromptBuildOptions,
     YearlyPromptBuildRequest as YearlyBuilderRequest,
 )
+# Task 5: 점수 계산 및 물상론 통합
+from manseryeok.constants import JIJANGGAN_TABLE
+from manseryeok.ten_gods import extract_ten_gods
+from manseryeok.formation import determine_formation
+from manseryeok.sinsal import analyze_sinsal
+from manseryeok.interactions import analyze_pillar_interactions
+from scoring import calculate_event_score, format_score_context
+from prompts.mulsangron import generate_event_prediction_template
 
 # 시각화 인스턴스 (싱글톤)
 visualizer = SajuVisualizer()
@@ -216,6 +224,7 @@ async def build_yearly_prompt(request: YearlyPromptBuildRequest) -> PromptBuildR
     신년 사주 분석용 프롬프트 빌드
 
     특정 연도에 대한 월별 상세 운세 분석 프롬프트를 생성합니다.
+    Task 5: 자동 점수 계산 및 물상론 컨텍스트 생성 포함.
 
     - **language**: 언어 (ko, en, ja, zh-CN, zh-TW)
     - **targetYear**: 분석 대상 연도 (예: 2026)
@@ -237,16 +246,76 @@ async def build_yearly_prompt(request: YearlyPromptBuildRequest) -> PromptBuildR
             include_western=request.options.includeWestern
         )
 
-        # 빌더 요청 생성
+        # Task 5: 점수 계산을 위한 분석 실행
+        score_context = None
+        event_prediction_context = None
+
+        try:
+            pillars = request.pillars
+
+            # 1. 지장간 추출 (pillars의 branch에서)
+            jijanggan = {}
+            for pillar_name in ["year", "month", "day", "hour"]:
+                pillar = pillars.get(pillar_name, {})
+                branch = pillar.get("branch", "")
+                if branch and branch in JIJANGGAN_TABLE:
+                    jijanggan[pillar_name] = JIJANGGAN_TABLE[branch]
+                else:
+                    jijanggan[pillar_name] = []
+
+            # 2. 십신 분포 계산
+            ten_god_counts = extract_ten_gods(pillars, jijanggan)
+
+            # 3. 격국 분석
+            formation_result = determine_formation(pillars, jijanggan, ten_god_counts)
+
+            # 4. 신살 분석
+            sinsals = analyze_sinsal(pillars)
+
+            # 5. 지지 상호작용 분석
+            interactions = analyze_pillar_interactions(pillars)
+
+            # 6. 점수 계산
+            event_score = calculate_event_score(
+                formation=formation_result,
+                sinsals=sinsals,
+                natal_interactions=interactions,
+                pillars=pillars,
+                current_year=request.targetYear,
+                language=request.language
+            )
+
+            # 7. 점수 컨텍스트 생성
+            score_context = format_score_context(event_score, request.language)
+
+            # 8. 물상론 사건 예측 템플릿 생성
+            ten_gods_list = [
+                {"name": god, "count": count}
+                for god, count in sorted(ten_god_counts.items(), key=lambda x: x[1], reverse=True)
+                if count > 0
+            ]
+            event_prediction_context = generate_event_prediction_template(
+                ten_gods=ten_gods_list,
+                interactions=interactions,
+                score=event_score.total,
+                language=request.language
+            )
+        except Exception as scoring_error:
+            # 점수 계산 실패 시 로깅하고 진행 (점수 없이)
+            import logging
+            logging.warning(f"점수 계산 실패: {scoring_error}")
+            score_context = None
+            event_prediction_context = None
+
+        # 빌더 요청 생성 (Task 5: score_context, event_prediction_context 포함)
         builder_request = YearlyBuilderRequest(
             language=request.language,
-            target_year=request.targetYear,
-            birth_year=request.birthYear,
+            year=request.targetYear,
             pillars=request.pillars,
             daewun=request.daewun,
-            current_daewun=request.currentDaewun,
-            gender=request.gender,
-            options=options
+            options=options,
+            score_context=score_context,
+            event_prediction_context=event_prediction_context
         )
 
         # 프롬프트 빌드

@@ -228,6 +228,7 @@ export class SajuAnalyzer {
 
   /**
    * Python API에서 신년 분석 프롬프트 빌드
+   * Task 5: birthYear, gender 추가 (점수 계산용)
    */
   private async fetchYearlyPrompt(input: YearlyAnalysisInput): Promise<PromptBuildResponse | null> {
     try {
@@ -235,10 +236,12 @@ export class SajuAnalyzer {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          year: input.year,
+          targetYear: input.year,
           language: input.language || 'ko',
           pillars: input.pillars,
           daewun: input.daewun || [],
+          birthYear: input.birthYear || new Date().getFullYear() - 35, // 기본값: 35세 가정
+          gender: input.gender || 'male', // 기본값
           options: {
             includeZiping: true,
             includeQiongtong: true,
