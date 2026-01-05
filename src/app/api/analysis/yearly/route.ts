@@ -271,6 +271,9 @@ export async function POST(request: NextRequest) {
       pillars: pillars as unknown as import('@/lib/ai/types').SajuPillarsData,
       daewun: daewun as unknown as import('@/lib/ai/types').DaewunData[],
       language: data.language as SupportedLanguage,
+      // Task 5: 점수 계산을 위한 birthYear, gender 전달
+      birthYear: birthYear,
+      gender: gender,
     };
 
     const analysisResult = await sajuAnalyzer.analyzeYearly(input, {
