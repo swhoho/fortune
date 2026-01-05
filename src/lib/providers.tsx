@@ -7,6 +7,7 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { useState } from 'react';
 import { Toaster } from '@/components/ui/sonner';
+import { CrispChat } from '@/components/crisp-chat';
 
 interface ProvidersProps {
   children: React.ReactNode;
@@ -29,6 +30,7 @@ export function Providers({ children }: ProvidersProps) {
     <QueryClientProvider client={queryClient}>
       {children}
       <Toaster />
+      <CrispChat />
     </QueryClientProvider>
   );
 }

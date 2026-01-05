@@ -14,6 +14,7 @@
 | Auth | Supabase Auth |
 | AI | Gemini 3.0 Pro |
 | Payment | Stripe |
+| Live Chat | Crisp |
 | i18n | next-intl (ko, en, ja, zh-CN, zh-TW) |
 
 ## 프로젝트 구조
@@ -286,5 +287,15 @@ cd python && pytest  # Python
 
 ---
 
-**Version**: 1.29.0
-**Last Updated**: 2026-01-05 (대운 십신 계산 및 상세 분석 UI 구현)
+**Version**: 1.30.0
+**Last Updated**: 2026-01-05 (Crisp 실시간 채팅 도입)
+
+## Changelog
+
+### v1.30.0 (2026-01-05)
+- **Crisp 실시간 채팅 도입**
+  - `crisp-sdk-web` 패키지 설치
+  - `src/components/crisp-chat.tsx` 컴포넌트 생성
+  - `src/lib/providers.tsx`에 CrispChat 추가
+  - 환경변수: `NEXT_PUBLIC_CRISP_WEBSITE_ID`
+  - 다국어 자동 연동 (next-intl 로케일 사용)
