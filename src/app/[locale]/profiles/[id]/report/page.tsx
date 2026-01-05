@@ -152,10 +152,10 @@ export default function ProfileReportPage({ params }: PageProps) {
   // 로딩 상태
   if (isLoading || !id) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-[#f8f8f8]">
+      <div className="flex min-h-screen items-center justify-center bg-[#0a0a0a]">
         <div className="flex flex-col items-center gap-4">
           <Loader2 className="h-8 w-8 animate-spin text-[#d4af37]" />
-          <p className="text-gray-500">리포트를 불러오는 중...</p>
+          <p className="text-gray-400">리포트를 불러오는 중...</p>
         </div>
       </div>
     );
@@ -164,9 +164,13 @@ export default function ProfileReportPage({ params }: PageProps) {
   // 에러 상태
   if (error) {
     return (
-      <div className="flex min-h-screen flex-col items-center justify-center bg-[#f8f8f8]">
-        <p className="mb-4 text-gray-500">{error}</p>
-        <Button asChild variant="outline">
+      <div className="flex min-h-screen flex-col items-center justify-center bg-[#0a0a0a]">
+        <p className="mb-4 text-gray-400">{error}</p>
+        <Button
+          asChild
+          variant="outline"
+          className="border-[#333] bg-transparent text-white hover:bg-[#1a1a1a]"
+        >
           <Link href={`/profiles/${id}`}>프로필로 돌아가기</Link>
         </Button>
       </div>
@@ -176,16 +180,21 @@ export default function ProfileReportPage({ params }: PageProps) {
   // 리포트 없음 - 분석 시작 유도
   if (noReport || !reportData) {
     return (
-      <div className="min-h-screen bg-[#f8f8f8]">
+      <div className="min-h-screen bg-[#0a0a0a]">
         {/* 헤더 */}
-        <header className="sticky top-0 z-10 border-b border-gray-100 bg-white/80 backdrop-blur-sm">
+        <header className="sticky top-0 z-10 border-b border-[#333] bg-[#0a0a0a]/80 backdrop-blur-sm">
           <div className="mx-auto flex max-w-2xl items-center justify-between px-6 py-4">
-            <Button variant="ghost" size="icon" asChild>
+            <Button
+              variant="ghost"
+              size="icon"
+              asChild
+              className="text-gray-400 hover:text-white"
+            >
               <Link href={`/profiles/${id}`}>
                 <ArrowLeft className="h-5 w-5" />
               </Link>
             </Button>
-            <h1 className="font-serif text-lg font-semibold text-[#1a1a1a]">사주 리포트</h1>
+            <h1 className="font-serif text-lg font-semibold text-white">사주 리포트</h1>
             <div className="w-10" />
           </div>
         </header>
@@ -200,8 +209,8 @@ export default function ProfileReportPage({ params }: PageProps) {
             <div className="mb-6 rounded-full bg-gradient-to-br from-[#d4af37]/20 to-[#d4af37]/5 p-6">
               <Sparkles className="h-12 w-12 text-[#d4af37]" />
             </div>
-            <h2 className="mb-2 text-xl font-semibold text-[#1a1a1a]">아직 사주 분석이 없습니다</h2>
-            <p className="mb-8 text-gray-500">
+            <h2 className="mb-2 text-xl font-semibold text-white">아직 사주 분석이 없습니다</h2>
+            <p className="mb-8 text-gray-400">
               전체 사주 분석을 시작하여 상세한 리포트를 확인하세요
             </p>
             <div className="flex gap-3">
@@ -212,7 +221,11 @@ export default function ProfileReportPage({ params }: PageProps) {
                 <Sparkles className="mr-2 h-4 w-4" />
                 사주 분석 시작
               </Button>
-              <Button variant="outline" asChild>
+              <Button
+                variant="outline"
+                asChild
+                className="border-[#333] bg-transparent text-white hover:bg-[#1a1a1a]"
+              >
                 <Link href={`/profiles/${id}`}>프로필로 돌아가기</Link>
               </Button>
             </div>
@@ -223,26 +236,43 @@ export default function ProfileReportPage({ params }: PageProps) {
   }
 
   return (
-    <div className="min-h-screen bg-[#f8f8f8]">
+    <div className="min-h-screen bg-[#0a0a0a]">
       {/* 헤더 */}
-      <header className="sticky top-0 z-30 border-b border-gray-200 bg-white/90 backdrop-blur-sm">
+      <header className="sticky top-0 z-30 border-b border-[#333] bg-[#0a0a0a]/90 backdrop-blur-sm">
         <div className="mx-auto flex max-w-4xl items-center justify-between px-6 py-3">
-          <Button variant="ghost" size="sm" asChild className="gap-2">
+          <Button
+            variant="ghost"
+            size="sm"
+            asChild
+            className="gap-2 text-gray-400 hover:text-white"
+          >
             <Link href={`/profiles/${id}`}>
               <ArrowLeft className="h-4 w-4" />
               <span className="hidden sm:inline">프로필</span>
             </Link>
           </Button>
 
-          <h1 className="font-serif text-lg font-semibold text-[#1a1a1a]">
+          <h1 className="font-serif text-lg font-semibold text-white">
             {reportData.profile.name}님의 사주 리포트
           </h1>
 
           <div className="flex items-center gap-1">
-            <Button variant="ghost" size="icon" onClick={handleShare} title="공유하기">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={handleShare}
+              title="공유하기"
+              className="text-gray-400 hover:text-white"
+            >
               <Share2 className="h-4 w-4" />
             </Button>
-            <Button variant="ghost" size="icon" onClick={handleDownloadPdf} title="PDF 다운로드">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={handleDownloadPdf}
+              title="PDF 다운로드"
+              className="text-gray-400 hover:text-white"
+            >
               <Download className="h-4 w-4" />
             </Button>
           </div>
@@ -323,7 +353,7 @@ export default function ProfileReportPage({ params }: PageProps) {
         </div>
 
         {/* 푸터 */}
-        <footer className="mt-16 border-t border-gray-200 pt-8 text-center text-xs text-gray-400">
+        <footer className="mt-16 border-t border-[#333] pt-8 text-center text-xs text-gray-500">
           <p>본 분석은 AI가 생성한 참고 자료이며, 중요한 결정에 앞서 전문가 상담을 권장합니다.</p>
           <p className="mt-1">© {new Date().getFullYear()} Master&apos;s Insight AI</p>
         </footer>
