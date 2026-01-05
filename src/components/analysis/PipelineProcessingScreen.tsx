@@ -104,8 +104,8 @@ function StepIcon({ status }: { status: StepStatus }) {
   }
 }
 
-/** 초기 카운트다운 시간 (10분) */
-const INITIAL_COUNTDOWN_SECONDS = 600;
+/** 초기 카운트다운 시간 (5분) */
+const INITIAL_COUNTDOWN_SECONDS = 300;
 
 export function PipelineProcessingScreen({
   currentStep,
