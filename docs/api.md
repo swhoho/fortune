@@ -40,7 +40,7 @@ Supabase Auth 사용 (`@supabase/ssr`)
 ## 프로필 리포트 API
 
 ### POST /api/profiles/:id/report
-리포트 생성 시작 | **인증**: 필수 | **크레딧**: 50C
+리포트 생성 시작 | **인증**: 필수 | **크레딧**: 70C
 
 ```json
 { "retryFromStep": "personality" }  // 선택적
@@ -123,7 +123,7 @@ AI 후속 질문 | **인증**: 필수 | **크레딧**: 10C
 ```
 
 ### POST /api/analysis/yearly
-신년 사주 분석 | **인증**: 필수 | **크레딧**: 30C
+신년 사주 분석 | **인증**: 필수 | **크레딧**: 50C
 
 ```json
 {
@@ -284,9 +284,9 @@ v2.0에서 `analyses` 테이블 기반 API가 `profiles` + `profile_reports` 테
 
 | 서비스 | 크레딧 | API |
 |--------|--------|-----|
-| 리포트 생성 | 50C | `POST /api/profiles/:id/report` |
+| 리포트 생성 | 70C | `POST /api/profiles/:id/report` |
 | 섹션 재분석 | 5C | `POST /api/profiles/:id/report/reanalyze` |
-| 신년 분석 | 30C | `POST /api/analysis/yearly` |
+| 신년 분석 | 50C | `POST /api/analysis/yearly` |
 | AI 후속 질문 | 10C | `POST /api/profiles/:id/report/question` |
 
 ---

@@ -311,7 +311,7 @@ export class SajuAnalyzer {
             analysisId: '', // API에서 실제 ID 할당
             year: input.year,
             result,
-            creditsUsed: 30,
+            creditsUsed: 50,
             remainingCredits: 0, // API에서 실제 값 할당
           },
         };

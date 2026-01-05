@@ -322,6 +322,7 @@ YEARLY_OUTPUT_JSON_SCHEMA = {
         },
         "quarterlyHighlights": {
             "type": "array",
+            "description": "분기별 하이라이트 (deprecated - 빈 배열 허용)",
             "items": {
                 "type": "object",
                 "properties": {
@@ -332,7 +333,7 @@ YEARLY_OUTPUT_JSON_SCHEMA = {
                 },
                 "required": ["quarter", "theme", "score", "summary"]
             },
-            "minItems": 4,
+            "minItems": 0,
             "maxItems": 4
         },
         "keyDates": {
@@ -352,13 +353,71 @@ YEARLY_OUTPUT_JSON_SCHEMA = {
         },
         "yearlyAdvice": {
             "type": "object",
+            "description": "6개 섹션 연간 조언 (상반기/하반기 구분)",
             "properties": {
-                "wealth": {"type": "string"},
-                "love": {"type": "string"},
-                "career": {"type": "string"},
-                "health": {"type": "string"}
+                "nature_and_soul": {
+                    "type": "object",
+                    "description": "SECTION 1: 본연의 성정과 신년의 기류",
+                    "properties": {
+                        "first_half": {"type": "string", "description": "상반기(1~6월) 분석 (400~600자)"},
+                        "second_half": {"type": "string", "description": "하반기(7~12월) 분석 (400~600자)"}
+                    },
+                    "required": ["first_half", "second_half"]
+                },
+                "wealth_and_success": {
+                    "type": "object",
+                    "description": "SECTION 2: 재물과 비즈니스의 조류",
+                    "properties": {
+                        "first_half": {"type": "string", "description": "상반기(1~6월) 분석 (500~700자)"},
+                        "second_half": {"type": "string", "description": "하반기(7~12월) 분석 (500~700자)"}
+                    },
+                    "required": ["first_half", "second_half"]
+                },
+                "career_and_honor": {
+                    "type": "object",
+                    "description": "SECTION 3: 직업적 성취와 명예의 궤적",
+                    "properties": {
+                        "first_half": {"type": "string", "description": "상반기(1~6월) 분석 (500~700자)"},
+                        "second_half": {"type": "string", "description": "하반기(7~12월) 분석 (500~700자)"}
+                    },
+                    "required": ["first_half", "second_half"]
+                },
+                "document_and_wisdom": {
+                    "type": "object",
+                    "description": "SECTION 4: 문서의 인연과 학업의 결실",
+                    "properties": {
+                        "first_half": {"type": "string", "description": "상반기(1~6월) 분석 (400~600자)"},
+                        "second_half": {"type": "string", "description": "하반기(7~12월) 분석 (400~600자)"}
+                    },
+                    "required": ["first_half", "second_half"]
+                },
+                "relationship_and_love": {
+                    "type": "object",
+                    "description": "SECTION 5: 인연의 파동과 사회적 관계",
+                    "properties": {
+                        "first_half": {"type": "string", "description": "상반기(1~6월) 분석 (500~700자)"},
+                        "second_half": {"type": "string", "description": "하반기(7~12월) 분석 (500~700자)"}
+                    },
+                    "required": ["first_half", "second_half"]
+                },
+                "health_and_movement": {
+                    "type": "object",
+                    "description": "SECTION 6: 신체의 조화와 환경의 변화",
+                    "properties": {
+                        "first_half": {"type": "string", "description": "상반기(1~6월) 분석 (400~600자)"},
+                        "second_half": {"type": "string", "description": "하반기(7~12월) 분석 (400~600자)"}
+                    },
+                    "required": ["first_half", "second_half"]
+                }
             },
-            "required": ["wealth", "love", "career", "health"]
+            "required": [
+                "nature_and_soul",
+                "wealth_and_success",
+                "career_and_honor",
+                "document_and_wisdom",
+                "relationship_and_love",
+                "health_and_movement"
+            ]
         },
         "classicalReferences": {
             "type": "array",
@@ -379,7 +438,6 @@ YEARLY_OUTPUT_JSON_SCHEMA = {
         "yearlyTheme",
         "overallScore",
         "monthlyFortunes",
-        "quarterlyHighlights",
         "keyDates",
         "yearlyAdvice",
         "classicalReferences"
@@ -428,17 +486,35 @@ def get_yearly_output_schema_description(language: LocaleType, year: int) -> str
       "keywords": ["키워드1", "키워드2", "키워드3"]
     }}
   ],
-  "quarterlyHighlights": [
-    {{"quarter": 1, "theme": "분기 테마", "score": 0-100, "summary": "분기 요약"}}
-  ],
+  "quarterlyHighlights": [],
   "keyDates": [
     {{"date": "{year}-03-21", "type": "lucky", "significance": "중요도", "recommendation": "추천 사항"}}
   ],
   "yearlyAdvice": {{
-    "wealth": "재물운 연간 조언",
-    "love": "연애운 연간 조언",
-    "career": "직장운 연간 조언",
-    "health": "건강운 연간 조언"
+    "nature_and_soul": {{
+      "first_half": "상반기 본연의 성정 분석 (400~600자 서사체)",
+      "second_half": "하반기 본연의 성정 분석 (400~600자 서사체)"
+    }},
+    "wealth_and_success": {{
+      "first_half": "상반기 재물운 분석 (500~700자 서사체)",
+      "second_half": "하반기 재물운 분석 (500~700자 서사체)"
+    }},
+    "career_and_honor": {{
+      "first_half": "상반기 직업운 분석 (500~700자 서사체)",
+      "second_half": "하반기 직업운 분석 (500~700자 서사체)"
+    }},
+    "document_and_wisdom": {{
+      "first_half": "상반기 문서/학업운 분석 (400~600자 서사체)",
+      "second_half": "하반기 문서/학업운 분석 (400~600자 서사체)"
+    }},
+    "relationship_and_love": {{
+      "first_half": "상반기 인연/관계운 분석 (500~700자 서사체)",
+      "second_half": "하반기 인연/관계운 분석 (500~700자 서사체)"
+    }},
+    "health_and_movement": {{
+      "first_half": "상반기 건강/이동운 분석 (400~600자 서사체)",
+      "second_half": "하반기 건강/이동운 분석 (400~600자 서사체)"
+    }}
   }},
   "classicalReferences": [
     {{"source": "자평진전", "quote": "원문", "interpretation": "해석"}}
@@ -485,17 +561,35 @@ You must respond in the following format:
       "keywords": ["keyword1", "keyword2", "keyword3"]
     }}
   ],
-  "quarterlyHighlights": [
-    {{"quarter": 1, "theme": "Quarter theme", "score": 0-100, "summary": "Quarter summary"}}
-  ],
+  "quarterlyHighlights": [],
   "keyDates": [
     {{"date": "{year}-03-21", "type": "lucky", "significance": "Significance", "recommendation": "Recommendation"}}
   ],
   "yearlyAdvice": {{
-    "wealth": "Yearly wealth advice",
-    "love": "Yearly love advice",
-    "career": "Yearly career advice",
-    "health": "Yearly health advice"
+    "nature_and_soul": {{
+      "first_half": "First half nature/soul analysis (400-600 chars narrative)",
+      "second_half": "Second half nature/soul analysis (400-600 chars narrative)"
+    }},
+    "wealth_and_success": {{
+      "first_half": "First half wealth analysis (500-700 chars narrative)",
+      "second_half": "Second half wealth analysis (500-700 chars narrative)"
+    }},
+    "career_and_honor": {{
+      "first_half": "First half career analysis (500-700 chars narrative)",
+      "second_half": "Second half career analysis (500-700 chars narrative)"
+    }},
+    "document_and_wisdom": {{
+      "first_half": "First half document/study analysis (400-600 chars narrative)",
+      "second_half": "Second half document/study analysis (400-600 chars narrative)"
+    }},
+    "relationship_and_love": {{
+      "first_half": "First half relationship analysis (500-700 chars narrative)",
+      "second_half": "Second half relationship analysis (500-700 chars narrative)"
+    }},
+    "health_and_movement": {{
+      "first_half": "First half health/movement analysis (400-600 chars narrative)",
+      "second_half": "Second half health/movement analysis (400-600 chars narrative)"
+    }}
   }},
   "classicalReferences": [
     {{"source": "Ziping Zhengquan", "quote": "Original text", "interpretation": "Interpretation"}}
@@ -542,14 +636,21 @@ You must respond in the following format:
       "keywords": ["キーワード1", "キーワード2", "キーワード3"]
     }}
   ],
-  "quarterlyHighlights": [...],
+  "quarterlyHighlights": [],
   "keyDates": [...],
-  "yearlyAdvice": {{...}},
+  "yearlyAdvice": {{
+    "nature_and_soul": {{"first_half": "上半期分析", "second_half": "下半期分析"}},
+    "wealth_and_success": {{"first_half": "上半期分析", "second_half": "下半期分析"}},
+    "career_and_honor": {{"first_half": "上半期分析", "second_half": "下半期分析"}},
+    "document_and_wisdom": {{"first_half": "上半期分析", "second_half": "下半期分析"}},
+    "relationship_and_love": {{"first_half": "上半期分析", "second_half": "下半期分析"}},
+    "health_and_movement": {{"first_half": "上半期分析", "second_half": "下半期分析"}}
+  }},
   "classicalReferences": [...]
 }}
 ```
 
-**重要**: monthlyFortunesには必ず12ヶ月すべてを含めてください。
+**重要**: monthlyFortunesには必ず12ヶ月すべてを含めてください。yearlyAdviceは6つのセクションで上半期/下半期に分けて記述してください。
 """,
         'zh-CN': f"""
 ## 输出格式 (JSON) - {year}年 年度运势
@@ -581,14 +682,21 @@ You must respond in the following format:
       "keywords": ["关键词1", "关键词2", "关键词3"]
     }}
   ],
-  "quarterlyHighlights": [...],
+  "quarterlyHighlights": [],
   "keyDates": [...],
-  "yearlyAdvice": {{...}},
+  "yearlyAdvice": {{
+    "nature_and_soul": {{"first_half": "上半年分析", "second_half": "下半年分析"}},
+    "wealth_and_success": {{"first_half": "上半年分析", "second_half": "下半年分析"}},
+    "career_and_honor": {{"first_half": "上半年分析", "second_half": "下半年分析"}},
+    "document_and_wisdom": {{"first_half": "上半年分析", "second_half": "下半年分析"}},
+    "relationship_and_love": {{"first_half": "上半年分析", "second_half": "下半年分析"}},
+    "health_and_movement": {{"first_half": "上半年分析", "second_half": "下半年分析"}}
+  }},
   "classicalReferences": [...]
 }}
 ```
 
-**重要**: monthlyFortunes必须包含全部12个月。
+**重要**: monthlyFortunes必须包含全部12个月。yearlyAdvice需包含6个板块，每个板块分上半年/下半年叙述。
 """,
         'zh-TW': f"""
 ## 輸出格式 (JSON) - {year}年 年度運勢
@@ -620,14 +728,21 @@ You must respond in the following format:
       "keywords": ["關鍵詞1", "關鍵詞2", "關鍵詞3"]
     }}
   ],
-  "quarterlyHighlights": [...],
+  "quarterlyHighlights": [],
   "keyDates": [...],
-  "yearlyAdvice": {{...}},
+  "yearlyAdvice": {{
+    "nature_and_soul": {{"first_half": "上半年分析", "second_half": "下半年分析"}},
+    "wealth_and_success": {{"first_half": "上半年分析", "second_half": "下半年分析"}},
+    "career_and_honor": {{"first_half": "上半年分析", "second_half": "下半年分析"}},
+    "document_and_wisdom": {{"first_half": "上半年分析", "second_half": "下半年分析"}},
+    "relationship_and_love": {{"first_half": "上半年分析", "second_half": "下半年分析"}},
+    "health_and_movement": {{"first_half": "上半年分析", "second_half": "下半年分析"}}
+  }},
   "classicalReferences": [...]
 }}
 ```
 
-**重要**: monthlyFortunes必須包含全部12個月。
+**重要**: monthlyFortunes必須包含全部12個月。yearlyAdvice需包含6個板塊，每個板塊分上半年/下半年敘述。
 """
     }
 

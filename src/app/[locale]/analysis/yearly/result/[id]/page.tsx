@@ -11,12 +11,7 @@ import { motion } from 'framer-motion';
 import { ArrowLeft, Share2, Sparkles, Calendar, BookOpen, Loader2 } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
-import {
-  MonthlyTimeline,
-  LuckyDaysCalendar,
-  QuarterlyOverview,
-  YearlyAdviceCard,
-} from '@/components/analysis/yearly';
+import { MonthlyTimeline, LuckyDaysCalendar, YearlyAdviceCard } from '@/components/analysis/yearly';
 import { useYearlyStore } from '@/stores/yearly-store';
 import { BRAND_COLORS } from '@/lib/constants/colors';
 import type { YearlyAnalysisResult } from '@/lib/ai/types';
@@ -182,14 +177,6 @@ export default function YearlyResultPage() {
           {/* 월별 타임라인 */}
           {result.monthlyFortunes && result.monthlyFortunes.length > 0 && (
             <MonthlyTimeline monthlyFortunes={result.monthlyFortunes} year={result.year} />
-          )}
-
-          {/* 분기별 개요 */}
-          {result.quarterlyHighlights && result.quarterlyHighlights.length > 0 && (
-            <QuarterlyOverview
-              quarterlyHighlights={result.quarterlyHighlights}
-              year={result.year}
-            />
           )}
 
           {/* 길흉일 캘린더 */}

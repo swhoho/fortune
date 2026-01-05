@@ -269,27 +269,39 @@ export interface KeyDate {
 }
 
 /**
- * 분야별 연간 조언
+ * 섹션 콘텐츠 (상반기/하반기 구분)
  */
-/** 분야별 조언 상세 (객체 형태) */
-export interface AdviceDetail {
-  overview?: string;
-  strengths?: string[];
-  weaknesses?: string[];
-  cautions?: string[];
-  tips?: string[];
-  actions?: string[];
-  timing?: string;
+export interface SectionContent {
+  /** 상반기(1~6월) 분석 (400~700자 서사체) */
+  first_half: string;
+  /** 하반기(7~12월) 분석 (400~700자 서사체) */
+  second_half: string;
 }
 
-/** 분야별 조언 (문자열 또는 객체) */
-export type AdviceValue = string | AdviceDetail;
-
+/**
+ * 6개 섹션 연간 조언 (v2.0)
+ */
 export interface YearlyAdvice {
-  wealth: AdviceValue;
-  love: AdviceValue;
-  career: AdviceValue;
-  health: AdviceValue;
+  /** SECTION 1: 본연의 성정과 신년의 기류 (일간 심리학적 접근) */
+  nature_and_soul: SectionContent;
+  /** SECTION 2: 재물과 비즈니스의 조류 (재성/식상 분석) */
+  wealth_and_success: SectionContent;
+  /** SECTION 3: 직업적 성취와 명예의 궤적 (관성 분석) */
+  career_and_honor: SectionContent;
+  /** SECTION 4: 문서의 인연과 학업의 결실 (인성 분석) */
+  document_and_wisdom: SectionContent;
+  /** SECTION 5: 인연의 파동과 사회적 관계 (연애/귀인운) */
+  relationship_and_love: SectionContent;
+  /** SECTION 6: 신체의 조화와 환경의 변화 (건강/역마) */
+  health_and_movement: SectionContent;
+}
+
+// 레거시 지원용 타입 (기존 데이터 호환)
+export interface LegacyYearlyAdvice {
+  wealth: string;
+  love: string;
+  career: string;
+  health: string;
 }
 
 /**
@@ -306,8 +318,8 @@ export interface YearlyAnalysisResult {
   overallScore: number;
   /** 12개월 분석 */
   monthlyFortunes: MonthlyFortune[];
-  /** 분기별 하이라이트 */
-  quarterlyHighlights: QuarterlyHighlight[];
+  /** 분기별 하이라이트 (deprecated - optional) */
+  quarterlyHighlights?: QuarterlyHighlight[];
   /** 연중 핵심 날짜 (10-15개) */
   keyDates: KeyDate[];
   /** 분야별 연간 조언 */

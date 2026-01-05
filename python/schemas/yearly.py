@@ -53,13 +53,32 @@ class QuarterlyHighlight(BaseModel):
     score: int = Field(..., ge=0, le=100, description="점수")
 
 
+class SectionContent(BaseModel):
+    """섹션 콘텐츠 (상반기/하반기 구분)"""
+    first_half: str = Field(..., description="상반기(1~6월) 분석 (400~700자 서사체)")
+    second_half: str = Field(..., description="하반기(7~12월) 분석 (400~700자 서사체)")
+
+
 class YearlyAdvice(BaseModel):
-    """분야별 연간 조언"""
-    career: str = Field(..., description="직업/사업")
-    wealth: str = Field(..., description="재물")
-    love: str = Field(..., description="연애/결혼")
-    health: str = Field(..., description="건강")
-    relationships: str = Field(..., description="대인관계")
+    """6개 섹션 연간 조언 (v2.0)"""
+    nature_and_soul: SectionContent = Field(
+        ..., description="SECTION 1: 본연의 성정과 신년의 기류 (일간 심리학적 접근)"
+    )
+    wealth_and_success: SectionContent = Field(
+        ..., description="SECTION 2: 재물과 비즈니스의 조류 (재성/식상 분석)"
+    )
+    career_and_honor: SectionContent = Field(
+        ..., description="SECTION 3: 직업적 성취와 명예의 궤적 (관성 분석)"
+    )
+    document_and_wisdom: SectionContent = Field(
+        ..., description="SECTION 4: 문서의 인연과 학업의 결실 (인성 분석)"
+    )
+    relationship_and_love: SectionContent = Field(
+        ..., description="SECTION 5: 인연의 파동과 사회적 관계 (연애/귀인운)"
+    )
+    health_and_movement: SectionContent = Field(
+        ..., description="SECTION 6: 신체의 조화와 환경의 변화 (건강/역마)"
+    )
 
 
 class YearlyAnalysisResult(BaseModel):
@@ -69,9 +88,11 @@ class YearlyAnalysisResult(BaseModel):
     yearly_theme: str = Field(..., description="올해의 테마")
     overall_score: int = Field(..., ge=0, le=100, description="연간 종합 점수")
     monthly_fortunes: List[MonthlyFortune] = Field(..., description="월별 운세")
-    quarterly_highlights: List[QuarterlyHighlight] = Field(..., description="분기별 하이라이트")
+    quarterly_highlights: Optional[List[QuarterlyHighlight]] = Field(
+        default=[], description="분기별 하이라이트 (deprecated)"
+    )
     key_dates: Dict[str, List[str]] = Field(..., description="핵심 날짜 (lucky/unlucky)")
-    yearly_advice: YearlyAdvice = Field(..., description="분야별 조언")
+    yearly_advice: YearlyAdvice = Field(..., description="6개 섹션 분야별 조언")
     classical_references: List[Dict[str, str]] = Field(..., description="고전 인용")
 
 

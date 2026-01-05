@@ -1,241 +1,250 @@
 'use client';
 
 /**
- * 분야별 연간 조언 컴포넌트
- * Task 20: 재물/연애/직장/건강 분야별 조언
+ * 6개 섹션 연간 조언 컴포넌트 (v2.0)
+ * 상반기/하반기 구분 + 다크 테마
  */
 
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Coins, Heart, Briefcase, Activity, Lightbulb, ChevronRight } from 'lucide-react';
-import { BRAND_COLORS } from '@/lib/constants/colors';
-import type { YearlyAdvice } from '@/lib/ai/types';
+import {
+  Brain,
+  Coins,
+  Briefcase,
+  FileText,
+  Heart,
+  Activity,
+  Sparkles,
+  ChevronDown,
+} from 'lucide-react';
+import type { YearlyAdvice, SectionContent } from '@/lib/ai/types';
 
 interface YearlyAdviceCardProps {
-  /** 분야별 연간 조언 */
+  /** 6개 섹션 연간 조언 */
   yearlyAdvice: YearlyAdvice;
   /** 분석 대상 연도 */
   year: number;
 }
 
-/** 분야 정보 */
-const AREAS = [
+/** 6개 섹션 정보 */
+const SECTIONS = [
   {
-    key: 'wealth' as const,
-    label: '재물운',
+    key: 'nature_and_soul' as const,
+    label: '본연의 성정',
+    description: '일간 심리학적 접근',
+    icon: Brain,
+    color: '#8b5cf6', // violet
+    bgGlow: 'rgba(139, 92, 246, 0.15)',
+  },
+  {
+    key: 'wealth_and_success' as const,
+    label: '재물과 비즈니스',
+    description: '재성/식상 분석',
     icon: Coins,
-    color: '#eab308',
-    bgColor: 'bg-yellow-50',
-    borderColor: 'border-yellow-200',
-    description: '재정, 투자, 사업 관련',
+    color: '#d4af37', // 금색
+    bgGlow: 'rgba(212, 175, 55, 0.15)',
   },
   {
-    key: 'love' as const,
-    label: '애정운',
-    icon: Heart,
-    color: '#ec4899',
-    bgColor: 'bg-pink-50',
-    borderColor: 'border-pink-200',
-    description: '연애, 결혼, 인간관계',
-  },
-  {
-    key: 'career' as const,
-    label: '직장운',
+    key: 'career_and_honor' as const,
+    label: '직업과 명예',
+    description: '관성 분석',
     icon: Briefcase,
-    color: '#3b82f6',
-    bgColor: 'bg-blue-50',
-    borderColor: 'border-blue-200',
-    description: '직장, 승진, 학업',
+    color: '#3b82f6', // blue
+    bgGlow: 'rgba(59, 130, 246, 0.15)',
   },
   {
-    key: 'health' as const,
-    label: '건강운',
-    icon: Activity,
-    color: '#22c55e',
-    bgColor: 'bg-green-50',
-    borderColor: 'border-green-200',
-    description: '건강, 체력, 정신건강',
+    key: 'document_and_wisdom' as const,
+    label: '문서와 학업',
+    description: '인성 분석',
+    icon: FileText,
+    color: '#10b981', // emerald
+    bgGlow: 'rgba(16, 185, 129, 0.15)',
   },
-];
+  {
+    key: 'relationship_and_love' as const,
+    label: '인연과 관계',
+    description: '연애/귀인운',
+    icon: Heart,
+    color: '#ec4899', // pink
+    bgGlow: 'rgba(236, 72, 153, 0.15)',
+  },
+  {
+    key: 'health_and_movement' as const,
+    label: '건강과 이동',
+    description: '건강/역마운',
+    icon: Activity,
+    color: '#22c55e', // green
+    bgGlow: 'rgba(34, 197, 94, 0.15)',
+  },
+] as const;
+
+type SectionKey = (typeof SECTIONS)[number]['key'];
+type HalfPeriod = 'first_half' | 'second_half';
 
 export function YearlyAdviceCard({ yearlyAdvice, year }: YearlyAdviceCardProps) {
-  const [selectedArea, setSelectedArea] = useState<keyof YearlyAdvice | null>(null);
+  const [selectedSection, setSelectedSection] = useState<SectionKey | null>(null);
+  const [selectedHalf, setSelectedHalf] = useState<HalfPeriod>('first_half');
+
+  /** 섹션 데이터 가져오기 */
+  const getSectionData = (key: SectionKey): SectionContent | undefined => {
+    return yearlyAdvice[key];
+  };
 
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5, delay: 0.5 }}
-      className="w-full rounded-2xl border border-gray-200 bg-white p-6 shadow-lg"
+      className="w-full overflow-hidden rounded-2xl border border-[#333] bg-[#1a1a1a]"
     >
       {/* 헤더 */}
-      <div className="mb-6 flex items-center gap-3">
-        <div
-          className="flex h-10 w-10 items-center justify-center rounded-full"
-          style={{ backgroundColor: `${BRAND_COLORS.primary}20` }}
-        >
-          <Lightbulb className="h-5 w-5" style={{ color: BRAND_COLORS.primary }} />
-        </div>
-        <div>
-          <h3 className="font-serif text-lg font-semibold text-gray-900">{year}년 분야별 조언</h3>
-          <p className="text-sm text-gray-500">각 분야를 탭하여 상세 조언을 확인하세요</p>
+      <div className="border-b border-[#333] px-6 py-5">
+        <div className="flex items-center gap-3">
+          <div className="flex h-11 w-11 items-center justify-center rounded-full bg-[#d4af37]/20">
+            <Sparkles className="h-5 w-5 text-[#d4af37]" />
+          </div>
+          <div>
+            <h3 className="font-serif text-lg font-semibold text-white">{year}년 운세 심층 분석</h3>
+            <p className="text-sm text-gray-400">6가지 삶의 영역별 상반기/하반기 흐름</p>
+          </div>
         </div>
       </div>
 
-      {/* 분야별 카드 그리드 */}
-      <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-        {AREAS.map((area) => {
-          const Icon = area.icon;
-          const isSelected = selectedArea === area.key;
+      {/* 6개 섹션 그리드 */}
+      <div className="grid grid-cols-2 gap-3 p-4 sm:grid-cols-3">
+        {SECTIONS.map((section, index) => {
+          const Icon = section.icon;
+          const isSelected = selectedSection === section.key;
+          const data = getSectionData(section.key);
+          const hasData = !!data;
 
           return (
             <motion.button
-              key={area.key}
-              onClick={() => setSelectedArea(isSelected ? null : area.key)}
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-              className={`relative rounded-xl border-2 p-4 text-left transition-all ${
+              key={section.key}
+              onClick={() => {
+                if (hasData) {
+                  setSelectedSection(isSelected ? null : section.key);
+                }
+              }}
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.3, delay: index * 0.05 }}
+              disabled={!hasData}
+              className={`relative rounded-xl border p-4 text-left transition-all ${
                 isSelected
-                  ? `${area.bgColor} ${area.borderColor}`
-                  : 'border-gray-200 bg-white hover:border-gray-300'
+                  ? 'border-[#d4af37]/50 bg-[#242424]'
+                  : hasData
+                    ? 'border-[#333] bg-[#1a1a1a] hover:border-[#444] hover:bg-[#242424]'
+                    : 'cursor-not-allowed border-[#333] bg-[#1a1a1a] opacity-50'
               }`}
+              style={
+                isSelected
+                  ? {
+                      boxShadow: `0 0 20px ${section.bgGlow}`,
+                    }
+                  : undefined
+              }
             >
+              {/* 아이콘 */}
               <div
-                className="mb-3 flex h-10 w-10 items-center justify-center rounded-full"
-                style={{ backgroundColor: `${area.color}20` }}
+                className="mb-3 flex h-10 w-10 items-center justify-center rounded-lg"
+                style={{ backgroundColor: `${section.color}20` }}
               >
-                <Icon className="h-5 w-5" style={{ color: area.color }} />
+                <Icon className="h-5 w-5" style={{ color: section.color }} />
               </div>
-              <p className="font-medium text-gray-900">{area.label}</p>
-              <p className="mt-0.5 text-xs text-gray-500">{area.description}</p>
 
-              {/* 확장 표시 */}
-              <ChevronRight
-                className={`absolute right-2 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400 transition-transform ${
-                  isSelected ? 'rotate-90' : ''
-                }`}
-              />
+              {/* 라벨 */}
+              <p className="font-medium text-white">{section.label}</p>
+              <p className="mt-0.5 text-xs text-gray-500">{section.description}</p>
+
+              {/* 선택 표시 */}
+              {isSelected && (
+                <motion.div
+                  initial={{ scale: 0 }}
+                  animate={{ scale: 1 }}
+                  className="absolute -right-1 -top-1 flex h-5 w-5 items-center justify-center rounded-full"
+                  style={{ backgroundColor: section.color }}
+                >
+                  <ChevronDown className="h-3 w-3 text-white" />
+                </motion.div>
+              )}
             </motion.button>
           );
         })}
       </div>
 
-      {/* 선택된 분야 상세 */}
+      {/* 선택된 섹션 상세 */}
       <AnimatePresence>
-        {selectedArea && (
+        {selectedSection && (
           <motion.div
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: 'auto' }}
             exit={{ opacity: 0, height: 0 }}
             transition={{ duration: 0.3 }}
-            className="mt-4 overflow-hidden"
+            className="overflow-hidden"
           >
             {(() => {
-              const area = AREAS.find((a) => a.key === selectedArea);
-              const advice = yearlyAdvice[selectedArea];
-              if (!area || !advice) return null;
+              const section = SECTIONS.find((s) => s.key === selectedSection);
+              const data = getSectionData(selectedSection);
+              if (!section || !data) return null;
 
-              const Icon = area.icon;
+              const Icon = section.icon;
 
               return (
-                <div className={`rounded-xl border-2 p-5 ${area.bgColor} ${area.borderColor}`}>
-                  {/* 헤더 */}
-                  <div className="mb-4 flex items-center gap-3">
+                <div className="border-t border-[#333] bg-[#111111] p-5">
+                  {/* 섹션 헤더 */}
+                  <div className="mb-5 flex items-center gap-3">
                     <div
-                      className="flex h-12 w-12 items-center justify-center rounded-full"
-                      style={{ backgroundColor: area.color }}
+                      className="flex h-12 w-12 items-center justify-center rounded-xl"
+                      style={{ backgroundColor: section.color }}
                     >
                       <Icon className="h-6 w-6 text-white" />
                     </div>
                     <div>
-                      <h4 className="text-lg font-semibold text-gray-900">
-                        {year}년 {area.label}
-                      </h4>
-                      <p className="text-sm text-gray-600">{area.description}</p>
+                      <h4 className="text-lg font-semibold text-white">{section.label}</h4>
+                      <p className="text-sm text-gray-400">{section.description}</p>
                     </div>
                   </div>
 
-                  {/* 조언 내용 */}
-                  {typeof advice === 'string' ? (
-                    <div className="rounded-lg bg-white/60 p-4">
-                      <p className="text-gray-700">{advice}</p>
-                    </div>
-                  ) : typeof advice === 'object' ? (
-                    <div className="space-y-4">
-                      {/* 개요 */}
-                      {advice.overview && (
-                        <div className="rounded-lg bg-white/60 p-4">
-                          <p className="text-sm font-medium text-gray-500">개요</p>
-                          <p className="mt-1 text-gray-700">{advice.overview}</p>
-                        </div>
-                      )}
+                  {/* 상반기/하반기 탭 */}
+                  <div className="mb-4 flex gap-2">
+                    <button
+                      onClick={() => setSelectedHalf('first_half')}
+                      className={`flex-1 rounded-lg px-4 py-2.5 text-sm font-medium transition-all ${
+                        selectedHalf === 'first_half'
+                          ? 'bg-[#d4af37] text-[#0a0a0a]'
+                          : 'bg-[#242424] text-gray-400 hover:bg-[#333] hover:text-white'
+                      }`}
+                    >
+                      상반기 (1~6월)
+                    </button>
+                    <button
+                      onClick={() => setSelectedHalf('second_half')}
+                      className={`flex-1 rounded-lg px-4 py-2.5 text-sm font-medium transition-all ${
+                        selectedHalf === 'second_half'
+                          ? 'bg-[#d4af37] text-[#0a0a0a]'
+                          : 'bg-[#242424] text-gray-400 hover:bg-[#333] hover:text-white'
+                      }`}
+                    >
+                      하반기 (7~12월)
+                    </button>
+                  </div>
 
-                      {/* 강점 */}
-                      {advice.strengths && advice.strengths.length > 0 && (
-                        <div>
-                          <p className="mb-2 text-sm font-medium text-gray-700">강점</p>
-                          <div className="flex flex-wrap gap-2">
-                            {advice.strengths.map((strength, i) => (
-                              <span
-                                key={i}
-                                className="rounded-full bg-white px-3 py-1 text-sm text-gray-700"
-                              >
-                                {strength}
-                              </span>
-                            ))}
-                          </div>
-                        </div>
-                      )}
-
-                      {/* 주의사항 */}
-                      {advice.cautions && advice.cautions.length > 0 && (
-                        <div>
-                          <p className="mb-2 text-sm font-medium text-gray-700">주의사항</p>
-                          <div className="flex flex-wrap gap-2">
-                            {advice.cautions.map((caution, i) => (
-                              <span
-                                key={i}
-                                className="rounded-full bg-white px-3 py-1 text-sm text-red-600"
-                              >
-                                {caution}
-                              </span>
-                            ))}
-                          </div>
-                        </div>
-                      )}
-
-                      {/* 행동 조언 */}
-                      {advice.actions && advice.actions.length > 0 && (
-                        <div>
-                          <p className="mb-2 text-sm font-medium text-gray-700">추천 행동</p>
-                          <ul className="space-y-2">
-                            {advice.actions.map((action, i) => (
-                              <li
-                                key={i}
-                                className="flex items-start gap-2 rounded-lg bg-white/60 p-3"
-                              >
-                                <span
-                                  className="flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full text-xs font-bold text-white"
-                                  style={{ backgroundColor: area.color }}
-                                >
-                                  {i + 1}
-                                </span>
-                                <span className="text-sm text-gray-700">{action}</span>
-                              </li>
-                            ))}
-                          </ul>
-                        </div>
-                      )}
-
-                      {/* 시기 */}
-                      {advice.timing && (
-                        <div className="rounded-lg bg-white/60 p-4">
-                          <p className="text-sm font-medium text-gray-500">좋은 시기</p>
-                          <p className="mt-1 text-gray-700">{advice.timing}</p>
-                        </div>
-                      )}
-                    </div>
-                  ) : null}
+                  {/* 본문 콘텐츠 */}
+                  <AnimatePresence mode="wait">
+                    <motion.div
+                      key={selectedHalf}
+                      initial={{ opacity: 0, x: selectedHalf === 'first_half' ? -10 : 10 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      exit={{ opacity: 0, x: selectedHalf === 'first_half' ? 10 : -10 }}
+                      transition={{ duration: 0.2 }}
+                      className="rounded-xl bg-[#1a1a1a] p-5"
+                    >
+                      <p className="whitespace-pre-wrap text-[15px] leading-relaxed text-gray-300">
+                        {data[selectedHalf]}
+                      </p>
+                    </motion.div>
+                  </AnimatePresence>
                 </div>
               );
             })()}

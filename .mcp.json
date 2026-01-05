@@ -3,13 +3,12 @@
     "supabase": {
       "command": "npx",
       "args": [
-        "-y",
-        "@anthropic-ai/mcp-server-supabase",
-        "--project-ref",
-        "${SUPABASE_PROJECT_REF}",
-        "--access-token",
-        "${SUPABASE_ACCESS_TOKEN}"
-      ]
+        "-y", "@supabase/mcp-server-supabase",
+        "--project-ref", "amhkerkybudzcsasvkit"
+      ],
+      "env": {
+        "SUPABASE_ACCESS_TOKEN": "c41fd985-680b-40ad-b26c-c7134260ba08"
+      }
     }
   }
 }

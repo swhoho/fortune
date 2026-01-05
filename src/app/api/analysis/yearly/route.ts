@@ -9,7 +9,7 @@ import { getSupabaseAdmin } from '@/lib/supabase/client';
 import { z } from 'zod';
 
 /** 신년 분석 크레딧 비용 */
-const YEARLY_ANALYSIS_CREDIT_COST = 30;
+const YEARLY_ANALYSIS_CREDIT_COST = 50;
 
 /**
  * 기둥 데이터 스키마

@@ -21,7 +21,7 @@ import { BRAND_COLORS } from '@/lib/constants/colors';
 import type { ProfileResponse } from '@/types/profile';
 
 /** 크레딧 비용 */
-const YEARLY_ANALYSIS_COST = 30;
+const YEARLY_ANALYSIS_COST = 50;
 
 export default function YearlyAnalysisPage() {
   const router = useRouter();

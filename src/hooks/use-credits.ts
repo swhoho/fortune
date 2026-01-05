@@ -64,7 +64,7 @@ export function useCreditsCheck(required: number) {
 
 /**
  * 프로필 리포트 크레딧 확인 훅
- * SERVICE_CREDITS.profileReport (50C) 기준
+ * SERVICE_CREDITS.profileReport (70C) 기준
  */
 export function useReportCreditsCheck() {
   return useCreditsCheck(SERVICE_CREDITS.profileReport);
