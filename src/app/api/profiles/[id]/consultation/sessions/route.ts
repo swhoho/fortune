@@ -187,20 +187,21 @@ export async function POST(request: NextRequest, context: RouteContext) {
       );
     }
 
-    // 6. 크레딧 차감 (RPC 사용)
+    // 6. 크레딧 차감 (RPC 사용 - TABLE 반환이므로 배열)
     const { data: deductResult, error: deductError } = await supabase.rpc('deduct_credits', {
       p_user_id: user.id,
       p_amount: creditsRequired,
     });
 
-    if (deductError || !deductResult?.success) {
-      if (deductResult?.error_message === 'INSUFFICIENT_CREDITS') {
+    const deductRow = deductResult?.[0];
+    if (deductError || !deductRow?.success) {
+      if (deductRow?.error_message === 'INSUFFICIENT_CREDITS') {
         return NextResponse.json(
           { success: false, error: '크레딧이 부족합니다', code: 'INSUFFICIENT_CREDITS' },
           { status: 402 }
         );
       }
-      console.error('[ConsultationSessions] 크레딧 차감 오류:', deductError);
+      console.error('[ConsultationSessions] 크레딧 차감 오류:', deductError, deductRow);
       return NextResponse.json(
         { success: false, error: '크레딧 처리 중 오류가 발생했습니다' },
         { status: 500 }
@@ -253,7 +254,7 @@ export async function POST(request: NextRequest, context: RouteContext) {
         sessionId: newSession.id,
         title: newSession.title,
         creditsUsed: creditsRequired,
-        remainingCredits: deductResult.remaining_credits,
+        remainingCredits: deductRow.new_credits,
       },
     };
 

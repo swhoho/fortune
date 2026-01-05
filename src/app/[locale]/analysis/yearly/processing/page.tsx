@@ -65,6 +65,7 @@ export default function YearlyProcessingPage() {
 
   const pollCountRef = useRef(0);
   const pollingIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  const hasStartedRef = useRef(false);
 
   // 팁 로테이션
   useEffect(() => {
@@ -286,10 +287,13 @@ export default function YearlyProcessingPage() {
     pollStatus,
   ]);
 
-  // 페이지 진입 시 분석 시작
+  // 페이지 진입 시 분석 시작 (한 번만 실행)
   useEffect(() => {
+    if (hasStartedRef.current) return;
+    hasStartedRef.current = true;
     startAnalysis();
-  }, [startAnalysis]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const getStepStatus = (step: YearlyLoadingStep) => {
     if (currentStep === 'complete') return 'completed';
@@ -304,10 +308,15 @@ export default function YearlyProcessingPage() {
     setError(null);
     setIsStarted(false);
     pollCountRef.current = 0;
+    hasStartedRef.current = false; // ref 리셋
     if (pollingIntervalRef.current) {
       clearInterval(pollingIntervalRef.current);
     }
-    startAnalysis();
+    // 직접 호출 (useEffect 의존 X)
+    setTimeout(() => {
+      hasStartedRef.current = true;
+      startAnalysis();
+    }, 0);
   };
 
   const handleBack = () => {
