@@ -78,10 +78,11 @@ export function ProfileInfoHeader({
           </div>
 
           {/* 만 나이 표시 */}
-          <p className="text-xs text-gray-500">
-            만 {age - 1}세 ({Math.floor((age - 1) / 10) * 10 + Math.floor(((age - 1) % 10) / 5) * 5}
-            대)
-          </p>
+          {typeof age === 'number' && !isNaN(age) && (
+            <p className="text-xs text-gray-500">
+              만 {age - 1}세 ({Math.floor((age - 1) / 10) * 10}대)
+            </p>
+          )}
         </div>
       </div>
 

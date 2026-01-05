@@ -95,10 +95,10 @@ export function DaewunHorizontalScroll({
       </button>
 
       {/* 좌측 그라데이션 */}
-      <div className="pointer-events-none absolute left-8 top-0 z-[5] h-full w-8 bg-gradient-to-r from-[#f8f8f8] to-transparent dark:from-[#0a0a0a]" />
+      <div className="pointer-events-none absolute left-8 top-0 z-[5] h-full w-8 bg-gradient-to-r from-[#0a0a0a] to-transparent" />
 
       {/* 우측 그라데이션 */}
-      <div className="pointer-events-none absolute right-8 top-0 z-[5] h-full w-8 bg-gradient-to-l from-[#f8f8f8] to-transparent dark:from-[#0a0a0a]" />
+      <div className="pointer-events-none absolute right-8 top-0 z-[5] h-full w-8 bg-gradient-to-l from-[#0a0a0a] to-transparent" />
 
       {/* 스크롤 컨테이너 */}
       <div
@@ -114,13 +114,15 @@ export function DaewunHorizontalScroll({
         >
           {daewun.map((item, index) => {
             const isCurrent = isCurrentDaewun(item, index);
+            const nextItem = daewun[index + 1];
+            const endYear = nextItem ? nextItem.startYear - 1 : null;
             return (
               <motion.div
                 key={`${item.age}-${index}`}
                 variants={cardVariants}
                 className={`flex snap-center flex-col items-center rounded-xl px-4 py-3 transition-all ${
                   isCurrent
-                    ? 'bg-gradient-to-b from-[#d4af37]/20 to-[#d4af37]/5 ring-2 ring-[#d4af37] ring-offset-2 ring-offset-[#f8f8f8] dark:ring-offset-[#0a0a0a]'
+                    ? 'bg-gradient-to-b from-[#d4af37]/20 to-[#d4af37]/5 ring-2 ring-[#d4af37] ring-offset-2 ring-offset-[#0a0a0a]'
                     : 'bg-[#1a1a1a] hover:bg-[#2a2a2a]'
                 } `}
               >
@@ -151,8 +153,10 @@ export function DaewunHorizontalScroll({
                   {item.branch}
                 </span>
 
-                {/* 시작 연도 */}
-                <span className="mt-2 text-[10px] text-gray-500">{item.startYear}년~</span>
+                {/* 연도 범위 */}
+                <span className="mt-2 text-[10px] text-gray-500">
+                  {item.startYear}년{endYear ? `~${endYear}년` : '~'}
+                </span>
 
                 {/* 현재 대운 표시 */}
                 {isCurrent && (
