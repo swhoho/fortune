@@ -27,9 +27,9 @@ logger = logging.getLogger(__name__)
 # 시각화 인스턴스
 visualizer = SajuVisualizer()
 
-# Supabase 설정 (Railway와 로컬 환경 모두 지원)
-SUPABASE_URL = os.getenv("SUPABASE_URL") or os.getenv("NEXT_PUBLIC_SUPABASE_URL", "")
-SUPABASE_SERVICE_KEY = os.getenv("SUPABASE_SERVICE_KEY") or os.getenv("SUPABASE_SERVICE_ROLE_KEY", "")
+# Supabase 설정
+SUPABASE_URL = os.getenv("SUPABASE_URL", "")
+SUPABASE_SERVICE_ROLE_KEY = os.getenv("SUPABASE_SERVICE_ROLE_KEY", "")
 
 
 class JobStore:
@@ -483,7 +483,7 @@ class ReportAnalysisService:
 
     async def _update_db_status(self, report_id: str, **kwargs):
         """Supabase DB 상태 업데이트"""
-        if not SUPABASE_URL or not SUPABASE_SERVICE_KEY:
+        if not SUPABASE_URL or not SUPABASE_SERVICE_ROLE_KEY:
             logger.warning("Supabase 설정이 없어 DB 업데이트 스킵")
             return
 
@@ -516,8 +516,8 @@ class ReportAnalysisService:
                     f"{SUPABASE_URL}/rest/v1/profile_reports?id=eq.{report_id}",
                     json=update_data,
                     headers={
-                        "apikey": SUPABASE_SERVICE_KEY,
-                        "Authorization": f"Bearer {SUPABASE_SERVICE_KEY}",
+                        "apikey": SUPABASE_SERVICE_ROLE_KEY,
+                        "Authorization": f"Bearer {SUPABASE_SERVICE_ROLE_KEY}",
                         "Content-Type": "application/json",
                         "Prefer": "return=minimal"
                     },
