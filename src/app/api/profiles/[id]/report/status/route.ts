@@ -127,8 +127,22 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
         if (statusRes.ok) {
           const statusData = await statusRes.json();
 
-          // Python에서 완료된 경우
+          // Python에서 완료된 경우 - DB도 업데이트
           if (statusData.status === 'completed') {
+            // DB 상태 업데이트 (Python에서 완료됐으면 DB도 동기화)
+            if (report.status !== 'completed') {
+              await supabase
+                .from('profile_reports')
+                .update({
+                  status: 'completed',
+                  progress_percent: 100,
+                  step_statuses: statusData.step_statuses || report.step_statuses,
+                  current_step: null,
+                  updated_at: new Date().toISOString(),
+                })
+                .eq('id', report.id);
+            }
+
             return NextResponse.json({
               status: 'completed' as const,
               currentStep: null,
