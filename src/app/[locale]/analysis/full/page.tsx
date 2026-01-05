@@ -73,16 +73,16 @@ export default function FullAnalysisPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#f8f8f8]">
+    <div className="min-h-screen bg-[#0a0a0a]">
       {/* 헤더 */}
-      <header className="sticky top-0 z-10 border-b border-gray-100 bg-white/80 backdrop-blur-sm">
+      <header className="sticky top-0 z-10 border-b border-[#333] bg-[#0a0a0a]/80 backdrop-blur-sm">
         <div className="mx-auto flex max-w-2xl items-center justify-between px-6 py-4">
-          <Button variant="ghost" size="icon" asChild>
+          <Button variant="ghost" size="icon" asChild className="text-gray-400 hover:text-white">
             <Link href="/home">
               <ArrowLeft className="h-5 w-5" />
             </Link>
           </Button>
-          <h1 className="font-serif text-lg font-semibold text-[#1a1a1a]">
+          <h1 className="font-serif text-lg font-semibold text-white">
             {t('fullAnalysis.title', { defaultValue: '전체 사주 분석' })}
           </h1>
           <div className="w-10" />
@@ -94,15 +94,15 @@ export default function FullAnalysisPage() {
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
-          className="mb-6 rounded-xl border border-[#d4af37]/20 bg-gradient-to-r from-[#d4af37]/5 to-transparent p-4"
+          className="mb-6 rounded-xl border border-[#d4af37]/20 bg-gradient-to-r from-[#d4af37]/10 to-transparent p-4"
         >
           <div className="flex items-start gap-3">
             <Sparkles className="mt-0.5 h-5 w-5 text-[#d4af37]" />
             <div>
-              <p className="font-medium text-[#1a1a1a]">
+              <p className="font-medium text-white">
                 {t('fullAnalysis.selectProfile', { defaultValue: '분석할 프로필을 선택하세요' })}
               </p>
-              <p className="mt-1 text-sm text-gray-500">
+              <p className="mt-1 text-sm text-gray-400">
                 {t('fullAnalysis.creditInfo', {
                   defaultValue: '전체 사주 분석에는 50 크레딧이 필요합니다',
                 })}
@@ -135,42 +135,42 @@ export default function FullAnalysisPage() {
                   onClick={() => handleStartAnalysis(profile)}
                   className={`w-full rounded-xl border p-4 text-left shadow-sm transition-all hover:shadow-md ${
                     isFailed
-                      ? 'border-red-200 bg-red-50/50 hover:border-red-300'
+                      ? 'border-red-900/50 bg-red-950/30 hover:border-red-800'
                       : isCompleted
-                        ? 'border-green-200 bg-green-50/50 hover:border-green-300'
-                        : 'border-gray-100 bg-white hover:border-[#d4af37]/30'
+                        ? 'border-green-900/50 bg-green-950/30 hover:border-green-800'
+                        : 'border-[#333] bg-[#1a1a1a] hover:border-[#d4af37]/30 hover:bg-[#242424]'
                   }`}
                 >
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="font-medium text-[#1a1a1a]">{profile.name}</p>
-                      <p className="mt-0.5 text-sm text-gray-500">
+                      <p className="font-medium text-white">{profile.name}</p>
+                      <p className="mt-0.5 text-sm text-gray-400">
                         {profile.birthDate} · {profile.gender === 'male' ? '남' : '여'}
                       </p>
                       {/* 상태 배지 */}
                       {isFailed && (
-                        <p className="mt-1 flex items-center gap-1 text-xs text-red-600">
+                        <p className="mt-1 flex items-center gap-1 text-xs text-red-400">
                           <AlertTriangle className="h-3 w-3" />
                           분석 실패 - 무료 재시작 가능
                         </p>
                       )}
                       {isPending && (
-                        <p className="mt-1 flex items-center gap-1 text-xs text-yellow-600">
+                        <p className="mt-1 flex items-center gap-1 text-xs text-yellow-400">
                           <RefreshCw className="h-3 w-3" />
                           대기 중 - 재시작 가능
                         </p>
                       )}
                       {isCompleted && (
-                        <p className="mt-1 flex items-center gap-1 text-xs text-green-600">
+                        <p className="mt-1 flex items-center gap-1 text-xs text-green-400">
                           <CheckCircle className="h-3 w-3" />
                           분석 완료 - 결과 보기
                         </p>
                       )}
                     </div>
                     {isFailed ? (
-                      <RefreshCw className="h-5 w-5 text-red-500" />
+                      <RefreshCw className="h-5 w-5 text-red-400" />
                     ) : isCompleted ? (
-                      <CheckCircle className="h-5 w-5 text-green-500" />
+                      <CheckCircle className="h-5 w-5 text-green-400" />
                     ) : (
                       <Sparkles className="h-5 w-5 text-[#d4af37]" />
                     )}
@@ -188,13 +188,13 @@ export default function FullAnalysisPage() {
             animate={{ opacity: 1 }}
             className="flex flex-col items-center justify-center py-16 text-center"
           >
-            <div className="mb-4 rounded-full bg-gray-100 p-4">
-              <UserPlus className="h-8 w-8 text-gray-400" />
+            <div className="mb-4 rounded-full bg-[#1a1a1a] p-4">
+              <UserPlus className="h-8 w-8 text-gray-500" />
             </div>
-            <p className="mb-2 font-medium text-gray-600">
+            <p className="mb-2 font-medium text-gray-300">
               {tProfile('empty.title', { defaultValue: '등록된 프로필이 없습니다' })}
             </p>
-            <p className="mb-6 text-sm text-gray-400">
+            <p className="mb-6 text-sm text-gray-500">
               {tProfile('empty.description', { defaultValue: '먼저 프로필을 등록해주세요' })}
             </p>
             <Button asChild className="bg-gradient-to-r from-[#d4af37] to-[#c19a2e] text-white">
