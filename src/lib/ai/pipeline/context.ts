@@ -16,6 +16,24 @@ import type { TokenUsage } from '../types';
 import { PIPELINE_STEPS, DEFAULT_STEP_TIMEOUTS, getInitialStepStatuses } from './types';
 
 /**
+ * 단계별 가중치 (총합 100)
+ * - AI 분석 단계는 높은 가중치
+ * - complete 단계는 낮은 가중치 (100% 도달 조건)
+ */
+const STEP_WEIGHTS: Record<PipelineStep, number> = {
+  manseryeok: 5,
+  jijanggan: 5,
+  basic_analysis: 15,
+  personality: 15,
+  aptitude: 15,
+  fortune: 15,
+  scoring: 10,
+  visualization: 10,
+  saving: 8,
+  complete: 2,
+};
+
+/**
  * PipelineContext 클래스
  * 파이프라인 상태의 단일 소스
  */
@@ -123,14 +141,26 @@ export class PipelineContext {
   }
 
   /**
-   * 진행 상태 계산
+   * 진행 상태 계산 (가중치 기반)
+   * - 완료된 단계: 100% 가중치
+   * - 진행 중인 단계: 50% 가중치
+   * - complete 단계가 아니면 최대 95%
    */
   getProgress(currentStep: PipelineStep): PipelineProgress {
-    const completedSteps = PIPELINE_STEPS.filter(
-      (s) => this.stepStatuses[s] === 'completed'
-    ).length;
+    let progressPercent = 0;
 
-    const progressPercent = Math.round((completedSteps / (PIPELINE_STEPS.length - 1)) * 100);
+    for (const step of PIPELINE_STEPS) {
+      if (this.stepStatuses[step] === 'completed') {
+        progressPercent += STEP_WEIGHTS[step];
+      } else if (this.stepStatuses[step] === 'in_progress') {
+        progressPercent += Math.round(STEP_WEIGHTS[step] * 0.5);
+      }
+    }
+
+    // complete 단계가 아니면 최대 95% (100%는 완료 상태에서만)
+    if (currentStep !== 'complete') {
+      progressPercent = Math.min(95, progressPercent);
+    }
 
     return {
       currentStep,

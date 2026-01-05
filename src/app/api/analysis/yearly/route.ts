@@ -298,13 +298,26 @@ export async function POST(request: NextRequest) {
       .select('id')
       .single();
 
-    if (insertError) {
+    if (insertError || !savedAnalysis) {
       console.error('[API] 분석 레코드 생성 실패:', insertError);
+      // 크레딧 환불
+      await supabase
+        .from('users')
+        .update({
+          credits: userData.credits,
+          updated_at: new Date().toISOString(),
+        })
+        .eq('id', userId);
+
+      return NextResponse.json(
+        { error: '분석 기록 저장에 실패했습니다. 다시 시도해주세요.' },
+        { status: 500 }
+      );
     }
 
     console.log('[API] 신년 분석 시작됨', {
       userId,
-      analysisId: savedAnalysis?.id,
+      analysisId: savedAnalysis.id,
       jobId: pythonResult.job_id,
     });
 
@@ -312,10 +325,10 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({
       success: true,
       message: '분석이 시작되었습니다',
-      analysisId: savedAnalysis?.id,
+      analysisId: savedAnalysis.id,
       jobId: pythonResult.job_id,
       status: 'pending',
-      pollUrl: `/api/analysis/yearly/${savedAnalysis?.id}`,
+      pollUrl: `/api/analysis/yearly/${savedAnalysis.id}`,
     });
   } catch (error) {
     console.error('[API] /api/analysis/yearly 에러:', error);

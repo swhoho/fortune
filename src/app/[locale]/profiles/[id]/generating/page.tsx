@@ -19,8 +19,8 @@ import type { PipelineStep, StepStatus } from '@/lib/ai/types';
 /** 폴링 간격 (ms) */
 const POLLING_INTERVAL = 3000;
 
-/** 최대 폴링 횟수 (3분 = 60회) */
-const MAX_POLL_COUNT = 60;
+/** 최대 폴링 횟수 (6분 = 120회) */
+const MAX_POLL_COUNT = 120;
 
 /** 예상 총 시간 (초) */
 const ESTIMATED_TOTAL_TIME = 60;

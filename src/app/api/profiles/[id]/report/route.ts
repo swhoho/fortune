@@ -10,7 +10,28 @@ import { getAuthenticatedUser } from '@/lib/supabase/server';
 import { getSupabaseAdmin } from '@/lib/supabase/client';
 import { SERVICE_CREDITS } from '@/lib/stripe';
 import { logAiUsage } from '@/lib/ai/usage-logger';
+import { PIPELINE_STEPS } from '@/lib/ai/pipeline/types';
+import type { PipelineStep, StepStatus } from '@/lib/ai/types';
 import { z } from 'zod';
+
+/**
+ * 재시도 시 단계 상태 생성
+ * retryFromStep 이전 단계는 completed, 이후는 pending
+ */
+function getRetryStepStatuses(retryFromStep: string): Record<PipelineStep, StepStatus> {
+  const statuses = {} as Record<PipelineStep, StepStatus>;
+  const retryIndex = PIPELINE_STEPS.indexOf(retryFromStep as PipelineStep);
+
+  PIPELINE_STEPS.forEach((step, index) => {
+    if (index < retryIndex) {
+      statuses[step] = 'completed'; // 이전 단계는 완료 상태 유지
+    } else {
+      statuses[step] = 'pending';
+    }
+  });
+
+  return statuses;
+}
 
 /** 리포트 생성 요청 스키마 */
 const generateReportSchema = z.object({
@@ -624,17 +645,7 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
           current_step: startStep,
           progress_percent: 0,
           error: null,
-          step_statuses: {
-            manseryeok: 'pending',
-            jijanggan: 'pending',
-            basic_analysis: 'pending',
-            personality: 'pending',
-            aptitude: 'pending',
-            fortune: 'pending',
-            scoring: 'pending',
-            visualization: 'pending',
-            saving: 'pending',
-          },
+          step_statuses: getRetryStepStatuses(startStep),
           updated_at: new Date().toISOString(),
         })
         .eq('id', reportId);
