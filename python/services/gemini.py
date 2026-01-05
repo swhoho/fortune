@@ -18,9 +18,9 @@ class GeminiService:
 
     def __init__(self):
         """Gemini 클라이언트 초기화"""
-        api_key = os.getenv("GEMINI_API_KEY")
+        api_key = os.getenv("GOOGLE_AI_API_KEY")
         if not api_key:
-            raise ValueError("GEMINI_API_KEY 환경변수가 설정되지 않았습니다")
+            raise ValueError("GOOGLE_AI_API_KEY 환경변수가 설정되지 않았습니다")
 
         genai.configure(api_key=api_key)
         self.model = genai.GenerativeModel(

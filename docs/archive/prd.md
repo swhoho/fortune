@@ -1844,7 +1844,7 @@ NEXTAUTH_URL="https://yourdomain.com"
 NEXTAUTH_SECRET="your-secret"
 
 # AI
-GEMINI_API_KEY="your-gemini-key"
+GOOGLE_AI_API_KEY="your-gemini-key"
 OPENAI_API_KEY="your-openai-key"
 PINECONE_API_KEY="your-pinecone-key"
 PINECONE_ENVIRONMENT="us-west1-gcp"
