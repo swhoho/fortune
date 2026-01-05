@@ -2,10 +2,10 @@
 
 /**
  * 신년 분석 처리 중 페이지
- * Task 20: /[locale]/analysis/yearly/processing
+ * 폴링 방식으로 Python 백엔드 작업 상태 확인
  */
 
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Loader2, CheckCircle2, Circle, AlertCircle } from 'lucide-react';
@@ -36,13 +36,18 @@ const STEPS_ORDER: YearlyLoadingStep[] = [
   'save_result',
 ];
 
+/** 폴링 간격 (ms) */
+const POLLING_INTERVAL = 3000;
+
+/** 최대 폴링 횟수 (5분 = 100회) */
+const MAX_POLL_COUNT = 100;
+
 export default function YearlyProcessingPage() {
   const router = useRouter();
 
   const {
     targetYear,
     existingAnalysisId,
-    yearlyLoadingStep,
     selectedProfileId,
     setYearlyResult,
     setYearlyLoading,
@@ -54,9 +59,12 @@ export default function YearlyProcessingPage() {
 
   const [error, setError] = useState<string | null>(null);
   const [tipIndex, setTipIndex] = useState(0);
+  const [currentStep, setCurrentStep] = useState<YearlyLoadingStep>('init');
+  const [progressPercent, setProgressPercent] = useState(0);
+  const [isStarted, setIsStarted] = useState(false);
 
-  // 현재 단계 (스토어에서 가져오거나 기본값 'init')
-  const currentStep = yearlyLoadingStep || 'init';
+  const pollCountRef = useRef(0);
+  const pollingIntervalRef = useRef<NodeJS.Timeout | null>(null);
 
   // 팁 로테이션
   useEffect(() => {
@@ -66,20 +74,114 @@ export default function YearlyProcessingPage() {
     return () => clearInterval(interval);
   }, []);
 
-  // 분석 실행
-  const runAnalysis = useCallback(async () => {
-    if (!targetYear) {
-      router.push('/analysis/yearly');
+  // 폴링 정리
+  useEffect(() => {
+    return () => {
+      if (pollingIntervalRef.current) {
+        clearInterval(pollingIntervalRef.current);
+      }
+    };
+  }, []);
+
+  /**
+   * 상태 폴링 함수
+   */
+  const pollStatus = useCallback(
+    async (id: string) => {
+      try {
+        const response = await fetch(`/api/analysis/yearly/${id}`);
+
+        if (!response.ok) {
+          if (response.status === 404) {
+            // 아직 레코드 없음, 계속 폴링
+            return;
+          }
+          throw new Error('상태 조회 실패');
+        }
+
+        const data = await response.json();
+
+        // 진행률 업데이트
+        if (data.progressPercent) {
+          setProgressPercent(data.progressPercent);
+        }
+
+        // 현재 단계 매핑
+        if (data.currentStep) {
+          const stepMap: Record<string, YearlyLoadingStep> = {
+            building_prompt: 'build_prompt',
+            ai_analysis: 'ai_analysis',
+            saving_result: 'save_result',
+          };
+          setCurrentStep(stepMap[data.currentStep] || 'ai_analysis');
+        }
+
+        // 완료
+        if (data.status === 'completed' && data.data) {
+          if (pollingIntervalRef.current) {
+            clearInterval(pollingIntervalRef.current);
+          }
+          setCurrentStep('complete');
+          setProgressPercent(100);
+          setYearlyResult(data.data.analysis);
+          setYearlyLoading(false);
+
+          // 결과 페이지로 이동
+          setTimeout(() => {
+            router.push(`/analysis/yearly/result/${id}`);
+          }, 500);
+          return;
+        }
+
+        // 실패
+        if (data.status === 'failed') {
+          if (pollingIntervalRef.current) {
+            clearInterval(pollingIntervalRef.current);
+          }
+          throw new Error(data.error || '분석에 실패했습니다');
+        }
+
+        // 폴링 횟수 체크
+        pollCountRef.current += 1;
+        if (pollCountRef.current >= MAX_POLL_COUNT) {
+          if (pollingIntervalRef.current) {
+            clearInterval(pollingIntervalRef.current);
+          }
+          throw new Error('분석 시간이 초과되었습니다. 다시 시도해주세요.');
+        }
+      } catch (err) {
+        console.error('[YearlyProcessing] 폴링 실패:', err);
+        const message = err instanceof Error ? err.message : '알 수 없는 오류가 발생했습니다.';
+        setError(message);
+        setYearlyError(message);
+        setYearlyLoading(false);
+      }
+    },
+    [router, setYearlyResult, setYearlyLoading, setYearlyError]
+  );
+
+  /**
+   * 분석 시작 함수
+   */
+  const startAnalysis = useCallback(async () => {
+    if (!targetYear || isStarted) {
+      if (!targetYear) {
+        router.push('/analysis/yearly');
+      }
       return;
     }
 
+    setIsStarted(true);
+    setError(null);
+    setCurrentStep('init');
+    setProgressPercent(0);
+    pollCountRef.current = 0;
+
     try {
       setYearlyLoading(true, 'init');
+      setCurrentStep('fetch_saju');
 
-      // 1. 사주 정보 준비
-      setYearlyLoading(true, 'fetch_saju');
-      await new Promise((r) => setTimeout(r, 500));
-
+      // 분석 데이터 준비
       let analysisData: {
         targetYear: number;
         profileId?: string;
@@ -96,23 +198,19 @@ export default function YearlyProcessingPage() {
         language: string;
       };
 
-      // 우선순위: 선택된 프로필 > 기존 분석 ID > 온보딩 데이터
       if (selectedProfileId) {
-        // 선택된 프로필 사용 (Task 24.1)
         analysisData = {
           targetYear,
           profileId: selectedProfileId,
           language: 'ko',
         };
       } else if (existingAnalysisId) {
-        // 기존 분석 사용
         analysisData = {
           targetYear,
           existingAnalysisId,
           language: 'ko',
         };
       } else {
-        // 온보딩 데이터 사용
         if (!birthDate || !gender) {
           throw new Error('생년월일 정보가 없습니다. 온보딩을 완료해주세요.');
         }
@@ -132,13 +230,9 @@ export default function YearlyProcessingPage() {
         };
       }
 
-      // 2. 프롬프트 빌드
-      setYearlyLoading(true, 'build_prompt');
-      await new Promise((r) => setTimeout(r, 500));
+      setCurrentStep('build_prompt');
 
-      // 3. AI 분석
-      setYearlyLoading(true, 'ai_analysis');
-
+      // POST 요청 (즉시 반환됨)
       const response = await fetch('/api/analysis/yearly', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -152,26 +246,31 @@ export default function YearlyProcessingPage() {
 
       const result = await response.json();
 
-      // 4. 결과 저장
-      setYearlyLoading(true, 'save_result');
-      await new Promise((r) => setTimeout(r, 300));
+      if (!result.analysisId) {
+        throw new Error('분석 ID를 받지 못했습니다.');
+      }
 
-      setYearlyResult(result.data);
-      setYearlyLoading(true, 'complete');
+      setCurrentStep('ai_analysis');
+      setProgressPercent(30);
 
-      // 5. 결과 페이지로 이동
-      await new Promise((r) => setTimeout(r, 500));
-      router.push(`/analysis/yearly/result/${result.analysisId}`);
+      // 폴링 시작
+      pollingIntervalRef.current = setInterval(() => {
+        pollStatus(result.analysisId);
+      }, POLLING_INTERVAL);
+
+      // 첫 번째 폴링 즉시 실행
+      pollStatus(result.analysisId);
     } catch (err) {
-      console.error('[YearlyProcessing] 분석 실패:', err);
+      console.error('[YearlyProcessing] 분석 시작 실패:', err);
       const message = err instanceof Error ? err.message : '알 수 없는 오류가 발생했습니다.';
       setError(message);
       setYearlyError(message);
-    } finally {
       setYearlyLoading(false);
+      setIsStarted(false);
     }
   }, [
     targetYear,
+    isStarted,
     selectedProfileId,
     existingAnalysisId,
     birthDate,
@@ -182,14 +281,15 @@ export default function YearlyProcessingPage() {
     pillars,
     daewun,
     router,
-    setYearlyResult,
     setYearlyLoading,
     setYearlyError,
+    pollStatus,
   ]);
 
+  // 페이지 진입 시 분석 시작
   useEffect(() => {
-    runAnalysis();
-  }, [runAnalysis]);
+    startAnalysis();
+  }, [startAnalysis]);
 
   const getStepStatus = (step: YearlyLoadingStep) => {
     if (currentStep === 'complete') return 'completed';
@@ -202,10 +302,18 @@ export default function YearlyProcessingPage() {
 
   const handleRetry = () => {
     setError(null);
-    runAnalysis();
+    setIsStarted(false);
+    pollCountRef.current = 0;
+    if (pollingIntervalRef.current) {
+      clearInterval(pollingIntervalRef.current);
+    }
+    startAnalysis();
   };
 
   const handleBack = () => {
+    if (pollingIntervalRef.current) {
+      clearInterval(pollingIntervalRef.current);
+    }
     resetYearly();
     router.push('/analysis/yearly');
   };
@@ -331,16 +439,11 @@ export default function YearlyProcessingPage() {
             className="h-full rounded-full"
             style={{ backgroundColor: BRAND_COLORS.primary }}
             initial={{ width: '0%' }}
-            animate={{
-              width: `${
-                currentStep === 'complete'
-                  ? 100
-                  : ((STEPS_ORDER.indexOf(currentStep) + 1) / STEPS_ORDER.length) * 100
-              }%`,
-            }}
+            animate={{ width: `${progressPercent}%` }}
             transition={{ duration: 0.5 }}
           />
         </div>
+        <p className="mt-2 text-center text-sm text-gray-500">{progressPercent}%</p>
       </div>
 
       {/* 팁 */}

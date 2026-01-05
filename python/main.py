@@ -9,6 +9,12 @@ from fastapi.responses import JSONResponse
 from schemas.saju import CalculateRequest, CalculateResponse
 from schemas.visualization import VisualizationRequest, VisualizationResponse
 from schemas.prompt import PromptBuildRequest, PromptBuildResponse, PromptMetadata, YearlyPromptBuildRequest, StepPromptRequest
+from schemas.yearly import (
+    YearlyAnalysisRequest,
+    YearlyAnalysisStartResponse,
+    YearlyAnalysisStatusResponse,
+    JobStatus,
+)
 from manseryeok.engine import ManseryeokEngine
 from visualization import SajuVisualizer
 from prompts.builder import (
@@ -343,7 +349,80 @@ async def build_yearly_prompt(request: YearlyPromptBuildRequest) -> PromptBuildR
 @app.get("/health")
 async def health_check():
     """헬스 체크"""
-    return {"status": "healthy", "service": "manseryeok-api", "version": "1.2.0"}
+    return {"status": "healthy", "service": "manseryeok-api", "version": "1.3.0"}
+
+
+# ============================================
+# 신년 분석 API (비동기 작업)
+# ============================================
+
+@app.post("/api/analysis/yearly", response_model=YearlyAnalysisStartResponse)
+async def start_yearly_analysis(request: YearlyAnalysisRequest) -> YearlyAnalysisStartResponse:
+    """
+    신년 사주 분석 시작 (비동기)
+
+    백그라운드에서 Gemini AI 분석을 실행하고 즉시 작업 ID를 반환합니다.
+    상태 확인은 GET /api/analysis/yearly/{job_id}로 폴링하세요.
+
+    - **target_year**: 분석 대상 연도
+    - **language**: 언어 (ko, en, ja, zh-CN, zh-TW)
+    - **pillars**: 사주 팔자 데이터
+    - **daewun**: 대운 목록
+    - **birth_year**: 생년 (점수 계산용)
+    - **gender**: 성별
+    - **user_id**: 사용자 ID
+    - **profile_id**: 프로필 ID (선택)
+
+    Returns:
+        작업 ID, 상태, 메시지
+    """
+    from services.yearly_analysis import yearly_analysis_service
+
+    try:
+        job_id = await yearly_analysis_service.start_analysis(request)
+
+        return YearlyAnalysisStartResponse(
+            job_id=job_id,
+            status=JobStatus.PENDING,
+            message="신년 분석이 시작되었습니다. 상태를 폴링해주세요."
+        )
+    except Exception as e:
+        raise HTTPException(
+            status_code=500,
+            detail=f"분석 시작 실패: {str(e)}"
+        )
+
+
+@app.get("/api/analysis/yearly/{job_id}", response_model=YearlyAnalysisStatusResponse)
+async def get_yearly_analysis_status(job_id: str) -> YearlyAnalysisStatusResponse:
+    """
+    신년 분석 상태 조회
+
+    - **job_id**: 작업 ID
+
+    Returns:
+        작업 상태, 진행률, 결과 (완료 시)
+    """
+    from services.yearly_analysis import yearly_analysis_service
+
+    job = yearly_analysis_service.get_status(job_id)
+
+    if not job:
+        raise HTTPException(
+            status_code=404,
+            detail="작업을 찾을 수 없습니다"
+        )
+
+    return YearlyAnalysisStatusResponse(
+        job_id=job["job_id"],
+        status=job["status"],
+        progress_percent=job["progress_percent"],
+        current_step=job["current_step"],
+        result=job["result"],
+        error=job["error"],
+        created_at=job["created_at"],
+        updated_at=job["updated_at"],
+    )
 
 
 @app.exception_handler(ValueError)
