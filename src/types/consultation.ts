@@ -40,6 +40,9 @@ export interface ConsultationSession {
   lastMessage?: string;
 }
 
+/** 메시지 상태 (비동기 처리용) */
+export type ConsultationMessageStatus = 'generating' | 'completed' | 'failed';
+
 /** 상담 메시지 (DB 형식) */
 export interface ConsultationMessageRow {
   id: string;
@@ -48,6 +51,8 @@ export interface ConsultationMessageRow {
   content: string;
   question_round: number | null;
   created_at: string;
+  status?: ConsultationMessageStatus;
+  error_message?: string;
 }
 
 /** 상담 메시지 (클라이언트 형식) */
@@ -58,6 +63,10 @@ export interface ConsultationMessage {
   content: string;
   questionRound: number | null;
   createdAt: string;
+  /** 메시지 상태 (AI 응답의 비동기 처리용) */
+  status?: ConsultationMessageStatus;
+  /** 실패 시 에러 메시지 */
+  errorMessage?: string;
 }
 
 /** 세션 목록 조회 응답 */
@@ -135,6 +144,8 @@ export interface SendMessageResponse {
       questionRound: number;
       /** AI 추가 정보 요청 (clarification일 때만) */
       clarificationQuestions?: string[];
+      /** 메시지 상태 (비동기 처리) */
+      status?: ConsultationMessageStatus;
     };
     sessionStatus: ConsultationSessionStatus;
     questionCount: number;

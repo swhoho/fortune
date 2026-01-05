@@ -1,22 +1,18 @@
 'use client';
 
 /**
- * 채팅 영역 컴포넌트
+ * 채팅 영역 컴포넌트 (비동기/폴링 지원)
  */
 import { useRef, useEffect, useState, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import { Menu, Loader2, AlertCircle, Sparkles, RefreshCw } from 'lucide-react';
 import { ChatMessage } from './ChatMessage';
 import { ChatInput } from './ChatInput';
-import { useConsultationMessages, useSendMessage } from '@/hooks/use-consultation';
+import { useConsultationMessages, useSendMessage, useInvalidateConsultation } from '@/hooks/use-consultation';
+import type { ConsultationMessage } from '@/types/consultation';
 
-/** 실패한 메시지 상태 */
-interface FailedMessage {
-  content: string;
-  messageType: 'user_question' | 'user_clarification';
-  skipClarification: boolean;
-  error: string;
-}
+/** 폴링 간격 (ms) */
+const POLLING_INTERVAL = 2000;
 
 interface ChatAreaProps {
   /** 프로필 ID */
@@ -39,8 +35,9 @@ export function ChatArea({
   isCreatingSession = false,
 }: ChatAreaProps) {
   // 메시지 조회
-  const { data, isLoading, error } = useConsultationMessages(profileId, sessionId);
+  const { data, isLoading, error, refetch } = useConsultationMessages(profileId, sessionId);
   const sendMessage = useSendMessage();
+  const { invalidateMessages, invalidateSessions } = useInvalidateConsultation();
 
   // 스크롤 ref
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -48,8 +45,18 @@ export function ChatArea({
   // clarification 대기 상태
   const [awaitingClarification, setAwaitingClarification] = useState(false);
 
-  // 실패한 메시지 상태 (재시도용)
-  const [failedMessage, setFailedMessage] = useState<FailedMessage | null>(null);
+  // 폴링 상태
+  const [isPolling, setIsPolling] = useState(false);
+
+  // generating 상태 메시지 확인
+  const generatingMessage = data?.messages?.find(
+    (m: ConsultationMessage) => m.status === 'generating'
+  );
+
+  // 실패한 메시지 (DB에서 가져온 것)
+  const failedMessage = data?.messages?.find(
+    (m: ConsultationMessage) => m.status === 'failed'
+  );
 
   // 새 메시지 시 스크롤
   useEffect(() => {
@@ -59,10 +66,42 @@ export function ChatArea({
   // clarification 상태 추적
   useEffect(() => {
     if (data?.messages) {
-      const lastMessage = data.messages[data.messages.length - 1];
+      const completedMessages = data.messages.filter(
+        (m: ConsultationMessage) => m.status !== 'generating' && m.status !== 'failed'
+      );
+      const lastMessage = completedMessages[completedMessages.length - 1];
       setAwaitingClarification(lastMessage?.type === 'ai_clarification');
     }
   }, [data?.messages]);
+
+  // 폴링 로직: generating 상태 메시지가 있으면 주기적으로 refetch
+  useEffect(() => {
+    if (!generatingMessage) {
+      setIsPolling(false);
+      return;
+    }
+
+    setIsPolling(true);
+    console.log('[ChatArea] 폴링 시작:', generatingMessage.id);
+
+    const pollInterval = setInterval(async () => {
+      console.log('[ChatArea] 폴링 중...');
+      await refetch();
+    }, POLLING_INTERVAL);
+
+    return () => {
+      clearInterval(pollInterval);
+      console.log('[ChatArea] 폴링 종료');
+    };
+  }, [generatingMessage?.id, refetch]);
+
+  // 폴링 완료 시 세션 목록도 갱신 (question_count 업데이트)
+  useEffect(() => {
+    if (!generatingMessage && isPolling && sessionId) {
+      // 폴링이 끝났으면 세션 목록 갱신
+      invalidateSessions(profileId);
+    }
+  }, [generatingMessage, isPolling, sessionId, profileId, invalidateSessions]);
 
   /**
    * 메시지 전송
@@ -72,9 +111,6 @@ export function ChatArea({
       if (!sessionId) return;
 
       const messageType = awaitingClarification ? 'user_clarification' : 'user_question';
-
-      // 이전 실패 메시지 초기화
-      setFailedMessage(null);
 
       try {
         await sendMessage.mutateAsync({
@@ -90,16 +126,7 @@ export function ChatArea({
           setAwaitingClarification(false);
         }
       } catch (err) {
-        const errorMessage = err instanceof Error ? err.message : 'AI 응답 생성에 실패했습니다';
         console.error('[ChatArea] 메시지 전송 실패:', err);
-
-        // 실패한 메시지 저장 (재시도용)
-        setFailedMessage({
-          content,
-          messageType,
-          skipClarification,
-          error: errorMessage,
-        });
       }
     },
     [sessionId, profileId, awaitingClarification, sendMessage]
@@ -108,18 +135,27 @@ export function ChatArea({
   /**
    * 실패한 메시지 재시도
    */
-  const handleRetry = useCallback(() => {
-    if (!failedMessage) return;
+  const handleRetry = useCallback(async () => {
+    if (!failedMessage || !sessionId) return;
 
-    handleSendMessage(failedMessage.content, failedMessage.skipClarification);
-  }, [failedMessage, handleSendMessage]);
+    // 실패한 AI 메시지를 삭제하고 새로 요청
+    // (또는 generate API를 다시 호출하는 방식으로 구현 가능)
+    // 간단히: 메시지 목록 갱신 후 마지막 사용자 질문 기반으로 재요청
 
-  /**
-   * 실패 메시지 취소
-   */
-  const handleDismissError = useCallback(() => {
-    setFailedMessage(null);
-  }, []);
+    const userMessages = data?.messages?.filter(
+      (m: ConsultationMessage) => m.type === 'user_question' || m.type === 'user_clarification'
+    );
+    const lastUserMessage = userMessages?.[userMessages.length - 1];
+
+    if (lastUserMessage) {
+      // invalidate 후 새로 전송
+      await invalidateMessages(sessionId);
+      await handleSendMessage(
+        lastUserMessage.content,
+        lastUserMessage.type === 'user_clarification'
+      );
+    }
+  }, [failedMessage, sessionId, data?.messages, invalidateMessages, handleSendMessage]);
 
   // 세션 미선택 상태
   if (!sessionId) {
@@ -155,6 +191,11 @@ export function ChatArea({
   const canAskMore = (session?.questionCount || 0) < 5;
   const isCompleted = session?.status === 'completed';
 
+  // generating/failed 상태가 아닌 메시지만 표시 (generating은 로딩 UI로, failed는 에러 UI로)
+  const displayMessages = messages.filter(
+    (m: ConsultationMessage) => m.status !== 'generating' && m.status !== 'failed'
+  );
+
   return (
     <div className="flex h-full flex-col">
       {/* 헤더 */}
@@ -183,7 +224,7 @@ export function ChatArea({
 
       {/* 메시지 영역 */}
       <div className="flex-1 overflow-y-auto p-4">
-        {messages.length === 0 ? (
+        {displayMessages.length === 0 && !generatingMessage ? (
           // 빈 상태 (첫 메시지 안내)
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -203,16 +244,16 @@ export function ChatArea({
         ) : (
           // 메시지 목록
           <div className="space-y-4">
-            {messages.map((message, index) => (
+            {displayMessages.map((message: ConsultationMessage, index: number) => (
               <ChatMessage
                 key={message.id}
                 message={message}
-                isLatest={index === messages.length - 1}
+                isLatest={index === displayMessages.length - 1 && !generatingMessage}
               />
             ))}
 
-            {/* AI 응답 로딩 */}
-            {sendMessage.isPending && (
+            {/* AI 응답 생성 중 (폴링) */}
+            {generatingMessage && (
               <motion.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
@@ -224,7 +265,7 @@ export function ChatArea({
             )}
 
             {/* 에러 발생 시 재시도 UI */}
-            {failedMessage && !sendMessage.isPending && (
+            {failedMessage && !generatingMessage && (
               <motion.div
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -234,7 +275,9 @@ export function ChatArea({
                   <AlertCircle className="mt-0.5 h-5 w-5 flex-shrink-0 text-red-400" />
                   <div className="flex-1">
                     <p className="text-sm font-medium text-red-400">응답 생성 실패</p>
-                    <p className="mt-1 text-xs text-gray-400">{failedMessage.error}</p>
+                    <p className="mt-1 text-xs text-gray-400">
+                      {failedMessage.errorMessage || 'AI 응답 생성에 실패했습니다'}
+                    </p>
                     <div className="mt-3 flex gap-2">
                       <button
                         onClick={handleRetry}
@@ -242,12 +285,6 @@ export function ChatArea({
                       >
                         <RefreshCw className="h-3.5 w-3.5" />
                         재시도
-                      </button>
-                      <button
-                        onClick={handleDismissError}
-                        className="rounded-md px-3 py-1.5 text-xs text-gray-400 transition-colors hover:bg-[#242424] hover:text-white"
-                      >
-                        취소
                       </button>
                     </div>
                   </div>
@@ -282,14 +319,16 @@ export function ChatArea({
         ) : (
           <ChatInput
             onSendMessage={handleSendMessage}
-            isLoading={sendMessage.isPending}
-            disabled={!canAskMore}
+            isLoading={sendMessage.isPending || !!generatingMessage}
+            disabled={!canAskMore || !!generatingMessage || !!failedMessage}
             placeholder={
-              awaitingClarification
-                ? '추가 정보를 입력해주세요...'
-                : '질문을 입력하세요... (최대 500자)'
+              generatingMessage
+                ? '답변 생성 중...'
+                : awaitingClarification
+                  ? '추가 정보를 입력해주세요...'
+                  : '질문을 입력하세요... (최대 500자)'
             }
-            showSkipButton={awaitingClarification}
+            showSkipButton={awaitingClarification && !generatingMessage}
             questionCount={session?.questionCount || 0}
             maxQuestions={5}
           />
