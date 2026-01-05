@@ -71,7 +71,7 @@ export default function HomePage() {
       </div>
 
       {/* 컨텐츠 */}
-      <div className="relative z-10">
+      <div className="relative z-10 mx-auto max-w-lg">
         {/* 헤더 */}
         <HomeHeader />
 

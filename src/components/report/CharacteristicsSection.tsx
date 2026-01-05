@@ -86,7 +86,7 @@ export function CharacteristicsSection({
           variants={containerVariants}
           initial="hidden"
           animate="visible"
-          className="overflow-y-auto p-5"
+          className="overflow-y-auto p-5 pb-20"
           style={{ maxHeight: `${maxHeight}px` }}
         >
           <div className="space-y-4">
