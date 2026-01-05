@@ -610,7 +610,7 @@
     },
     "delete": {
       "title": "Delete Profile",
-      "message": "Are you sure you want to delete '{name}'?",
+      "message": "Are you sure you want to delete ''{name}''?",
       "warning": "This action cannot be undone.",
       "confirm": "Delete",
       "cancel": "Cancel"

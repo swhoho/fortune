@@ -223,7 +223,7 @@ export default function ProfileDetailPage({ params }: PageProps) {
       <DeleteProfileDialog
         open={showDeleteDialog}
         onOpenChange={setShowDeleteDialog}
-        profileName={profile.name}
+        profileName={profile?.name ?? ''}
         onConfirm={handleDelete}
         isDeleting={isDeleting}
       />
