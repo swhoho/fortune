@@ -3,8 +3,8 @@
 > Gemini 사주 분석 정확도 향상을 위한 엔진 + 프롬프트 개선 계획
 
 **Version**: 3.0
-**Last Updated**: 2026-01-04
-**Status**: Planning
+**Last Updated**: 2026-01-05
+**Status**: Completed
 
 ---
 
@@ -197,7 +197,7 @@ v3.0: [입력] → [규칙 기반 사전 분석] → [Gemini 서술] → [검증
 
 > **Group 2** | 프롬프트 시스템 (Task 2와 병렬 진행 가능)
 
-- [ ] **Task 4: 고전 프롬프트 보강**
+- [x] **Task 4: 고전 프롬프트 보강** ✅ (2026-01-05)
   - [x] Task 4.1: 궁통보감 조후론 상세화 ✅ (2026-01-05)
     - [x] 4.1.1: 10일간 × 12월 조후 매트릭스 구축 → `python/prompts/classics/qiongtong_matrix.py` (120개 조합)
       ```python
@@ -259,55 +259,68 @@ v3.0: [입력] → [규칙 기반 사전 분석] → [Gemini 서술] → [검증
 
 > **Group 3** | 통합 (Group 1, 2 완료 후 순차 진행)
 
-- [ ] **Task 5: 점수 계산 고도화**
-  - [ ] Task 5.1: 사건 강도 공식 구현
-    - [ ] 5.1.1: 원문 V8.0 기반 점수 공식 이식
+- [x] **Task 5: 점수 계산 고도화** ✅ (2026-01-05)
+  - [x] Task 5.1: 사건 강도 공식 구현 ✅
+    - [x] 5.1.1: 원문 V8.0 기반 점수 공식 이식 (가산 방식으로 개선)
       ```python
-      # 최종 점수 = (용신기여 + 합충형해점수 + 신살점수 + 국규모) × 타이밍배수
-      def calculate_event_score(pillars, daewun, current_year) -> float:
-        base = yongsin_contribution(pillars, daewun)
-        interactions = calculate_interactions(pillars, daewun)
-        sinsal = calculate_sinsal_effect(pillars)
-        timing = get_timing_multiplier(current_year)
-        return (base + interactions + sinsal) * timing
+      # 최종 점수 = clamp(기본점수 + 세운조정값, -100, +100)
+      # 기본점수 = 격국품질(-20~+30) + 신살(-20~+20) + 원국상호작용(-20~+20)
+      # 세운조정값 = 세운십신(-30~+30) + 세운지지상호작용(-20~+20)
+      def calculate_event_score(formation, sinsals, natal_interactions,
+                                pillars, current_year, language) -> EventScore:
+        natal_score = formation_score + sinsal_score + interaction_score
+        dynamic_modifier = year_stem_score + year_branch_score
+        return clamp(natal_score + dynamic_modifier, -100, +100)
       ```
-    - [ ] 5.1.2: 타이밍 배수 계산 로직
-    - [ ] 5.1.3: 점수 → 사건 강도 변환 테이블
+    - [x] 5.1.2: 용신/기신 오행 판단 로직 (`determine_yongshin_elements`)
+    - [x] 5.1.3: 점수 → 사건 강도 변환 테이블 (5단계, 5개 언어)
       ```python
-      EVENT_INTENSITY = {
-        (60, 100): {'level': 'HIGH', 'probability': '90%+'},
-        (20, 60): {'level': 'MID', 'probability': '70%+'},
-        (-20, 20): {'level': 'LOW', 'probability': '50%'},
-        (-100, -20): {'level': 'CRITICAL', 'probability': '80%+'}
+      EVENT_INTENSITY_TABLE = {
+        (60, 100): {'level': 'HIGH', 'label': '대길/Highly Favorable/大吉'},
+        (20, 60): {'level': 'MID', 'label': '길/Favorable/吉'},
+        (-20, 20): {'level': 'LOW', 'label': '평/Neutral/平'},
+        (-60, -20): {'level': 'WARNING', 'label': '주의/Caution/注意'},
+        (-100, -60): {'level': 'CRITICAL', 'label': '흉/Challenging/凶'}
       }
       ```
-    - **파일**: `python/scoring/event_score.py` (신규)
-  - [ ] Task 5.2: 물상론 DB 구축
-    - [ ] 5.2.1: 십성별 길흉 사건 매핑 테이블
+    - **파일**: `python/scoring/event_score.py` ✅ (702줄)
+  - [x] Task 5.2: 물상론 DB 구축 ✅
+    - [x] 5.2.1: 십성별 길흉 사건 매핑 테이블 (10개 십신 × 5개 언어)
       ```python
       MULSANGRON = {
-        '정관': {
-          '길': ['승진', '관직', '명예'],
-          '흉': ['관재', '송사', '해고']
-        },
-        '정재': {
-          '길': ['급여인상', '안정적수입', '저축'],
-          '흉': ['재정손실', '도난', '지출과다']
-        },
-        ...
+        '비견': {'인물': [...], '길': [...], '흉': [...]},
+        '겁재': {...}, '식신': {...}, '상관': {...},
+        '정재': {...}, '편재': {...}, '정관': {...},
+        '편관': {...}, '정인': {...}, '편인': {...}
       }
       ```
-    - [ ] 5.2.2: 충/형/합별 물상 정의
-    - [ ] 5.2.3: 사건 예측 템플릿 생성
-    - **파일**: `python/prompts/mulsangron.py` (신규)
-  - [ ] Task 5.3: Hybrid 모델 통합
-    - [ ] 5.3.1: Python 규칙 기반 점수 → Gemini 서술
+    - [x] 5.2.2: 충/형/합별 물상 정의 (5개 상호작용 × 5개 언어)
+      ```python
+      INTERACTION_MULSANG = {
+        '합': {'description': ..., 'events': [...], 'caution': [...]},
+        '충': {...}, '형': {...}, '해': {...}, '파': {...}
+      }
       ```
-      [규칙 엔진] → 점수 + 근거 → [Gemini] → 물상론 서술
-      ```
-    - [ ] 5.3.2: 점수 근거 투명성 개선
-    - [ ] 5.3.3: 일관성 검증 로직
-    - **파일**: `src/lib/ai/pipeline/index.ts`, `python/prompts/builder.py`
+    - [x] 5.2.3: 사건 예측 템플릿 생성 (`generate_event_prediction_template`)
+    - **파일**: `python/prompts/mulsangron.py` ✅ (450줄)
+  - [x] Task 5.3: Hybrid 모델 통합 ✅
+    - [x] 5.3.1: Python 규칙 기반 점수 → Gemini 서술
+      - `YearlyPromptBuildRequest.score_context` 추가
+      - `YearlyPromptBuildRequest.event_prediction_context` 추가
+      - `_build_yearly_user_prompt`에서 컨텍스트 삽입
+    - [x] 5.3.2: 점수 근거 투명성 개선 (`format_score_context`, 5개 언어 지원)
+    - [x] 5.3.3: 일관성 검증 로직
+      - `validate_score_narrative_consistency`: 점수-서술 감정 일치도
+      - `validate_event_prediction_consistency`: 예측 사건 언급 비율
+      - 도메인 특화 감정 키워드 (50+ 키워드 × 5개 언어)
+    - **파일**: `python/prompts/builder.py`, `python/scoring/validation.py` ✅ (240줄)
+  - [x] Task 5.4: 점수 정규분포 개선 ✅
+    - [x] 5.4.1: modifier 스케일 축소 (×0.75)
+      - 기존 max ±15 → max ±11
+      - 목표: 10~90점 골고루 분포, 0점/100점 극단값 회피
+    - [x] 5.4.2: 테스트 케이스 수정
+    - [x] 5.4.3: 문서 업데이트
+    - **파일**: `src/lib/score/trait-modifiers.ts`
 
 ---
 
@@ -380,14 +393,18 @@ v3.0: [입력] → [규칙 기반 사전 분석] → [Gemini 서술] → [검증
 
 #### 신규 파일
 
-| 파일 | Task | 설명 |
-|------|------|------|
-| `python/prompts/johu_matrix.py` | 4.1 | 10일간×12월 조후 매트릭스 |
-| `python/manseryeok/sinsal.py` | 3.3 | 12신살 분석 모듈 |
-| `python/manseryeok/formation.py` | 3.2 | 격국 자동 분류 |
-| `python/manseryeok/interactions.py` | 3.1 | 지지 상호작용 |
-| `python/prompts/mulsangron.py` | 5.2 | 물상론 DB |
-| `python/scoring/event_score.py` | 5.1 | 사건 강도 계산 |
+| 파일 | Task | 설명 | 상태 |
+|------|------|------|------|
+| `python/prompts/classics/qiongtong_matrix.py` | 4.1 | 10일간×12월 조후 매트릭스 | ✅ |
+| `python/prompts/classics/ziping_yongsin.py` | 4.2 | 자평진전 용신 5원칙 | ✅ |
+| `python/prompts/western/destiny_code.py` | 4.3 | The Destiny Code 현대화 | ✅ |
+| `python/manseryeok/sinsal.py` | 3.3 | 12신살 분석 모듈 | ✅ |
+| `python/manseryeok/formation.py` | 3.2 | 격국 자동 분류 | ✅ |
+| `python/manseryeok/interactions.py` | 3.1 | 지지 상호작용 | ✅ |
+| `python/prompts/mulsangron.py` | 5.2 | 물상론 DB (십신별 길흉 매핑) | ✅ |
+| `python/scoring/__init__.py` | 5.1 | 점수 모듈 export | ✅ |
+| `python/scoring/event_score.py` | 5.1 | 사건 강도 점수 계산 | ✅ |
+| `python/scoring/validation.py` | 5.3 | 점수-서술 일관성 검증 | ✅ |
 
 ---
 
@@ -467,11 +484,11 @@ Week 3
 
 ## 8. 성공 기준
 
-- [ ] 분석 정확도 +25% 이상 (사용자 피드백 기반)
-- [ ] 토큰 사용량 -40% 이상
-- [ ] 모든 Task 체크리스트 완료
-- [ ] 단위 테스트 커버리지 80% 이상
-- [ ] 5개 언어 동일 품질 유지
+- [ ] 분석 정확도 +25% 이상 (사용자 피드백 기반) - 검증 필요
+- [ ] 토큰 사용량 -40% 이상 - 검증 필요
+- [x] 모든 Task 체크리스트 완료 ✅ (Task 1~5 완료)
+- [ ] 단위 테스트 커버리지 80% 이상 - 추가 테스트 필요
+- [x] 5개 언어 동일 품질 유지 ✅ (ko, en, ja, zh-CN, zh-TW 지원)
 
 ---
 

@@ -613,6 +613,12 @@ tests/unit/lib/score/
 - `src/lib/ai/types.ts` - ScoreResult 타입 확장 (20개 → 35개)
 - `src/lib/ai/pipeline.ts` - calculateScores() 십신 기반 로직 연동
 
+**버전 히스토리**:
+| 버전 | 날짜 | 변경 내용 |
+|------|------|----------|
+| 2.0.0 | 2026-01-03 | 초기 구현 (십신 기반 35개 특성 점수) |
+| 2.0.9 | 2026-01-05 | modifier 스케일 축소 (×0.75, max ±15 → ±11) |
+
 ---
 
 ## Phase 4: 통합 & 마무리 (Week 5)
