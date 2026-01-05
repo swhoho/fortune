@@ -24,9 +24,9 @@ export default function NewProfilePage() {
    */
   const handleSubmit = (data: CreateProfileInput) => {
     createProfile(data, {
-      onSuccess: (response) => {
+      onSuccess: () => {
         toast.success(t('toast.createSuccess'));
-        router.push(`/profiles/${response.data.id}`);
+        router.push('/home');
       },
       onError: (error) => {
         toast.error(error.message || t('toast.error'));
