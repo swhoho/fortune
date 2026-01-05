@@ -3,7 +3,7 @@
 import { motion } from 'framer-motion';
 
 /** 탭 타입 정의 */
-export type ReportTabType = 'saju' | 'daewun';
+export type ReportTabType = 'saju' | 'daewun' | 'consultation';
 
 /** 탭 정의 */
 interface TabItem {
@@ -14,6 +14,7 @@ interface TabItem {
 const TABS: TabItem[] = [
   { id: 'saju', label: '사주' },
   { id: 'daewun', label: '대운' },
+  { id: 'consultation', label: '상담' },
 ];
 
 interface ReportNavigationProps {

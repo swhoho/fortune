@@ -3,10 +3,12 @@
 /**
  * 프로필 리포트 페이지
  * Task 21: 사주/대운 탭 분리
+ * Task: 상담 탭 추가
  *
  * 탭 구조:
  * 1. 사주 탭: 프로필 + 명식 + 대운 미리보기 + 성격/특성/적성/재물/연애 분석
  * 2. 대운 탭: 프로필 + 대운 상세 분석
+ * 3. 상담 탭: AI 상담 (채팅 형태)
  */
 
 import { useState, useEffect, useCallback } from 'react';
@@ -27,6 +29,7 @@ import {
   RomanceSection,
   ReportNavigation,
 } from '@/components/report';
+import { ConsultationTab } from '@/components/consultation';
 import type { ReportTabType } from '@/components/report/ReportNavigation';
 import type {
   ReportProfileInfo,
@@ -78,6 +81,8 @@ export default function ProfileReportPage({ params }: PageProps) {
     if (tab === 'daewun') {
       setActiveTab('daewun');
       setShowDaewunIndicator(false); // URL로 대운 탭 접근 시 indicator 숨김
+    } else if (tab === 'consultation') {
+      setActiveTab('consultation');
     } else {
       setActiveTab('saju');
     }
@@ -319,7 +324,7 @@ export default function ProfileReportPage({ params }: PageProps) {
       {/* 메인 콘텐츠 */}
       <main className="mx-auto max-w-4xl px-6 py-8">
         <AnimatePresence mode="wait">
-          {activeTab === 'saju' ? (
+          {activeTab === 'saju' && (
             <motion.div
               key="saju-tab"
               initial={{ opacity: 0, x: -20 }}
@@ -352,7 +357,9 @@ export default function ProfileReportPage({ params }: PageProps) {
               {/* 연애/결혼 */}
               {reportData.romance && <RomanceSection data={reportData.romance} />}
             </motion.div>
-          ) : (
+          )}
+
+          {activeTab === 'daewun' && (
             <motion.div
               key="daewun-tab"
               initial={{ opacity: 0, x: 20 }}
@@ -374,6 +381,25 @@ export default function ProfileReportPage({ params }: PageProps) {
                   <p className="text-gray-400">대운 정보가 없습니다</p>
                 </div>
               )}
+            </motion.div>
+          )}
+
+          {activeTab === 'consultation' && (
+            <motion.div
+              key="consultation-tab"
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -20 }}
+              transition={{ duration: 0.3 }}
+            >
+              {/* 상담 탭: AI 상담 채팅 */}
+              <div className="mb-6">
+                <h2 className="mb-2 text-xl font-semibold text-white">AI 상담</h2>
+                <p className="text-sm text-gray-400">
+                  분석된 사주와 대운을 기반으로 전문가 AI에게 상담을 받아보세요.
+                </p>
+              </div>
+              <ConsultationTab profileId={id} />
             </motion.div>
           )}
         </AnimatePresence>

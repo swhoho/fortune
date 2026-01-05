@@ -17,6 +17,9 @@ export * from './profile';
 // 리포트 타입
 export * from './report';
 
+// 상담 타입
+export * from './consultation';
+
 // 사주 타입 (기존 수동 타입)
 export * from './saju';
 
