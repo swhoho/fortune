@@ -2,22 +2,21 @@
 
 /**
  * Payment Page
- * PortOne V2 결제 연동
+ * PRD Section 5.6
+ * Uses Stripe Checkout (pre-built UI)
  */
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { useOnboardingStore } from '@/stores/onboarding-store';
 import { FocusAreaLabel } from '@/types/saju';
-import { CREDIT_PACKAGES, SERVICE_CREDITS, PORTONE_CONFIG, generatePaymentId } from '@/lib/portone';
-import type { CreditPackage } from '@/lib/portone';
+import { CREDIT_PACKAGES, SERVICE_CREDITS } from '@/lib/stripe';
+import type { CreditPackage } from '@/lib/stripe';
 import {
   HeroSection,
   PillarsSection,
   SocialProofSection,
 } from '@/components/payment/PaymentSections';
-import * as PortOne from '@portone/browser-sdk/v2';
 
 /** Analysis Includes */
 const analysisIncludes = [
@@ -31,7 +30,6 @@ const analysisIncludes = [
 ];
 
 export default function PaymentPage({ params: { locale } }: { params: { locale: string } }) {
-  const router = useRouter();
   const { focusArea, question } = useOnboardingStore();
   const [selectedPackage, setSelectedPackage] = useState<CreditPackage | null>(
     CREDIT_PACKAGES.find((p) => p.popular) || null
@@ -39,87 +37,50 @@ export default function PaymentPage({ params: { locale } }: { params: { locale: 
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  // focusArea가 없어도 크레딧 충전은 가능하도록 허용
+  // 분석 플로우 외부에서 크레딧 부족 시 결제 페이지로 직접 접근 가능
+
   const requiredCredits = SERVICE_CREDITS.fullAnalysis;
 
-  /**
-   * 포트원 결제 처리
-   */
-  const handlePayment = async () => {
+  const handleCheckout = async () => {
     if (!selectedPackage) return;
-
-    // 환경변수 확인
-    if (!PORTONE_CONFIG.storeId || !PORTONE_CONFIG.channelKey) {
-      setError('결제 설정이 완료되지 않았습니다. 관리자에게 문의하세요.');
-      return;
-    }
 
     setIsLoading(true);
     setError(null);
 
-    const paymentId = generatePaymentId();
-
     try {
-      // 1. 포트원 결제창 호출
-      const response = await PortOne.requestPayment({
-        storeId: PORTONE_CONFIG.storeId,
-        channelKey: PORTONE_CONFIG.channelKey,
-        paymentId,
-        orderName: `크레딧 ${selectedPackage.credits + (selectedPackage.bonus || 0)}C`,
-        totalAmount: selectedPackage.price,
-        currency: 'CURRENCY_KRW',
-        payMethod: 'CARD',
-        customData: {
-          packageId: selectedPackage.id,
-        },
-      });
-
-      // 2. 결제 실패/취소 처리
-      if (response?.code) {
-        // 사용자 취소
-        if (response.code === 'FAILURE_TYPE_PG' || response.message?.includes('cancel')) {
-          setError('결제가 취소되었습니다.');
-          return;
-        }
-        throw new Error(response.message || '결제에 실패했습니다');
-      }
-
-      // 3. 결제 성공 - 서버에서 검증
-      const verifyResponse = await fetch('/api/payment/portone/verify', {
+      // Checkout Session 생성 API 호출
+      const response = await fetch('/api/payment/create-checkout-session', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          paymentId,
           packageId: selectedPackage.id,
-          expectedAmount: selectedPackage.price,
+          credits: selectedPackage.credits + (selectedPackage.bonus || 0),
+          amount: selectedPackage.price,
         }),
       });
 
-      const verifyResult = await verifyResponse.json();
-
-      if (!verifyResult.success) {
-        throw new Error(verifyResult.error || '결제 검증에 실패했습니다');
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || '결제 세션 생성에 실패했습니다');
       }
 
-      // 4. 성공 페이지로 이동
-      router.push(`/payment/success?payment_id=${paymentId}&credits=${verifyResult.credits}`);
+      const { url } = await response.json();
+
+      if (!url) {
+        throw new Error('결제 URL을 받지 못했습니다');
+      }
+
+      // Stripe Checkout 페이지로 리다이렉트
+      window.location.href = url;
     } catch (err) {
-      console.error('Payment error:', err);
+      console.error('Checkout error:', err);
       setError(err instanceof Error ? err.message : '결제 중 오류가 발생했습니다');
     } finally {
       setIsLoading(false);
     }
-  };
-
-  /**
-   * 금액 포맷 (KRW)
-   */
-  const formatPrice = (price: number) => {
-    return new Intl.NumberFormat('ko-KR', {
-      style: 'currency',
-      currency: 'KRW',
-    }).format(price);
   };
 
   return (
@@ -146,7 +107,7 @@ export default function PaymentPage({ params: { locale } }: { params: { locale: 
           >
             {/* 타이틀 */}
             <h2 className="mb-12 text-center font-serif text-3xl font-bold text-white">
-              크레딧 충전
+              Start Your Analysis
             </h2>
 
             <div className="grid gap-12 lg:grid-cols-2">
@@ -179,7 +140,7 @@ export default function PaymentPage({ params: { locale } }: { params: { locale: 
 
                     <div className="space-y-4">
                       <p className="text-sm font-medium uppercase tracking-widest text-gray-400">
-                        분석 포함 내용
+                        Included in Report
                       </p>
                       <div className="space-y-3">
                         {analysisIncludes.map((item) => (
@@ -194,8 +155,9 @@ export default function PaymentPage({ params: { locale } }: { params: { locale: 
                     </div>
                   </div>
                 ) : (
+                  // Fallback if no focus area (direct access)
                   <div className="flex h-full flex-col justify-center rounded-2xl border border-white/5 bg-[#1a1a1a] p-8 text-center text-gray-400">
-                    <p>크레딧 패키지를 선택하여 충전하세요.</p>
+                    <p>Select a credit package to recharge.</p>
                   </div>
                 )}
               </div>
@@ -217,18 +179,18 @@ export default function PaymentPage({ params: { locale } }: { params: { locale: 
                     >
                       {pkg.popular && (
                         <span className="absolute -top-3 right-4 rounded-full bg-[#d4af37] px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-black">
-                          인기
+                          Popular
                         </span>
                       )}
                       <div>
                         <p className="mb-1 text-2xl font-bold text-white">{pkg.credits}C</p>
                         {pkg.bonus && (
-                          <p className="text-xs font-medium text-[#d4af37]">+{pkg.bonus} 보너스</p>
+                          <p className="text-xs font-medium text-[#d4af37]">+{pkg.bonus} Bonus</p>
                         )}
                       </div>
                       <div className="mt-4 border-t border-white/10 pt-3">
                         <p className="text-lg font-medium text-gray-300">
-                          {formatPrice(pkg.price)}
+                          ${(pkg.price / 100).toFixed(2)}
                         </p>
                       </div>
                     </motion.button>
@@ -240,15 +202,15 @@ export default function PaymentPage({ params: { locale } }: { params: { locale: 
                   {selectedPackage ? (
                     <>
                       <div className="mb-4 flex items-center justify-between text-sm">
-                        <span className="text-gray-400">총 크레딧</span>
+                        <span className="text-gray-400">Total Credits</span>
                         <span className="text-lg font-bold text-[#d4af37]">
                           {selectedPackage.credits + (selectedPackage.bonus || 0)} C
                         </span>
                       </div>
                       <div className="mb-6 flex items-center justify-between border-t border-white/10 pt-4">
-                        <span className="text-gray-300">결제 금액</span>
+                        <span className="text-gray-300">Total Price</span>
                         <span className="text-2xl font-bold text-white">
-                          {formatPrice(selectedPackage.price)}
+                          ${(selectedPackage.price / 100).toFixed(2)}
                         </span>
                       </div>
 
@@ -259,19 +221,21 @@ export default function PaymentPage({ params: { locale } }: { params: { locale: 
                       )}
 
                       <Button
-                        onClick={handlePayment}
+                        onClick={handleCheckout}
                         disabled={isLoading}
                         size="lg"
                         className="w-full bg-gradient-to-r from-[#d4af37] to-[#b08d2b] py-6 text-lg font-bold text-black hover:from-[#e5bd43] hover:to-[#c19a2e] disabled:opacity-50"
                       >
-                        {isLoading ? '결제 처리 중...' : '결제하기'}
+                        {isLoading ? 'Processing...' : 'Secure Checkout'}
                       </Button>
                       <p className="mt-3 text-center text-xs text-gray-500">
-                        신용카드 · 카카오페이 · 네이버페이 지원
+                        Powered by Stripe • Secure Encryption
                       </p>
                     </>
                   ) : (
-                    <div className="py-4 text-center text-gray-500">패키지를 선택해주세요</div>
+                    <div className="py-4 text-center text-gray-500">
+                      Select a package to continue
+                    </div>
                   )}
                 </div>
               </div>

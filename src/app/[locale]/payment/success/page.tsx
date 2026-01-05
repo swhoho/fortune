@@ -11,8 +11,7 @@ import { Button } from '@/components/ui/button';
 
 function PaymentSuccessContent() {
   const searchParams = useSearchParams();
-  const paymentId = searchParams.get('payment_id');
-  const credits = searchParams.get('credits');
+  const sessionId = searchParams.get('session_id');
 
   return (
     <motion.div
@@ -67,23 +66,16 @@ function PaymentSuccessContent() {
         이제 사주 분석을 시작할 수 있습니다.
       </motion.p>
 
-      {/* 결제 정보 표시 */}
-      {(paymentId || credits) && (
+      {/* 세션 ID 표시 (디버그용) */}
+      {sessionId && (
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.5 }}
           className="mb-8 rounded-lg bg-gray-50 p-4"
         >
-          {credits && (
-            <p className="mb-2 text-lg font-bold text-[#d4af37]">+{credits} 크레딧 충전됨</p>
-          )}
-          {paymentId && (
-            <>
-              <p className="text-xs text-gray-400">결제 ID</p>
-              <p className="truncate font-mono text-sm text-gray-600">{paymentId}</p>
-            </>
-          )}
+          <p className="text-xs text-gray-400">결제 ID</p>
+          <p className="truncate font-mono text-sm text-gray-600">{sessionId}</p>
         </motion.div>
       )}
 
