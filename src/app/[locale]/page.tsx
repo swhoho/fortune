@@ -102,7 +102,7 @@ export default function LandingPage() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.5 }}
-          className="mb-4 whitespace-pre-line font-serif text-xl font-bold leading-relaxed text-white sm:mb-6 sm:text-2xl md:text-3xl lg:text-4xl"
+          className="mb-4 whitespace-pre-line break-keep font-serif text-xl font-bold leading-relaxed text-white sm:mb-6 sm:text-2xl md:text-3xl lg:text-4xl"
         >
           {t('headline')}
         </motion.h2>
@@ -112,7 +112,7 @@ export default function LandingPage() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.7 }}
-          className="mb-6 whitespace-pre-line text-base text-gray-400 sm:mb-8 sm:text-lg"
+          className="mb-6 whitespace-pre-line break-keep text-base text-gray-400 sm:mb-8 sm:text-lg"
         >
           {t('subheadline')}
         </motion.p>

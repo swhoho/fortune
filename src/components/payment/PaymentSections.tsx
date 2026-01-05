@@ -318,7 +318,7 @@ export function PillarsSection({ currentLocale }: PaymentSectionsProps) {
           Why Saju30 is Accurate
         </h2>
 
-        <div className="grid gap-8 md:grid-cols-3 lg:grid-cols-5">
+        <div className="grid grid-cols-1 gap-8 md:grid-cols-3 lg:grid-cols-5">
           {content.pillars.map((pillar, index) => (
             <motion.div
               key={index}
