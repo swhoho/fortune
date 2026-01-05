@@ -55,8 +55,12 @@ python/
 │   │   ├── qiongtong.py         # 궁통보감 프롬프트
 │   │   ├── ziping.py            # 자평진전 프롬프트
 │   │   └── ziping_yongsin.py    # 용신 5원칙 (10격국×3강약)
-│   └── western/            # 서구권 현대화 프레임워크
-│       └── destiny_code.py      # The Destiny Code (십신×강약 조언, 대운 분석)
+│   ├── western/            # 서구권 현대화 프레임워크
+│   │   └── destiny_code.py      # The Destiny Code (십신×강약 조언, 대운 분석)
+│   └── mulsangron.py       # 물상론 DB (십신별 길흉 사건 매핑)
+├── scoring/                # 점수 계산 모듈 (Task 5)
+│   ├── event_score.py      # 사건 강도 점수 (-100 ~ +100)
+│   └── validation.py       # 점수-서술 일관성 검증
 └── visualization/          # 이미지 생성
 ```
 
@@ -94,6 +98,43 @@ python/
 | 土 | `#f59e0b` |
 | 金 | `#e5e7eb` |
 | 水 | `#1e3a8a` |
+
+### 다크 테마 디자인 시스템
+
+**레이어 배경 색상**:
+| 레이어 | 용도 | Hex |
+|--------|------|-----|
+| L0 | 페이지 배경 | `#0a0a0a` |
+| L1 | 섹션 배경 | `#111111` |
+| L2 | 카드 배경 | `#1a1a1a` |
+| L3 | 호버/강조 | `#242424` |
+| L4 | 입력 필드 | `#2a2a2a` |
+
+**색상 변환 패턴**:
+| 기존 (라이트) | 변환 (다크) |
+|---------------|-------------|
+| `bg-white` | `bg-[#1a1a1a]` |
+| `bg-gray-50/100` | `bg-[#242424]` |
+| `border-gray-100/200` | `border-[#333]` |
+| `text-[#1a1a1a]` | `text-white` |
+| `text-gray-500/600` | `text-gray-400` |
+| `hover:bg-gray-50` | `hover:bg-[#242424]` |
+| `bg-gray-200` (skeleton) | `bg-[#333]` |
+
+**텍스트 색상**:
+| 용도 | 색상 |
+|------|------|
+| 주요 텍스트 | `text-white` |
+| 보조 텍스트 | `text-gray-400` |
+| 힌트/라벨 | `text-gray-500` |
+| 금색 액센트 | `text-[#d4af37]` |
+
+**경고/에러 색상 (다크 모드)**:
+| 용도 | 색상 |
+|------|------|
+| 에러 배경 | `bg-red-950/30` |
+| 에러 테두리 | `border-red-900/50` |
+| 에러 텍스트 | `text-red-400` |
 
 ## 배포
 
@@ -239,5 +280,5 @@ cd python && pytest  # Python
 
 ---
 
-**Version**: 1.27.0
-**Last Updated**: 2026-01-05 (Task 4.3 The Destiny Code 현대화 프레임워크 완료)
+**Version**: 1.28.0
+**Last Updated**: 2026-01-05 (Task 5 점수 계산 고도화 완료)

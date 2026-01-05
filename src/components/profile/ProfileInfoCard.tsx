@@ -91,7 +91,7 @@ export function ProfileInfoCard({
       layout
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      className="overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm"
+      className="overflow-hidden rounded-2xl border border-[#333] bg-[#1a1a1a] shadow-sm"
     >
       <AnimatePresence mode="wait">
         {isEditing ? (
@@ -103,7 +103,7 @@ export function ProfileInfoCard({
             exit={{ opacity: 0 }}
             className="p-6"
           >
-            <h3 className="mb-6 font-serif text-lg font-semibold text-[#1a1a1a]">
+            <h3 className="mb-6 font-serif text-lg font-semibold text-white">
               {t('pageTitle.edit')}
             </h3>
             <ProfileForm
@@ -122,7 +122,7 @@ export function ProfileInfoCard({
             exit={{ opacity: 0 }}
           >
             {/* 헤더 */}
-            <div className="relative border-b border-gray-100 p-6">
+            <div className="relative border-b border-[#333] p-6">
               {/* 장식적 배경 */}
               <div className="absolute -right-16 -top-16 h-40 w-40 rounded-full bg-gradient-to-br from-[#d4af37]/5 to-transparent" />
 
@@ -134,8 +134,8 @@ export function ProfileInfoCard({
 
                 {/* 이름 + 기본 정보 */}
                 <div>
-                  <h2 className="font-serif text-xl font-bold text-[#1a1a1a]">{profile.name}</h2>
-                  <p className="text-sm text-gray-500">
+                  <h2 className="font-serif text-xl font-bold text-white">{profile.name}</h2>
+                  <p className="text-sm text-gray-400">
                     {profile.gender === 'male' ? t('form.male') : t('form.female')} ·{' '}
                     {t('detail.age', { age })}
                   </p>
@@ -165,20 +165,20 @@ export function ProfileInfoCard({
 
             {/* 상세 정보 */}
             <div className="space-y-4 p-6">
-              <h3 className="font-serif text-sm font-semibold text-gray-400">
+              <h3 className="font-serif text-sm font-semibold text-gray-500">
                 {t('detail.birthInfo')}
               </h3>
 
               {/* 생년월일 */}
               <div className="flex items-center gap-3">
-                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-[#f8f6f0]">
+                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-[#242424]">
                   <Calendar className="h-5 w-5 text-[#d4af37]" />
                 </div>
                 <div>
-                  <p className="text-sm text-gray-500">생년월일</p>
-                  <p className="font-medium text-[#1a1a1a]">
+                  <p className="text-sm text-gray-400">생년월일</p>
+                  <p className="font-medium text-white">
                     {formattedDate}{' '}
-                    <span className="ml-1 text-sm text-gray-400">
+                    <span className="ml-1 text-sm text-gray-500">
                       ({CALENDAR_LABELS[profile.calendarType]})
                     </span>
                   </p>
@@ -188,23 +188,23 @@ export function ProfileInfoCard({
               {/* 출생 시간 */}
               {profile.birthTime && (
                 <div className="flex items-center gap-3">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-[#f8f6f0]">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-[#242424]">
                     <Clock className="h-5 w-5 text-[#d4af37]" />
                   </div>
                   <div>
-                    <p className="text-sm text-gray-500">출생 시간</p>
-                    <p className="font-medium text-[#1a1a1a]">{profile.birthTime}</p>
+                    <p className="text-sm text-gray-400">출생 시간</p>
+                    <p className="font-medium text-white">{profile.birthTime}</p>
                   </div>
                 </div>
               )}
             </div>
 
             {/* 리포트 액션 */}
-            <div className="border-t border-gray-100 p-6">
+            <div className="border-t border-[#333] p-6">
               {/* 실패한 리포트 상태 표시 및 재시작 버튼 */}
               {reportStatus === 'failed' && (
                 <div className="space-y-3">
-                  <div className="flex items-center justify-center gap-2 rounded-lg bg-red-50 p-3 text-red-700">
+                  <div className="flex items-center justify-center gap-2 rounded-lg bg-red-950/30 p-3 text-red-400">
                     <AlertTriangle className="h-4 w-4" />
                     <span className="text-sm font-medium">사주 분석이 실패했습니다</span>
                   </div>
@@ -235,7 +235,7 @@ export function ProfileInfoCard({
               {/* 신규 리포트 생성 */}
               {!hasReport && reportStatus !== 'failed' && (
                 <div className="space-y-3">
-                  <p className="text-center text-sm text-gray-500">{t('detail.noReport')}</p>
+                  <p className="text-center text-sm text-gray-400">{t('detail.noReport')}</p>
                   <Button
                     onClick={onGenerateReport}
                     className="w-full bg-gradient-to-r from-[#d4af37] to-[#c19a2e] text-white shadow-lg transition-all hover:scale-[1.02] hover:shadow-xl"

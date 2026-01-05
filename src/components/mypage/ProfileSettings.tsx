@@ -34,17 +34,17 @@ function formatDate(dateString: string): string {
 function LoadingSkeleton() {
   return (
     <div className="space-y-6">
-      <div className="animate-pulse rounded-2xl border border-gray-100 bg-white p-6">
+      <div className="animate-pulse rounded-2xl border border-[#333] bg-[#1a1a1a] p-6">
         <div className="mb-6 flex items-center gap-4">
-          <div className="h-16 w-16 rounded-full bg-gray-200" />
+          <div className="h-16 w-16 rounded-full bg-[#333]" />
           <div className="flex-1">
-            <div className="mb-2 h-5 w-32 rounded bg-gray-200" />
-            <div className="h-4 w-48 rounded bg-gray-200" />
+            <div className="mb-2 h-5 w-32 rounded bg-[#333]" />
+            <div className="h-4 w-48 rounded bg-[#333]" />
           </div>
         </div>
         <div className="space-y-4">
-          <div className="h-12 rounded-xl bg-gray-200" />
-          <div className="h-12 rounded-xl bg-gray-200" />
+          <div className="h-12 rounded-xl bg-[#333]" />
+          <div className="h-12 rounded-xl bg-[#333]" />
         </div>
       </div>
     </div>
@@ -104,8 +104,8 @@ export function ProfileSettings() {
           animate={{ opacity: 1, y: 0 }}
           className="mb-6"
         >
-          <h2 className="font-serif text-xl font-bold text-[#1a1a1a]">프로필 설정</h2>
-          <p className="mt-1 text-sm text-gray-500">계정 정보를 관리하세요</p>
+          <h2 className="font-serif text-xl font-bold text-white">프로필 설정</h2>
+          <p className="mt-1 text-sm text-gray-400">계정 정보를 관리하세요</p>
         </motion.div>
         <LoadingSkeleton />
       </div>
@@ -116,32 +116,32 @@ export function ProfileSettings() {
     <div>
       {/* 헤더 */}
       <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="mb-6">
-        <h2 className="font-serif text-xl font-bold text-[#1a1a1a]">프로필 설정</h2>
-        <p className="mt-1 text-sm text-gray-500">계정 정보를 관리하세요</p>
+        <h2 className="font-serif text-xl font-bold text-white">프로필 설정</h2>
+        <p className="mt-1 text-sm text-gray-400">계정 정보를 관리하세요</p>
       </motion.div>
 
       {/* 프로필 카드 */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="relative overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm"
+        className="relative overflow-hidden rounded-2xl border border-[#333] bg-[#1a1a1a] shadow-sm"
       >
         {/* 장식적 배경 */}
         <div className="absolute -right-20 -top-20 h-48 w-48 rounded-full bg-gradient-to-br from-[#d4af37]/10 to-transparent" />
 
         {/* 프로필 헤더 */}
-        <div className="relative border-b border-gray-100 p-6">
+        <div className="relative border-b border-[#333] p-6">
           <div className="flex items-center gap-4">
             {/* 아바타 */}
             <div className="flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-br from-[#d4af37] to-[#c19a2e] text-2xl font-bold text-white shadow-lg">
               {name?.charAt(0) || profile?.email?.charAt(0)?.toUpperCase() || '?'}
             </div>
             <div>
-              <p className="font-serif text-lg font-semibold text-[#1a1a1a]">
+              <p className="font-serif text-lg font-semibold text-white">
                 {name || profile?.email?.split('@')[0] || '사용자'}
               </p>
-              <p className="text-sm text-gray-500">{profile?.email}</p>
-              <p className="mt-1 text-xs text-gray-400">
+              <p className="text-sm text-gray-400">{profile?.email}</p>
+              <p className="mt-1 text-xs text-gray-500">
                 가입일: {profile?.createdAt ? formatDate(profile.createdAt) : '-'}
               </p>
             </div>
@@ -152,7 +152,7 @@ export function ProfileSettings() {
         <div className="relative space-y-6 p-6">
           {/* 이름 입력 */}
           <div className="space-y-2">
-            <Label htmlFor="name" className="text-sm font-medium text-gray-700">
+            <Label htmlFor="name" className="text-sm font-medium text-gray-300">
               이름 (선택)
             </Label>
             <Input
@@ -160,14 +160,14 @@ export function ProfileSettings() {
               value={name}
               onChange={(e) => setName(e.target.value)}
               placeholder="이름을 입력하세요"
-              className="h-12 rounded-xl border-gray-200 transition-all focus:border-[#d4af37] focus:ring-[#d4af37]/20"
+              className="h-12 rounded-xl border-[#333] bg-[#2a2a2a] text-white placeholder:text-gray-500 transition-all focus:border-[#d4af37] focus:ring-[#d4af37]/20"
             />
-            <p className="text-xs text-gray-400">이름은 마이페이지에서만 표시됩니다</p>
+            <p className="text-xs text-gray-500">이름은 마이페이지에서만 표시됩니다</p>
           </div>
 
           {/* 언어 선택 */}
           <div className="space-y-2">
-            <Label className="text-sm font-medium text-gray-700">선호 언어</Label>
+            <Label className="text-sm font-medium text-gray-300">선호 언어</Label>
             <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
               {LANGUAGES.map((lang) => (
                 <button
@@ -175,8 +175,8 @@ export function ProfileSettings() {
                   onClick={() => setPreferredLanguage(lang.code)}
                   className={`flex items-center justify-center gap-2 rounded-xl border-2 px-4 py-3 transition-all ${
                     preferredLanguage === lang.code
-                      ? 'border-[#d4af37] bg-[#d4af37]/5 text-[#d4af37]'
-                      : 'border-gray-200 text-gray-600 hover:border-gray-300 hover:bg-gray-50'
+                      ? 'border-[#d4af37] bg-[#d4af37]/10 text-[#d4af37]'
+                      : 'border-[#333] text-gray-400 hover:border-[#444] hover:bg-[#242424]'
                   }`}
                 >
                   <span className="text-lg">{lang.flag}</span>
@@ -184,16 +184,16 @@ export function ProfileSettings() {
                 </button>
               ))}
             </div>
-            <p className="text-xs text-gray-400">분석 결과 및 AI 응답에 적용됩니다</p>
+            <p className="text-xs text-gray-500">분석 결과 및 AI 응답에 적용됩니다</p>
           </div>
 
           {/* 이메일 (읽기 전용) */}
           <div className="space-y-2">
-            <Label className="text-sm font-medium text-gray-700">이메일</Label>
-            <div className="flex h-12 items-center rounded-xl border border-gray-200 bg-gray-50 px-4 text-gray-500">
+            <Label className="text-sm font-medium text-gray-300">이메일</Label>
+            <div className="flex h-12 items-center rounded-xl border border-[#333] bg-[#242424] px-4 text-gray-400">
               {profile?.email}
             </div>
-            <p className="text-xs text-gray-400">이메일은 변경할 수 없습니다</p>
+            <p className="text-xs text-gray-500">이메일은 변경할 수 없습니다</p>
           </div>
         </div>
 
@@ -202,7 +202,7 @@ export function ProfileSettings() {
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="border-t border-gray-100 bg-gray-50 p-4"
+            className="border-t border-[#333] bg-[#242424] p-4"
           >
             <div className="flex items-center justify-end gap-3">
               <Button variant="outline" onClick={handleReset} disabled={updateProfile.isPending}>
@@ -247,21 +247,21 @@ export function ProfileSettings() {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.1 }}
-        className="mt-6 rounded-2xl border border-gray-100 bg-white p-6 shadow-sm"
+        className="mt-6 rounded-2xl border border-[#333] bg-[#1a1a1a] p-6 shadow-sm"
       >
-        <h3 className="mb-4 font-medium text-[#1a1a1a]">계정 정보</h3>
+        <h3 className="mb-4 font-medium text-white">계정 정보</h3>
         <div className="space-y-3">
           <div className="flex justify-between text-sm">
-            <span className="text-gray-500">계정 ID</span>
-            <span className="font-mono text-gray-600">{profile?.id?.slice(0, 12)}...</span>
+            <span className="text-gray-400">계정 ID</span>
+            <span className="font-mono text-gray-300">{profile?.id?.slice(0, 12)}...</span>
           </div>
           <div className="flex justify-between text-sm">
-            <span className="text-gray-500">보유 크레딧</span>
+            <span className="text-gray-400">보유 크레딧</span>
             <span className="font-medium text-[#d4af37]">{profile?.credits || 0}C</span>
           </div>
           <div className="flex justify-between text-sm">
-            <span className="text-gray-500">가입일</span>
-            <span className="text-gray-600">
+            <span className="text-gray-400">가입일</span>
+            <span className="text-gray-300">
               {profile?.createdAt ? formatDate(profile.createdAt) : '-'}
             </span>
           </div>
@@ -273,13 +273,13 @@ export function ProfileSettings() {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.2 }}
-        className="mt-6 rounded-2xl border border-red-100 bg-red-50/50 p-6"
+        className="mt-6 rounded-2xl border border-red-900/50 bg-red-950/30 p-6"
       >
-        <h3 className="mb-2 font-medium text-red-800">위험 영역</h3>
-        <p className="mb-4 text-sm text-red-600">
+        <h3 className="mb-2 font-medium text-red-400">위험 영역</h3>
+        <p className="mb-4 text-sm text-red-400/80">
           계정 삭제는 되돌릴 수 없으며, 모든 데이터가 영구적으로 삭제됩니다.
         </p>
-        <Button variant="outline" className="border-red-200 text-red-600 hover:bg-red-50" disabled>
+        <Button variant="outline" className="border-red-900/50 text-red-400 hover:bg-red-950/50" disabled>
           계정 삭제 (준비 중)
         </Button>
       </motion.div>

@@ -65,16 +65,16 @@ function LoadingSkeleton() {
   return (
     <div className="space-y-4">
       {[1, 2].map((i) => (
-        <div key={i} className="animate-pulse rounded-2xl border border-gray-100 bg-white p-6">
+        <div key={i} className="animate-pulse rounded-2xl border border-[#333] bg-[#1a1a1a] p-6">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
-              <div className="h-12 w-12 rounded-xl bg-gray-200" />
+              <div className="h-12 w-12 rounded-xl bg-[#333]" />
               <div>
-                <div className="mb-2 h-4 w-32 rounded bg-gray-200" />
-                <div className="h-3 w-48 rounded bg-gray-200" />
+                <div className="mb-2 h-4 w-32 rounded bg-[#333]" />
+                <div className="h-3 w-48 rounded bg-[#333]" />
               </div>
             </div>
-            <div className="h-6 w-11 rounded-full bg-gray-200" />
+            <div className="h-6 w-11 rounded-full bg-[#333]" />
           </div>
         </div>
       ))}
@@ -106,8 +106,8 @@ export function NotificationSettings() {
           animate={{ opacity: 1, y: 0 }}
           className="mb-6"
         >
-          <h2 className="font-serif text-xl font-bold text-[#1a1a1a]">알림 설정</h2>
-          <p className="mt-1 text-sm text-gray-500">이메일 알림 및 리마인더를 관리하세요</p>
+          <h2 className="font-serif text-xl font-bold text-white">알림 설정</h2>
+          <p className="mt-1 text-sm text-gray-400">이메일 알림 및 리마인더를 관리하세요</p>
         </motion.div>
         <LoadingSkeleton />
       </div>
@@ -118,8 +118,8 @@ export function NotificationSettings() {
     <div>
       {/* 헤더 */}
       <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="mb-6">
-        <h2 className="font-serif text-xl font-bold text-[#1a1a1a]">알림 설정</h2>
-        <p className="mt-1 text-sm text-gray-500">이메일 알림 및 리마인더를 관리하세요</p>
+        <h2 className="font-serif text-xl font-bold text-white">알림 설정</h2>
+        <p className="mt-1 text-sm text-gray-400">이메일 알림 및 리마인더를 관리하세요</p>
       </motion.div>
 
       {/* 알림 설정 목록 */}
@@ -130,7 +130,7 @@ export function NotificationSettings() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: index * 0.1 }}
-            className="group relative overflow-hidden rounded-2xl border border-gray-100 bg-white p-6 shadow-sm transition-all hover:border-[#d4af37]/20 hover:shadow-md"
+            className="group relative overflow-hidden rounded-2xl border border-[#333] bg-[#1a1a1a] p-6 shadow-sm transition-all hover:border-[#d4af37]/20 hover:shadow-md"
           >
             {/* 장식적 배경 */}
             <div className="absolute -right-16 -top-16 h-40 w-40 rounded-full bg-gradient-to-br from-[#d4af37]/5 to-transparent opacity-0 transition-opacity group-hover:opacity-100" />
@@ -138,13 +138,13 @@ export function NotificationSettings() {
             <div className="relative flex items-center justify-between">
               <div className="flex items-center gap-4">
                 {/* 아이콘 */}
-                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-[#f8f6f0] to-[#f0ebe0] text-[#d4af37]">
+                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-[#2a2a2a] to-[#1a1a1a] text-[#d4af37]">
                   {item.icon}
                 </div>
                 {/* 텍스트 */}
                 <div>
-                  <h3 className="font-medium text-[#1a1a1a]">{item.title}</h3>
-                  <p className="text-sm text-gray-500">{item.description}</p>
+                  <h3 className="font-medium text-white">{item.title}</h3>
+                  <p className="text-sm text-gray-400">{item.description}</p>
                 </div>
               </div>
               {/* 토글 */}
@@ -163,10 +163,10 @@ export function NotificationSettings() {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.3 }}
-        className="mt-8 rounded-2xl bg-gradient-to-br from-[#f8f6f0] to-[#f0ebe0] p-6"
+        className="mt-8 rounded-2xl bg-gradient-to-br from-[#242424] to-[#1a1a1a] p-6"
       >
         <div className="flex gap-4">
-          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-white/80 text-[#d4af37]">
+          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#1a1a1a]/80 text-[#d4af37]">
             <svg
               className="h-5 w-5"
               fill="none"
@@ -182,8 +182,8 @@ export function NotificationSettings() {
             </svg>
           </div>
           <div>
-            <h4 className="font-medium text-[#1a1a1a]">알림 수신 동의</h4>
-            <p className="mt-1 text-sm text-gray-600">
+            <h4 className="font-medium text-white">알림 수신 동의</h4>
+            <p className="mt-1 text-sm text-gray-400">
               이메일 알림은 언제든 해제할 수 있으며, 중요한 서비스 공지는 알림 설정과 관계없이
               발송될 수 있습니다.
             </p>

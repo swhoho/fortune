@@ -182,13 +182,13 @@ export function ProfileForm({
     >
       {/* 이름 */}
       <div className="space-y-2">
-        <Label>{t('form.name')} *</Label>
+        <Label className="text-gray-300">{t('form.name')} *</Label>
         <Input
           type="text"
           placeholder={t('form.namePlaceholder')}
           value={formData.name}
           onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-          className={errors.name ? 'border-red-500' : ''}
+          className={`border-[#333] bg-[#2a2a2a] text-white placeholder:text-gray-500 focus:border-[#d4af37] ${errors.name ? 'border-red-500' : ''}`}
           maxLength={50}
         />
         {errors.name && <p className="text-sm text-red-500">{errors.name}</p>}
@@ -196,14 +196,14 @@ export function ProfileForm({
 
       {/* 생년월일 */}
       <div className="space-y-2">
-        <Label>{t('form.birthDate')} *</Label>
+        <Label className="text-gray-300">{t('form.birthDate')} *</Label>
         <div className="grid grid-cols-3 gap-2">
           <Input
             type="number"
             placeholder={t('form.yearPlaceholder')}
             value={formData.year}
             onChange={(e) => setFormData({ ...formData, year: e.target.value })}
-            className={errors.year ? 'border-red-500' : ''}
+            className={`border-[#333] bg-[#2a2a2a] text-white placeholder:text-gray-500 focus:border-[#d4af37] ${errors.year ? 'border-red-500' : ''}`}
             min={1900}
             max={new Date().getFullYear()}
           />
@@ -212,7 +212,7 @@ export function ProfileForm({
             placeholder={t('form.monthPlaceholder')}
             value={formData.month}
             onChange={(e) => setFormData({ ...formData, month: e.target.value })}
-            className={errors.month ? 'border-red-500' : ''}
+            className={`border-[#333] bg-[#2a2a2a] text-white placeholder:text-gray-500 focus:border-[#d4af37] ${errors.month ? 'border-red-500' : ''}`}
             min={1}
             max={12}
           />
@@ -221,7 +221,7 @@ export function ProfileForm({
             placeholder={t('form.dayPlaceholder')}
             value={formData.day}
             onChange={(e) => setFormData({ ...formData, day: e.target.value })}
-            className={errors.day ? 'border-red-500' : ''}
+            className={`border-[#333] bg-[#2a2a2a] text-white placeholder:text-gray-500 focus:border-[#d4af37] ${errors.day ? 'border-red-500' : ''}`}
             min={1}
             max={31}
           />
@@ -233,14 +233,14 @@ export function ProfileForm({
 
       {/* 출생 시간 */}
       <div className="space-y-2">
-        <Label>{t('form.birthTime')} *</Label>
+        <Label className="text-gray-300">{t('form.birthTime')} *</Label>
         <div className="grid grid-cols-2 gap-2">
           <Input
             type="number"
             placeholder={t('form.hourPlaceholder')}
             value={formData.hour}
             onChange={(e) => setFormData({ ...formData, hour: e.target.value })}
-            className={errors.hour ? 'border-red-500' : ''}
+            className={`border-[#333] bg-[#2a2a2a] text-white placeholder:text-gray-500 focus:border-[#d4af37] ${errors.hour ? 'border-red-500' : ''}`}
             min={0}
             max={23}
           />
@@ -249,6 +249,7 @@ export function ProfileForm({
             placeholder={t('form.minutePlaceholder')}
             value={formData.minute}
             onChange={(e) => setFormData({ ...formData, minute: e.target.value })}
+            className="border-[#333] bg-[#2a2a2a] text-white placeholder:text-gray-500 focus:border-[#d4af37]"
             min={0}
             max={59}
           />
@@ -258,7 +259,7 @@ export function ProfileForm({
 
       {/* 달력 유형 */}
       <div className="space-y-2">
-        <Label>{t('form.calendarType')} *</Label>
+        <Label className="text-gray-300">{t('form.calendarType')} *</Label>
         <div className="flex flex-wrap gap-4">
           <label className="flex cursor-pointer items-center gap-2">
             <input
@@ -268,7 +269,7 @@ export function ProfileForm({
               onChange={() => setFormData({ ...formData, calendarType: 'solar' })}
               className="h-4 w-4 accent-[#d4af37]"
             />
-            <span>{t('form.solar')}</span>
+            <span className="text-gray-300">{t('form.solar')}</span>
           </label>
           <label className="flex cursor-pointer items-center gap-2">
             <input
@@ -278,7 +279,7 @@ export function ProfileForm({
               onChange={() => setFormData({ ...formData, calendarType: 'lunar' })}
               className="h-4 w-4 accent-[#d4af37]"
             />
-            <span>{t('form.lunar')}</span>
+            <span className="text-gray-300">{t('form.lunar')}</span>
           </label>
           <label className="flex cursor-pointer items-center gap-2">
             <input
@@ -288,14 +289,14 @@ export function ProfileForm({
               onChange={() => setFormData({ ...formData, calendarType: 'lunar_leap' })}
               className="h-4 w-4 accent-[#d4af37]"
             />
-            <span>{t('form.lunarLeap')}</span>
+            <span className="text-gray-300">{t('form.lunarLeap')}</span>
           </label>
         </div>
       </div>
 
       {/* 성별 */}
       <div className="space-y-2">
-        <Label>{t('form.gender')} *</Label>
+        <Label className="text-gray-300">{t('form.gender')} *</Label>
         <div className="flex gap-4">
           <label className="flex cursor-pointer items-center gap-2">
             <input
@@ -305,7 +306,7 @@ export function ProfileForm({
               onChange={() => setFormData({ ...formData, gender: 'male' })}
               className="h-4 w-4 accent-[#d4af37]"
             />
-            <span>{t('form.male')}</span>
+            <span className="text-gray-300">{t('form.male')}</span>
           </label>
           <label className="flex cursor-pointer items-center gap-2">
             <input
@@ -315,7 +316,7 @@ export function ProfileForm({
               onChange={() => setFormData({ ...formData, gender: 'female' })}
               className="h-4 w-4 accent-[#d4af37]"
             />
-            <span>{t('form.female')}</span>
+            <span className="text-gray-300">{t('form.female')}</span>
           </label>
         </div>
         {errors.gender && <p className="text-sm text-red-500">{errors.gender}</p>}

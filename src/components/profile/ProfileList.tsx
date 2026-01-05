@@ -33,17 +33,17 @@ function LoadingSkeleton() {
   return (
     <div className="grid gap-4 md:grid-cols-2">
       {[...Array(4)].map((_, i) => (
-        <div key={i} className="animate-pulse rounded-2xl border border-gray-100 bg-white p-5">
+        <div key={i} className="animate-pulse rounded-2xl border border-[#333] bg-[#1a1a1a] p-5">
           <div className="flex items-center gap-3">
-            <div className="h-12 w-12 rounded-xl bg-gray-200" />
+            <div className="h-12 w-12 rounded-xl bg-[#333]" />
             <div className="flex-1 space-y-2">
-              <div className="h-5 w-24 rounded bg-gray-200" />
-              <div className="h-4 w-40 rounded bg-gray-200" />
+              <div className="h-5 w-24 rounded bg-[#333]" />
+              <div className="h-4 w-40 rounded bg-[#333]" />
             </div>
           </div>
           <div className="mt-4 flex gap-2">
-            <div className="h-6 w-12 rounded-full bg-gray-200" />
-            <div className="h-6 w-16 rounded-full bg-gray-200" />
+            <div className="h-6 w-12 rounded-full bg-[#333]" />
+            <div className="h-6 w-16 rounded-full bg-[#333]" />
           </div>
         </div>
       ))}
@@ -86,14 +86,14 @@ export function ProfileList({
         animate={{ opacity: 1 }}
         className="flex items-center justify-between"
       >
-        <span className="text-sm text-gray-500">
+        <span className="text-sm text-gray-400">
           {t('list.totalCount', { count: profiles.length })}
         </span>
         <Button
           variant="ghost"
           size="sm"
           onClick={toggleSort}
-          className="flex items-center gap-1.5 text-sm text-gray-600 hover:text-[#1a1a1a]"
+          className="flex items-center gap-1.5 text-sm text-gray-400 hover:text-white"
         >
           <ArrowUpDown className="h-4 w-4" />
           {sortOrder === 'name' ? t('list.sortByName') : t('list.sortByDate')}
