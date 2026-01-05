@@ -294,13 +294,13 @@ export function HeroSection({ currentLocale }: PaymentSectionsProps) {
         transition={{ duration: 0.8, ease: 'easeOut' }}
         className="relative z-10 mx-auto max-w-4xl"
       >
-        <h1 className="mb-6 whitespace-pre-wrap font-serif text-3xl font-bold leading-tight text-white md:text-5xl lg:text-6xl">
+        <h1 className="mb-6 whitespace-pre-wrap break-keep font-serif text-2xl font-bold leading-tight text-white md:text-4xl lg:text-5xl">
           {content.headline}
         </h1>
-        <p className="mb-8 whitespace-pre-wrap text-lg text-gray-400 md:text-2xl">
+        <p className="mb-8 whitespace-pre-wrap break-keep text-lg text-gray-400 md:text-2xl">
           {content.subHeadline}
         </p>
-        <p className="mx-auto max-w-2xl text-base leading-relaxed text-gray-500 md:text-lg">
+        <p className="mx-auto max-w-2xl text-balance break-keep text-base leading-relaxed text-gray-500 md:text-lg">
           {content.intro}
         </p>
       </motion.div>
