@@ -462,6 +462,10 @@
     "zh-TW": "繁體中文"
   },
   "report": {
+    "navigation": {
+      "saju": "四柱",
+      "daewun": "大运"
+    },
     "wealth": {
       "title": "财运与异性",
       "wealthBlessing": "财运",

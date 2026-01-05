@@ -462,6 +462,10 @@
     "zh-TW": "繁體中文"
   },
   "report": {
+    "navigation": {
+      "saju": "Four Pillars",
+      "daewun": "Luck Cycles"
+    },
     "profile": {
       "title": "Profile Information",
       "birthday": "Birthday",

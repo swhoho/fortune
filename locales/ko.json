@@ -462,6 +462,10 @@
     "zh-TW": "繁體中文"
   },
   "report": {
+    "navigation": {
+      "saju": "사주",
+      "daewun": "대운"
+    },
     "profile": {
       "title": "프로필 정보",
       "birthday": "생일",

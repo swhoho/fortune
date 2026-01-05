@@ -2,19 +2,16 @@
 
 /**
  * 프로필 리포트 페이지
- * Task 20: 전체 리포트 레이아웃
+ * Task 21: 사주/대운 탭 분리
  *
- * 섹션 구조:
- * 1. 사주명식 (ProfileInfoHeader + SajuTable + DaewunHorizontalScroll)
- * 2. 성격 분석 (PersonalitySection)
- * 3. 사주 특성 (CharacteristicsSection)
- * 4. 적성과 직업 (AptitudeSection)
- * 5. 재물운 (WealthSection)
- * 6. 연애/결혼 (RomanceSection)
+ * 탭 구조:
+ * 1. 사주 탭: 프로필 + 명식 + 대운 미리보기 + 성격/특성/적성/재물/연애 분석
+ * 2. 대운 탭: 프로필 + 대운 상세 분석
  */
 
 import { useState, useEffect, useCallback } from 'react';
-import { motion } from 'framer-motion';
+import { useSearchParams } from 'next/navigation';
+import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowLeft, Share2, Download, Loader2, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Link, useRouter } from '@/i18n/routing';
@@ -30,6 +27,7 @@ import {
   RomanceSection,
   ReportNavigation,
 } from '@/components/report';
+import type { ReportTabType } from '@/components/report/ReportNavigation';
 import type {
   ReportProfileInfo,
   PersonalitySectionData,
@@ -61,13 +59,26 @@ interface ReportData {
  * 프로필 리포트 페이지 컴포넌트
  */
 export default function ProfileReportPage({ params }: PageProps) {
-  // const t = useTranslations('report'); // TODO: 다국어 적용 시 사용
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [id, setId] = useState<string>('');
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [noReport, setNoReport] = useState(false);
   const [reportData, setReportData] = useState<ReportData | null>(null);
+
+  // 탭 상태 관리
+  const [activeTab, setActiveTab] = useState<ReportTabType>('saju');
+
+  // URL의 tab 파라미터 감지
+  useEffect(() => {
+    const tab = searchParams.get('tab');
+    if (tab === 'daewun') {
+      setActiveTab('daewun');
+    } else {
+      setActiveTab('saju');
+    }
+  }, [searchParams]);
 
   // params 처리 (Promise 또는 일반 객체 모두 지원)
   useEffect(() => {
@@ -77,6 +88,28 @@ export default function ProfileReportPage({ params }: PageProps) {
       setId((params as { id: string; locale: string }).id);
     }
   }, [params]);
+
+  /**
+   * 탭 변경 핸들러
+   */
+  const handleTabChange = (tab: ReportTabType) => {
+    setActiveTab(tab);
+    // URL 업데이트 (히스토리 오염 방지를 위해 replace 사용)
+    const newUrl = tab === 'saju'
+      ? `/profiles/${id}/report`
+      : `/profiles/${id}/report?tab=${tab}`;
+    router.replace(newUrl);
+  };
+
+  /**
+   * 현재 나이 계산
+   */
+  const calculateCurrentAge = useCallback((birthDate: string | undefined): number | undefined => {
+    if (!birthDate) return undefined;
+    return Math.floor(
+      (Date.now() - new Date(birthDate).getTime()) / (365.25 * 24 * 60 * 60 * 1000)
+    );
+  }, []);
 
   /**
    * 리포트 데이터 조회
@@ -106,12 +139,10 @@ export default function ProfileReportPage({ params }: PageProps) {
 
       // 리포트가 아직 완료되지 않은 경우
       if (data.status === 'pending' || data.status === 'in_progress') {
-        // generating 페이지로 리다이렉트
         router.push(`/profiles/${id}/generating`);
         return;
       }
 
-      // 리포트 데이터 설정 (TODO: 실제 API 응답 구조에 맞게 변환 필요)
       if (data.success && data.data) {
         setReportData(data.data);
       } else {
@@ -140,7 +171,6 @@ export default function ProfileReportPage({ params }: PageProps) {
       });
     } else {
       await navigator.clipboard.writeText(window.location.href);
-      // toast.success('링크가 복사되었습니다');
     }
   };
 
@@ -181,7 +211,6 @@ export default function ProfileReportPage({ params }: PageProps) {
   if (noReport || !reportData) {
     return (
       <div className="min-h-screen bg-[#0a0a0a]">
-        {/* 헤더 */}
         <header className="sticky top-0 z-10 border-b border-[#333] bg-[#0a0a0a]/80 backdrop-blur-sm">
           <div className="mx-auto flex max-w-2xl items-center justify-between px-6 py-4">
             <Button
@@ -199,7 +228,6 @@ export default function ProfileReportPage({ params }: PageProps) {
           </div>
         </header>
 
-        {/* 빈 상태 */}
         <main className="mx-auto max-w-2xl px-6 py-16">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -234,6 +262,8 @@ export default function ProfileReportPage({ params }: PageProps) {
       </div>
     );
   }
+
+  const currentAge = calculateCurrentAge(reportData.profile.birthDate);
 
   return (
     <div className="min-h-screen bg-[#0a0a0a]">
@@ -279,78 +309,81 @@ export default function ProfileReportPage({ params }: PageProps) {
         </div>
       </header>
 
-      {/* 스크롤 네비게이션 */}
-      <ReportNavigation />
+      {/* 탭 네비게이션 */}
+      <ReportNavigation activeTab={activeTab} onTabChange={handleTabChange} />
 
       {/* 메인 콘텐츠 */}
       <main className="mx-auto max-w-4xl px-6 py-8">
-        <div className="space-y-12">
-          {/* 섹션 1: 사주명식 */}
-          <section id="saju" className="scroll-mt-32">
+        <AnimatePresence mode="wait">
+          {activeTab === 'saju' ? (
             <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5 }}
-              className="space-y-6"
+              key="saju-tab"
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: 20 }}
+              transition={{ duration: 0.3 }}
+              className="space-y-12"
             >
-              <ProfileInfoHeader {...reportData.profile} />
-              <SajuTable pillars={reportData.pillars} />
-              <DaewunHorizontalScroll daewun={reportData.daewun} />
+              {/* 사주 탭: 프로필 + 명식 + 대운 미리보기 */}
+              <section className="space-y-6">
+                <ProfileInfoHeader {...reportData.profile} />
+                <SajuTable pillars={reportData.pillars} />
+                <DaewunHorizontalScroll daewun={reportData.daewun} />
+              </section>
+
+              {/* 성격 분석 */}
+              {reportData.personality && (
+                <PersonalitySection {...reportData.personality} />
+              )}
+
+              {/* 사주 특성 */}
+              {reportData.characteristics && (
+                <CharacteristicsSection {...reportData.characteristics} />
+              )}
+
+              {/* 적성과 직업 */}
+              {reportData.aptitude && (
+                <AptitudeSection data={reportData.aptitude} />
+              )}
+
+              {/* 재물운 */}
+              {reportData.wealth && (
+                <WealthSection data={reportData.wealth} />
+              )}
+
+              {/* 연애/결혼 */}
+              {reportData.romance && (
+                <RomanceSection data={reportData.romance} />
+              )}
             </motion.div>
-          </section>
+          ) : (
+            <motion.div
+              key="daewun-tab"
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -20 }}
+              transition={{ duration: 0.3 }}
+              className="space-y-8"
+            >
+              {/* 대운 탭: 프로필 간략 + 대운 상세 */}
+              <section className="space-y-6">
+                <ProfileInfoHeader {...reportData.profile} />
+              </section>
 
-          {/* 섹션 1.5: 대운 상세 분석 */}
-          {reportData.daewun && reportData.daewun.length > 0 && (
-            <section id="daewun" className="scroll-mt-32">
-              <DaewunDetailSection
-                daewun={reportData.daewun}
-                currentAge={
-                  reportData.profile.birthDate
-                    ? Math.floor(
-                        (Date.now() - new Date(reportData.profile.birthDate).getTime()) /
-                          (365.25 * 24 * 60 * 60 * 1000)
-                      )
-                    : undefined
-                }
-              />
-            </section>
+              {/* 대운 상세 분석 */}
+              {reportData.daewun && reportData.daewun.length > 0 ? (
+                <DaewunDetailSection
+                  daewun={reportData.daewun}
+                  currentAge={currentAge}
+                />
+              ) : (
+                <div className="flex flex-col items-center justify-center py-16 text-center">
+                  <p className="text-gray-400">대운 정보가 없습니다</p>
+                </div>
+              )}
+            </motion.div>
           )}
-
-          {/* 섹션 2: 성격 분석 */}
-          {reportData.personality && (
-            <section id="personality" className="scroll-mt-32">
-              <PersonalitySection {...reportData.personality} />
-            </section>
-          )}
-
-          {/* 섹션 3: 사주 특성 */}
-          {reportData.characteristics && (
-            <section id="characteristics" className="scroll-mt-32">
-              <CharacteristicsSection {...reportData.characteristics} />
-            </section>
-          )}
-
-          {/* 섹션 4: 적성과 직업 */}
-          {reportData.aptitude && (
-            <section id="aptitude" className="scroll-mt-32">
-              <AptitudeSection data={reportData.aptitude} />
-            </section>
-          )}
-
-          {/* 섹션 5: 재물운 */}
-          {reportData.wealth && (
-            <section id="wealth" className="scroll-mt-32">
-              <WealthSection data={reportData.wealth} />
-            </section>
-          )}
-
-          {/* 섹션 6: 연애/결혼 */}
-          {reportData.romance && (
-            <section id="romance" className="scroll-mt-32">
-              <RomanceSection data={reportData.romance} />
-            </section>
-          )}
-        </div>
+        </AnimatePresence>
 
         {/* 푸터 */}
         <footer className="mt-16 border-t border-[#333] pt-8 text-center text-xs text-gray-500">
