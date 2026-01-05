@@ -160,7 +160,7 @@ export function ProfileSettings() {
               value={name}
               onChange={(e) => setName(e.target.value)}
               placeholder="이름을 입력하세요"
-              className="h-12 rounded-xl border-[#333] bg-[#2a2a2a] text-white placeholder:text-gray-500 transition-all focus:border-[#d4af37] focus:ring-[#d4af37]/20"
+              className="h-12 rounded-xl border-[#333] bg-[#2a2a2a] text-white transition-all placeholder:text-gray-500 focus:border-[#d4af37] focus:ring-[#d4af37]/20"
             />
             <p className="text-xs text-gray-500">이름은 마이페이지에서만 표시됩니다</p>
           </div>
@@ -279,7 +279,11 @@ export function ProfileSettings() {
         <p className="mb-4 text-sm text-red-400/80">
           계정 삭제는 되돌릴 수 없으며, 모든 데이터가 영구적으로 삭제됩니다.
         </p>
-        <Button variant="outline" className="border-red-900/50 text-red-400 hover:bg-red-950/50" disabled>
+        <Button
+          variant="outline"
+          className="border-red-900/50 text-red-400 hover:bg-red-950/50"
+          disabled
+        >
           계정 삭제 (준비 중)
         </Button>
       </motion.div>

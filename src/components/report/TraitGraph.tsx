@@ -174,10 +174,7 @@ export function TraitGraph({
           className="mt-5 flex w-full items-center justify-center gap-2 rounded-lg bg-[#242424] py-2.5 text-sm text-gray-400 transition-colors hover:bg-[#2a2a2a] hover:text-gray-300"
         >
           <span>{isExpanded ? '상세 설명 접기' : '상세 설명 보기'}</span>
-          <motion.div
-            animate={{ rotate: isExpanded ? 180 : 0 }}
-            transition={{ duration: 0.3 }}
-          >
+          <motion.div animate={{ rotate: isExpanded ? 180 : 0 }} transition={{ duration: 0.3 }}>
             <ChevronDown className="h-4 w-4" />
           </motion.div>
         </motion.button>

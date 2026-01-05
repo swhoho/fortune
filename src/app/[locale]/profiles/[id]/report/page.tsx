@@ -95,9 +95,7 @@ export default function ProfileReportPage({ params }: PageProps) {
   const handleTabChange = (tab: ReportTabType) => {
     setActiveTab(tab);
     // URL 업데이트 (히스토리 오염 방지를 위해 replace 사용)
-    const newUrl = tab === 'saju'
-      ? `/profiles/${id}/report`
-      : `/profiles/${id}/report?tab=${tab}`;
+    const newUrl = tab === 'saju' ? `/profiles/${id}/report` : `/profiles/${id}/report?tab=${tab}`;
     router.replace(newUrl);
   };
 
@@ -213,12 +211,7 @@ export default function ProfileReportPage({ params }: PageProps) {
       <div className="min-h-screen bg-[#0a0a0a]">
         <header className="sticky top-0 z-10 border-b border-[#333] bg-[#0a0a0a]/80 backdrop-blur-sm">
           <div className="mx-auto flex max-w-2xl items-center justify-between px-6 py-4">
-            <Button
-              variant="ghost"
-              size="icon"
-              asChild
-              className="text-gray-400 hover:text-white"
-            >
+            <Button variant="ghost" size="icon" asChild className="text-gray-400 hover:text-white">
               <Link href={`/profiles/${id}`}>
                 <ArrowLeft className="h-5 w-5" />
               </Link>
@@ -332,9 +325,7 @@ export default function ProfileReportPage({ params }: PageProps) {
               </section>
 
               {/* 성격 분석 */}
-              {reportData.personality && (
-                <PersonalitySection {...reportData.personality} />
-              )}
+              {reportData.personality && <PersonalitySection {...reportData.personality} />}
 
               {/* 사주 특성 */}
               {reportData.characteristics && (
@@ -342,19 +333,13 @@ export default function ProfileReportPage({ params }: PageProps) {
               )}
 
               {/* 적성과 직업 */}
-              {reportData.aptitude && (
-                <AptitudeSection data={reportData.aptitude} />
-              )}
+              {reportData.aptitude && <AptitudeSection data={reportData.aptitude} />}
 
               {/* 재물운 */}
-              {reportData.wealth && (
-                <WealthSection data={reportData.wealth} />
-              )}
+              {reportData.wealth && <WealthSection data={reportData.wealth} />}
 
               {/* 연애/결혼 */}
-              {reportData.romance && (
-                <RomanceSection data={reportData.romance} />
-              )}
+              {reportData.romance && <RomanceSection data={reportData.romance} />}
             </motion.div>
           ) : (
             <motion.div
@@ -372,10 +357,7 @@ export default function ProfileReportPage({ params }: PageProps) {
 
               {/* 대운 상세 분석 */}
               {reportData.daewun && reportData.daewun.length > 0 ? (
-                <DaewunDetailSection
-                  daewun={reportData.daewun}
-                  currentAge={currentAge}
-                />
+                <DaewunDetailSection daewun={reportData.daewun} currentAge={currentAge} />
               ) : (
                 <div className="flex flex-col items-center justify-center py-16 text-center">
                   <p className="text-gray-400">대운 정보가 없습니다</p>

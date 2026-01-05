@@ -43,7 +43,7 @@ function transformDaewun(daewunList: any[]) {
 /**
  * 십신별 기본 대운 설명 생성
  */
-function getDefaultDaewunDescription(tenGod: string | undefined, age: number): string {
+function getDefaultDaewunDescription(tenGod: string | undefined, _age: number): string {
   const descriptions: Record<string, string> = {
     비견: '자립심과 경쟁심이 강해지는 시기, 동료와의 협력이 중요',
     겁재: '도전과 모험의 시기, 투자와 경쟁에 주의 필요',

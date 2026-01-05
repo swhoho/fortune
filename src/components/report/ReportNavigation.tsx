@@ -29,7 +29,11 @@ interface ReportNavigationProps {
  * 리포트 탭 네비게이션 컴포넌트
  * Task 21: 사주/대운 탭 분리
  */
-export function ReportNavigation({ activeTab, onTabChange, className = '' }: ReportNavigationProps) {
+export function ReportNavigation({
+  activeTab,
+  onTabChange,
+  className = '',
+}: ReportNavigationProps) {
   return (
     <motion.nav
       initial={{ opacity: 0, y: -20 }}
@@ -49,9 +53,7 @@ export function ReportNavigation({ activeTab, onTabChange, className = '' }: Rep
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
                 className={`relative px-6 py-2 text-base font-medium transition-all ${
-                  isActive
-                    ? 'text-white'
-                    : 'text-gray-500 hover:text-gray-300'
+                  isActive ? 'text-white' : 'text-gray-500 hover:text-gray-300'
                 }`}
               >
                 <span>{tab.label}</span>

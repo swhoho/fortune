@@ -223,7 +223,11 @@ export default function YearlyProcessingPage() {
           <h2 className="mb-2 text-xl font-semibold text-white">분석 중 오류가 발생했습니다</h2>
           <p className="mb-6 text-gray-400">{error}</p>
           <div className="flex gap-3">
-            <Button variant="outline" onClick={handleBack} className="border-[#333] bg-[#1a1a1a] text-white hover:bg-[#242424]">
+            <Button
+              variant="outline"
+              onClick={handleBack}
+              className="border-[#333] bg-[#1a1a1a] text-white hover:bg-[#242424]"
+            >
               돌아가기
             </Button>
             <Button

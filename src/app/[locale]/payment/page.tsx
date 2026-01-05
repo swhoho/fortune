@@ -131,8 +131,9 @@ export default function PaymentPage({ params: { locale } }: { params: { locale: 
                         </span>
                       </p>
                       {question && (
-                        <p className="mt-3 border-t border-white/5 pt-3 text-sm text-gray-400 italic">
-                          &quot;{question.slice(0, 80)}{question.length > 80 && '...'}&quot;
+                        <p className="mt-3 border-t border-white/5 pt-3 text-sm italic text-gray-400">
+                          &quot;{question.slice(0, 80)}
+                          {question.length > 80 && '...'}&quot;
                         </p>
                       )}
                     </div>
@@ -170,10 +171,11 @@ export default function PaymentPage({ params: { locale } }: { params: { locale: 
                       onClick={() => setSelectedPackage(pkg)}
                       whileHover={{ scale: 1.02 }}
                       whileTap={{ scale: 0.98 }}
-                      className={`relative flex flex-col justify-between rounded-xl border-2 p-5 text-left transition-all ${selectedPackage?.id === pkg.id
-                        ? 'border-[#d4af37] bg-[#d4af37]/10 shadow-[0_0_20px_rgba(212,175,55,0.2)]'
-                        : 'border-[#333] bg-[#1a1a1a] hover:border-[#d4af37]/50'
-                        }`}
+                      className={`relative flex flex-col justify-between rounded-xl border-2 p-5 text-left transition-all ${
+                        selectedPackage?.id === pkg.id
+                          ? 'border-[#d4af37] bg-[#d4af37]/10 shadow-[0_0_20px_rgba(212,175,55,0.2)]'
+                          : 'border-[#333] bg-[#1a1a1a] hover:border-[#d4af37]/50'
+                      }`}
                     >
                       {pkg.popular && (
                         <span className="absolute -top-3 right-4 rounded-full bg-[#d4af37] px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-black">

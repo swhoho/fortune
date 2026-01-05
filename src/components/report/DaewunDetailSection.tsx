@@ -103,25 +103,21 @@ export function DaewunDetailSection({
             <span className="text-sm font-semibold text-[#d4af37]">대운이란?</span>
           </div>
 
-          <h3 className="font-serif text-lg font-bold text-white">
-            인생 흥망성쇠의 나침반
-          </h3>
+          <h3 className="font-serif text-lg font-bold text-white">인생 흥망성쇠의 나침반</h3>
 
           <div className="space-y-2 text-sm leading-relaxed text-gray-400">
             <p>
-              대운은 길게는 10년 짧게는 5년 주기로 변하는 운으로
-              주기가 길기 때문에 사람들은 잘 느끼지 못하지만 인생의
-              성공여부에 크게 영향을 미칩니다.
+              대운은 길게는 10년 짧게는 5년 주기로 변하는 운으로 주기가 길기 때문에 사람들은 잘
+              느끼지 못하지만 인생의 성공여부에 크게 영향을 미칩니다.
             </p>
             <p>
-              순풍 운의 비율이 높고 역풍 운의 비율이 낮으면 앞으로
-              나아가서 왕성한 활동을 하라는 뜻이며, 순풍 운의 비율이
-              낮고 역풍 운의 비율이 높으면 후퇴하여 준비하라고 노력하는 뜻입니다.
+              순풍 운의 비율이 높고 역풍 운의 비율이 낮으면 앞으로 나아가서 왕성한 활동을 하라는
+              뜻이며, 순풍 운의 비율이 낮고 역풍 운의 비율이 높으면 후퇴하여 준비하라고 노력하는
+              뜻입니다.
             </p>
             <p className="text-gray-500">
-              순풍 운이라고 하더라도 준비되지 않은 경우 없는 것이
-              크지 않고, 역풍 운이라도 준비하고 노력해 왔다면 최소
-              한의 결실을 얻게 됨을 염두에 두세요.
+              순풍 운이라고 하더라도 준비되지 않은 경우 없는 것이 크지 않고, 역풍 운이라도 준비하고
+              노력해 왔다면 최소 한의 결실을 얻게 됨을 염두에 두세요.
             </p>
           </div>
         </div>
@@ -158,9 +154,7 @@ export function DaewunDetailSection({
                   {/* 나이 범위 배지 */}
                   <div
                     className={`rounded-lg px-3 py-1.5 text-sm font-bold ${
-                      isCurrent
-                        ? 'bg-[#d4af37] text-[#0a0a0a]'
-                        : 'bg-[#2a2a2a] text-white'
+                      isCurrent ? 'bg-[#d4af37] text-[#0a0a0a]' : 'bg-[#2a2a2a] text-white'
                     }`}
                   >
                     {item.age}세~{item.endAge}세
@@ -205,9 +199,7 @@ export function DaewunDetailSection({
                 </div>
 
                 {/* 설명 텍스트 */}
-                <p className="text-sm leading-relaxed text-gray-300">
-                  {item.description}
-                </p>
+                <p className="text-sm leading-relaxed text-gray-300">{item.description}</p>
               </div>
             </motion.div>
           );

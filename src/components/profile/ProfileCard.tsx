@@ -91,7 +91,7 @@ function ProfileCardComponent({ profile, index, onSelect }: ProfileCardProps) {
       <div className="relative flex items-center justify-between">
         <div className="flex items-center gap-3">
           {/* 아바타 */}
-          <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-[#2a2a2a] to-[#1a1a1a] border border-[#333]">
+          <div className="flex h-12 w-12 items-center justify-center rounded-xl border border-[#333] bg-gradient-to-br from-[#2a2a2a] to-[#1a1a1a]">
             <User className="h-6 w-6 text-[#d4af37]" />
           </div>
 
@@ -112,13 +112,13 @@ function ProfileCardComponent({ profile, index, onSelect }: ProfileCardProps) {
       {/* 태그 영역 */}
       <div className="mt-4 flex flex-wrap gap-2">
         {/* 달력 유형 배지 */}
-        <span className="inline-flex items-center rounded-full bg-[#d4af37]/10 px-2.5 py-1 text-xs font-medium text-[#d4af37] border border-[#d4af37]/20">
+        <span className="inline-flex items-center rounded-full border border-[#d4af37]/20 bg-[#d4af37]/10 px-2.5 py-1 text-xs font-medium text-[#d4af37]">
           {CALENDAR_LABELS[profile.calendarType] || profile.calendarType}
         </span>
 
         {/* 출생 시간 (있을 경우) */}
         {profile.birthTime && (
-          <span className="inline-flex items-center rounded-full bg-[#242424] px-2.5 py-1 text-xs font-medium text-gray-400 border border-[#333]">
+          <span className="inline-flex items-center rounded-full border border-[#333] bg-[#242424] px-2.5 py-1 text-xs font-medium text-gray-400">
             {profile.birthTime}
           </span>
         )}

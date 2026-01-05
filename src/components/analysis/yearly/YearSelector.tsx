@@ -107,13 +107,17 @@ export function YearSelector({
           <SelectTrigger className="h-14 w-full border-2 border-[#333] bg-[#242424] text-lg text-white transition-colors hover:border-[#d4af37] focus:border-[#d4af37]">
             <SelectValue placeholder="연도 선택" />
           </SelectTrigger>
-          <SelectContent className="bg-[#1a1a1a] border-[#333]">
+          <SelectContent className="border-[#333] bg-[#1a1a1a]">
             {years.map((year) => {
               const yearGanZhi = getGanZhi(year);
               const isRecommended = year === currentYear;
 
               return (
-                <SelectItem key={year} value={String(year)} className="py-3 text-white focus:bg-[#242424] focus:text-white">
+                <SelectItem
+                  key={year}
+                  value={String(year)}
+                  className="py-3 text-white focus:bg-[#242424] focus:text-white"
+                >
                   <div className="flex items-center gap-3">
                     <span className="text-lg font-medium">{year}년</span>
                     <span className="font-serif text-gray-400">
@@ -146,7 +150,7 @@ export function YearSelector({
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.3 }}
-          className="rounded-xl p-4 bg-[#242424]"
+          className="rounded-xl bg-[#242424] p-4"
         >
           <div className="flex items-center justify-between">
             <div>

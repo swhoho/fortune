@@ -191,9 +191,7 @@ export function ProfileSelector({
                       </h4>
                       <span
                         className={`shrink-0 rounded-full px-2 py-0.5 text-xs font-medium transition-colors duration-200 ${
-                          isSelected
-                            ? 'bg-[#d4af37]/20 text-[#d4af37]'
-                            : 'bg-[#333] text-gray-400'
+                          isSelected ? 'bg-[#d4af37]/20 text-[#d4af37]' : 'bg-[#333] text-gray-400'
                         }`}
                       >
                         {profile.gender === 'male'

@@ -37,7 +37,9 @@ export function FavorableBar({
             {Math.round(favorablePercent)}%
           </span>
         </div>
-        <div className={`relative w-full overflow-hidden rounded-full bg-[#2a2a2a] ${compact ? 'h-2' : 'h-3'}`}>
+        <div
+          className={`relative w-full overflow-hidden rounded-full bg-[#2a2a2a] ${compact ? 'h-2' : 'h-3'}`}
+        >
           <motion.div
             initial={{ width: 0 }}
             animate={{ width: `${normalizedFavorable}%` }}
@@ -67,7 +69,9 @@ export function FavorableBar({
             {Math.round(unfavorablePercent)}%
           </span>
         </div>
-        <div className={`relative w-full overflow-hidden rounded-full bg-[#2a2a2a] ${compact ? 'h-2' : 'h-3'}`}>
+        <div
+          className={`relative w-full overflow-hidden rounded-full bg-[#2a2a2a] ${compact ? 'h-2' : 'h-3'}`}
+        >
           <motion.div
             initial={{ width: 0 }}
             animate={{ width: `${normalizedUnfavorable}%` }}
