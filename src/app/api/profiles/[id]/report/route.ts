@@ -146,10 +146,11 @@ function transformAptitude(aptitude: any, scores: any) {
   };
 
   // 일자리 능력 그래프 (scores.work에서 생성)
+  // NOTE: calculator.ts 필드명 사용 (drive, execution, completion, management, planning)
   const workScores = scores?.work || {};
   const jobAbilityTraits = [
     { label: '기획/연구', value: workScores.planning || 0 },
-    { label: '끈기/정력', value: workScores.perseverance || 0 },
+    { label: '끈기/정력', value: workScores.drive || 0 }, // perseverance → drive
     { label: '실천/수단', value: workScores.execution || 0 },
     { label: '완성/판매', value: workScores.completion || 0 },
     { label: '관리/평가', value: workScores.management || 0 },
@@ -169,6 +170,7 @@ function transformAptitude(aptitude: any, scores: any) {
 
 /**
  * DB wealth 데이터를 클라이언트 WealthSectionData 형식으로 변환
+ * FortuneResult.wealth 구조: { pattern, strengths, risks, advice }
  */
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function transformWealth(wealth: any, scores: any) {
@@ -183,11 +185,30 @@ function transformWealth(wealth: any, scores: any) {
 
   if (!wealth) return defaultWealth;
 
+  // FortuneResult.wealth 구조에서 content 생성
+  let content = '';
+  if (wealth.pattern) {
+    content += `재물 패턴: ${wealth.pattern}\n\n`;
+  }
+  if (wealth.strengths?.length > 0) {
+    content += `강점: ${wealth.strengths.join(', ')}\n\n`;
+  }
+  if (wealth.risks?.length > 0) {
+    content += `주의사항: ${wealth.risks.join(', ')}\n\n`;
+  }
+  if (wealth.advice) {
+    content += wealth.advice;
+  }
+  // 기존 구조도 지원 (하위 호환)
+  if (!content && (wealth.description || wealth.content)) {
+    content = wealth.description || wealth.content || '';
+  }
+
   // 재물복 카드
   const wealthFortune = {
     label: wealth.label || '재물복',
-    title: wealth.title || '내안에 존재하는 재물복',
-    content: wealth.description || wealth.content || '',
+    title: wealth.title || wealth.pattern || '내안에 존재하는 재물복',
+    content: content || '재물운 분석 데이터가 없습니다.',
   };
 
   // 이성의 존재 카드 (선택)
@@ -216,24 +237,29 @@ function transformWealth(wealth: any, scores: any) {
 }
 
 /**
- * DB romance 데이터를 클라이언트 RomanceSectionData 형식으로 변환
+ * DB love 데이터를 클라이언트 RomanceSectionData 형식으로 변환
+ * FortuneResult.love 구조: { style, idealPartner, compatibilityPoints, warnings }
  */
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-function transformRomance(romance: any, scores: any) {
+function transformRomance(love: any, scores: any) {
   // 기본값으로 빈 데이터 반환 (null이 아님)
   const loveScores = scores?.love || {};
 
+  // NOTE: calculator.ts 필드명 → RomanceSectionData 필드명 매핑
+  // love: consideration, humor, emotion, selfEsteem, adventure, sincerity, sociability, finance, trustworthiness, expressiveness
+  // aptitude: artistry
+  const aptitudeScores = scores?.aptitude || {};
   const defaultRomanceTraits = {
-    consideration: loveScores.consideration || 0,
-    humor: loveScores.humor || 0,
-    artistry: loveScores.artistry || 0,
-    vanity: loveScores.vanity || 0,
-    adventure: loveScores.adventure || 0,
-    sincerity: loveScores.sincerity || 0,
-    sociability: loveScores.sociability || 0,
-    financial: loveScores.financial || 0,
-    reliability: loveScores.reliability || 0,
-    expression: loveScores.expression || 0,
+    consideration: loveScores.consideration || 50,
+    humor: loveScores.humor || 50,
+    artistry: aptitudeScores.artistry || 50, // aptitude에서 가져오기
+    vanity: loveScores.selfEsteem || 50, // selfEsteem → vanity (개념 유사)
+    adventure: loveScores.adventure || 50,
+    sincerity: loveScores.sincerity || 50,
+    sociability: loveScores.sociability || 50,
+    financial: loveScores.finance || 50, // finance → financial
+    reliability: loveScores.trustworthiness || 50, // trustworthiness → reliability
+    expression: loveScores.expressiveness || 50, // expressiveness → expression
   };
 
   const defaultRomance = {
@@ -250,44 +276,65 @@ function transformRomance(romance: any, scores: any) {
     romanceTraits: defaultRomanceTraits,
   };
 
-  if (!romance) return defaultRomance;
+  if (!love) return defaultRomance;
 
-  // 연애심리 카드
+  // FortuneResult.love 구조에서 content 생성
+  let datingContent = '';
+  if (love.style) {
+    datingContent += `연애 스타일: ${love.style}\n\n`;
+  }
+  if (love.idealPartner?.length > 0) {
+    datingContent += `이상형: ${love.idealPartner.join(', ')}\n\n`;
+  }
+  if (love.compatibilityPoints?.length > 0) {
+    datingContent += `궁합 포인트: ${love.compatibilityPoints.join(', ')}`;
+  }
+
+  let spouseContent = '';
+  if (love.warnings?.length > 0) {
+    spouseContent = `주의사항: ${love.warnings.join(', ')}`;
+  }
+
+  // 연애심리 카드 - FortuneResult.love 구조 사용
+  // 기존 구조(dating_psychology)도 하위 호환 지원
   const datingPsychology = {
-    label: romance.dating_psychology?.label || '연애심리',
-    title: romance.dating_psychology?.title || '결혼전 연애/데이트 심리',
-    content: romance.dating_psychology?.description || romance.dating_psychology?.content || '',
+    label: love.dating_psychology?.label || '연애심리',
+    title: love.dating_psychology?.title || love.style || '결혼전 연애/데이트 심리',
+    content:
+      love.dating_psychology?.description ||
+      love.dating_psychology?.content ||
+      datingContent ||
+      '연애운 분석 데이터가 없습니다.',
   };
 
   // 배우자관 카드
   const spouseView = {
-    label: romance.spouse_view?.label || '배우자관',
-    title: romance.spouse_view?.title || '결혼후 배우자를 보는 눈',
-    content: romance.spouse_view?.description || romance.spouse_view?.content || '',
+    label: love.spouse_view?.label || '배우자관',
+    title: love.spouse_view?.title || '결혼후 배우자를 보는 눈',
+    content: love.spouse_view?.description || love.spouse_view?.content || spouseContent || '',
   };
 
   // 성격패턴 카드 (선택)
-  const personalityPattern = romance.personality_pattern
+  const personalityPattern = love.personality_pattern
     ? {
-        label: romance.personality_pattern.label || '성격패턴',
-        title: romance.personality_pattern.title || '결혼후 성격인 패턴',
-        content:
-          romance.personality_pattern.description || romance.personality_pattern.content || '',
+        label: love.personality_pattern.label || '성격패턴',
+        title: love.personality_pattern.title || '결혼후 성격인 패턴',
+        content: love.personality_pattern.description || love.personality_pattern.content || '',
       }
     : undefined;
 
-  // 연애 특성 (scores.love에서 생성)
+  // 연애 특성 (scores에서 생성) - defaultRomanceTraits와 동일한 매핑 사용
   const romanceTraits = {
-    consideration: loveScores.consideration || 0,
-    humor: loveScores.humor || 0,
-    artistry: loveScores.artistry || 0,
-    vanity: loveScores.vanity || 0,
-    adventure: loveScores.adventure || 0,
-    sincerity: loveScores.sincerity || 0,
-    sociability: loveScores.sociability || 0,
-    financial: loveScores.financial || 0,
-    reliability: loveScores.reliability || 0,
-    expression: loveScores.expression || 0,
+    consideration: loveScores.consideration || 50,
+    humor: loveScores.humor || 50,
+    artistry: aptitudeScores.artistry || 50,
+    vanity: loveScores.selfEsteem || 50,
+    adventure: loveScores.adventure || 50,
+    sincerity: loveScores.sincerity || 50,
+    sociability: loveScores.sociability || 50,
+    financial: loveScores.finance || 50,
+    reliability: loveScores.trustworthiness || 50,
+    expression: loveScores.expressiveness || 50,
   };
 
   return {
@@ -295,7 +342,7 @@ function transformRomance(romance: any, scores: any) {
     spouseView,
     personalityPattern,
     romanceTraits,
-    score: romance.score,
+    score: love.score,
   };
 }
 
@@ -388,7 +435,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
       characteristics: transformCharacteristics(report.analysis?.basicAnalysis),
       aptitude: transformAptitude(report.analysis?.aptitude, report.scores),
       wealth: transformWealth(report.analysis?.fortune?.wealth, report.scores),
-      romance: transformRomance(report.analysis?.fortune?.romance, report.scores),
+      romance: transformRomance(report.analysis?.fortune?.love, report.scores), // FortuneResult.love 사용
       // 점수 및 시각화
       scores: report.scores,
       visualizationUrl: report.visualization_url,

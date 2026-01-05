@@ -45,8 +45,8 @@ export function PersonalitySection({
       {/* 의지력 게이지 */}
       <WillpowerGauge score={willpower.score} description={willpower.description} />
 
-      {/* 성격 카드 그리드 */}
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+      {/* 성격 카드 그리드 - 항상 가로 3열 */}
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
         {/* 겉성격 */}
         <PersonalityCard
           label={outerPersonality.label}
@@ -70,7 +70,6 @@ export function PersonalitySection({
           summary={socialStyle.summary}
           description={socialStyle.description}
           delay={0.2}
-          className="md:col-span-2 lg:col-span-1"
         />
       </div>
     </motion.section>
