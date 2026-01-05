@@ -15,6 +15,12 @@ from schemas.yearly import (
     YearlyAnalysisStatusResponse,
     JobStatus,
 )
+from schemas.report import (
+    ReportAnalysisRequest,
+    ReportAnalysisStartResponse,
+    ReportAnalysisStatusResponse,
+    JobStatus as ReportJobStatus,
+)
 from manseryeok.engine import ManseryeokEngine
 from visualization import SajuVisualizer
 from prompts.builder import (
@@ -349,7 +355,7 @@ async def build_yearly_prompt(request: YearlyPromptBuildRequest) -> PromptBuildR
 @app.get("/health")
 async def health_check():
     """헬스 체크"""
-    return {"status": "healthy", "service": "manseryeok-api", "version": "1.3.0"}
+    return {"status": "healthy", "service": "manseryeok-api", "version": "1.4.0"}
 
 
 # ============================================
@@ -423,6 +429,180 @@ async def get_yearly_analysis_status(job_id: str) -> YearlyAnalysisStatusRespons
         created_at=job["created_at"],
         updated_at=job["updated_at"],
     )
+
+
+# ============================================
+# 리포트 분석 API (비동기 작업)
+# ============================================
+
+@app.post("/api/analysis/report", response_model=ReportAnalysisStartResponse)
+async def start_report_analysis(request: ReportAnalysisRequest) -> ReportAnalysisStartResponse:
+    """
+    리포트 분석 시작 (비동기)
+
+    백그라운드에서 전체 파이프라인을 실행하고 즉시 작업 ID를 반환합니다.
+    상태 확인은 GET /api/analysis/report/{job_id}로 폴링하세요.
+
+    - **report_id**: 리포트 ID (DB primary key)
+    - **profile_id**: 프로필 ID
+    - **user_id**: 사용자 ID
+    - **birth_date**: 생년월일
+    - **birth_time**: 출생 시간
+    - **gender**: 성별
+    - **calendar_type**: 양력/음력
+    - **language**: 언어
+    - **retry_from_step**: 재시도 시작 단계 (선택)
+    - **existing_pillars**: 기존 사주 데이터 (재시도용)
+    - **existing_daewun**: 기존 대운 데이터 (재시도용)
+    - **existing_analysis**: 기존 분석 결과 (재시도용)
+
+    Returns:
+        작업 ID, 리포트 ID, 상태, 메시지
+    """
+    from services.report_analysis import report_analysis_service
+
+    try:
+        job_id = await report_analysis_service.start_analysis(request)
+
+        return ReportAnalysisStartResponse(
+            job_id=job_id,
+            report_id=request.report_id,
+            status=ReportJobStatus.PENDING,
+            message="리포트 분석이 시작되었습니다. 상태를 폴링해주세요."
+        )
+    except Exception as e:
+        raise HTTPException(
+            status_code=500,
+            detail=f"리포트 분석 시작 실패: {str(e)}"
+        )
+
+
+@app.get("/api/analysis/report/{job_id}", response_model=ReportAnalysisStatusResponse)
+async def get_report_analysis_status(job_id: str) -> ReportAnalysisStatusResponse:
+    """
+    리포트 분석 상태 조회
+
+    - **job_id**: 작업 ID
+
+    Returns:
+        작업 상태, 진행률, 결과 (완료 시)
+    """
+    from services.report_analysis import report_analysis_service
+
+    job = report_analysis_service.get_status(job_id)
+
+    if not job:
+        raise HTTPException(
+            status_code=404,
+            detail="작업을 찾을 수 없습니다"
+        )
+
+    return ReportAnalysisStatusResponse(
+        job_id=job["job_id"],
+        report_id=job["report_id"],
+        status=job["status"],
+        progress_percent=job["progress_percent"],
+        current_step=job["current_step"],
+        step_statuses=job["step_statuses"],
+        pillars=job["pillars"],
+        daewun=job["daewun"],
+        jijanggan=job["jijanggan"],
+        analysis=job["analysis"],
+        scores=job["scores"],
+        visualization_url=job["visualization_url"],
+        error=job["error"],
+        error_step=job.get("error_step"),
+        retryable=job.get("retryable", True),
+        created_at=job["created_at"],
+        updated_at=job["updated_at"],
+    )
+
+
+# ============================================
+# 후속 질문 API (비동기 작업)
+# ============================================
+
+@app.post("/api/analysis/question")
+async def start_question_processing(request: dict):
+    """
+    후속 질문 처리 시작 (비동기)
+
+    백그라운드에서 Gemini AI로 질문 응답을 생성합니다.
+    상태 확인은 Next.js에서 DB를 폴링합니다.
+
+    - **question_id**: 질문 레코드 ID
+    - **profile_id**: 프로필 ID
+    - **user_id**: 사용자 ID
+    - **report_id**: 리포트 ID
+    - **question**: 사용자 질문
+    - **pillars**: 사주 팔자 데이터
+    - **previous_analysis**: 기존 분석 결과
+    - **question_history**: 이전 질문 히스토리
+    - **language**: 언어
+
+    Returns:
+        처리 시작 확인
+    """
+    from schemas.analysis import FollowUpQuestionRequest, FollowUpQuestionStartResponse
+    from services.question_service import question_service
+
+    try:
+        # dict를 Pydantic 모델로 변환
+        req = FollowUpQuestionRequest(**request)
+        await question_service.start_question_processing(req)
+        return FollowUpQuestionStartResponse(
+            status="accepted",
+            message="질문 처리가 시작되었습니다."
+        )
+    except Exception as e:
+        raise HTTPException(
+            status_code=500,
+            detail=f"질문 처리 시작 실패: {str(e)}"
+        )
+
+
+# ============================================
+# 섹션 재분석 API (비동기 작업)
+# ============================================
+
+@app.post("/api/analysis/reanalyze")
+async def start_section_reanalysis(request: dict):
+    """
+    섹션 재분석 시작 (비동기)
+
+    백그라운드에서 특정 섹션만 AI로 재분석합니다.
+    상태 확인은 Next.js에서 DB를 폴링합니다.
+
+    - **reanalysis_id**: 재분석 레코드 ID
+    - **report_id**: 리포트 ID
+    - **profile_id**: 프로필 ID
+    - **user_id**: 사용자 ID
+    - **section_type**: 재분석 섹션 (personality, aptitude, fortune)
+    - **pillars**: 사주 팔자 데이터
+    - **daewun**: 대운 목록
+    - **jijanggan**: 지장간 데이터
+    - **existing_analysis**: 기존 분석 결과
+    - **language**: 언어
+
+    Returns:
+        처리 시작 확인
+    """
+    from schemas.analysis import SectionReanalyzeRequest, SectionReanalyzeStartResponse
+    from services.reanalyze_service import reanalyze_service
+
+    try:
+        # dict를 Pydantic 모델로 변환
+        req = SectionReanalyzeRequest(**request)
+        await reanalyze_service.start_reanalysis(req)
+        return SectionReanalyzeStartResponse(
+            status="accepted",
+            message="섹션 재분석이 시작되었습니다."
+        )
+    except Exception as e:
+        raise HTTPException(
+            status_code=500,
+            detail=f"재분석 시작 실패: {str(e)}"
+        )
 
 
 @app.exception_handler(ValueError)

@@ -1,6 +1,6 @@
 /**
  * POST /api/profiles/:id/report/question
- * 후속 질문 API (v2.0)
+ * 후속 질문 API (v2.1 - 비동기/폴링 방식)
  * 프로필 리포트 기반 AI 추가 질문 (10 크레딧)
  */
 import { NextRequest, NextResponse } from 'next/server';
@@ -8,9 +8,7 @@ import { getAuthenticatedUser } from '@/lib/supabase/server';
 import { z } from 'zod';
 
 import { getSupabaseAdmin } from '@/lib/supabase/client';
-import { sajuAnalyzer } from '@/lib/ai/analyzer';
 import { SERVICE_CREDITS } from '@/lib/stripe';
-import { logAiUsage } from '@/lib/ai/usage-logger';
 import type { SajuAnalysisResult, SajuPillarsData, QuestionHistoryItem } from '@/lib/ai/types';
 
 /** 요청 스키마 */
@@ -20,7 +18,7 @@ const questionSchema = z.object({
 
 /**
  * POST /api/profiles/:id/report/question
- * 후속 질문 처리
+ * 후속 질문 처리 (비동기 - 즉시 반환)
  */
 export async function POST(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
@@ -134,11 +132,40 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
 
     const newCredits = deductResult.new_credits;
 
-    // 6. 이전 질문 히스토리 조회 (최근 5개)
+    // 6. 질문 레코드 생성 (status: generating)
+    const { data: savedQuestion, error: saveError } = await supabase
+      .from('report_questions')
+      .insert({
+        profile_report_id: report.id,
+        profile_id: profileId,
+        user_id: userId,
+        question,
+        answer: null, // 아직 생성 전
+        status: 'generating',
+        credits_used: SERVICE_CREDITS.question,
+      })
+      .select('id')
+      .single();
+
+    if (saveError || !savedQuestion) {
+      console.error('[API] 질문 저장 실패:', saveError);
+      // 크레딧 환불
+      await supabase.rpc('deduct_credits', {
+        p_user_id: userId,
+        p_amount: -SERVICE_CREDITS.question,
+      });
+      return NextResponse.json(
+        { error: '질문 저장에 실패했습니다', code: 'SAVE_ERROR' },
+        { status: 500 }
+      );
+    }
+
+    // 7. 이전 질문 히스토리 조회 (최근 5개)
     const { data: prevQuestions } = await supabase
       .from('report_questions')
       .select('question, answer, created_at')
       .eq('profile_report_id', report.id)
+      .eq('status', 'completed')
       .order('created_at', { ascending: true })
       .limit(5);
 
@@ -148,56 +175,33 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
       createdAt: q.created_at,
     }));
 
-    // 7. AI 후속 질문 실행
-    const aiResponse = await sajuAnalyzer.followUp({
-      analysisId: report.id,
-      question,
-      previousAnalysis: report.analysis as SajuAnalysisResult,
-      pillars: report.pillars as SajuPillarsData,
-      questionHistory,
-    });
+    // 8. Python 백엔드에 비동기 작업 위임
+    const pythonApiUrl = process.env.PYTHON_API_URL || 'http://localhost:8000';
 
-    if (!aiResponse.success || !aiResponse.data) {
-      console.error('[API] AI 후속 질문 실패:', aiResponse.error);
-      // 크레딧 환불 (AI 실패 시)
-      await supabase.rpc('deduct_credits', {
-        p_user_id: userId,
-        p_amount: -SERVICE_CREDITS.question, // 음수로 환불
+    try {
+      await fetch(`${pythonApiUrl}/api/analysis/question`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          question_id: savedQuestion.id,
+          profile_id: profileId,
+          user_id: userId,
+          report_id: report.id,
+          question,
+          pillars: report.pillars as SajuPillarsData,
+          previous_analysis: report.analysis as SajuAnalysisResult,
+          question_history: questionHistory.map((q) => ({
+            question: q.question,
+            answer: q.answer,
+            created_at: q.createdAt,
+          })),
+          language: 'ko',
+        }),
       });
-      return NextResponse.json(
-        {
-          error: aiResponse.error?.message || 'AI 응답 생성에 실패했습니다',
-          code: aiResponse.error?.code || 'AI_ERROR',
-        },
-        { status: 500 }
-      );
-    }
-
-    // 8. 질문 레코드 저장
-    const { data: savedQuestion, error: saveError } = await supabase
-      .from('report_questions')
-      .insert({
-        profile_report_id: report.id,
-        profile_id: profileId,
-        user_id: userId,
-        question,
-        answer: aiResponse.data.answer,
-        credits_used: SERVICE_CREDITS.question,
-      })
-      .select('id')
-      .single();
-
-    if (saveError) {
-      console.error('[API] 질문 저장 실패:', saveError);
-      // 크레딧 환불 (저장 실패 시)
-      await supabase.rpc('deduct_credits', {
-        p_user_id: userId,
-        p_amount: -SERVICE_CREDITS.question,
-      });
-      return NextResponse.json(
-        { error: '질문 저장에 실패했습니다', code: 'SAVE_ERROR' },
-        { status: 500 }
-      );
+    } catch (pythonError) {
+      console.error('[API] Python 백엔드 호출 실패:', pythonError);
+      // Python 호출 실패해도 DB에는 저장되어 있으므로 진행
+      // (나중에 수동으로 재시도 가능)
     }
 
     // 9. 크레딧 사용 로그 기록
@@ -209,28 +213,13 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
       reference_id: savedQuestion.id,
     });
 
-    // 10. AI 사용량 로깅
-    const tokenUsage = aiResponse.data.tokenUsage;
-    if (tokenUsage) {
-      await logAiUsage({
-        userId,
-        featureType: 'follow_up_question',
-        creditsUsed: SERVICE_CREDITS.question,
-        inputTokens: tokenUsage.inputTokens,
-        outputTokens: tokenUsage.outputTokens,
-        model: 'gemini-3-pro-preview',
-        profileId,
-        reportId: report.id,
-        metadata: { questionLength: question.length },
-      });
-    }
-
-    // 11. 성공 응답
+    // 10. 즉시 응답 (폴링 URL 제공)
     return NextResponse.json({
       success: true,
       data: {
         questionId: savedQuestion.id,
-        answer: aiResponse.data.answer,
+        status: 'generating',
+        pollUrl: `/api/profiles/${profileId}/report/question/${savedQuestion.id}`,
         creditsUsed: SERVICE_CREDITS.question,
         remainingCredits: newCredits,
       },
@@ -277,10 +266,10 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
       return NextResponse.json({ error: '접근 권한이 없습니다' }, { status: 403 });
     }
 
-    // 질문 히스토리 조회
+    // 질문 히스토리 조회 (status도 포함)
     const { data: questions, error: questionsError } = await supabase
       .from('report_questions')
-      .select('id, question, answer, created_at')
+      .select('id, question, answer, status, error_message, created_at')
       .eq('profile_id', profileId)
       .order('created_at', { ascending: false });
 

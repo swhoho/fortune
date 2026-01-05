@@ -59,6 +59,108 @@ class GeminiService:
             logger.error(f"Gemini 분석 실패: {e}")
             raise
 
+    async def generate_report_analysis(
+        self,
+        prompt: str,
+        timeout: int = 300
+    ) -> Dict[str, Any]:
+        """
+        리포트 단계별 분석 생성
+
+        Args:
+            prompt: 분석 프롬프트
+            timeout: 타임아웃 (초)
+
+        Returns:
+            파싱된 분석 결과
+        """
+        try:
+            response = await self.model.generate_content_async(prompt)
+            response_text = response.text
+
+            # JSON 파싱 (필수 필드 검증 없이)
+            result = self._parse_json_response_generic(response_text)
+            return result
+
+        except Exception as e:
+            logger.error(f"Gemini 리포트 분석 실패: {e}")
+            raise
+
+    def _parse_json_response_generic(self, response_text: str) -> Dict[str, Any]:
+        """
+        Gemini 응답에서 JSON 파싱 (필수 필드 검증 없음)
+
+        Args:
+            response_text: Gemini 응답 텍스트
+
+        Returns:
+            파싱된 JSON 딕셔너리
+        """
+        try:
+            json_string = response_text.strip()
+
+            # ```json ... ``` 형태 처리
+            json_match = re.search(r'```(?:json)?\s*([\s\S]*?)```', json_string)
+            if json_match:
+                json_string = json_match.group(1).strip()
+
+            return json.loads(json_string)
+
+        except json.JSONDecodeError as e:
+            logger.error(f"JSON 파싱 실패: {e}")
+            raise ValueError(f"JSON 파싱 실패: {e}")
+
+    async def generate_followup_answer(
+        self,
+        prompt: str,
+        timeout: int = 60
+    ) -> str:
+        """
+        후속 질문에 대한 답변 생성
+
+        Args:
+            prompt: 질문 프롬프트
+            timeout: 타임아웃 (초)
+
+        Returns:
+            답변 텍스트
+        """
+        try:
+            response = await self.model.generate_content_async(prompt)
+            return response.text.strip()
+        except Exception as e:
+            logger.error(f"후속 질문 답변 생성 실패: {e}")
+            raise
+
+    async def generate_section_analysis(
+        self,
+        prompt: str,
+        section_type: str,
+        timeout: int = 90
+    ) -> Dict[str, Any]:
+        """
+        섹션 재분석 결과 생성
+
+        Args:
+            prompt: 분석 프롬프트
+            section_type: 섹션 타입 (personality, aptitude, fortune)
+            timeout: 타임아웃 (초)
+
+        Returns:
+            파싱된 분석 결과
+        """
+        try:
+            response = await self.model.generate_content_async(prompt)
+            response_text = response.text
+
+            # JSON 파싱
+            result = self._parse_json_response_generic(response_text)
+            return result
+
+        except Exception as e:
+            logger.error(f"섹션 재분석 실패 ({section_type}): {e}")
+            raise
+
     def _parse_json_response(self, response_text: str) -> Dict[str, Any]:
         """
         Gemini 응답에서 JSON 파싱

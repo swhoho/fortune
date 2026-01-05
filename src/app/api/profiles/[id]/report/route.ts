@@ -9,7 +9,6 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getAuthenticatedUser } from '@/lib/supabase/server';
 import { getSupabaseAdmin } from '@/lib/supabase/client';
 import { SERVICE_CREDITS } from '@/lib/stripe';
-import { logAiUsage } from '@/lib/ai/usage-logger';
 import { PIPELINE_STEPS } from '@/lib/ai/pipeline/types';
 import type { PipelineStep, StepStatus } from '@/lib/ai/types';
 import { z } from 'zod';
@@ -525,7 +524,11 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
 
 /**
  * POST /api/profiles/[id]/report
- * 리포트 생성 시작 (백그라운드 작업)
+ * 리포트 생성 시작 (비동기 - Python 백엔드에 작업 위임)
+ *
+ * v2.0: Vercel 30초 타임아웃 문제 해결
+ * - Python 백엔드에 작업을 위임하고 즉시 응답
+ * - 클라이언트는 /status 엔드포인트로 폴링
  */
 export async function POST(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
@@ -569,7 +572,7 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
     // 2. 기존 리포트 확인 (pending, in_progress, failed 모두)
     const { data: existingReport } = await supabase
       .from('profile_reports')
-      .select('id, status, credits_used, current_step')
+      .select('id, status, credits_used, current_step, pillars, daewun, analysis')
       .eq('profile_id', profileId)
       .order('created_at', { ascending: false })
       .limit(1)
@@ -586,8 +589,6 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
     }
 
     // 3. 크레딧 무료 재시도 조건 확인
-    // - 기존 리포트가 있고 credits_used > 0이면 크레딧 차감 없이 재시도
-    // - 재시도 요청(retryFromStep)인 경우도 무료
     const isRetryWithCredits =
       existingReport &&
       existingReport.credits_used > 0 &&
@@ -596,31 +597,34 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
     const shouldDeductCredits = !retryFromStep && !isRetryWithCredits;
 
     // 4. 크레딧 확인 및 차감 (신규 생성인 경우에만)
+    let currentUserCredits = 0;
     if (shouldDeductCredits) {
-      const { data: user, error: userError } = await supabase
+      const { data: userData, error: userError } = await supabase
         .from('users')
         .select('credits')
         .eq('id', userId)
         .single();
 
-      if (userError || !user) {
+      if (userError || !userData) {
         return NextResponse.json({ error: '사용자 정보를 찾을 수 없습니다' }, { status: 404 });
       }
 
-      if (user.credits < SERVICE_CREDITS.profileReport) {
+      currentUserCredits = userData.credits;
+
+      if (userData.credits < SERVICE_CREDITS.profileReport) {
         return NextResponse.json(
           {
             error: '크레딧이 부족합니다',
             code: 'INSUFFICIENT_CREDITS',
             required: SERVICE_CREDITS.profileReport,
-            current: user.credits,
+            current: userData.credits,
           },
           { status: 402 }
         );
       }
 
       // 크레딧 차감
-      const newCredits = user.credits - SERVICE_CREDITS.profileReport;
+      const newCredits = userData.credits - SERVICE_CREDITS.profileReport;
       await supabase
         .from('users')
         .update({
@@ -633,7 +637,6 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
     // 5. 리포트 레코드 생성/업데이트
     let reportId: string;
 
-    // 기존 리포트가 있으면 재사용 (failed, pending 상태)
     if (
       existingReport &&
       (existingReport.status === 'failed' || existingReport.status === 'pending')
@@ -683,18 +686,115 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
 
       if (insertError || !newReport) {
         console.error('[API] 리포트 생성 실패:', insertError);
+        // 크레딧 환불
+        if (shouldDeductCredits) {
+          await supabase
+            .from('users')
+            .update({ credits: currentUserCredits, updated_at: new Date().toISOString() })
+            .eq('id', userId);
+        }
         return NextResponse.json({ error: '리포트 생성에 실패했습니다' }, { status: 500 });
       }
 
       reportId = newReport.id;
     }
 
-    // 6. 파이프라인 동기 실행 (Vercel Serverless에서 완료 대기)
-    await startPipelineAsync(supabase, reportId, profile, retryFromStep);
+    // 6. Python 백엔드에 작업 위임 (비동기 - 즉시 반환)
+    let pythonApiUrl = process.env.PYTHON_API_URL || 'http://localhost:8000';
+    if (!pythonApiUrl.startsWith('http://') && !pythonApiUrl.startsWith('https://')) {
+      pythonApiUrl = `https://${pythonApiUrl}`;
+    }
 
+    try {
+      const pythonResponse = await fetch(`${pythonApiUrl}/api/analysis/report`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          report_id: reportId,
+          profile_id: profileId,
+          user_id: userId,
+          birth_date: profile.birth_date,
+          birth_time: profile.birth_time || '12:00',
+          gender: profile.gender,
+          calendar_type: profile.calendar_type || 'solar',
+          language: 'ko',
+          retry_from_step: retryFromStep,
+          existing_pillars: existingReport?.pillars,
+          existing_daewun: existingReport?.daewun,
+          existing_analysis: existingReport?.analysis,
+        }),
+      });
+
+      if (!pythonResponse.ok) {
+        const errorData = await pythonResponse.json().catch(() => ({}));
+        console.error('[API] Python API 호출 실패:', errorData);
+
+        // 실패 시 크레딧 환불
+        if (shouldDeductCredits) {
+          await supabase
+            .from('users')
+            .update({ credits: currentUserCredits, updated_at: new Date().toISOString() })
+            .eq('id', userId);
+        }
+
+        // DB에 실패 상태 저장
+        await supabase
+          .from('profile_reports')
+          .update({
+            status: 'failed',
+            error: { message: errorData.detail || 'Python API 호출 실패', retryable: true },
+            updated_at: new Date().toISOString(),
+          })
+          .eq('id', reportId);
+
+        return NextResponse.json(
+          { error: errorData.detail || '분석 시작에 실패했습니다' },
+          { status: 500 }
+        );
+      }
+
+      const pythonResult = await pythonResponse.json();
+      console.log('[API] Python 백엔드에 작업 위임 완료:', {
+        reportId,
+        jobId: pythonResult.job_id,
+      });
+
+      // DB에 job_id 저장
+      await supabase
+        .from('profile_reports')
+        .update({
+          job_id: pythonResult.job_id,
+          updated_at: new Date().toISOString(),
+        })
+        .eq('id', reportId);
+    } catch (pythonError) {
+      console.error('[API] Python API 연결 실패:', pythonError);
+
+      // 실패 시 크레딧 환불
+      if (shouldDeductCredits) {
+        await supabase
+          .from('users')
+          .update({ credits: currentUserCredits, updated_at: new Date().toISOString() })
+          .eq('id', userId);
+      }
+
+      // DB에 실패 상태 저장
+      await supabase
+        .from('profile_reports')
+        .update({
+          status: 'failed',
+          error: { message: 'Python 백엔드 연결 실패', retryable: true },
+          updated_at: new Date().toISOString(),
+        })
+        .eq('id', reportId);
+
+      return NextResponse.json({ error: '분석 서버에 연결할 수 없습니다' }, { status: 503 });
+    }
+
+    // 7. 즉시 응답 반환
     return NextResponse.json({
       success: true,
-      message: '리포트 생성이 완료되었습니다',
+      message: '리포트 생성이 시작되었습니다',
       reportId,
       pollUrl: `/api/profiles/${profileId}/report/status`,
     });
@@ -705,264 +805,9 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
 }
 
 /**
- * 파이프라인 동기 실행
- * Vercel Serverless에서 완료까지 대기
- * v2.2: 만세력 재사용 + 단계별 즉시 저장
+ * API 라우트 설정
+ * v2.0: 비동기 방식으로 변경 - Python에 작업 위임 후 즉시 반환
+ * 10초면 충분 (Python 백엔드에 작업 위임 후 즉시 반환)
  */
-async function startPipelineAsync(
-  supabase: ReturnType<typeof getSupabaseAdmin>,
-  reportId: string,
-  profile: Record<string, unknown>,
-  retryFromStep?: string
-) {
-  const { createAnalysisPipeline } = await import('@/lib/ai/pipeline');
-
-  // PYTHON_API_URL에 프로토콜 없으면 https:// 자동 추가
-  let pythonApiUrl = process.env.PYTHON_API_URL || 'http://localhost:8000';
-  if (pythonApiUrl && !pythonApiUrl.startsWith('http://') && !pythonApiUrl.startsWith('https://')) {
-    pythonApiUrl = `https://${pythonApiUrl}`;
-  }
-
-  try {
-    // 1. 기존 리포트에서 pillars 확인 (재시도 시 재사용)
-    const { data: existingData } = await supabase
-      .from('profile_reports')
-      .select('pillars, daewun, jijanggan, analysis')
-      .eq('id', reportId)
-      .single();
-
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    let manseryeokData: { pillars: any; daewun: any };
-
-    // 기존 pillars가 있고 재시도인 경우 재사용 (manseryeok 단계가 아닌 경우)
-    if (existingData?.pillars && retryFromStep && retryFromStep !== 'manseryeok') {
-      console.log('[Pipeline] 기존 만세력 데이터 재사용');
-      manseryeokData = {
-        pillars: existingData.pillars,
-        daewun: existingData.daewun,
-      };
-    } else {
-      // 만세력 API 호출 (신규 또는 manseryeok 단계 재시도)
-      const birthDate = new Date(profile.birth_date as string);
-      const birthTime = (profile.birth_time as string) || '12:00';
-      const [hour, minute] = birthTime.split(':').map(Number);
-      birthDate.setHours(hour || 12, minute || 0, 0, 0);
-
-      console.log('[Pipeline] 만세력 API 호출 시작');
-      const manseryeokRes = await fetch(`${pythonApiUrl}/api/manseryeok/calculate`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          birthDatetime: birthDate.toISOString(),
-          timezone: 'GMT+9',
-          isLunar: profile.calendar_type === 'lunar',
-          gender: profile.gender,
-        }),
-      });
-
-      if (!manseryeokRes.ok) {
-        throw new Error('만세력 계산 실패');
-      }
-
-      manseryeokData = await manseryeokRes.json();
-
-      // 만세력 계산 직후 DB에 즉시 저장
-      await supabase
-        .from('profile_reports')
-        .update({
-          pillars: manseryeokData.pillars,
-          daewun: manseryeokData.daewun,
-          current_step: 'jijanggan',
-          updated_at: new Date().toISOString(),
-        })
-        .eq('id', reportId);
-
-      console.log('[Pipeline] 만세력 데이터 DB 저장 완료');
-    }
-
-    // 2. 파이프라인 생성 및 실행
-    const pipeline = createAnalysisPipeline({
-      enableParallel: true,
-      retryCount: 1,
-      onProgress: async (progress) => {
-        // 진행 상태 업데이트
-        await supabase
-          .from('profile_reports')
-          .update({
-            status: 'in_progress',
-            current_step: progress.currentStep,
-            progress_percent: progress.progressPercent,
-            step_statuses: progress.stepStatuses,
-            estimated_time_remaining: progress.estimatedTimeRemaining,
-            updated_at: new Date().toISOString(),
-          })
-          .eq('id', reportId);
-      },
-      onStepComplete: async (step, result) => {
-        console.log(`[Pipeline] ${step} 완료`);
-
-        // 비-병렬 단계 데이터 저장
-        // NOTE: basic_analysis, personality, aptitude, fortune (병렬 단계)은
-        // 최종 저장에서 일괄 처리하여 race condition 방지
-        const updateData: Record<string, unknown> = {
-          updated_at: new Date().toISOString(),
-        };
-
-        if (step === 'jijanggan' && result) {
-          updateData.jijanggan = result;
-        } else if (step === 'scoring' && result) {
-          updateData.scores = result;
-        } else if (step === 'visualization' && result) {
-          updateData.visualization_url = (result as { pillarImage?: string })?.pillarImage;
-        }
-
-        // step_statuses 업데이트 (읽기-수정-쓰기, 순차 단계는 race condition 없음)
-        const { data: current } = await supabase
-          .from('profile_reports')
-          .select('step_statuses')
-          .eq('id', reportId)
-          .single();
-
-        updateData.step_statuses = {
-          ...(current?.step_statuses || {}),
-          [step]: 'completed',
-        };
-
-        await supabase.from('profile_reports').update(updateData).eq('id', reportId);
-
-        console.log(`[Pipeline] ${step} step_statuses 업데이트 완료`);
-      },
-      onError: async (step, error) => {
-        console.error(`[Pipeline] ${step} 실패:`, error);
-      },
-    });
-
-    // 재시도인 경우 이전 결과 복원 (existingData 재사용)
-    // 중요: analysis가 없으면 basic_analysis부터 다시 시작
-    let effectiveRetryStep = retryFromStep;
-
-    if (retryFromStep && existingData) {
-      const hasAnalysis = existingData.analysis && existingData.analysis.basicAnalysis;
-
-      // analysis가 없는데 saving 이후 단계부터 재시도하려면 basic_analysis부터 시작
-      const laterSteps = ['scoring', 'visualization', 'saving', 'complete'];
-      if (!hasAnalysis && laterSteps.includes(retryFromStep)) {
-        console.log(
-          `[Pipeline] analysis 데이터 없음, ${retryFromStep} 대신 basic_analysis부터 재시작`
-        );
-        effectiveRetryStep = 'basic_analysis';
-      }
-
-      pipeline.hydrate(
-        {
-          manseryeok: {
-            pillars: existingData.pillars || manseryeokData.pillars,
-            daewun: existingData.daewun || manseryeokData.daewun,
-            jijanggan: existingData.jijanggan,
-          },
-          basicAnalysis: existingData.analysis?.basicAnalysis,
-          personality: existingData.analysis?.personality,
-          aptitude: existingData.analysis?.aptitude,
-          fortune: existingData.analysis?.fortune,
-        },
-        effectiveRetryStep as import('@/lib/ai/types').PipelineStep
-      );
-    }
-
-    // 파이프라인 실행
-    const result = effectiveRetryStep
-      ? await pipeline.executeFromStep(
-          {
-            pillars: manseryeokData.pillars,
-            daewun: manseryeokData.daewun || [],
-            language: 'ko',
-          },
-          effectiveRetryStep as import('@/lib/ai/types').PipelineStep
-        )
-      : await pipeline.execute({
-          pillars: manseryeokData.pillars,
-          daewun: manseryeokData.daewun || [],
-          language: 'ko',
-        });
-
-    // 3. AI 사용량 로깅 (성공/실패 모두 기록)
-    const tokenUsage = result.success
-      ? result.data?.pipelineMetadata?.tokenUsage
-      : result.tokenUsage;
-
-    if (tokenUsage && (tokenUsage.inputTokens > 0 || tokenUsage.outputTokens > 0)) {
-      await logAiUsage({
-        userId: profile.user_id as string,
-        featureType: 'report_generation',
-        creditsUsed: result.success ? SERVICE_CREDITS.profileReport : 0, // 실패 시 크레딧 차감 없음
-        inputTokens: tokenUsage.inputTokens,
-        outputTokens: tokenUsage.outputTokens,
-        model: 'gemini-3-pro-preview',
-        profileId: profile.id as string,
-        reportId,
-        metadata: {
-          success: result.success,
-          failedStep: result.failedStep,
-          parallelExecuted: result.data?.pipelineMetadata?.parallelExecuted,
-          totalDuration: result.data?.pipelineMetadata?.totalDuration,
-        },
-      });
-    }
-
-    if (!result.success) {
-      throw new Error(result.error?.message || '파이프라인 실행 실패');
-    }
-
-    // 4. 최종 결과 저장 (finalResult 추가)
-    await supabase
-      .from('profile_reports')
-      .update({
-        status: 'completed',
-        current_step: null,
-        progress_percent: 100,
-        estimated_time_remaining: 0,
-        analysis: {
-          basicAnalysis: result.data?.intermediateResults?.basicAnalysis,
-          personality: result.data?.intermediateResults?.personality,
-          aptitude: result.data?.intermediateResults?.aptitude,
-          fortune: result.data?.intermediateResults?.fortune,
-          finalResult: result.data?.finalResult,
-        },
-        updated_at: new Date().toISOString(),
-      })
-      .eq('id', reportId);
-
-    console.log('[Pipeline] 리포트 생성 완료:', reportId);
-  } catch (error) {
-    console.error('[Pipeline] 리포트 생성 실패:', error);
-
-    // DB에서 현재 단계 가져오기 (정확한 실패 단계 추적)
-    const { data: currentReport } = await supabase
-      .from('profile_reports')
-      .select('current_step')
-      .eq('id', reportId)
-      .single();
-
-    // 실패한 단계: DB의 current_step 우선, 없으면 에러 객체에서, 그것도 없으면 unknown
-    const errorFailedStep = (error as { failedStep?: string })?.failedStep;
-    const failedStep = currentReport?.current_step || errorFailedStep || 'unknown';
-
-    console.log(`[Pipeline] 실패 단계: ${failedStep}`);
-
-    // 에러 기록
-    await supabase
-      .from('profile_reports')
-      .update({
-        status: 'failed',
-        error: {
-          step: failedStep,
-          message: error instanceof Error ? error.message : '알 수 없는 오류',
-          retryable: true,
-        },
-        updated_at: new Date().toISOString(),
-      })
-      .eq('id', reportId);
-  }
-}
-
+export const maxDuration = 10;
 export const dynamic = 'force-dynamic';

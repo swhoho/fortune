@@ -1,13 +1,36 @@
 /**
  * GET /api/profiles/[id]/report/status
- * Task 22: 리포트 생성 상태 폴링 API
+ * 리포트 생성 상태 폴링 API
  *
- * 5초마다 클라이언트에서 호출하여 진행 상황 확인
+ * v2.0: Python 백엔드 폴링 추가
+ * - DB 상태 조회 + Python job 상태 조회
+ * - 완료 시 DB 업데이트
  */
 import { NextRequest, NextResponse } from 'next/server';
 import { getAuthenticatedUser } from '@/lib/supabase/server';
-
 import { getSupabaseAdmin } from '@/lib/supabase/client';
+import type { PipelineStep, StepStatus } from '@/lib/ai/types';
+
+/**
+ * Python API URL 가져오기
+ */
+function getPythonApiUrl(): string {
+  let pythonApiUrl = process.env.PYTHON_API_URL || 'http://localhost:8000';
+  if (!pythonApiUrl.startsWith('http://') && !pythonApiUrl.startsWith('https://')) {
+    pythonApiUrl = `https://${pythonApiUrl}`;
+  }
+  return pythonApiUrl;
+}
+
+/**
+ * 남은 시간 추정 (초)
+ * 예상 총 시간 60초 기준
+ */
+function estimateRemainingTime(progressPercent: number): number {
+  const ESTIMATED_TOTAL_TIME = 60;
+  const remaining = Math.max(0, ESTIMATED_TOTAL_TIME * (1 - progressPercent / 100));
+  return Math.round(remaining);
+}
 
 /**
  * GET /api/profiles/[id]/report/status
@@ -58,16 +81,95 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
       return NextResponse.json({ error: '진행 중인 리포트가 없습니다' }, { status: 404 });
     }
 
-    // 3. 상태 응답
+    // 3. 이미 완료된 경우 - DB 데이터 반환
+    if (report.status === 'completed') {
+      return NextResponse.json({
+        status: 'completed' as const,
+        currentStep: null,
+        progressPercent: 100,
+        stepStatuses: report.step_statuses as Record<PipelineStep, StepStatus>,
+        estimatedTimeRemaining: 0,
+      });
+    }
+
+    // 4. 실패한 경우 - 에러 정보 포함
+    if (report.status === 'failed') {
+      const errorInfo = report.error as { step?: string; message?: string; retryable?: boolean } | null;
+      return NextResponse.json({
+        status: 'failed' as const,
+        currentStep: report.current_step as PipelineStep | null,
+        progressPercent: report.progress_percent || 0,
+        stepStatuses: report.step_statuses as Record<PipelineStep, StepStatus>,
+        estimatedTimeRemaining: 0,
+        error: errorInfo ? {
+          step: errorInfo.step || report.current_step || 'unknown',
+          message: errorInfo.message || '분석에 실패했습니다',
+          retryable: errorInfo.retryable ?? true,
+        } : null,
+      });
+    }
+
+    // 5. 진행 중인 경우 - Python 백엔드에서 최신 상태 조회
+    if (report.job_id) {
+      const pythonApiUrl = getPythonApiUrl();
+
+      try {
+        const statusRes = await fetch(`${pythonApiUrl}/api/analysis/report/${report.job_id}`, {
+          cache: 'no-store',
+        });
+
+        if (statusRes.ok) {
+          const statusData = await statusRes.json();
+
+          // Python에서 완료된 경우
+          if (statusData.status === 'completed') {
+            return NextResponse.json({
+              status: 'completed' as const,
+              currentStep: null,
+              progressPercent: 100,
+              stepStatuses: statusData.step_statuses || report.step_statuses,
+              estimatedTimeRemaining: 0,
+            });
+          }
+
+          // Python에서 실패한 경우
+          if (statusData.status === 'failed') {
+            return NextResponse.json({
+              status: 'failed' as const,
+              currentStep: statusData.current_step || report.current_step,
+              progressPercent: statusData.progress_percent || 0,
+              stepStatuses: statusData.step_statuses || report.step_statuses,
+              estimatedTimeRemaining: 0,
+              error: {
+                step: statusData.error_step || statusData.current_step || report.current_step || 'unknown',
+                message: statusData.error || '분석에 실패했습니다',
+                retryable: statusData.retryable ?? true,
+              },
+            });
+          }
+
+          // 진행 중 - Python 상태 반환
+          return NextResponse.json({
+            status: statusData.status as 'pending' | 'in_progress',
+            currentStep: statusData.current_step as PipelineStep | null,
+            progressPercent: statusData.progress_percent || 0,
+            stepStatuses: statusData.step_statuses as Record<PipelineStep, StepStatus>,
+            estimatedTimeRemaining: estimateRemainingTime(statusData.progress_percent || 0),
+          });
+        }
+      } catch (pythonError) {
+        console.warn('[API] Python 상태 조회 실패 (DB 상태 사용):', pythonError);
+        // Python 조회 실패해도 현재 DB 상태 반환
+      }
+    }
+
+    // 6. Python 조회 실패 또는 job_id 없는 경우 - DB 상태 반환
     return NextResponse.json({
-      status: report.status,
-      currentStep: report.current_step,
+      status: report.status as 'pending' | 'in_progress',
+      currentStep: report.current_step as PipelineStep | null,
       progressPercent: report.progress_percent || 0,
       stepStatuses: report.step_statuses || {},
-      estimatedTimeRemaining: report.estimated_time_remaining || 0,
-      error: report.error || null,
-      createdAt: report.created_at,
-      updatedAt: report.updated_at,
+      estimatedTimeRemaining: estimateRemainingTime(report.progress_percent || 0),
     });
   } catch (error) {
     console.error('[API] GET /api/profiles/[id]/report/status 에러:', error);
