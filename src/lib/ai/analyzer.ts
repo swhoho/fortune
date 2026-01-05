@@ -272,7 +272,7 @@ export class SajuAnalyzer {
     input: YearlyAnalysisInput,
     options?: AnalysisOptions
   ): Promise<YearlyAnalysisResponse> {
-    const timeout = options?.timeout ?? 60000; // 신년 분석은 60초
+    const timeout = options?.timeout ?? 180000; // 신년 분석은 3분
     const retryCount = options?.retryCount ?? this.defaultRetryCount;
 
     // 입력 유효성 검사
