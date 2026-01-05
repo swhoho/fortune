@@ -197,9 +197,42 @@ export async function POST(request: NextRequest) {
         pillars = existingReport.pillars;
         daewun = existingReport.daewun || [];
       } else {
-        // 프로필에는 있지만 기존 리포트가 없는 경우 - 만세력 API 호출 필요
-        // 이 경우 클라이언트에서 만세력 데이터를 함께 보내야 함
-        console.log('[API] 프로필에 기존 리포트 없음, pillars 데이터 필요');
+        // 프로필에는 있지만 기존 리포트가 없는 경우 - 만세력 API 호출
+        console.log('[API] 프로필에 기존 리포트 없음, 만세력 API 호출');
+
+        // PYTHON_API_URL에 프로토콜 없으면 https:// 자동 추가
+        let pythonApiUrl = process.env.PYTHON_API_URL || 'http://localhost:8000';
+        if (!pythonApiUrl.startsWith('http://') && !pythonApiUrl.startsWith('https://')) {
+          pythonApiUrl = `https://${pythonApiUrl}`;
+        }
+
+        try {
+          const manseryeokRes = await fetch(`${pythonApiUrl}/api/manseryeok/calculate`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              birth_date: profile.birth_date,
+              birth_time: profile.birth_time || '12:00',
+              timezone: 'Asia/Seoul',
+              is_lunar: profile.calendar_type === 'lunar',
+              gender: profile.gender,
+            }),
+          });
+
+          if (!manseryeokRes.ok) {
+            throw new Error(`만세력 API 오류: ${manseryeokRes.status}`);
+          }
+
+          const manseryeokData = await manseryeokRes.json();
+          pillars = manseryeokData.pillars;
+          daewun = manseryeokData.daewun || [];
+        } catch (manseryeokError) {
+          console.error('[API] 만세력 계산 실패:', manseryeokError);
+          return NextResponse.json(
+            { error: '사주 정보 계산에 실패했습니다. 잠시 후 다시 시도해주세요.' },
+            { status: 500 }
+          );
+        }
       }
     } else if (data.existingAnalysisId) {
       // 레거시: 기존 분석 ID로 정보 가져오기

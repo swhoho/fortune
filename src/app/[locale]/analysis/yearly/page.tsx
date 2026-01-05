@@ -32,14 +32,13 @@ export default function YearlyAnalysisPage() {
   const { targetYear, selectedProfileId, setTargetYear, setSelectedProfile } = useYearlyStore();
 
   const currentYear = new Date().getFullYear();
-  const nextYear = currentYear + 1;
 
-  const [selectedYear, setSelectedYear] = useState(targetYear || nextYear);
+  const [selectedYear, setSelectedYear] = useState(targetYear || currentYear);
 
   // 컴포넌트 마운트 시 초기화
   useEffect(() => {
     if (!targetYear) {
-      setTargetYear(nextYear);
+      setTargetYear(currentYear);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -63,7 +62,7 @@ export default function YearlyAnalysisPage() {
   const canStart = hasEnoughCredits && !!selectedProfileId;
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white px-4 py-8">
+    <div className="min-h-screen bg-[#0a0a0a] px-4 py-8">
       <div className="mx-auto max-w-2xl">
         {/* 헤더 */}
         <motion.div
@@ -77,10 +76,10 @@ export default function YearlyAnalysisPage() {
           >
             <Sparkles className="h-8 w-8" style={{ color: BRAND_COLORS.primary }} />
           </div>
-          <h1 className="font-serif text-2xl font-bold text-gray-900">
+          <h1 className="font-serif text-2xl font-bold text-white">
             {t('title', { defaultValue: '신년 운세 분석' })}
           </h1>
-          <p className="mt-2 text-gray-600">
+          <p className="mt-2 text-gray-400">
             {t('subtitle', { defaultValue: '월별 상세 운세와 길흉일을 확인하세요' })}
           </p>
         </motion.div>
@@ -110,33 +109,33 @@ export default function YearlyAnalysisPage() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.3 }}
-          className="mb-6 rounded-xl bg-gray-100 p-4"
+          className="mb-6 rounded-xl bg-[#1a1a1a] border border-[#333] p-4"
         >
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-gray-600">분석 비용</p>
+              <p className="text-sm text-gray-400">분석 비용</p>
               <p className="text-lg font-bold" style={{ color: BRAND_COLORS.primary }}>
                 {YEARLY_ANALYSIS_COST} 크레딧
               </p>
             </div>
             <div className="text-right">
-              <p className="text-sm text-gray-600">보유 크레딧</p>
+              <p className="text-sm text-gray-400">보유 크레딧</p>
               <p
-                className={`text-lg font-bold ${hasEnoughCredits ? 'text-green-600' : 'text-red-600'}`}
+                className={`text-lg font-bold ${hasEnoughCredits ? 'text-green-500' : 'text-red-400'}`}
               >
                 {user?.credits ?? 0} 크레딧
               </p>
             </div>
           </div>
           {!hasEnoughCredits && (
-            <p className="mt-2 text-sm text-red-600">
+            <p className="mt-2 text-sm text-red-400">
               {t('credits.insufficient', {
                 defaultValue: '크레딧이 부족합니다. 크레딧을 충전해주세요.',
               })}
             </p>
           )}
           {hasEnoughCredits && !selectedProfileId && (
-            <p className="mt-2 text-sm text-amber-600">
+            <p className="mt-2 text-sm text-amber-400">
               {t('selectProfile.required', { defaultValue: '분석할 프로필을 선택해주세요.' })}
             </p>
           )}

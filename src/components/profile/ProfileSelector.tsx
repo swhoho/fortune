@@ -73,27 +73,27 @@ export function ProfileSelector({
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="relative overflow-hidden rounded-2xl border border-dashed border-[#d4af37]/30 bg-gradient-to-br from-[#fefdfb] via-white to-[#f8f6f0] p-8"
+        className="relative overflow-hidden rounded-2xl border border-dashed border-[#d4af37]/30 bg-[#1a1a1a] p-8"
       >
         {/* 장식적 배경 */}
-        <div className="absolute -right-16 -top-16 h-40 w-40 rounded-full bg-gradient-to-br from-[#d4af37]/5 to-transparent" />
-        <div className="absolute -bottom-8 -left-8 h-24 w-24 rounded-full bg-gradient-to-tr from-[#d4af37]/5 to-transparent" />
+        <div className="absolute -right-16 -top-16 h-40 w-40 rounded-full bg-gradient-to-br from-[#d4af37]/10 to-transparent" />
+        <div className="absolute -bottom-8 -left-8 h-24 w-24 rounded-full bg-gradient-to-tr from-[#d4af37]/10 to-transparent" />
 
         <div className="relative text-center">
-          <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-br from-[#d4af37]/10 to-[#d4af37]/5">
+          <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-br from-[#d4af37]/20 to-[#d4af37]/10">
             <UserPlus className="h-8 w-8 text-[#d4af37]" />
           </div>
 
-          <h3 className="font-serif text-lg font-semibold text-[#1a1a1a]">
+          <h3 className="font-serif text-lg font-semibold text-white">
             {t('empty.title', { defaultValue: '등록된 프로필이 없습니다' })}
           </h3>
-          <p className="mt-2 text-sm text-gray-500">
+          <p className="mt-2 text-sm text-gray-400">
             {t('empty.subtitle', { defaultValue: '분석할 프로필을 먼저 등록해주세요' })}
           </p>
 
           <Link
             href="/profiles/new"
-            className="mt-6 inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-[#d4af37] to-[#c19a2e] px-6 py-3 font-medium text-white shadow-md transition-all hover:shadow-lg hover:brightness-105"
+            className="mt-6 inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-[#d4af37] to-[#c19a2e] px-6 py-3 font-medium text-black shadow-md transition-all hover:shadow-lg hover:brightness-105"
           >
             <UserPlus className="h-5 w-5" />
             {t('empty.addButton', { defaultValue: '프로필 등록하기' })}
@@ -107,7 +107,7 @@ export function ProfileSelector({
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      className="rounded-2xl border border-gray-200 bg-white p-6 shadow-lg"
+      className="rounded-2xl border border-[#333] bg-[#1a1a1a] p-6 shadow-lg"
     >
       {/* 헤더 */}
       <div className="mb-5 flex items-center gap-3">
@@ -115,10 +115,10 @@ export function ProfileSelector({
           <User className="h-5 w-5 text-[#d4af37]" />
         </div>
         <div>
-          <h3 className="font-serif text-lg font-semibold text-gray-900">
+          <h3 className="font-serif text-lg font-semibold text-white">
             {t('selector.title', { defaultValue: '프로필 선택' })}
           </h3>
-          <p className="text-sm text-gray-500">
+          <p className="text-sm text-gray-400">
             {t('selector.subtitle', { defaultValue: '분석할 프로필을 선택하세요' })}
           </p>
         </div>
@@ -141,8 +141,8 @@ export function ProfileSelector({
                 onClick={() => onSelect(isSelected ? null : profile)}
                 className={`group relative w-full overflow-hidden rounded-xl border-2 p-4 text-left transition-all duration-300 ${
                   isSelected
-                    ? 'border-[#d4af37] bg-gradient-to-r from-[#d4af37]/10 to-[#d4af37]/5'
-                    : 'border-gray-200 bg-white hover:border-gray-300 hover:shadow-sm'
+                    ? 'border-[#d4af37] bg-gradient-to-r from-[#d4af37]/15 to-[#d4af37]/5'
+                    : 'border-[#333] bg-[#242424] hover:border-[#444] hover:bg-[#2a2a2a]'
                 }`}
               >
                 {/* 선택 시 배경 효과 */}
@@ -176,8 +176,8 @@ export function ProfileSelector({
                   <div
                     className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl transition-colors duration-200 ${
                       isSelected
-                        ? 'bg-gradient-to-br from-[#d4af37] to-[#c19a2e] text-white'
-                        : 'bg-gradient-to-br from-[#f8f6f0] to-[#ebe8e0] text-[#d4af37]'
+                        ? 'bg-gradient-to-br from-[#d4af37] to-[#c19a2e] text-black'
+                        : 'bg-gradient-to-br from-[#333] to-[#2a2a2a] text-[#d4af37]'
                     }`}
                   >
                     <span className="font-serif text-lg font-bold">{profile.name.charAt(0)}</span>
@@ -186,14 +186,14 @@ export function ProfileSelector({
                   {/* 프로필 정보 */}
                   <div className="min-w-0 flex-1">
                     <div className="flex items-center gap-2">
-                      <h4 className="truncate font-serif text-base font-semibold text-[#1a1a1a]">
+                      <h4 className="truncate font-serif text-base font-semibold text-white">
                         {profile.name}
                       </h4>
                       <span
                         className={`shrink-0 rounded-full px-2 py-0.5 text-xs font-medium transition-colors duration-200 ${
                           isSelected
-                            ? 'bg-[#d4af37]/20 text-[#b8962d]'
-                            : 'bg-gray-100 text-gray-600'
+                            ? 'bg-[#d4af37]/20 text-[#d4af37]'
+                            : 'bg-[#333] text-gray-400'
                         }`}
                       >
                         {profile.gender === 'male'
@@ -201,17 +201,17 @@ export function ProfileSelector({
                           : t('form.female', { defaultValue: '여성' })}
                       </span>
                     </div>
-                    <div className="mt-1 flex items-center gap-2 text-sm text-gray-500">
+                    <div className="mt-1 flex items-center gap-2 text-sm text-gray-400">
                       <Calendar className="h-3.5 w-3.5" />
                       <span>
                         {formatDate(profile.birthDate)} (
                         {t('detail.age', { age, defaultValue: `${age}세` })})
                       </span>
-                      <span className="text-gray-300">·</span>
+                      <span className="text-gray-600">·</span>
                       <span>{getCalendarLabel(profile.calendarType)}</span>
                       {profile.birthTime && (
                         <>
-                          <span className="text-gray-300">·</span>
+                          <span className="text-gray-600">·</span>
                           <span>{profile.birthTime}</span>
                         </>
                       )}
@@ -247,7 +247,7 @@ export function ProfileSelector({
       {/* 프로필 추가 링크 */}
       <Link
         href="/profiles/new"
-        className="mt-4 flex items-center justify-center gap-2 rounded-xl border border-dashed border-gray-300 px-4 py-3 text-sm font-medium text-gray-500 transition-all hover:border-[#d4af37]/50 hover:bg-[#d4af37]/5 hover:text-[#d4af37]"
+        className="mt-4 flex items-center justify-center gap-2 rounded-xl border border-dashed border-[#444] px-4 py-3 text-sm font-medium text-gray-400 transition-all hover:border-[#d4af37]/50 hover:bg-[#d4af37]/10 hover:text-[#d4af37]"
       >
         <UserPlus className="h-4 w-4" />
         {t('selector.addNew', { defaultValue: '새 프로필 추가' })}

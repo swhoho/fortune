@@ -43,6 +43,7 @@ export default function YearlyProcessingPage() {
     targetYear,
     existingAnalysisId,
     yearlyLoadingStep,
+    selectedProfileId,
     setYearlyResult,
     setYearlyLoading,
     setYearlyError,
@@ -81,6 +82,7 @@ export default function YearlyProcessingPage() {
 
       let analysisData: {
         targetYear: number;
+        profileId?: string;
         sajuInput?: {
           birthDate: string;
           birthTime: string;
@@ -94,7 +96,15 @@ export default function YearlyProcessingPage() {
         language: string;
       };
 
-      if (existingAnalysisId) {
+      // 우선순위: 선택된 프로필 > 기존 분석 ID > 온보딩 데이터
+      if (selectedProfileId) {
+        // 선택된 프로필 사용 (Task 24.1)
+        analysisData = {
+          targetYear,
+          profileId: selectedProfileId,
+          language: 'ko',
+        };
+      } else if (existingAnalysisId) {
         // 기존 분석 사용
         analysisData = {
           targetYear,
@@ -162,6 +172,7 @@ export default function YearlyProcessingPage() {
     }
   }, [
     targetYear,
+    selectedProfileId,
     existingAnalysisId,
     birthDate,
     birthTime,
@@ -202,17 +213,17 @@ export default function YearlyProcessingPage() {
   // 에러 화면
   if (error) {
     return (
-      <div className="flex min-h-screen flex-col items-center justify-center px-6">
+      <div className="flex min-h-screen flex-col items-center justify-center bg-[#0a0a0a] px-6">
         <motion.div
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
           className="text-center"
         >
-          <AlertCircle className="mx-auto mb-4 h-16 w-16 text-red-500" />
-          <h2 className="mb-2 text-xl font-semibold text-gray-900">분석 중 오류가 발생했습니다</h2>
-          <p className="mb-6 text-gray-500">{error}</p>
+          <AlertCircle className="mx-auto mb-4 h-16 w-16 text-red-400" />
+          <h2 className="mb-2 text-xl font-semibold text-white">분석 중 오류가 발생했습니다</h2>
+          <p className="mb-6 text-gray-400">{error}</p>
           <div className="flex gap-3">
-            <Button variant="outline" onClick={handleBack}>
+            <Button variant="outline" onClick={handleBack} className="border-[#333] bg-[#1a1a1a] text-white hover:bg-[#242424]">
               돌아가기
             </Button>
             <Button
@@ -229,7 +240,7 @@ export default function YearlyProcessingPage() {
   }
 
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center px-6 py-12">
+    <div className="flex min-h-screen flex-col items-center justify-center bg-[#0a0a0a] px-6 py-12">
       {/* 한자 회전 애니메이션 */}
       <motion.div
         animate={{ rotate: 360 }}
@@ -260,7 +271,7 @@ export default function YearlyProcessingPage() {
       <motion.h2
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
-        className="mb-2 text-center text-xl font-semibold text-gray-900"
+        className="mb-2 text-center text-xl font-semibold text-white"
       >
         {targetYear}년 신년 운세를 분석하고 있습니다
       </motion.h2>
@@ -268,7 +279,7 @@ export default function YearlyProcessingPage() {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 0.2 }}
-        className="mb-8 text-center text-gray-500"
+        className="mb-8 text-center text-gray-400"
       >
         12개월 월별 운세와 길흉일을 계산 중...
       </motion.p>
@@ -289,14 +300,14 @@ export default function YearlyProcessingPage() {
               {status === 'in_progress' && (
                 <Loader2 className="h-5 w-5 animate-spin" style={{ color: BRAND_COLORS.primary }} />
               )}
-              {status === 'pending' && <Circle className="h-5 w-5 text-gray-300" />}
+              {status === 'pending' && <Circle className="h-5 w-5 text-gray-600" />}
               <span
                 className={`text-sm ${
                   status === 'completed'
-                    ? 'text-green-600'
+                    ? 'text-green-500'
                     : status === 'in_progress'
                       ? 'font-medium'
-                      : 'text-gray-400'
+                      : 'text-gray-500'
                 }`}
                 style={status === 'in_progress' ? { color: BRAND_COLORS.primary } : undefined}
               >
@@ -311,7 +322,7 @@ export default function YearlyProcessingPage() {
 
       {/* 진행 바 */}
       <div className="mb-8 w-full max-w-md">
-        <div className="h-2 overflow-hidden rounded-full bg-gray-200">
+        <div className="h-2 overflow-hidden rounded-full bg-[#333]">
           <motion.div
             className="h-full rounded-full"
             style={{ backgroundColor: BRAND_COLORS.primary }}
@@ -330,7 +341,7 @@ export default function YearlyProcessingPage() {
 
       {/* 팁 */}
       <div className="w-full max-w-md text-center">
-        <p className="mb-2 text-xs text-gray-400">알고 계셨나요?</p>
+        <p className="mb-2 text-xs text-gray-500">알고 계셨나요?</p>
         <AnimatePresence mode="wait">
           <motion.p
             key={tipIndex}
@@ -338,7 +349,7 @@ export default function YearlyProcessingPage() {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -10 }}
             transition={{ duration: 0.3 }}
-            className="text-sm text-gray-600"
+            className="text-sm text-gray-400"
           >
             &ldquo;{FORTUNE_TIPS[tipIndex]}&rdquo;
           </motion.p>

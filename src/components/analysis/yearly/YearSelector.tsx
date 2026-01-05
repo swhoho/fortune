@@ -74,14 +74,14 @@ export function YearSelector({
   );
 
   const ganZhi = getGanZhi(selectedYear);
-  const isNextYear = selectedYear === currentYear + 1;
+  const isCurrentYear = selectedYear === currentYear;
 
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5 }}
-      className="w-full rounded-2xl border border-gray-200 bg-white p-6 shadow-lg"
+      className="w-full rounded-2xl border border-[#333] bg-[#1a1a1a] p-6 shadow-lg"
     >
       {/* 헤더 */}
       <div className="mb-6 flex items-center gap-3">
@@ -92,8 +92,8 @@ export function YearSelector({
           <Calendar className="h-5 w-5" style={{ color: BRAND_COLORS.primary }} />
         </div>
         <div>
-          <h3 className="font-serif text-lg font-semibold text-gray-900">분석할 연도 선택</h3>
-          <p className="text-sm text-gray-500">월별 상세 운세를 확인할 연도를 선택하세요</p>
+          <h3 className="font-serif text-lg font-semibold text-white">분석할 연도 선택</h3>
+          <p className="text-sm text-gray-400">월별 상세 운세를 확인할 연도를 선택하세요</p>
         </div>
       </div>
 
@@ -104,23 +104,23 @@ export function YearSelector({
           onValueChange={(value) => onYearChange(Number(value))}
           disabled={disabled}
         >
-          <SelectTrigger className="h-14 w-full border-2 border-gray-200 text-lg transition-colors hover:border-[#d4af37] focus:border-[#d4af37]">
+          <SelectTrigger className="h-14 w-full border-2 border-[#333] bg-[#242424] text-lg text-white transition-colors hover:border-[#d4af37] focus:border-[#d4af37]">
             <SelectValue placeholder="연도 선택" />
           </SelectTrigger>
-          <SelectContent>
+          <SelectContent className="bg-[#1a1a1a] border-[#333]">
             {years.map((year) => {
               const yearGanZhi = getGanZhi(year);
-              const isRecommended = year === currentYear + 1;
+              const isRecommended = year === currentYear;
 
               return (
-                <SelectItem key={year} value={String(year)} className="py-3">
+                <SelectItem key={year} value={String(year)} className="py-3 text-white focus:bg-[#242424] focus:text-white">
                   <div className="flex items-center gap-3">
                     <span className="text-lg font-medium">{year}년</span>
-                    <span className="font-serif text-gray-500">
+                    <span className="font-serif text-gray-400">
                       {yearGanZhi.stem}
                       {yearGanZhi.branch}
                     </span>
-                    <span className="text-sm text-gray-400">({yearGanZhi.animal}띠)</span>
+                    <span className="text-sm text-gray-500">({yearGanZhi.animal}띠)</span>
                     {isRecommended && (
                       <span
                         className="ml-auto flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium"
@@ -146,13 +146,12 @@ export function YearSelector({
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.3 }}
-          className="rounded-xl p-4"
-          style={{ backgroundColor: `${BRAND_COLORS.primary}10` }}
+          className="rounded-xl p-4 bg-[#242424]"
         >
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-gray-600">선택된 연도</p>
-              <p className="font-serif text-2xl font-bold text-gray-900">
+              <p className="text-sm text-gray-400">선택된 연도</p>
+              <p className="font-serif text-2xl font-bold text-white">
                 {selectedYear}년{' '}
                 <span style={{ color: BRAND_COLORS.primary }}>
                   {ganZhi.stem}
@@ -162,7 +161,7 @@ export function YearSelector({
             </div>
             <div className="text-right">
               <p className="text-sm text-gray-500">{ganZhi.animal}의 해</p>
-              {isNextYear && (
+              {isCurrentYear && (
                 <span
                   className="inline-flex items-center gap-1 rounded-full px-3 py-1 text-sm font-medium"
                   style={{
@@ -171,7 +170,7 @@ export function YearSelector({
                   }}
                 >
                   <Sparkles className="h-4 w-4" />
-                  신년 운세
+                  올해 운세
                 </span>
               )}
             </div>
