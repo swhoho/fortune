@@ -104,6 +104,9 @@ export default function GeneratingPage({ params }: PageProps) {
   const startTimeRef = useRef<number | null>(null);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
 
+  // 중복 요청 방지 플래그
+  const isRequestingRef = useRef(false);
+
   // params 처리 (Promise 또는 일반 객체 모두 지원)
   useEffect(() => {
     if (params instanceof Promise) {
@@ -138,7 +141,10 @@ export default function GeneratingPage({ params }: PageProps) {
    */
   const startReportGeneration = useCallback(
     (retryFromStep?: string) => {
-      if (!profileId) return;
+      // 중복 요청 방지
+      if (!profileId || isRequestingRef.current) return;
+
+      isRequestingRef.current = true;
 
       // 타이머 시작
       setIsGenerating(true);
@@ -161,7 +167,16 @@ export default function GeneratingPage({ params }: PageProps) {
             }
             throw new Error(errorData.error || '리포트 생성 시작 실패');
           }
-          // 완료됨 - 폴링에서 완료 확인 후 리다이렉트
+
+          const data = await startRes.json();
+
+          // completed 상태면 리포트 페이지로 이동
+          if (data.status === 'completed' && data.redirectUrl) {
+            router.push(data.redirectUrl);
+            return;
+          }
+
+          // pending/in_progress면 폴링에서 완료 확인 후 리다이렉트
         })
         .catch((err) => {
           console.error('리포트 생성 실패:', err);
@@ -170,6 +185,9 @@ export default function GeneratingPage({ params }: PageProps) {
             error: err instanceof Error ? err.message : '리포트 생성에 실패했습니다.',
             retryable: true,
           });
+        })
+        .finally(() => {
+          isRequestingRef.current = false;
         });
     },
     [profileId, router]
@@ -213,10 +231,12 @@ export default function GeneratingPage({ params }: PageProps) {
         }
       }
 
-      // pending 상태인 경우 - POST /report 재호출 (기존 실패 후 페이지 재진입 시)
-      if (data.status === 'pending' && !isGenerating) {
-        startReportGeneration();
-        return;
+      // pending 상태인 경우 - POST 재호출하지 않음 (서버에서 이미 처리 중)
+      // 타이머만 시작하여 UI 표시
+      if (data.status === 'pending') {
+        if (!isGenerating) {
+          setIsGenerating(true);
+        }
       }
 
       // 실패한 경우 - 에러 화면 표시 (폴링은 계속 유지하여 백그라운드 완료 감지)

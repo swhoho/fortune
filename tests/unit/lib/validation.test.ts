@@ -53,7 +53,7 @@ function validateBirthYear(year: number): boolean {
  */
 function validateTimezone(timezone: string): boolean {
   const match = timezone.match(/^GMT([+-])(\d{1,2})$/)
-  if (!match) return false
+  if (!match || !match[2]) return false
   const offset = parseInt(match[2], 10)
   // UTC 오프셋 범위: -12 ~ +14
   return offset <= 14
@@ -81,7 +81,7 @@ describe('Zod 스키마 검증', () => {
       })
       expect(result.success).toBe(false)
       if (!result.success) {
-        expect(result.error.issues[0].message).toBe('천간이 필요합니다')
+        expect(result.error.issues[0]?.message).toBe('천간이 필요합니다')
       }
     })
 
@@ -177,7 +177,7 @@ describe('Zod 스키마 검증', () => {
       })
       expect(result2.success).toBe(false)
       if (!result2.success) {
-        expect(result2.error.issues[0].message).toBe('질문은 500자를 초과할 수 없습니다')
+        expect(result2.error.issues[0]?.message).toBe('질문은 500자를 초과할 수 없습니다')
       }
     })
 

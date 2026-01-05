@@ -9,8 +9,7 @@ import {
   summarizeTenGods,
 } from '@/lib/score/ten-gods';
 import { createEmptyTenGodCounts } from '@/lib/score/types';
-import type { JijangganData } from '@/lib/ai/types';
-import type { SajuPillarsData } from '@/types/saju';
+import type { JijangganData, SajuPillarsData } from '@/lib/ai/types';
 
 describe('determineTenGod', () => {
   describe('비겁(比劫) - 같은 오행', () => {
@@ -98,10 +97,10 @@ describe('determineTenGod', () => {
 
 describe('extractTenGods', () => {
   const mockPillars: SajuPillarsData = {
-    year: { stem: '庚', branch: '午', element: '金' },
-    month: { stem: '辛', branch: '巳', element: '金' },
-    day: { stem: '甲', branch: '子', element: '木' },
-    hour: { stem: '丙', branch: '寅', element: '火' },
+    year: { stem: '庚', branch: '午', element: '金', stemElement: '금', branchElement: '화' },
+    month: { stem: '辛', branch: '巳', element: '金', stemElement: '금', branchElement: '화' },
+    day: { stem: '甲', branch: '子', element: '木', stemElement: '목', branchElement: '수' },
+    hour: { stem: '丙', branch: '寅', element: '火', stemElement: '화', branchElement: '목' },
   };
 
   const mockJijanggan: JijangganData = {

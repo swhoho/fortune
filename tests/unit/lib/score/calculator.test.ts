@@ -10,8 +10,7 @@ import {
 } from '@/lib/score/calculator';
 import { createEmptyTenGodCounts, type TenGodCounts } from '@/lib/score/types';
 import { PERSONALITY_MODIFIERS, WORK_MODIFIERS } from '@/lib/score/trait-modifiers';
-import type { JijangganData } from '@/lib/ai/types';
-import type { SajuPillarsData } from '@/types/saju';
+import type { JijangganData, SajuPillarsData } from '@/lib/ai/types';
 
 describe('calculateTraitScore', () => {
   it('십신 분포가 없으면 기본 점수 50을 반환한다', () => {
@@ -86,10 +85,10 @@ describe('calculateTraitScore', () => {
 
 describe('calculateAllScores', () => {
   const mockPillars: SajuPillarsData = {
-    year: { stem: '庚', branch: '午', element: '金' },
-    month: { stem: '辛', branch: '巳', element: '金' },
-    day: { stem: '甲', branch: '子', element: '木' },
-    hour: { stem: '丙', branch: '寅', element: '火' },
+    year: { stem: '庚', branch: '午', element: '金', stemElement: '금', branchElement: '화' },
+    month: { stem: '辛', branch: '巳', element: '金', stemElement: '금', branchElement: '화' },
+    day: { stem: '甲', branch: '子', element: '木', stemElement: '목', branchElement: '수' },
+    hour: { stem: '丙', branch: '寅', element: '火', stemElement: '화', branchElement: '목' },
   };
 
   const mockJijanggan: JijangganData = {
@@ -175,6 +174,6 @@ describe('scoreToTraitItems', () => {
     const labels = {};
 
     const result = scoreToTraitItems(scores, labels);
-    expect(result[0].label).toBe('unknown');
+    expect(result[0]?.label).toBe('unknown');
   });
 });

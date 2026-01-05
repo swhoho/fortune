@@ -113,14 +113,14 @@ describe('Analysis Store', () => {
     it('로딩 상태를 설정할 수 있음', () => {
       const { setLoading } = useAnalysisStore.getState()
 
-      setLoading(true, 'calculating')
+      setLoading(true, 'manseryeok')
       const state1 = useAnalysisStore.getState()
       expect(state1.isLoading).toBe(true)
-      expect(state1.loadingStep).toBe('calculating')
+      expect(state1.loadingStep).toBe('manseryeok')
 
-      setLoading(true, 'analyzing')
+      setLoading(true, 'ai_analysis')
       const state2 = useAnalysisStore.getState()
-      expect(state2.loadingStep).toBe('analyzing')
+      expect(state2.loadingStep).toBe('ai_analysis')
 
       setLoading(false)
       const state3 = useAnalysisStore.getState()
@@ -133,7 +133,7 @@ describe('Analysis Store', () => {
     it('에러를 설정하면 로딩 상태가 false가 됨', () => {
       const { setLoading, setError } = useAnalysisStore.getState()
 
-      setLoading(true, 'calculating')
+      setLoading(true, 'manseryeok')
       setError('API 호출 실패')
 
       const state = useAnalysisStore.getState()
@@ -256,7 +256,7 @@ describe('Analysis Store', () => {
       })
       store.setFocusArea('wealth')
       store.setQuestion('테스트 질문')
-      store.setLoading(true, 'analyzing')
+      store.setLoading(true, 'ai_analysis')
       store.setError('테스트 에러')
 
       // 리셋
@@ -289,7 +289,7 @@ describe('Analysis Store', () => {
       store.setFocusArea('wealth')
 
       // 분석 상태 설정
-      store.setLoading(true, 'analyzing')
+      store.setLoading(true, 'ai_analysis')
       store.setPillarImage('test-image')
       store.setError('테스트 에러')
 

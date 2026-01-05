@@ -578,12 +578,27 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
       .limit(1)
       .maybeSingle();
 
-    // 이미 진행 중인 리포트가 있는 경우 (재시도 요청이 아닐 때)
-    if (existingReport?.status === 'in_progress' && !retryFromStep) {
+    // 이미 완료된 리포트가 있는 경우 (재시도 요청이 아닐 때) → 리다이렉트 안내
+    if (existingReport?.status === 'completed' && !retryFromStep) {
+      return NextResponse.json({
+        success: true,
+        message: '이미 완료된 리포트가 있습니다',
+        reportId: existingReport.id,
+        status: 'completed',
+        redirectUrl: `/profiles/${profileId}/report`,
+      });
+    }
+
+    // pending/in_progress 상태 모두 체크 (재시도 요청이 아닐 때)
+    if (
+      (existingReport?.status === 'in_progress' || existingReport?.status === 'pending') &&
+      !retryFromStep
+    ) {
       return NextResponse.json({
         success: true,
         message: '이미 리포트 생성이 진행 중입니다',
         reportId: existingReport.id,
+        status: existingReport.status,
         pollUrl: `/api/profiles/${profileId}/report/status`,
       });
     }
