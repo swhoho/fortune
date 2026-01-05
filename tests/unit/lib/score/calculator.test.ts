@@ -25,8 +25,8 @@ describe('calculateTraitScore', () => {
     counts['비견'] = 2.0;
 
     const score = calculateTraitScore(counts, PERSONALITY_MODIFIERS.willpower);
-    // 50 + (15 * 2) = 80
-    expect(score).toBe(80);
+    // 50 + (11 * 2) = 72
+    expect(score).toBe(72);
   });
 
   it('식신이 강하면 사교성 점수가 상승한다', () => {
@@ -34,8 +34,8 @@ describe('calculateTraitScore', () => {
     counts['식신'] = 2.0;
 
     const score = calculateTraitScore(counts, PERSONALITY_MODIFIERS.sociability);
-    // 50 + (15 * 2) = 80
-    expect(score).toBe(80);
+    // 50 + (11 * 2) = 72
+    expect(score).toBe(72);
   });
 
   it('상반되는 십신은 점수를 낮춘다', () => {
@@ -43,8 +43,8 @@ describe('calculateTraitScore', () => {
     counts['상관'] = 3.0;
 
     const score = calculateTraitScore(counts, PERSONALITY_MODIFIERS.patience);
-    // 50 + (-12 * 3) = 14
-    expect(score).toBe(14);
+    // 50 + (-9 * 3) = 23
+    expect(score).toBe(23);
   });
 
   it('점수는 0 미만으로 내려가지 않는다', () => {
