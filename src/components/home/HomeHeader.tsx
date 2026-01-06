@@ -55,12 +55,16 @@ export function HomeHeader() {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 0.2, duration: 0.6 }}
-        className="shrink-0 text-lg font-semibold tracking-wide text-white"
+        className="shrink-0 font-semibold tracking-wide text-white"
         style={{
           textShadow: `0 0 30px ${BRAND_COLORS.primary}30`,
         }}
       >
-        {tCommon('appName')}
+        {/* 모바일: 命 한자, 태블릿+: 앱 이름 */}
+        <span className="hidden text-lg sm:inline">{tCommon('appName')}</span>
+        <span className="font-serif text-xl sm:hidden" style={{ color: BRAND_COLORS.primary }}>
+          命
+        </span>
       </motion.h1>
 
       {/* 우측: 언어 / 사용자 정보 */}

@@ -16,8 +16,8 @@ import {
   TooltipProps,
   ReferenceLine,
 } from 'recharts';
-import { motion, AnimatePresence } from 'framer-motion';
-import { ChevronDown, TrendingUp, TrendingDown, Minus } from 'lucide-react';
+import { motion } from 'framer-motion';
+import { TrendingUp, TrendingDown, Minus } from 'lucide-react';
 import { BRAND_COLORS } from '@/lib/constants/colors';
 import type { MonthlyFortune } from '@/lib/ai/types';
 
@@ -71,8 +71,8 @@ function CustomTooltip({
   if (!data) return null;
 
   return (
-    <div className="rounded-lg border border-gray-200 bg-white px-4 py-3 shadow-lg">
-      <p className="font-semibold text-gray-900">{data.monthName}</p>
+    <div className="rounded-lg border border-[#333] bg-[#1a1a1a] px-4 py-3 shadow-lg">
+      <p className="font-semibold text-white">{data.monthName}</p>
       <p className="text-sm" style={{ color: BRAND_COLORS.primary }}>
         {data.theme}
       </p>
@@ -81,12 +81,12 @@ function CustomTooltip({
           className="h-2 w-2 rounded-full"
           style={{ backgroundColor: getScoreColor(data.score) }}
         />
-        <span className="text-sm font-medium">{data.score}점</span>
+        <span className="text-sm font-medium text-white">{data.score}점</span>
       </div>
       {data.keywords && data.keywords.length > 0 && (
         <div className="mt-2 flex flex-wrap gap-1">
           {data.keywords.slice(0, 3).map((keyword, i) => (
-            <span key={i} className="rounded bg-gray-100 px-2 py-0.5 text-xs text-gray-600">
+            <span key={i} className="rounded bg-[#333] px-2 py-0.5 text-xs text-gray-300">
               {keyword}
             </span>
           ))}
@@ -97,7 +97,7 @@ function CustomTooltip({
 }
 
 export function MonthlyTimeline({ monthlyFortunes, year }: MonthlyTimelineProps) {
-  const [expandedMonth, setExpandedMonth] = useState<number | null>(null);
+  const [expandedMonth, setExpandedMonth] = useState<number>(1); // 1월 기본 선택
   const currentMonth = new Date().getMonth() + 1;
   const currentYear = new Date().getFullYear();
 
@@ -106,8 +106,8 @@ export function MonthlyTimeline({ monthlyFortunes, year }: MonthlyTimelineProps)
     monthName: MONTH_NAMES[m.month - 1],
   }));
 
-  const toggleMonth = (month: number) => {
-    setExpandedMonth(expandedMonth === month ? null : month);
+  const selectMonth = (month: number) => {
+    setExpandedMonth(month); // 항상 선택 (닫힘 없음)
   };
 
   // 평균 점수 계산
@@ -120,18 +120,16 @@ export function MonthlyTimeline({ monthlyFortunes, year }: MonthlyTimelineProps)
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5, delay: 0.2 }}
-      className="w-full rounded-2xl border border-gray-200 bg-white p-6 shadow-lg"
+      className="w-full rounded-2xl border border-[#333] bg-[#1a1a1a] p-6 shadow-lg"
     >
       {/* 헤더 */}
       <div className="mb-6 flex items-center justify-between">
         <div>
-          <h3 className="font-serif text-lg font-semibold text-gray-900">
-            {year}년 월별 운세 흐름
-          </h3>
-          <p className="text-sm text-gray-500">12개월 운세 변화를 한눈에 확인하세요</p>
+          <h3 className="font-serif text-lg font-semibold text-white">{year}년 월별 운세 흐름</h3>
+          <p className="text-sm text-gray-400">12개월 운세 변화를 한눈에 확인하세요</p>
         </div>
         <div className="text-right">
-          <p className="text-sm text-gray-500">평균 점수</p>
+          <p className="text-sm text-gray-400">평균 점수</p>
           <p className="text-2xl font-bold" style={{ color: getScoreColor(avgScore) }}>
             {avgScore}점
           </p>
@@ -150,19 +148,19 @@ export function MonthlyTimeline({ monthlyFortunes, year }: MonthlyTimelineProps)
             </defs>
             <XAxis
               dataKey="monthName"
-              tick={{ fontSize: 11, fill: '#9ca3af' }}
-              axisLine={{ stroke: '#e5e7eb' }}
+              tick={{ fontSize: 11, fill: '#6b7280' }}
+              axisLine={{ stroke: '#333' }}
               tickLine={false}
             />
             <YAxis
               domain={[0, 100]}
-              tick={{ fontSize: 11, fill: '#9ca3af' }}
+              tick={{ fontSize: 11, fill: '#6b7280' }}
               axisLine={false}
               tickLine={false}
               width={30}
             />
             <Tooltip content={<CustomTooltip />} />
-            <ReferenceLine y={50} stroke="#e5e7eb" strokeDasharray="3 3" />
+            <ReferenceLine y={50} stroke="#333" strokeDasharray="3 3" />
             {year === currentYear && (
               <ReferenceLine
                 x={MONTH_NAMES[currentMonth - 1]}
@@ -177,7 +175,7 @@ export function MonthlyTimeline({ monthlyFortunes, year }: MonthlyTimelineProps)
               strokeWidth={2}
               fill="url(#monthlyScoreGradient)"
               dot={{ fill: BRAND_COLORS.primary, strokeWidth: 0, r: 4 }}
-              activeDot={{ fill: BRAND_COLORS.primary, strokeWidth: 2, stroke: '#fff', r: 6 }}
+              activeDot={{ fill: BRAND_COLORS.primary, strokeWidth: 2, stroke: '#1a1a1a', r: 6 }}
             />
           </AreaChart>
         </ResponsiveContainer>
@@ -197,17 +195,17 @@ export function MonthlyTimeline({ monthlyFortunes, year }: MonthlyTimelineProps)
               transition={{ delay: 0.05 * fortune.month }}
             >
               <button
-                onClick={() => toggleMonth(fortune.month)}
-                className={`w-full rounded-xl border-2 p-3 text-left transition-all hover:shadow-md ${
+                onClick={() => selectMonth(fortune.month)}
+                className={`w-full cursor-pointer touch-manipulation rounded-xl border-2 p-3 text-left transition-all hover:shadow-md active:scale-95 ${
                   isCurrentMonth
                     ? 'border-[#d4af37] bg-[#d4af37]/10'
                     : isExpanded
-                      ? 'border-gray-300 bg-gray-50'
-                      : 'border-gray-200 bg-white'
+                      ? 'border-[#444] bg-[#242424]'
+                      : 'border-[#333] bg-[#1a1a1a] hover:bg-[#242424]'
                 }`}
               >
                 <div className="flex items-center justify-between">
-                  <span className="text-sm font-medium text-gray-700">{fortune.month}월</span>
+                  <span className="text-sm font-medium text-gray-300">{fortune.month}월</span>
                   <TrendIcon score={fortune.score} />
                 </div>
                 <p
@@ -230,85 +228,73 @@ export function MonthlyTimeline({ monthlyFortunes, year }: MonthlyTimelineProps)
         })}
       </div>
 
-      {/* 확장된 월 상세 정보 */}
-      <AnimatePresence>
-        {expandedMonth !== null && (
-          <motion.div
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: 'auto' }}
-            exit={{ opacity: 0, height: 0 }}
-            transition={{ duration: 0.3 }}
-            className="mt-4 overflow-hidden"
-          >
-            {(() => {
-              const fortune = monthlyFortunes.find((m) => m.month === expandedMonth);
-              if (!fortune) return null;
+      {/* 선택된 월 상세 정보 (항상 표시) */}
+      <motion.div
+        key={expandedMonth}
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.3 }}
+        className="mt-4"
+      >
+        {(() => {
+          const fortune = monthlyFortunes.find((m) => m.month === expandedMonth);
+          if (!fortune) return null;
 
-              return (
-                <div className="rounded-xl border border-gray-200 bg-gray-50 p-5">
-                  <div className="mb-4 flex items-start justify-between">
-                    <div>
-                      <h4 className="font-serif text-lg font-semibold text-gray-900">
-                        {expandedMonth}월 -{' '}
-                        <span style={{ color: BRAND_COLORS.primary }}>{fortune.theme}</span>
-                      </h4>
-                      <p className="mt-1 text-sm text-gray-600">{fortune.overview}</p>
-                    </div>
-                    <button
-                      onClick={() => setExpandedMonth(null)}
-                      className="rounded-full p-1 hover:bg-gray-200"
+          return (
+            <div className="rounded-xl border border-[#333] bg-[#111111] p-5">
+              <div className="mb-4">
+                <h4 className="font-serif text-lg font-semibold text-white">
+                  {expandedMonth}월 -{' '}
+                  <span style={{ color: BRAND_COLORS.primary }}>{fortune.theme}</span>
+                </h4>
+                <p className="mt-1 text-sm text-gray-400">{fortune.overview}</p>
+              </div>
+
+              {/* 키워드 */}
+              {fortune.keywords && fortune.keywords.length > 0 && (
+                <div className="mb-4 flex flex-wrap gap-2">
+                  {fortune.keywords.map((keyword, i) => (
+                    <span
+                      key={i}
+                      className="rounded-full px-3 py-1 text-sm"
+                      style={{
+                        backgroundColor: `${BRAND_COLORS.primary}20`,
+                        color: BRAND_COLORS.primary,
+                      }}
                     >
-                      <ChevronDown className="h-5 w-5 rotate-180 text-gray-400" />
-                    </button>
-                  </div>
-
-                  {/* 키워드 */}
-                  {fortune.keywords && fortune.keywords.length > 0 && (
-                    <div className="mb-4 flex flex-wrap gap-2">
-                      {fortune.keywords.map((keyword, i) => (
-                        <span
-                          key={i}
-                          className="rounded-full px-3 py-1 text-sm"
-                          style={{
-                            backgroundColor: `${BRAND_COLORS.primary}20`,
-                            color: BRAND_COLORS.primary,
-                          }}
-                        >
-                          {keyword}
-                        </span>
-                      ))}
-                    </div>
-                  )}
-
-                  {/* 조언 */}
-                  {fortune.advice && (
-                    <div className="rounded-lg bg-white p-4">
-                      <p className="text-sm font-medium text-gray-700">이달의 조언</p>
-                      <p className="mt-1 text-sm text-gray-600">{fortune.advice}</p>
-                    </div>
-                  )}
-
-                  {/* 길일/흉일 요약 */}
-                  <div className="mt-4 grid grid-cols-2 gap-4">
-                    <div className="rounded-lg bg-green-50 p-3">
-                      <p className="text-xs font-medium text-green-700">길일</p>
-                      <p className="text-lg font-bold text-green-600">
-                        {fortune.luckyDays?.length || 0}일
-                      </p>
-                    </div>
-                    <div className="rounded-lg bg-red-50 p-3">
-                      <p className="text-xs font-medium text-red-700">주의일</p>
-                      <p className="text-lg font-bold text-red-600">
-                        {fortune.unluckyDays?.length || 0}일
-                      </p>
-                    </div>
-                  </div>
+                      {keyword}
+                    </span>
+                  ))}
                 </div>
-              );
-            })()}
-          </motion.div>
-        )}
-      </AnimatePresence>
+              )}
+
+              {/* 조언 */}
+              {fortune.advice && (
+                <div className="rounded-lg bg-[#1a1a1a] p-4">
+                  <p className="text-sm font-medium text-gray-300">이달의 조언</p>
+                  <p className="mt-1 text-sm text-gray-400">{fortune.advice}</p>
+                </div>
+              )}
+
+              {/* 길일/흉일 요약 */}
+              <div className="mt-4 grid grid-cols-2 gap-4">
+                <div className="rounded-lg bg-green-900/20 p-3">
+                  <p className="text-xs font-medium text-green-400">길일</p>
+                  <p className="text-lg font-bold text-green-500">
+                    {fortune.luckyDays?.length || 0}일
+                  </p>
+                </div>
+                <div className="rounded-lg bg-red-900/20 p-3">
+                  <p className="text-xs font-medium text-red-400">주의일</p>
+                  <p className="text-lg font-bold text-red-500">
+                    {fortune.unluckyDays?.length || 0}일
+                  </p>
+                </div>
+              </div>
+            </div>
+          );
+        })()}
+      </motion.div>
     </motion.div>
   );
 }

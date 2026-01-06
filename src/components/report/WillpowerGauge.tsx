@@ -36,8 +36,8 @@ export function WillpowerGauge({
       transition={{ duration: 0.5 }}
       className={`rounded-xl bg-[#1a1a1a] p-5 ${className}`}
     >
-      {/* 헤더 영역 */}
-      <div className="mb-8 flex items-start justify-between gap-3">
+      {/* 헤더 영역 - 모바일: 세로 배치, 태블릿+: 가로 배치 */}
+      <div className="mb-8 flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between sm:gap-3">
         <div className="flex items-center gap-3">
           {/* 라벨 태그 */}
           <span className="inline-flex flex-shrink-0 items-center whitespace-nowrap rounded-md bg-[#d4af37] px-2.5 py-1 text-xs font-bold text-[#1a1a1a]">
