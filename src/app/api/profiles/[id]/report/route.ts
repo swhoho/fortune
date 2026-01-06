@@ -80,18 +80,22 @@ function transformDaewun(daewunList: any[]) {
  * - innerPersonality / inner_personality / 속성격
  * - socialStyle / interpersonal_style / 대인관계_스타일
  * - 문자열 또는 객체 형태 모두 지원
+ *
+ * @param personality AI 분석 결과
+ * @param calculatedWillpower 십신 기반 계산된 의지력 점수 (scores.willpower)
  */
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-function transformPersonality(personality: any) {
+function transformPersonality(personality: any, calculatedWillpower?: number) {
   if (!personality) return null;
 
   // 한글 래퍼 처리
   const data = personality.성격분석 || personality;
 
-  // 의지력: willpower > willpower_analysis > 의지력
+  // 의지력: 계산된 점수 우선 사용, 없으면 AI 응답 사용
   const willpowerData = data.willpower || data.willpower_analysis || data.의지력 || {};
   const willpower = {
-    score: willpowerData.score || willpowerData.점수 || 0,
+    // 십신 기반 계산 점수 우선 (AI 점수는 폴백)
+    score: calculatedWillpower ?? willpowerData.score ?? willpowerData.점수 ?? 50,
     description: willpowerData.description || willpowerData.설명 || '',
   };
 
@@ -713,7 +717,11 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
       jijanggan: report.jijanggan,
       // 분석 결과 (analysis JSONB에서 추출 및 클라이언트 형식 변환)
       // 한글 키(성격분석) 또는 영문 키(personality) 지원
-      personality: transformPersonality(report.analysis?.personality),
+      // willpower 점수는 십신 기반 계산 값 사용 (scores.willpower)
+      personality: transformPersonality(
+        report.analysis?.personality,
+        report.scores?.willpower
+      ),
       characteristics: transformCharacteristics(report.analysis?.basicAnalysis),
       aptitude: transformAptitude(report.analysis?.aptitude, report.scores),
       // fortune 데이터: 한글 키(재물운, 연애운) 또는 영문 키(wealth, love) 지원

@@ -106,6 +106,17 @@ WEALTH_MODIFIERS = {
     },
 }
 
+# 의지력 점수 modifier (비견/겁재 기반)
+WILLPOWER_MODIFIERS = {
+    "비견": 12,   # 의지력의 핵심 - 자립심, 독립심
+    "겁재": 10,   # 경쟁심, 추진력
+    "편관": 5,    # 도전정신, 극복 의지
+    "상관": 3,    # 표현 의지
+    "편인": -3,   # 의존성, 편법 추구
+    "정인": -2,   # 보호받으려는 성향
+    "정재": -1,   # 안정 추구 (모험 회피)
+}
+
 
 def calculate_scores(pillars: Dict[str, Any], jijanggan: Dict[str, Any]) -> Dict[str, Any]:
     """
@@ -120,7 +131,8 @@ def calculate_scores(pillars: Dict[str, Any], jijanggan: Dict[str, Any]) -> Dict
             "work": {"planning": int, "drive": int, ...},
             "love": {"consideration": int, "humor": int, ...},
             "aptitude": {"artistry": int, "business": int},
-            "wealth": {"stability": int, "growth": int}
+            "wealth": {"stability": int, "growth": int},
+            "willpower": int  # 의지력 점수 (20-90)
         }
     """
     # 십신 카운트 추출
@@ -132,9 +144,29 @@ def calculate_scores(pillars: Dict[str, Any], jijanggan: Dict[str, Any]) -> Dict
         "love": _calculate_area_scores(ten_gods, LOVE_MODIFIERS),
         "aptitude": _calculate_area_scores(ten_gods, APTITUDE_MODIFIERS),
         "wealth": _calculate_area_scores(ten_gods, WEALTH_MODIFIERS),
+        "willpower": _calculate_willpower_score(ten_gods),
     }
 
     return scores
+
+
+def _calculate_willpower_score(ten_gods: Dict[str, int]) -> int:
+    """
+    의지력 점수 계산 (비견/겁재 기반)
+
+    공식: 50 + Σ(modifier × count) → clamp(20, 90)
+    - 비견/겁재가 많을수록 의지력 높음
+    - 인성이 많으면 의존성으로 감점
+    """
+    base = 50
+    score = base
+
+    for god, modifier in WILLPOWER_MODIFIERS.items():
+        count = ten_gods.get(god, 0)
+        score += modifier * count
+
+    # 20~90 범위로 클램프
+    return max(20, min(90, int(score)))
 
 
 def _extract_ten_god_counts(pillars: Dict[str, Any], jijanggan: Dict[str, Any] = None) -> Dict[str, int]:

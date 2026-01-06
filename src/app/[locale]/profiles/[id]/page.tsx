@@ -192,13 +192,13 @@ export default function ProfileDetailPage({ params }: PageProps) {
       {/* 헤더 */}
       <header className="sticky top-0 z-10 border-b border-[#333] bg-[#111111]/90 backdrop-blur-sm">
         <div className="mx-auto flex max-w-2xl items-center justify-between px-6 py-4">
-          <div className="flex items-center gap-2">
-            <Button variant="ghost" size="icon" asChild className="text-white hover:bg-[#242424]">
+          <div className="flex items-center gap-1 sm:gap-2">
+            <Button variant="ghost" size="icon" asChild className="h-10 w-10 text-white hover:bg-[#242424]">
               <Link href="/home">
                 <Home className="h-5 w-5" />
               </Link>
             </Button>
-            <Button variant="ghost" size="icon" asChild className="text-white hover:bg-[#242424]">
+            <Button variant="ghost" size="icon" asChild className="h-10 w-10 text-white hover:bg-[#242424]">
               <Link href="/profiles">
                 <ArrowLeft className="h-5 w-5" />
               </Link>

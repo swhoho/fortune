@@ -223,13 +223,13 @@ export default function ProfileReportPage({ params }: PageProps) {
       <div className="min-h-screen bg-[#0a0a0a]">
         <header className="sticky top-0 z-10 border-b border-[#333] bg-[#0a0a0a]/80 backdrop-blur-sm">
           <div className="mx-auto flex max-w-2xl items-center justify-between px-6 py-4">
-            <div className="flex items-center gap-1">
-              <Button variant="ghost" size="icon" asChild className="text-gray-400 hover:text-white">
+            <div className="flex items-center gap-1 sm:gap-2">
+              <Button variant="ghost" size="icon" asChild className="h-10 w-10 text-gray-400 hover:text-white">
                 <Link href="/home">
                   <Home className="h-5 w-5" />
                 </Link>
               </Button>
-              <Button variant="ghost" size="icon" asChild className="text-gray-400 hover:text-white">
+              <Button variant="ghost" size="icon" asChild className="h-10 w-10 text-gray-400 hover:text-white">
                 <Link href={`/profiles/${id}`}>
                   <ArrowLeft className="h-5 w-5" />
                 </Link>
@@ -282,26 +282,25 @@ export default function ProfileReportPage({ params }: PageProps) {
       {/* 헤더 */}
       <header className="sticky top-0 z-30 border-b border-[#333] bg-[#0a0a0a]/90 backdrop-blur-sm">
         <div className="mx-auto flex max-w-4xl items-center justify-between px-6 py-3">
-          <div className="flex items-center gap-1">
+          <div className="flex items-center gap-1 sm:gap-2">
             <Button
               variant="ghost"
               size="icon"
               asChild
-              className="text-gray-400 hover:text-white"
+              className="h-10 w-10 text-gray-400 hover:text-white"
             >
               <Link href="/home">
-                <Home className="h-4 w-4" />
+                <Home className="h-5 w-5" />
               </Link>
             </Button>
             <Button
               variant="ghost"
-              size="sm"
+              size="icon"
               asChild
-              className="gap-2 text-gray-400 hover:text-white"
+              className="h-10 w-10 text-gray-400 hover:text-white"
             >
               <Link href={`/profiles/${id}`}>
-                <ArrowLeft className="h-4 w-4" />
-                <span className="hidden sm:inline">프로필</span>
+                <ArrowLeft className="h-5 w-5" />
               </Link>
             </Button>
           </div>

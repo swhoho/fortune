@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { getTranslations } from 'next-intl/server';
 import { AnalysisFocusClient } from '@/components/analysis/AnalysisFocusClient';
+import { BreadcrumbJsonLd } from '@/components/seo/JsonLd';
 
 type Props = {
   params: Promise<{ locale: string }>;
@@ -35,6 +36,20 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
  * 분석 영역 선택 페이지
  * PRD 섹션 5.4 참고
  */
-export default function AnalysisFocusPage() {
-  return <AnalysisFocusClient />;
+export default async function AnalysisFocusPage({ params }: Props) {
+  const { locale } = await params;
+  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://masters-insight.ai';
+  const localePath = locale === 'ko' ? '' : `/${locale}`;
+
+  const breadcrumbItems = [
+    { name: 'Home', url: `${baseUrl}${localePath}` },
+    { name: 'Analysis', url: `${baseUrl}${localePath}/analysis/focus` },
+  ];
+
+  return (
+    <>
+      <BreadcrumbJsonLd items={breadcrumbItems} />
+      <AnalysisFocusClient />
+    </>
+  );
 }

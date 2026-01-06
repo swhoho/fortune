@@ -5,7 +5,7 @@ import localFont from 'next/font/local';
 import type { Metadata } from 'next';
 import { routing, locales } from '@/i18n/routing';
 import { Providers } from '@/lib/providers';
-import { OrganizationJsonLd } from '@/components/seo/JsonLd';
+import { OrganizationJsonLd, WebSiteJsonLd } from '@/components/seo/JsonLd';
 
 /**
  * 기본 폰트 (Geist)
@@ -191,7 +191,9 @@ export default async function LocaleLayout({ children, params }: Props) {
   return (
     <html lang={locale} className="dark overflow-x-hidden">
       <body className={`${geistSans.variable} ${geistMono.variable} overflow-x-hidden antialiased`}>
+        {/* 전역 구조화 데이터 (SEO/AEO) */}
         <OrganizationJsonLd locale={locale} />
+        <WebSiteJsonLd locale={locale} />
         <NextIntlClientProvider locale={locale} messages={messages}>
           <Providers>{children}</Providers>
         </NextIntlClientProvider>

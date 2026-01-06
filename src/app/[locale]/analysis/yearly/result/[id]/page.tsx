@@ -103,7 +103,7 @@ export default function YearlyResultPage() {
         className="sticky top-0 z-10 border-b border-gray-200 bg-white/80 px-4 py-4 backdrop-blur-sm"
       >
         <div className="mx-auto flex max-w-4xl items-center justify-between">
-          <div className="flex items-center gap-1">
+          <div className="flex items-center gap-1 sm:gap-2">
             <button
               onClick={() => router.push('/home')}
               className="flex h-10 w-10 items-center justify-center rounded-lg text-gray-600 hover:bg-gray-100 hover:text-gray-900"
@@ -113,10 +113,10 @@ export default function YearlyResultPage() {
             </button>
             <button
               onClick={handleBack}
-              className="flex items-center gap-2 text-gray-600 hover:text-gray-900"
+              className="flex h-10 w-10 items-center justify-center rounded-lg text-gray-600 hover:bg-gray-100 hover:text-gray-900"
+              title="돌아가기"
             >
               <ArrowLeft className="h-5 w-5" />
-              <span className="hidden sm:inline">돌아가기</span>
             </button>
           </div>
           <h1 className="font-serif text-lg font-semibold text-gray-900">

@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { getTranslations } from 'next-intl/server';
 import { NewProfilePageClient } from '@/components/profile/NewProfilePageClient';
+import { BreadcrumbJsonLd } from '@/components/seo/JsonLd';
 
 type Props = {
   params: Promise<{ locale: string }>;
@@ -35,6 +36,21 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
  * 프로필 등록 페이지
  * Task 3.1: /[locale]/profiles/new/page.tsx
  */
-export default function NewProfilePage() {
-  return <NewProfilePageClient />;
+export default async function NewProfilePage({ params }: Props) {
+  const { locale } = await params;
+  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://masters-insight.ai';
+  const localePath = locale === 'ko' ? '' : `/${locale}`;
+
+  const breadcrumbItems = [
+    { name: 'Home', url: `${baseUrl}${localePath}` },
+    { name: 'Profiles', url: `${baseUrl}${localePath}/profiles` },
+    { name: 'New Profile', url: `${baseUrl}${localePath}/profiles/new` },
+  ];
+
+  return (
+    <>
+      <BreadcrumbJsonLd items={breadcrumbItems} />
+      <NewProfilePageClient />
+    </>
+  );
 }
