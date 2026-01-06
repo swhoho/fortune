@@ -9,7 +9,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { useTranslations } from 'next-intl';
-import { ArrowRight, Sparkles, Home } from 'lucide-react';
+import { ArrowRight, Sparkles, Home, Eye, Loader2 } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 import { YearSelector } from '@/components/analysis/yearly';
@@ -17,6 +17,7 @@ import { ProfileSelector } from '@/components/profile';
 import { useYearlyStore } from '@/stores/yearly-store';
 import { useUserProfile } from '@/hooks/use-user';
 import { useProfiles } from '@/hooks/use-profiles';
+import { useExistingYearlyAnalysis } from '@/hooks/use-yearly-analysis';
 import { BRAND_COLORS } from '@/lib/constants/colors';
 import type { ProfileResponse } from '@/types/profile';
 
@@ -29,11 +30,32 @@ export default function YearlyAnalysisPage() {
   const { data: user } = useUserProfile();
   const { data: profiles, isLoading: profilesLoading } = useProfiles();
 
-  const { targetYear, selectedProfileId, setTargetYear, setSelectedProfile } = useYearlyStore();
+  const {
+    targetYear,
+    selectedProfileId,
+    setTargetYear,
+    setSelectedProfile,
+    setExistingAnalysisId,
+  } = useYearlyStore();
 
   const currentYear = new Date().getFullYear();
 
   const [selectedYear, setSelectedYear] = useState(targetYear || currentYear);
+
+  // 기존 분석 존재 여부 확인
+  const { data: existingAnalysis, isLoading: checkingExisting } = useExistingYearlyAnalysis(
+    selectedProfileId,
+    selectedYear
+  );
+
+  // 기존 분석 상태 파악
+  const hasExistingCompleted = existingAnalysis?.exists && existingAnalysis?.status === 'completed';
+  const hasExistingInProgress =
+    existingAnalysis?.exists &&
+    (existingAnalysis?.status === 'pending' || existingAnalysis?.status === 'in_progress');
+
+  // 비용 계산 (기존 분석 있으면 0)
+  const displayCost = hasExistingCompleted || hasExistingInProgress ? 0 : YEARLY_ANALYSIS_COST;
 
   // 컴포넌트 마운트 시 초기화
   useEffect(() => {
@@ -55,11 +77,52 @@ export default function YearlyAnalysisPage() {
 
   const handleStart = () => {
     setTargetYear(selectedYear);
-    router.push('/analysis/yearly/processing');
+
+    // 기존 완료된 분석이 있으면 결과 페이지로 직접 이동
+    if (hasExistingCompleted && existingAnalysis?.analysisId) {
+      router.push(`/analysis/yearly/result/${existingAnalysis.analysisId}`);
+      return;
+    }
+
+    // URL 파라미터로 데이터 전달 (store hydration 문제 방지)
+    const params = new URLSearchParams({
+      year: String(selectedYear),
+      profileId: selectedProfileId || '',
+    });
+
+    // 진행 중인 분석이 있으면 ID도 전달
+    if (hasExistingInProgress && existingAnalysis?.analysisId) {
+      setExistingAnalysisId(existingAnalysis.analysisId);
+      params.set('existingId', existingAnalysis.analysisId);
+    }
+
+    router.push(`/analysis/yearly/processing?${params.toString()}`);
   };
 
-  const hasEnoughCredits = (user?.credits ?? 0) >= YEARLY_ANALYSIS_COST;
-  const canStart = hasEnoughCredits && !!selectedProfileId;
+  const hasEnoughCredits = displayCost === 0 || (user?.credits ?? 0) >= YEARLY_ANALYSIS_COST;
+  const canStart = hasEnoughCredits && !!selectedProfileId && !checkingExisting;
+
+  // 버튼 텍스트 결정
+  const getButtonText = () => {
+    if (hasExistingCompleted) {
+      return t('button.viewExisting', { defaultValue: '기존 리포트 보기' });
+    }
+    if (hasExistingInProgress) {
+      return t('button.checkProgress', { defaultValue: '진행 중인 분석 확인' });
+    }
+    return `${selectedYear}년 운세 분석 시작`;
+  };
+
+  // 버튼 아이콘 결정
+  const getButtonIcon = () => {
+    if (checkingExisting) {
+      return <Loader2 className="ml-2 h-5 w-5 animate-spin" />;
+    }
+    if (hasExistingCompleted) {
+      return <Eye className="ml-2 h-5 w-5" />;
+    }
+    return <ArrowRight className="ml-2 h-5 w-5" />;
+  };
 
   return (
     <div className="min-h-screen bg-[#0a0a0a] px-4 py-8">
@@ -100,6 +163,16 @@ export default function YearlyAnalysisPage() {
           </p>
         </motion.div>
 
+        {/* 프로필 선택 (상단으로 이동) */}
+        <div className="mb-6">
+          <ProfileSelector
+            profiles={profiles || []}
+            selectedId={selectedProfileId}
+            onSelect={handleProfileSelect}
+            loading={profilesLoading}
+          />
+        </div>
+
         {/* 연도 선택 */}
         <div className="mb-6">
           <YearSelector
@@ -107,16 +180,6 @@ export default function YearlyAnalysisPage() {
             onYearChange={handleYearChange}
             minYear={currentYear}
             maxYear={currentYear + 3}
-          />
-        </div>
-
-        {/* Task 24.1: 프로필 선택 */}
-        <div className="mb-6">
-          <ProfileSelector
-            profiles={profiles || []}
-            selectedId={selectedProfileId}
-            onSelect={handleProfileSelect}
-            loading={profilesLoading}
           />
         </div>
 
@@ -131,7 +194,12 @@ export default function YearlyAnalysisPage() {
             <div>
               <p className="text-sm text-gray-400">분석 비용</p>
               <p className="text-lg font-bold" style={{ color: BRAND_COLORS.primary }}>
-                {YEARLY_ANALYSIS_COST} 크레딧
+                {displayCost} 크레딧
+                {displayCost === 0 && (
+                  <span className="ml-2 text-sm font-normal text-green-500">
+                    {hasExistingCompleted ? '(이미 분석됨)' : '(진행 중)'}
+                  </span>
+                )}
               </p>
             </div>
             <div className="text-right">
@@ -143,7 +211,7 @@ export default function YearlyAnalysisPage() {
               </p>
             </div>
           </div>
-          {!hasEnoughCredits && (
+          {!hasEnoughCredits && displayCost > 0 && (
             <p className="mt-2 text-sm text-red-400">
               {t('credits.insufficient', {
                 defaultValue: '크레딧이 부족합니다. 크레딧을 충전해주세요.',
@@ -157,7 +225,7 @@ export default function YearlyAnalysisPage() {
           )}
         </motion.div>
 
-        {/* 분석 시작 버튼 */}
+        {/* 분석 시작/보기 버튼 */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -172,8 +240,8 @@ export default function YearlyAnalysisPage() {
               color: canStart ? '#000' : undefined,
             }}
           >
-            {selectedYear}년 운세 분석 시작
-            <ArrowRight className="ml-2 h-5 w-5" />
+            {getButtonText()}
+            {getButtonIcon()}
           </Button>
         </motion.div>
 
@@ -184,7 +252,11 @@ export default function YearlyAnalysisPage() {
           transition={{ delay: 0.5 }}
           className="mt-4 text-center text-sm text-gray-500"
         >
-          분석에는 약 30~60초가 소요됩니다
+          {hasExistingCompleted
+            ? '이전에 분석한 리포트를 다시 확인할 수 있습니다'
+            : hasExistingInProgress
+              ? '이전에 시작한 분석의 진행 상황을 확인합니다'
+              : '분석에는 약 30~60초가 소요됩니다'}
         </motion.p>
       </div>
     </div>

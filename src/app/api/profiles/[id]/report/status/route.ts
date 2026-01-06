@@ -116,6 +116,8 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
     }
 
     // 5. 진행 중인 경우 - Python 백엔드에서 최신 상태 조회
+    let pythonUnavailable = false;
+
     if (report.job_id) {
       const pythonApiUrl = getPythonApiUrl();
 
@@ -180,14 +182,59 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
             stepStatuses: statusData.step_statuses as Record<PipelineStep, StepStatus>,
             estimatedTimeRemaining: estimateRemainingTime(statusData.progress_percent || 0),
           });
+        } else if (statusRes.status === 404) {
+          // Python에서 job을 찾을 수 없음 (서버 재시작 등으로 메모리 손실)
+          pythonUnavailable = true;
+          console.warn('[API] Python job not found (404), checking for stale job');
         }
       } catch (pythonError) {
+        pythonUnavailable = true;
         console.warn('[API] Python 상태 조회 실패 (DB 상태 사용):', pythonError);
-        // Python 조회 실패해도 현재 DB 상태 반환
       }
     }
 
-    // 6. Python 조회 실패 또는 job_id 없는 경우 - DB 상태 반환
+    // 6. Stale job 감지 - Python 404 + DB in_progress + 5분 이상 경과
+    if (pythonUnavailable && report.status === 'in_progress' && report.updated_at) {
+      const updatedAt = new Date(report.updated_at);
+      const now = new Date();
+      const elapsedMinutes = (now.getTime() - updatedAt.getTime()) / (1000 * 60);
+
+      // 5분 이상 업데이트 없으면 stale job으로 판단
+      if (elapsedMinutes > 5) {
+        console.warn(
+          `[API] Stale job detected: report_id=${report.id}, elapsed=${elapsedMinutes.toFixed(1)}분`
+        );
+
+        // DB 상태를 failed로 업데이트
+        await supabase
+          .from('profile_reports')
+          .update({
+            status: 'failed',
+            error: {
+              step: report.current_step || 'unknown',
+              message: '분석 서버 연결이 끊어졌습니다. 다시 시도해주세요.',
+              retryable: true,
+            },
+            updated_at: new Date().toISOString(),
+          })
+          .eq('id', report.id);
+
+        return NextResponse.json({
+          status: 'failed' as const,
+          currentStep: report.current_step as PipelineStep | null,
+          progressPercent: report.progress_percent || 0,
+          stepStatuses: report.step_statuses || {},
+          estimatedTimeRemaining: 0,
+          error: {
+            step: report.current_step || 'unknown',
+            message: '분석 서버 연결이 끊어졌습니다. 다시 시도해주세요.',
+            retryable: true,
+          },
+        });
+      }
+    }
+
+    // 7. Python 조회 실패 또는 job_id 없는 경우 - DB 상태 반환
     return NextResponse.json({
       status: report.status as 'pending' | 'in_progress',
       currentStep: report.current_step as PipelineStep | null,

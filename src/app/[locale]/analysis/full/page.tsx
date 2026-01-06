@@ -169,6 +169,12 @@ export default function FullAnalysisPage() {
                           대기 중 - 재시작 가능
                         </p>
                       )}
+                      {isInProgress && (
+                        <p className="mt-1 flex items-center gap-1 text-xs text-[#d4af37]">
+                          <Loader2 className="h-3 w-3 animate-spin" />
+                          분석 진행 중...
+                        </p>
+                      )}
                       {isCompleted && (
                         <p className="mt-1 flex items-center gap-1 text-xs text-green-400">
                           <CheckCircle className="h-3 w-3" />
@@ -180,6 +186,8 @@ export default function FullAnalysisPage() {
                       <RefreshCw className="h-5 w-5 text-red-400" />
                     ) : isCompleted ? (
                       <CheckCircle className="h-5 w-5 text-green-400" />
+                    ) : isInProgress ? (
+                      <Loader2 className="h-5 w-5 animate-spin text-[#d4af37]" />
                     ) : (
                       <Sparkles className="h-5 w-5 text-[#d4af37]" />
                     )}

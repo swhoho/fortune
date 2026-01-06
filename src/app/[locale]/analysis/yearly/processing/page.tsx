@@ -5,8 +5,8 @@
  * 폴링 방식으로 Python 백엔드 작업 상태 확인
  */
 
-import { useEffect, useState, useCallback, useRef } from 'react';
-import { useRouter } from 'next/navigation';
+import { Suspense, useEffect, useState, useCallback, useRef } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Loader2, CheckCircle2, Circle, AlertCircle } from 'lucide-react';
 
@@ -52,18 +52,29 @@ const POLLING_INTERVAL = 3000;
 /** 최대 폴링 횟수 (5분 = 100회) */
 const MAX_POLL_COUNT = 100;
 
-export default function YearlyProcessingPage() {
+function YearlyProcessingContent() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+
+  // URL 파라미터에서 데이터 읽기 (store hydration 문제 방지)
+  const urlYear = searchParams.get('year');
+  const urlProfileId = searchParams.get('profileId');
+  const urlExistingId = searchParams.get('existingId');
 
   const {
-    targetYear,
-    existingAnalysisId,
-    selectedProfileId,
+    targetYear: storeTargetYear,
+    existingAnalysisId: storeExistingAnalysisId,
+    selectedProfileId: storeSelectedProfileId,
     setYearlyResult,
     setYearlyLoading,
     setYearlyError,
     resetYearly,
   } = useYearlyStore();
+
+  // URL 파라미터 우선, 없으면 store 사용
+  const targetYear = urlYear ? parseInt(urlYear, 10) : storeTargetYear;
+  const selectedProfileId = urlProfileId || storeSelectedProfileId;
+  const existingAnalysisId = urlExistingId || storeExistingAnalysisId;
 
   const { birthDate, birthTime, timezone, isLunar, gender, pillars, daewun } = useOnboardingStore();
 
@@ -507,5 +518,22 @@ export default function YearlyProcessingPage() {
         </AnimatePresence>
       </div>
     </div>
+  );
+}
+
+/**
+ * 메인 페이지 컴포넌트 (Suspense 경계)
+ */
+export default function YearlyProcessingPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="flex min-h-screen items-center justify-center bg-[#0a0a0a]">
+          <Loader2 className="h-8 w-8 animate-spin" style={{ color: '#d4af37' }} />
+        </div>
+      }
+    >
+      <YearlyProcessingContent />
+    </Suspense>
   );
 }
