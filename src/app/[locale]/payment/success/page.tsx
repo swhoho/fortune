@@ -25,7 +25,7 @@ function PaymentSuccessContent() {
         initial={{ scale: 0 }}
         animate={{ scale: 1 }}
         transition={{ delay: 0.2, type: 'spring', stiffness: 200 }}
-        className="mx-auto mb-6 flex h-24 w-24 items-center justify-center rounded-full bg-green-100"
+        className="mx-auto mb-6 flex h-24 w-24 items-center justify-center rounded-full bg-green-500/20"
       >
         <svg
           className="h-12 w-12 text-green-500"
@@ -50,7 +50,7 @@ function PaymentSuccessContent() {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.3 }}
-        className="mb-2 font-serif text-2xl font-bold text-[#1a1a1a] md:text-3xl"
+        className="mb-2 font-serif text-2xl font-bold text-white md:text-3xl"
       >
         결제가 완료되었습니다!
       </motion.h1>
@@ -59,7 +59,7 @@ function PaymentSuccessContent() {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.4 }}
-        className="mb-8 text-gray-500"
+        className="mb-8 text-gray-300"
       >
         크레딧이 충전되었습니다.
         <br />
@@ -72,10 +72,10 @@ function PaymentSuccessContent() {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.5 }}
-          className="mb-8 rounded-lg bg-gray-50 p-4"
+          className="mb-8 rounded-lg bg-[#1a1a1a] border border-[#333] p-4"
         >
           <p className="text-xs text-gray-400">결제 ID</p>
-          <p className="truncate font-mono text-sm text-gray-600">{sessionId}</p>
+          <p className="truncate font-mono text-sm text-gray-300">{sessionId}</p>
         </motion.div>
       )}
 
@@ -94,7 +94,7 @@ function PaymentSuccessContent() {
           <Link href="/home">홈으로 이동</Link>
         </Button>
 
-        <Button asChild variant="outline" size="lg" className="w-full border-gray-300 py-6 text-lg">
+        <Button asChild variant="outline" size="lg" className="w-full border-[#333] bg-[#1a1a1a] py-6 text-lg text-white hover:bg-[#242424]">
           <Link href="/profiles">프로필 관리</Link>
         </Button>
       </motion.div>
@@ -115,9 +115,9 @@ function PaymentSuccessContent() {
 function LoadingFallback() {
   return (
     <div className="w-full max-w-md text-center">
-      <div className="mx-auto mb-6 flex h-24 w-24 animate-pulse items-center justify-center rounded-full bg-gray-100" />
-      <div className="mx-auto mb-2 h-8 w-48 animate-pulse rounded bg-gray-100" />
-      <div className="mx-auto h-4 w-64 animate-pulse rounded bg-gray-100" />
+      <div className="mx-auto mb-6 flex h-24 w-24 animate-pulse items-center justify-center rounded-full bg-[#333]" />
+      <div className="mx-auto mb-2 h-8 w-48 animate-pulse rounded bg-[#333]" />
+      <div className="mx-auto h-4 w-64 animate-pulse rounded bg-[#333]" />
     </div>
   );
 }
