@@ -162,7 +162,7 @@ Respond ONLY with the JSON below. No other text.
 - 용신(用神)이 득령(得令)하거나 생조(生助)받는 달: 높은 점수
 - 기신(忌神)이 왕성하거나 충극(冲剋)이 발생하는 달: 낮은 점수
 - 월지(月支)와 일간(日干)의 생극제화(生剋制化) 관계를 면밀히 분석
-- 반드시 월별로 차등 배점하여 편차를 크게 둘 것 (최고점과 최저점 간격 30점 이상 권장)
+- 월별 점수를 최대한 다양하게 배정 (최고-최저 간격 50점 이상 권장)
 """
         elif language == 'en':
             return f"""{persona}
@@ -205,7 +205,7 @@ Respond ONLY with the JSON below. No other text.
 - Months when Useful God (用神) gains power: HIGH score
 - Months when Harmful God (忌神) is strong or clashes occur: LOW score
 - Analyze the relationship between Monthly Branch and Day Master
-- MUST vary scores significantly across months (min 30-point gap between highest and lowest)
+- Vary scores as much as possible across months (50+ point gap recommended)
 """
         else:
             return cls.build_monthly('ko', year, months, pillars, daewun, overview_result)
