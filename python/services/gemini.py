@@ -86,6 +86,52 @@ class GeminiService:
             logger.error(f"Gemini 리포트 분석 실패: {e}")
             raise
 
+    async def generate_yearly_step(
+        self,
+        prompt: str,
+        step: str,
+        timeout: int = 60
+    ) -> Dict[str, Any]:
+        """
+        신년 분석 단계별 호출 (순차 파이프라인용)
+
+        Args:
+            prompt: 단계별 프롬프트
+            step: 단계 이름 (yearly_overview, monthly_1_3, ...)
+            timeout: 타임아웃 (초) - 단계별로 60초
+
+        Returns:
+            파싱된 분석 결과
+
+        Raises:
+            ValueError: 빈 응답이거나 JSON 파싱 실패 시
+        """
+        try:
+            logger.info(f"[Gemini] 신년 분석 단계 시작: {step}")
+
+            response = await self.model.generate_content_async(prompt)
+            response_text = response.text
+
+            # 빈 응답 검증 (핵심!)
+            if not response_text or not response_text.strip():
+                logger.error(f"[Gemini] 빈 응답 (step={step})")
+                raise ValueError(f"빈 응답 (step={step})")
+
+            # JSON 파싱
+            result = self._parse_json_response_generic(response_text)
+
+            # 결과 검증 - 빈 딕셔너리도 실패 처리
+            if not result or len(result) == 0:
+                logger.error(f"[Gemini] 빈 결과 (step={step})")
+                raise ValueError(f"빈 결과 (step={step})")
+
+            logger.info(f"[Gemini] 신년 분석 단계 완료: {step}")
+            return result
+
+        except Exception as e:
+            logger.error(f"[Gemini] 신년 분석 단계 실패 ({step}): {e}")
+            raise
+
     def _parse_json_response_generic(self, response_text: str) -> Dict[str, Any]:
         """
         Gemini 응답에서 JSON 파싱 (필수 필드 검증 없음)
@@ -130,6 +176,58 @@ class GeminiService:
             return response.text.strip()
         except Exception as e:
             logger.error(f"후속 질문 답변 생성 실패: {e}")
+            raise
+
+    async def generate_text(
+        self,
+        prompt: str,
+        timeout: int = 60
+    ) -> str:
+        """
+        텍스트 응답 생성 (상담 답변용)
+
+        Args:
+            prompt: 프롬프트
+            timeout: 타임아웃 (초)
+
+        Returns:
+            응답 텍스트
+        """
+        try:
+            response = await self.model.generate_content_async(prompt)
+            text = response.text.strip()
+            if not text:
+                raise ValueError("AI 응답이 비어있습니다")
+            return text
+        except Exception as e:
+            logger.error(f"텍스트 생성 실패: {e}")
+            raise
+
+    async def generate_json(
+        self,
+        prompt: str,
+        timeout: int = 60
+    ) -> Dict[str, Any]:
+        """
+        JSON 응답 생성 (상담 clarification용)
+
+        Args:
+            prompt: JSON 응답을 요청하는 프롬프트
+            timeout: 타임아웃 (초)
+
+        Returns:
+            파싱된 JSON 딕셔너리
+        """
+        try:
+            response = await self.model.generate_content_async(prompt)
+            response_text = response.text
+
+            if not response_text or not response_text.strip():
+                raise ValueError("빈 응답")
+
+            return self._parse_json_response_generic(response_text)
+        except Exception as e:
+            logger.error(f"JSON 생성 실패: {e}")
             raise
 
     async def generate_section_analysis(

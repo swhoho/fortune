@@ -18,22 +18,32 @@ import { BRAND_COLORS, FORTUNE_TIPS } from '@/lib/constants/colors';
 /** 한자 천간 (회전 애니메이션용) */
 const HANJA_CHARS = ['甲', '乙', '丙', '丁', '戊', '己', '庚', '辛', '壬', '癸'];
 
-/** 로딩 단계 라벨 */
+/** 로딩 단계 라벨 (8단계 파이프라인) */
 const STEP_LABELS: Record<YearlyLoadingStep, string> = {
   init: '초기화',
   fetch_saju: '사주 정보 불러오기',
-  build_prompt: '신년 분석 준비',
-  ai_analysis: 'AI 운세 분석 중',
-  save_result: '결과 저장',
+  yearly_overview: '연간 운세 개요',
+  monthly_1_3: '1-3월 운세 분석',
+  monthly_4_6: '4-6월 운세 분석',
+  monthly_7_9: '7-9월 운세 분석',
+  monthly_10_12: '10-12월 운세 분석',
+  yearly_advice: '연간 조언 생성',
+  key_dates: '길흉일 선정',
+  classical_refs: '고전 인용 추가',
   complete: '완료',
 };
 
 const STEPS_ORDER: YearlyLoadingStep[] = [
   'init',
   'fetch_saju',
-  'build_prompt',
-  'ai_analysis',
-  'save_result',
+  'yearly_overview',
+  'monthly_1_3',
+  'monthly_4_6',
+  'monthly_7_9',
+  'monthly_10_12',
+  'yearly_advice',
+  'key_dates',
+  'classical_refs',
 ];
 
 /** 폴링 간격 (ms) */
@@ -108,14 +118,24 @@ export default function YearlyProcessingPage() {
           setProgressPercent(data.progressPercent);
         }
 
-        // 현재 단계 매핑
+        // 현재 단계 매핑 (8단계 파이프라인)
         if (data.currentStep) {
           const stepMap: Record<string, YearlyLoadingStep> = {
-            building_prompt: 'build_prompt',
-            ai_analysis: 'ai_analysis',
-            saving_result: 'save_result',
+            // Python 백엔드 단계명 → 프론트엔드 단계명
+            yearly_overview: 'yearly_overview',
+            monthly_1_3: 'monthly_1_3',
+            monthly_4_6: 'monthly_4_6',
+            monthly_7_9: 'monthly_7_9',
+            monthly_10_12: 'monthly_10_12',
+            yearly_advice: 'yearly_advice',
+            key_dates: 'key_dates',
+            classical_refs: 'classical_refs',
+            // 레거시 호환
+            building_prompt: 'yearly_overview',
+            ai_analysis: 'yearly_overview',
+            saving_result: 'classical_refs',
           };
-          setCurrentStep(stepMap[data.currentStep] || 'ai_analysis');
+          setCurrentStep(stepMap[data.currentStep] || 'yearly_overview');
         }
 
         // 완료
@@ -263,8 +283,8 @@ export default function YearlyProcessingPage() {
         throw new Error('분석 ID를 받지 못했습니다.');
       }
 
-      setCurrentStep('ai_analysis');
-      setProgressPercent(30);
+      setCurrentStep('yearly_overview');
+      setProgressPercent(10);
 
       // 폴링 시작
       pollingIntervalRef.current = setInterval(() => {

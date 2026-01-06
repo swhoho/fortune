@@ -16,6 +16,19 @@ class JobStatus(str, Enum):
     FAILED = "failed"
 
 
+class YearlyPipelineStep(str, Enum):
+    """신년 분석 파이프라인 단계 (8단계 순차 실행)"""
+    YEARLY_OVERVIEW = "yearly_overview"      # Step 1: 기본 정보
+    MONTHLY_1_3 = "monthly_1_3"              # Step 2: 1-3월
+    MONTHLY_4_6 = "monthly_4_6"              # Step 3: 4-6월
+    MONTHLY_7_9 = "monthly_7_9"              # Step 4: 7-9월
+    MONTHLY_10_12 = "monthly_10_12"          # Step 5: 10-12월
+    YEARLY_ADVICE = "yearly_advice"          # Step 6: 6섹션 조언
+    KEY_DATES = "key_dates"                  # Step 7: 핵심 길흉일
+    CLASSICAL_REFS = "classical_refs"        # Step 8: 고전 인용
+    COMPLETE = "complete"                    # 완료
+
+
 class YearlyAnalysisRequest(BaseModel):
     """신년 분석 요청"""
     target_year: int = Field(..., ge=2000, le=2100, description="분석 대상 연도")
@@ -26,6 +39,7 @@ class YearlyAnalysisRequest(BaseModel):
     gender: Literal['male', 'female'] = Field(..., description="성별")
     user_id: str = Field(..., description="사용자 ID")
     profile_id: Optional[str] = Field(None, description="프로필 ID")
+    analysis_id: Optional[str] = Field(None, description="DB 분석 레코드 ID (중간 저장용)")
 
 
 class YearlyAnalysisStartResponse(BaseModel):
@@ -102,7 +116,12 @@ class YearlyAnalysisStatusResponse(BaseModel):
     status: JobStatus = Field(..., description="작업 상태")
     progress_percent: int = Field(0, ge=0, le=100, description="진행률")
     current_step: Optional[str] = Field(None, description="현재 단계")
+    step_statuses: Optional[Dict[str, str]] = Field(
+        None,
+        description="단계별 상태 (pending/in_progress/completed/failed)"
+    )
     result: Optional[Dict[str, Any]] = Field(None, description="분석 결과")
     error: Optional[str] = Field(None, description="에러 메시지")
+    error_step: Optional[str] = Field(None, description="에러 발생 단계")
     created_at: str = Field(..., description="생성 시각")
     updated_at: str = Field(..., description="업데이트 시각")

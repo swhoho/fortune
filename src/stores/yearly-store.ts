@@ -8,13 +8,18 @@ import { create } from 'zustand';
 import type { ProfileResponse } from '@/types/profile';
 import type { YearlyAnalysisResult } from '@/lib/ai/types';
 
-/** 신년 분석 로딩 단계 (세분화된 진행 상태) */
+/** 신년 분석 로딩 단계 (8단계 순차 파이프라인) */
 export type YearlyLoadingStep =
   | 'init' // 초기화
   | 'fetch_saju' // 사주 정보 불러오기
-  | 'build_prompt' // 신년 분석 준비
-  | 'ai_analysis' // AI 운세 분석 중
-  | 'save_result' // 결과 저장
+  | 'yearly_overview' // Step 1: 연간 기본 정보
+  | 'monthly_1_3' // Step 2: 1-3월 운세
+  | 'monthly_4_6' // Step 3: 4-6월 운세
+  | 'monthly_7_9' // Step 4: 7-9월 운세
+  | 'monthly_10_12' // Step 5: 10-12월 운세
+  | 'yearly_advice' // Step 6: 연간 조언
+  | 'key_dates' // Step 7: 핵심 길흉일
+  | 'classical_refs' // Step 8: 고전 인용
   | 'complete'; // 완료
 
 /** 신년 분석 상태 인터페이스 */
