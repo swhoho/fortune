@@ -34,10 +34,9 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
     // 1. 인증 확인
     const user = await getAuthenticatedUser();
     if (!user) {
-      return NextResponse.json(
-        createErrorResponse(AUTH_ERRORS.UNAUTHORIZED),
-        { status: getStatusCode(AUTH_ERRORS.UNAUTHORIZED) }
-      );
+      return NextResponse.json(createErrorResponse(AUTH_ERRORS.UNAUTHORIZED), {
+        status: getStatusCode(AUTH_ERRORS.UNAUTHORIZED),
+      });
     }
 
     const { id: profileId } = await params;
@@ -49,18 +48,16 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
     try {
       body = await request.json();
     } catch {
-      return NextResponse.json(
-        createErrorResponse(API_ERRORS.BAD_REQUEST),
-        { status: getStatusCode(API_ERRORS.BAD_REQUEST) }
-      );
+      return NextResponse.json(createErrorResponse(API_ERRORS.BAD_REQUEST), {
+        status: getStatusCode(API_ERRORS.BAD_REQUEST),
+      });
     }
 
     const validation = questionSchema.safeParse(body);
     if (!validation.success) {
-      return NextResponse.json(
-        createErrorResponse(VALIDATION_ERRORS.INVALID_INPUT),
-        { status: getStatusCode(VALIDATION_ERRORS.INVALID_INPUT) }
-      );
+      return NextResponse.json(createErrorResponse(VALIDATION_ERRORS.INVALID_INPUT), {
+        status: getStatusCode(VALIDATION_ERRORS.INVALID_INPUT),
+      });
     }
 
     const { question } = validation.data;
@@ -73,17 +70,15 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
       .single();
 
     if (profileError || !profile) {
-      return NextResponse.json(
-        createErrorResponse(PROFILE_ERRORS.NOT_FOUND),
-        { status: getStatusCode(PROFILE_ERRORS.NOT_FOUND) }
-      );
+      return NextResponse.json(createErrorResponse(PROFILE_ERRORS.NOT_FOUND), {
+        status: getStatusCode(PROFILE_ERRORS.NOT_FOUND),
+      });
     }
 
     if (profile.user_id !== userId) {
-      return NextResponse.json(
-        createErrorResponse(AUTH_ERRORS.FORBIDDEN),
-        { status: getStatusCode(AUTH_ERRORS.FORBIDDEN) }
-      );
+      return NextResponse.json(createErrorResponse(AUTH_ERRORS.FORBIDDEN), {
+        status: getStatusCode(AUTH_ERRORS.FORBIDDEN),
+      });
     }
 
     // 4. 완료된 리포트 조회
@@ -97,10 +92,9 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
       .maybeSingle();
 
     if (reportError || !report) {
-      return NextResponse.json(
-        createErrorResponse(API_ERRORS.NOT_FOUND),
-        { status: getStatusCode(API_ERRORS.NOT_FOUND) }
-      );
+      return NextResponse.json(createErrorResponse(API_ERRORS.NOT_FOUND), {
+        status: getStatusCode(API_ERRORS.NOT_FOUND),
+      });
     }
 
     // 5. 기존 generating 상태 질문 확인 (중복 방지)
@@ -136,10 +130,9 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
 
     if (creditError) {
       console.error('[API] 크레딧 차감 RPC 오류:', creditError);
-      return NextResponse.json(
-        createErrorResponse(CREDIT_ERRORS.DEDUCTION_FAILED),
-        { status: getStatusCode(CREDIT_ERRORS.DEDUCTION_FAILED) }
-      );
+      return NextResponse.json(createErrorResponse(CREDIT_ERRORS.DEDUCTION_FAILED), {
+        status: getStatusCode(CREDIT_ERRORS.DEDUCTION_FAILED),
+      });
     }
 
     const deductResult = creditResult?.[0];
@@ -153,10 +146,9 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
           { status: getStatusCode(CREDIT_ERRORS.INSUFFICIENT) }
         );
       }
-      return NextResponse.json(
-        createErrorResponse(API_ERRORS.NOT_FOUND),
-        { status: getStatusCode(API_ERRORS.NOT_FOUND) }
-      );
+      return NextResponse.json(createErrorResponse(API_ERRORS.NOT_FOUND), {
+        status: getStatusCode(API_ERRORS.NOT_FOUND),
+      });
     }
 
     const newCredits = deductResult.new_credits;
@@ -183,10 +175,9 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
         p_user_id: userId,
         p_amount: -SERVICE_CREDITS.question,
       });
-      return NextResponse.json(
-        createErrorResponse(API_ERRORS.SERVER_ERROR),
-        { status: getStatusCode(API_ERRORS.SERVER_ERROR) }
-      );
+      return NextResponse.json(createErrorResponse(API_ERRORS.SERVER_ERROR), {
+        status: getStatusCode(API_ERRORS.SERVER_ERROR),
+      });
     }
 
     // 8. 이전 질문 히스토리 조회 (최근 5개)
@@ -255,10 +246,9 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
     });
   } catch (error) {
     console.error('[API] /api/profiles/:id/report/question 에러:', error);
-    return NextResponse.json(
-      createErrorResponse(API_ERRORS.SERVER_ERROR),
-      { status: getStatusCode(API_ERRORS.SERVER_ERROR) }
-    );
+    return NextResponse.json(createErrorResponse(API_ERRORS.SERVER_ERROR), {
+      status: getStatusCode(API_ERRORS.SERVER_ERROR),
+    });
   }
 }
 
@@ -270,10 +260,9 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
   try {
     const user = await getAuthenticatedUser();
     if (!user) {
-      return NextResponse.json(
-        createErrorResponse(AUTH_ERRORS.UNAUTHORIZED),
-        { status: getStatusCode(AUTH_ERRORS.UNAUTHORIZED) }
-      );
+      return NextResponse.json(createErrorResponse(AUTH_ERRORS.UNAUTHORIZED), {
+        status: getStatusCode(AUTH_ERRORS.UNAUTHORIZED),
+      });
     }
 
     const { id: profileId } = await params;
@@ -288,17 +277,15 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
       .single();
 
     if (profileError || !profile) {
-      return NextResponse.json(
-        createErrorResponse(PROFILE_ERRORS.NOT_FOUND),
-        { status: getStatusCode(PROFILE_ERRORS.NOT_FOUND) }
-      );
+      return NextResponse.json(createErrorResponse(PROFILE_ERRORS.NOT_FOUND), {
+        status: getStatusCode(PROFILE_ERRORS.NOT_FOUND),
+      });
     }
 
     if (profile.user_id !== userId) {
-      return NextResponse.json(
-        createErrorResponse(AUTH_ERRORS.FORBIDDEN),
-        { status: getStatusCode(AUTH_ERRORS.FORBIDDEN) }
-      );
+      return NextResponse.json(createErrorResponse(AUTH_ERRORS.FORBIDDEN), {
+        status: getStatusCode(AUTH_ERRORS.FORBIDDEN),
+      });
     }
 
     // 질문 히스토리 조회 (status도 포함)
@@ -310,10 +297,9 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
 
     if (questionsError) {
       console.error('[API] 질문 조회 실패:', questionsError);
-      return NextResponse.json(
-        createErrorResponse(API_ERRORS.SERVER_ERROR),
-        { status: getStatusCode(API_ERRORS.SERVER_ERROR) }
-      );
+      return NextResponse.json(createErrorResponse(API_ERRORS.SERVER_ERROR), {
+        status: getStatusCode(API_ERRORS.SERVER_ERROR),
+      });
     }
 
     return NextResponse.json({
@@ -322,10 +308,9 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
     });
   } catch (error) {
     console.error('[API] GET /api/profiles/:id/report/question 에러:', error);
-    return NextResponse.json(
-      createErrorResponse(API_ERRORS.SERVER_ERROR),
-      { status: getStatusCode(API_ERRORS.SERVER_ERROR) }
-    );
+    return NextResponse.json(createErrorResponse(API_ERRORS.SERVER_ERROR), {
+      status: getStatusCode(API_ERRORS.SERVER_ERROR),
+    });
   }
 }
 

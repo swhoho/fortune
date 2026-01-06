@@ -101,10 +101,9 @@ export async function POST(request: NextRequest) {
     // 1. 인증 확인
     const user = await getAuthenticatedUser();
     if (!user) {
-      return NextResponse.json(
-        createErrorResponse(AUTH_ERRORS.UNAUTHORIZED),
-        { status: getStatusCode(AUTH_ERRORS.UNAUTHORIZED) }
-      );
+      return NextResponse.json(createErrorResponse(AUTH_ERRORS.UNAUTHORIZED), {
+        status: getStatusCode(AUTH_ERRORS.UNAUTHORIZED),
+      });
     }
 
     const userId = user.id;
@@ -116,7 +115,11 @@ export async function POST(request: NextRequest) {
 
     if (!validationResult.success) {
       return NextResponse.json(
-        createErrorResponse(VALIDATION_ERRORS.REQUIRED_FIELD_MISSING, undefined, JSON.stringify(validationResult.error.flatten())),
+        createErrorResponse(
+          VALIDATION_ERRORS.REQUIRED_FIELD_MISSING,
+          undefined,
+          JSON.stringify(validationResult.error.flatten())
+        ),
         { status: getStatusCode(VALIDATION_ERRORS.REQUIRED_FIELD_MISSING) }
       );
     }
@@ -132,10 +135,9 @@ export async function POST(request: NextRequest) {
 
     if (userError || !userData) {
       console.error('[API] 사용자 조회 실패:', userError);
-      return NextResponse.json(
-        createErrorResponse(API_ERRORS.NOT_FOUND),
-        { status: getStatusCode(API_ERRORS.NOT_FOUND) }
-      );
+      return NextResponse.json(createErrorResponse(API_ERRORS.NOT_FOUND), {
+        status: getStatusCode(API_ERRORS.NOT_FOUND),
+      });
     }
 
     if (userData.credits < YEARLY_ANALYSIS_CREDIT_COST) {
@@ -210,10 +212,9 @@ export async function POST(request: NextRequest) {
 
       if (profileError || !profile) {
         console.error('[API] 프로필 조회 실패:', profileError);
-        return NextResponse.json(
-          createErrorResponse(API_ERRORS.NOT_FOUND),
-          { status: getStatusCode(API_ERRORS.NOT_FOUND) }
-        );
+        return NextResponse.json(createErrorResponse(API_ERRORS.NOT_FOUND), {
+          status: getStatusCode(API_ERRORS.NOT_FOUND),
+        });
       }
 
       profileId = profile.id;
@@ -256,10 +257,9 @@ export async function POST(request: NextRequest) {
           daewun = manseryeokData.daewun || [];
         } catch (manseryeokError) {
           console.error('[API] 만세력 계산 실패:', manseryeokError);
-          return NextResponse.json(
-            createErrorResponse(ANALYSIS_ERRORS.MANSERYEOK_ERROR),
-            { status: getStatusCode(API_ERRORS.SERVER_ERROR) }
-          );
+          return NextResponse.json(createErrorResponse(ANALYSIS_ERRORS.MANSERYEOK_ERROR), {
+            status: getStatusCode(API_ERRORS.SERVER_ERROR),
+          });
         }
       }
     } else if (data.existingAnalysisId) {
@@ -271,10 +271,9 @@ export async function POST(request: NextRequest) {
         .single();
 
       if (analysisError || !existingAnalysis) {
-        return NextResponse.json(
-          createErrorResponse(API_ERRORS.NOT_FOUND),
-          { status: getStatusCode(API_ERRORS.NOT_FOUND) }
-        );
+        return NextResponse.json(createErrorResponse(API_ERRORS.NOT_FOUND), {
+          status: getStatusCode(API_ERRORS.NOT_FOUND),
+        });
       }
 
       pillars = existingAnalysis.pillars;
@@ -287,10 +286,9 @@ export async function POST(request: NextRequest) {
     }
 
     if (!pillars) {
-      return NextResponse.json(
-        createErrorResponse(VALIDATION_ERRORS.REQUIRED_FIELD_MISSING),
-        { status: getStatusCode(VALIDATION_ERRORS.REQUIRED_FIELD_MISSING) }
-      );
+      return NextResponse.json(createErrorResponse(VALIDATION_ERRORS.REQUIRED_FIELD_MISSING), {
+        status: getStatusCode(VALIDATION_ERRORS.REQUIRED_FIELD_MISSING),
+      });
     }
 
     if (!birthYear) {
@@ -374,10 +372,9 @@ export async function POST(request: NextRequest) {
         })
         .eq('id', userId);
 
-      return NextResponse.json(
-        createErrorResponse(ANALYSIS_ERRORS.SAVE_FAILED),
-        { status: getStatusCode(API_ERRORS.SERVER_ERROR) }
-      );
+      return NextResponse.json(createErrorResponse(ANALYSIS_ERRORS.SAVE_FAILED), {
+        status: getStatusCode(API_ERRORS.SERVER_ERROR),
+      });
     }
 
     console.log('[API] 신년 분석 시작됨', {
@@ -397,10 +394,9 @@ export async function POST(request: NextRequest) {
     });
   } catch (error) {
     console.error('[API] /api/analysis/yearly 에러:', error);
-    return NextResponse.json(
-      createErrorResponse(API_ERRORS.SERVER_ERROR),
-      { status: getStatusCode(API_ERRORS.SERVER_ERROR) }
-    );
+    return NextResponse.json(createErrorResponse(API_ERRORS.SERVER_ERROR), {
+      status: getStatusCode(API_ERRORS.SERVER_ERROR),
+    });
   }
 }
 

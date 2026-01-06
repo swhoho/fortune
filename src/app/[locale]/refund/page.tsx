@@ -35,9 +35,10 @@ export default function RefundPage() {
                 <div>
                   <h2 className="mb-2 font-semibold text-white">환불 핵심 원칙</h2>
                   <p className="text-gray-300">
-                    구매하신 크레딧은 <strong className="text-white">콘텐츠를 이용하지 않은 경우에만</strong>{' '}
-                    환불이 가능합니다. 사주 분석 리포트, AI 상담 등 콘텐츠를 1회라도 이용하신
-                    경우 해당 크레딧은 환불되지 않습니다.
+                    구매하신 크레딧은{' '}
+                    <strong className="text-white">콘텐츠를 이용하지 않은 경우에만</strong> 환불이
+                    가능합니다. 사주 분석 리포트, AI 상담 등 콘텐츠를 1회라도 이용하신 경우 해당
+                    크레딧은 환불되지 않습니다.
                   </p>
                 </div>
               </div>
@@ -87,12 +88,12 @@ export default function RefundPage() {
                   </ul>
                 </li>
                 <li>
-                  <strong className="text-white">검토:</strong> 영업일 기준 1~3일 내 환불 가능
-                  여부 검토
+                  <strong className="text-white">검토:</strong> 영업일 기준 1~3일 내 환불 가능 여부
+                  검토
                 </li>
                 <li>
-                  <strong className="text-white">환불 처리:</strong> 승인 시 결제 수단에 따라
-                  3~7 영업일 내 환불 완료
+                  <strong className="text-white">환불 처리:</strong> 승인 시 결제 수단에 따라 3~7
+                  영업일 내 환불 완료
                   <ul className="ml-6 mt-2 list-inside list-disc text-gray-400">
                     <li>신용카드: 카드사에 따라 3~7 영업일</li>
                     <li>해외결제: 최대 14 영업일 소요 가능</li>
@@ -105,9 +106,7 @@ export default function RefundPage() {
             <section>
               <h2 className="mb-4 text-lg font-semibold text-white">환불 금액 산정</h2>
               <div className="space-y-3">
-                <p>
-                  환불 금액은 아래와 같이 산정됩니다:
-                </p>
+                <p>환불 금액은 아래와 같이 산정됩니다:</p>
                 <ul className="list-inside list-disc space-y-2">
                   <li>
                     <strong className="text-white">전액 환불:</strong> 크레딧 미사용 시 결제금액
@@ -129,18 +128,10 @@ export default function RefundPage() {
             <section>
               <h2 className="mb-4 text-lg font-semibold text-white">주의사항</h2>
               <ul className="list-inside list-disc space-y-2 text-gray-400">
-                <li>
-                  환불 신청 전 반드시 크레딧 사용 내역을 확인해 주세요.
-                </li>
-                <li>
-                  콘텐츠 이용 여부는 서비스 이용 기록으로 확인됩니다.
-                </li>
-                <li>
-                  허위 또는 부정한 환불 신청 시 서비스 이용이 제한될 수 있습니다.
-                </li>
-                <li>
-                  본 환불정책은 관련 법령 및 회사 정책에 따라 변경될 수 있습니다.
-                </li>
+                <li>환불 신청 전 반드시 크레딧 사용 내역을 확인해 주세요.</li>
+                <li>콘텐츠 이용 여부는 서비스 이용 기록으로 확인됩니다.</li>
+                <li>허위 또는 부정한 환불 신청 시 서비스 이용이 제한될 수 있습니다.</li>
+                <li>본 환불정책은 관련 법령 및 회사 정책에 따라 변경될 수 있습니다.</li>
               </ul>
             </section>
 

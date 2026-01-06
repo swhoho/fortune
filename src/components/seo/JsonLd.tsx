@@ -486,7 +486,7 @@ export function HowToJsonLd({ locale }: HowToJsonLdProps) {
     ko: {
       name: 'AI 사주 분석 받는 방법',
       description:
-        'Master\'s Insight AI에서 AI 사주 분석을 받는 4단계 가이드입니다. 생년월일 정보만 있으면 누구나 쉽게 사주팔자 분석을 받을 수 있습니다.',
+        "Master's Insight AI에서 AI 사주 분석을 받는 4단계 가이드입니다. 생년월일 정보만 있으면 누구나 쉽게 사주팔자 분석을 받을 수 있습니다.",
       steps: [
         {
           name: '프로필 생성',

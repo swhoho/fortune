@@ -5,12 +5,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getAuthenticatedUser } from '@/lib/supabase/server';
 import { getSupabaseAdmin } from '@/lib/supabase/client';
-import {
-  AUTH_ERRORS,
-  API_ERRORS,
-  createErrorResponse,
-  getStatusCode,
-} from '@/lib/errors/codes';
+import { AUTH_ERRORS, API_ERRORS, createErrorResponse, getStatusCode } from '@/lib/errors/codes';
 
 /**
  * Python API URL 가져오기
@@ -32,10 +27,9 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
     // 1. 인증 확인
     const user = await getAuthenticatedUser();
     if (!user) {
-      return NextResponse.json(
-        createErrorResponse(AUTH_ERRORS.UNAUTHORIZED),
-        { status: getStatusCode(AUTH_ERRORS.UNAUTHORIZED) }
-      );
+      return NextResponse.json(createErrorResponse(AUTH_ERRORS.UNAUTHORIZED), {
+        status: getStatusCode(AUTH_ERRORS.UNAUTHORIZED),
+      });
     }
 
     const { id: analysisId } = await params;
@@ -52,10 +46,9 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
 
     if (analysisError || !analysis) {
       console.error('[API] 신년 분석 조회 실패:', analysisError);
-      return NextResponse.json(
-        createErrorResponse(API_ERRORS.NOT_FOUND),
-        { status: getStatusCode(API_ERRORS.NOT_FOUND) }
-      );
+      return NextResponse.json(createErrorResponse(API_ERRORS.NOT_FOUND), {
+        status: getStatusCode(API_ERRORS.NOT_FOUND),
+      });
     }
 
     // 3. 이미 완료된 경우 바로 반환
@@ -158,10 +151,9 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
     });
   } catch (error) {
     console.error('[API] /api/analysis/yearly/:id 에러:', error);
-    return NextResponse.json(
-      createErrorResponse(API_ERRORS.SERVER_ERROR),
-      { status: getStatusCode(API_ERRORS.SERVER_ERROR) }
-    );
+    return NextResponse.json(createErrorResponse(API_ERRORS.SERVER_ERROR), {
+      status: getStatusCode(API_ERRORS.SERVER_ERROR),
+    });
   }
 }
 

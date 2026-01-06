@@ -25,10 +25,9 @@ export async function GET(
     // 1. 인증 확인
     const user = await getAuthenticatedUser();
     if (!user) {
-      return NextResponse.json(
-        createErrorResponse(AUTH_ERRORS.UNAUTHORIZED),
-        { status: getStatusCode(AUTH_ERRORS.UNAUTHORIZED) }
-      );
+      return NextResponse.json(createErrorResponse(AUTH_ERRORS.UNAUTHORIZED), {
+        status: getStatusCode(AUTH_ERRORS.UNAUTHORIZED),
+      });
     }
 
     const { id: profileId, questionId } = await params;
@@ -43,17 +42,15 @@ export async function GET(
       .single();
 
     if (profileError || !profile) {
-      return NextResponse.json(
-        createErrorResponse(PROFILE_ERRORS.NOT_FOUND),
-        { status: getStatusCode(PROFILE_ERRORS.NOT_FOUND) }
-      );
+      return NextResponse.json(createErrorResponse(PROFILE_ERRORS.NOT_FOUND), {
+        status: getStatusCode(PROFILE_ERRORS.NOT_FOUND),
+      });
     }
 
     if (profile.user_id !== userId) {
-      return NextResponse.json(
-        createErrorResponse(AUTH_ERRORS.FORBIDDEN),
-        { status: getStatusCode(AUTH_ERRORS.FORBIDDEN) }
-      );
+      return NextResponse.json(createErrorResponse(AUTH_ERRORS.FORBIDDEN), {
+        status: getStatusCode(AUTH_ERRORS.FORBIDDEN),
+      });
     }
 
     // 3. 질문 레코드 조회
@@ -65,10 +62,9 @@ export async function GET(
       .single();
 
     if (questionError || !question) {
-      return NextResponse.json(
-        createErrorResponse(API_ERRORS.NOT_FOUND),
-        { status: getStatusCode(API_ERRORS.NOT_FOUND) }
-      );
+      return NextResponse.json(createErrorResponse(API_ERRORS.NOT_FOUND), {
+        status: getStatusCode(API_ERRORS.NOT_FOUND),
+      });
     }
 
     // 4. 상태에 따른 응답
@@ -85,10 +81,9 @@ export async function GET(
     });
   } catch (error) {
     console.error('[API] GET /api/profiles/:id/report/question/:questionId 에러:', error);
-    return NextResponse.json(
-      createErrorResponse(API_ERRORS.SERVER_ERROR),
-      { status: getStatusCode(API_ERRORS.SERVER_ERROR) }
-    );
+    return NextResponse.json(createErrorResponse(API_ERRORS.SERVER_ERROR), {
+      status: getStatusCode(API_ERRORS.SERVER_ERROR),
+    });
   }
 }
 

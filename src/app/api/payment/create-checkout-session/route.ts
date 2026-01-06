@@ -27,13 +27,17 @@ export async function POST(request: NextRequest) {
     const selectedPackage = CREDIT_PACKAGES.find((p) => p.id === packageId);
     if (!selectedPackage) {
       const errorResponse = createErrorResponse(PAYMENT_ERRORS.INVALID_PACKAGE);
-      return NextResponse.json(errorResponse, { status: getStatusCode(PAYMENT_ERRORS.INVALID_PACKAGE) });
+      return NextResponse.json(errorResponse, {
+        status: getStatusCode(PAYMENT_ERRORS.INVALID_PACKAGE),
+      });
     }
 
     // 금액 검증
     if (amount !== selectedPackage.price) {
       const errorResponse = createErrorResponse(PAYMENT_ERRORS.AMOUNT_MISMATCH);
-      return NextResponse.json(errorResponse, { status: getStatusCode(PAYMENT_ERRORS.AMOUNT_MISMATCH) });
+      return NextResponse.json(errorResponse, {
+        status: getStatusCode(PAYMENT_ERRORS.AMOUNT_MISMATCH),
+      });
     }
 
     // 사용자 인증 확인 (Supabase Auth)
@@ -80,6 +84,8 @@ export async function POST(request: NextRequest) {
       undefined,
       error instanceof Error ? error.message : undefined
     );
-    return NextResponse.json(errorResponse, { status: getStatusCode(PAYMENT_ERRORS.SESSION_CREATE_FAILED) });
+    return NextResponse.json(errorResponse, {
+      status: getStatusCode(PAYMENT_ERRORS.SESSION_CREATE_FAILED),
+    });
   }
 }

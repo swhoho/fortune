@@ -64,7 +64,9 @@ const analysisRequestSchema = z.object({
 /**
  * 내부 AI 에러 코드를 표준 에러 코드로 매핑
  */
-function mapAiErrorToStandardCode(code?: string): typeof ANALYSIS_ERRORS[keyof typeof ANALYSIS_ERRORS] {
+function mapAiErrorToStandardCode(
+  code?: string
+): (typeof ANALYSIS_ERRORS)[keyof typeof ANALYSIS_ERRORS] {
   switch (code) {
     case 'INVALID_INPUT':
       return ANALYSIS_ERRORS.INVALID_SAJU_DATA;
@@ -89,10 +91,9 @@ export async function POST(request: NextRequest) {
     // 1. 인증 확인
     const user = await getAuthenticatedUser();
     if (!user) {
-      return NextResponse.json(
-        createErrorResponse(AUTH_ERRORS.UNAUTHORIZED),
-        { status: getStatusCode(AUTH_ERRORS.UNAUTHORIZED) }
-      );
+      return NextResponse.json(createErrorResponse(AUTH_ERRORS.UNAUTHORIZED), {
+        status: getStatusCode(AUTH_ERRORS.UNAUTHORIZED),
+      });
     }
 
     // 2. 요청 본문 파싱 및 검증
@@ -137,11 +138,7 @@ export async function POST(request: NextRequest) {
       const errorCode = mapAiErrorToStandardCode(analysisResult.error?.code);
 
       return NextResponse.json(
-        createErrorResponse(
-          errorCode,
-          undefined,
-          analysisResult.error?.message
-        ),
+        createErrorResponse(errorCode, undefined, analysisResult.error?.message),
         { status: getStatusCode(errorCode) }
       );
     }

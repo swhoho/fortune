@@ -72,7 +72,7 @@ function PaymentSuccessContent() {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.5 }}
-          className="mb-8 rounded-lg bg-[#1a1a1a] border border-[#333] p-4"
+          className="mb-8 rounded-lg border border-[#333] bg-[#1a1a1a] p-4"
         >
           <p className="text-xs text-gray-400">결제 ID</p>
           <p className="truncate font-mono text-sm text-gray-300">{sessionId}</p>
@@ -94,7 +94,12 @@ function PaymentSuccessContent() {
           <Link href="/home">홈으로 이동</Link>
         </Button>
 
-        <Button asChild variant="outline" size="lg" className="w-full border-[#333] bg-[#1a1a1a] py-6 text-lg text-white hover:bg-[#242424]">
+        <Button
+          asChild
+          variant="outline"
+          size="lg"
+          className="w-full border-[#333] bg-[#1a1a1a] py-6 text-lg text-white hover:bg-[#242424]"
+        >
           <Link href="/profiles">프로필 관리</Link>
         </Button>
       </motion.div>

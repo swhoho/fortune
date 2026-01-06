@@ -1,12 +1,7 @@
 import type { Metadata } from 'next';
 import { getTranslations } from 'next-intl/server';
 import { LandingPageClient } from '@/components/landing/LandingPageClient';
-import {
-  FAQJsonLd,
-  ServiceJsonLd,
-  HowToJsonLd,
-  SpeakableJsonLd,
-} from '@/components/seo/JsonLd';
+import { FAQJsonLd, ServiceJsonLd, HowToJsonLd, SpeakableJsonLd } from '@/components/seo/JsonLd';
 
 type Props = {
   params: Promise<{ locale: string }>;

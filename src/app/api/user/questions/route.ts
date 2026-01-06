@@ -6,12 +6,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getAuthenticatedUser } from '@/lib/supabase/server';
 
 import { getSupabaseAdmin } from '@/lib/supabase/client';
-import {
-  AUTH_ERRORS,
-  API_ERRORS,
-  createErrorResponse,
-  getStatusCode,
-} from '@/lib/errors/codes';
+import { AUTH_ERRORS, API_ERRORS, createErrorResponse, getStatusCode } from '@/lib/errors/codes';
 
 /** 질문 조인 결과 타입 */
 interface QuestionWithProfile {

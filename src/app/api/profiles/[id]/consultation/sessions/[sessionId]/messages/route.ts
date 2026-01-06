@@ -6,12 +6,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient, getAuthenticatedUser } from '@/lib/supabase/server';
 import { consultationAI } from '@/lib/ai/consultation';
-import {
-  AUTH_ERRORS,
-  API_ERRORS,
-  createErrorResponse,
-  getStatusCode,
-} from '@/lib/errors/codes';
+import { AUTH_ERRORS, API_ERRORS, createErrorResponse, getStatusCode } from '@/lib/errors/codes';
 import type {
   ConsultationMessageRow,
   SendMessageRequest,

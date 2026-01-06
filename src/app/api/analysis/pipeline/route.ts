@@ -71,7 +71,9 @@ const pipelineRequestSchema = z.object({
 /**
  * 파이프라인 에러 코드를 i18n 에러 코드로 매핑
  */
-function mapPipelineErrorCode(code?: string): typeof ANALYSIS_ERRORS[keyof typeof ANALYSIS_ERRORS] {
+function mapPipelineErrorCode(
+  code?: string
+): (typeof ANALYSIS_ERRORS)[keyof typeof ANALYSIS_ERRORS] {
   switch (code) {
     case 'INVALID_INPUT':
       return ANALYSIS_ERRORS.INVALID_SAJU_DATA;
@@ -98,10 +100,9 @@ export async function POST(request: NextRequest) {
     // 1. 인증 확인
     const user = await getAuthenticatedUser();
     if (!user) {
-      return NextResponse.json(
-        createErrorResponse(AUTH_ERRORS.UNAUTHORIZED),
-        { status: getStatusCode(AUTH_ERRORS.UNAUTHORIZED) }
-      );
+      return NextResponse.json(createErrorResponse(AUTH_ERRORS.UNAUTHORIZED), {
+        status: getStatusCode(AUTH_ERRORS.UNAUTHORIZED),
+      });
     }
 
     // 2. 요청 본문 파싱 및 검증

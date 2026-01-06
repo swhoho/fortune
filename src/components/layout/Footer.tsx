@@ -41,11 +41,7 @@ export function Footer() {
           className="flex items-center gap-2 text-sm text-gray-500 transition-colors hover:text-gray-400"
         >
           <span>{BUSINESS_INFO.companyName} 사업자 정보</span>
-          {isExpanded ? (
-            <ChevronUp className="h-4 w-4" />
-          ) : (
-            <ChevronDown className="h-4 w-4" />
-          )}
+          {isExpanded ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
         </button>
 
         {/* 사업자 정보 (토글) */}
@@ -68,7 +64,7 @@ export function Footer() {
 
         {/* 정책 링크 */}
         <div className="mt-4 flex flex-wrap items-center gap-4 border-t border-[#222] pt-4">
-          {POLICY_LINKS.map((link, index) => (
+          {POLICY_LINKS.map((link) => (
             <Link
               key={link.href}
               href={link.href}

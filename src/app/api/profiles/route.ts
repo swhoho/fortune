@@ -57,10 +57,9 @@ export async function POST(request: NextRequest) {
     // 1. 인증 확인 (Supabase Auth)
     const user = await getAuthenticatedUser();
     if (!user) {
-      return NextResponse.json(
-        createErrorResponse(AUTH_ERRORS.UNAUTHORIZED),
-        { status: getStatusCode(AUTH_ERRORS.UNAUTHORIZED) }
-      );
+      return NextResponse.json(createErrorResponse(AUTH_ERRORS.UNAUTHORIZED), {
+        status: getStatusCode(AUTH_ERRORS.UNAUTHORIZED),
+      });
     }
 
     const userId = user.id;
@@ -98,10 +97,9 @@ export async function POST(request: NextRequest) {
 
     if (error) {
       console.error('[API] 프로필 생성 실패:', error);
-      return NextResponse.json(
-        createErrorResponse(PROFILE_ERRORS.CREATE_FAILED),
-        { status: getStatusCode(PROFILE_ERRORS.CREATE_FAILED) }
-      );
+      return NextResponse.json(createErrorResponse(PROFILE_ERRORS.CREATE_FAILED), {
+        status: getStatusCode(PROFILE_ERRORS.CREATE_FAILED),
+      });
     }
 
     // 4. 응답
@@ -111,10 +109,9 @@ export async function POST(request: NextRequest) {
     });
   } catch (error) {
     console.error('[API] /api/profiles POST 에러:', error);
-    return NextResponse.json(
-      createErrorResponse(API_ERRORS.SERVER_ERROR),
-      { status: getStatusCode(API_ERRORS.SERVER_ERROR) }
-    );
+    return NextResponse.json(createErrorResponse(API_ERRORS.SERVER_ERROR), {
+      status: getStatusCode(API_ERRORS.SERVER_ERROR),
+    });
   }
 }
 
@@ -127,10 +124,9 @@ export async function GET() {
     // 1. 인증 확인 (Supabase Auth)
     const user = await getAuthenticatedUser();
     if (!user) {
-      return NextResponse.json(
-        createErrorResponse(AUTH_ERRORS.UNAUTHORIZED),
-        { status: getStatusCode(AUTH_ERRORS.UNAUTHORIZED) }
-      );
+      return NextResponse.json(createErrorResponse(AUTH_ERRORS.UNAUTHORIZED), {
+        status: getStatusCode(AUTH_ERRORS.UNAUTHORIZED),
+      });
     }
 
     const supabase = getSupabaseAdmin();
@@ -144,10 +140,9 @@ export async function GET() {
 
     if (error) {
       console.error('[API] 프로필 목록 조회 실패:', error);
-      return NextResponse.json(
-        createErrorResponse(API_ERRORS.SERVER_ERROR),
-        { status: getStatusCode(API_ERRORS.SERVER_ERROR) }
-      );
+      return NextResponse.json(createErrorResponse(API_ERRORS.SERVER_ERROR), {
+        status: getStatusCode(API_ERRORS.SERVER_ERROR),
+      });
     }
 
     // 3. 각 프로필의 최신 리포트 상태 조회
@@ -179,10 +174,9 @@ export async function GET() {
     });
   } catch (error) {
     console.error('[API] /api/profiles GET 에러:', error);
-    return NextResponse.json(
-      createErrorResponse(API_ERRORS.SERVER_ERROR),
-      { status: getStatusCode(API_ERRORS.SERVER_ERROR) }
-    );
+    return NextResponse.json(createErrorResponse(API_ERRORS.SERVER_ERROR), {
+      status: getStatusCode(API_ERRORS.SERVER_ERROR),
+    });
   }
 }
 

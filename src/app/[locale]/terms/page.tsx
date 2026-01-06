@@ -46,15 +46,13 @@ export default function TermsPage() {
                   &quot;서비스&quot;란 회사가 제공하는 AI 기반 사주 분석 및 관련 콘텐츠 서비스를
                   의미합니다.
                 </li>
-                <li>
-                  &quot;이용자&quot;란 본 약관에 동의하고 서비스를 이용하는 자를 의미합니다.
-                </li>
+                <li>&quot;이용자&quot;란 본 약관에 동의하고 서비스를 이용하는 자를 의미합니다.</li>
                 <li>
                   &quot;크레딧&quot;이란 서비스 이용을 위해 구매하는 가상의 결제 수단을 의미합니다.
                 </li>
                 <li>
-                  &quot;콘텐츠&quot;란 서비스를 통해 제공되는 사주 분석 리포트, AI 상담 내용 등
-                  모든 정보를 의미합니다.
+                  &quot;콘텐츠&quot;란 서비스를 통해 제공되는 사주 분석 리포트, AI 상담 내용 등 모든
+                  정보를 의미합니다.
                 </li>
               </ol>
             </section>
@@ -63,7 +61,9 @@ export default function TermsPage() {
             <section>
               <h2 className="mb-3 text-lg font-semibold text-white">제3조 (약관의 효력 및 변경)</h2>
               <ol className="list-inside list-decimal space-y-2">
-                <li>본 약관은 서비스 화면에 게시하거나 기타의 방법으로 공지함으로써 효력이 발생합니다.</li>
+                <li>
+                  본 약관은 서비스 화면에 게시하거나 기타의 방법으로 공지함으로써 효력이 발생합니다.
+                </li>
                 <li>
                   회사는 필요한 경우 관련 법령을 위배하지 않는 범위에서 본 약관을 변경할 수 있으며,
                   변경된 약관은 제1항과 같은 방법으로 공지합니다.
@@ -132,16 +132,16 @@ export default function TermsPage() {
               <h2 className="mb-3 text-lg font-semibold text-white">제7조 (면책사항)</h2>
               <ol className="list-inside list-decimal space-y-2">
                 <li>
-                  본 서비스에서 제공하는 사주 분석 결과는 참고용 정보이며, 의사결정의 최종
-                  책임은 이용자에게 있습니다.
+                  본 서비스에서 제공하는 사주 분석 결과는 참고용 정보이며, 의사결정의 최종 책임은
+                  이용자에게 있습니다.
                 </li>
                 <li>
-                  회사는 서비스 이용으로 인해 발생한 손해에 대해 법령에 특별한 규정이 없는 한
+                  회사는 서비스 이용으로 인해 발생한 손해에 대해 법령에 특별한 규정이 없는 한 책임을
+                  지지 않습니다.
+                </li>
+                <li>
+                  천재지변, 시스템 장애 등 불가항력적인 사유로 서비스 제공이 불가능한 경우 회사는
                   책임을 지지 않습니다.
-                </li>
-                <li>
-                  천재지변, 시스템 장애 등 불가항력적인 사유로 서비스 제공이 불가능한 경우
-                  회사는 책임을 지지 않습니다.
                 </li>
               </ol>
             </section>
@@ -151,7 +151,9 @@ export default function TermsPage() {
               <h2 className="mb-3 text-lg font-semibold text-white">제8조 (분쟁해결)</h2>
               <ol className="list-inside list-decimal space-y-2">
                 <li>회사와 이용자 간에 발생한 분쟁은 상호 협의하여 해결합니다.</li>
-                <li>협의가 이루어지지 않을 경우 관할 법원은 회사의 소재지를 관할하는 법원으로 합니다.</li>
+                <li>
+                  협의가 이루어지지 않을 경우 관할 법원은 회사의 소재지를 관할하는 법원으로 합니다.
+                </li>
               </ol>
             </section>
 

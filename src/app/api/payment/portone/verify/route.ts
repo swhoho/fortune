@@ -67,10 +67,9 @@ export async function POST(request: NextRequest) {
 
     // 5. 결제 상태 확인
     if (payment.status !== 'PAID') {
-      const errorResponse = createErrorResponse(
-        PAYMENT_ERRORS.NOT_COMPLETED,
-        { status: payment.status }
-      );
+      const errorResponse = createErrorResponse(PAYMENT_ERRORS.NOT_COMPLETED, {
+        status: payment.status,
+      });
       return NextResponse.json(
         { success: false, ...errorResponse },
         { status: getStatusCode(PAYMENT_ERRORS.NOT_COMPLETED) }

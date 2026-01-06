@@ -624,10 +624,9 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
   try {
     const user = await getAuthenticatedUser();
     if (!user) {
-      return NextResponse.json(
-        createErrorResponse(AUTH_ERRORS.UNAUTHORIZED),
-        { status: getStatusCode(AUTH_ERRORS.UNAUTHORIZED) }
-      );
+      return NextResponse.json(createErrorResponse(AUTH_ERRORS.UNAUTHORIZED), {
+        status: getStatusCode(AUTH_ERRORS.UNAUTHORIZED),
+      });
     }
 
     const { id: profileId } = await params;
@@ -642,17 +641,15 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
       .single();
 
     if (profileError || !profile) {
-      return NextResponse.json(
-        createErrorResponse(PROFILE_ERRORS.NOT_FOUND),
-        { status: getStatusCode(PROFILE_ERRORS.NOT_FOUND) }
-      );
+      return NextResponse.json(createErrorResponse(PROFILE_ERRORS.NOT_FOUND), {
+        status: getStatusCode(PROFILE_ERRORS.NOT_FOUND),
+      });
     }
 
     if (profile.user_id !== userId) {
-      return NextResponse.json(
-        createErrorResponse(AUTH_ERRORS.FORBIDDEN),
-        { status: getStatusCode(AUTH_ERRORS.FORBIDDEN) }
-      );
+      return NextResponse.json(createErrorResponse(AUTH_ERRORS.FORBIDDEN), {
+        status: getStatusCode(AUTH_ERRORS.FORBIDDEN),
+      });
     }
 
     // 2. 리포트 조회 (profile 정보 JOIN)
@@ -679,17 +676,15 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
 
     if (reportError) {
       console.error('[API] 리포트 조회 실패:', reportError);
-      return NextResponse.json(
-        createErrorResponse(API_ERRORS.SERVER_ERROR),
-        { status: getStatusCode(API_ERRORS.SERVER_ERROR) }
-      );
+      return NextResponse.json(createErrorResponse(API_ERRORS.SERVER_ERROR), {
+        status: getStatusCode(API_ERRORS.SERVER_ERROR),
+      });
     }
 
     if (!report) {
-      return NextResponse.json(
-        createErrorResponse(API_ERRORS.NOT_FOUND),
-        { status: getStatusCode(API_ERRORS.NOT_FOUND) }
-      );
+      return NextResponse.json(createErrorResponse(API_ERRORS.NOT_FOUND), {
+        status: getStatusCode(API_ERRORS.NOT_FOUND),
+      });
     }
 
     // 3. 클라이언트 ReportData 형식으로 변환
@@ -718,10 +713,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
       // 분석 결과 (analysis JSONB에서 추출 및 클라이언트 형식 변환)
       // 한글 키(성격분석) 또는 영문 키(personality) 지원
       // willpower 점수는 십신 기반 계산 값 사용 (scores.willpower)
-      personality: transformPersonality(
-        report.analysis?.personality,
-        report.scores?.willpower
-      ),
+      personality: transformPersonality(report.analysis?.personality, report.scores?.willpower),
       characteristics: transformCharacteristics(report.analysis?.basicAnalysis),
       aptitude: transformAptitude(report.analysis?.aptitude, report.scores),
       // fortune 데이터: 한글 키(재물운, 연애운) 또는 영문 키(wealth, love) 지원
@@ -748,10 +740,9 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
     });
   } catch (error) {
     console.error('[API] GET /api/profiles/[id]/report 에러:', error);
-    return NextResponse.json(
-      createErrorResponse(API_ERRORS.SERVER_ERROR),
-      { status: getStatusCode(API_ERRORS.SERVER_ERROR) }
-    );
+    return NextResponse.json(createErrorResponse(API_ERRORS.SERVER_ERROR), {
+      status: getStatusCode(API_ERRORS.SERVER_ERROR),
+    });
   }
 }
 
@@ -767,10 +758,9 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
   try {
     const user = await getAuthenticatedUser();
     if (!user) {
-      return NextResponse.json(
-        createErrorResponse(AUTH_ERRORS.UNAUTHORIZED),
-        { status: getStatusCode(AUTH_ERRORS.UNAUTHORIZED) }
-      );
+      return NextResponse.json(createErrorResponse(AUTH_ERRORS.UNAUTHORIZED), {
+        status: getStatusCode(AUTH_ERRORS.UNAUTHORIZED),
+      });
     }
 
     const { id: profileId } = await params;
@@ -798,17 +788,15 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
       .single();
 
     if (profileError || !profile) {
-      return NextResponse.json(
-        createErrorResponse(PROFILE_ERRORS.NOT_FOUND),
-        { status: getStatusCode(PROFILE_ERRORS.NOT_FOUND) }
-      );
+      return NextResponse.json(createErrorResponse(PROFILE_ERRORS.NOT_FOUND), {
+        status: getStatusCode(PROFILE_ERRORS.NOT_FOUND),
+      });
     }
 
     if (profile.user_id !== userId) {
-      return NextResponse.json(
-        createErrorResponse(AUTH_ERRORS.FORBIDDEN),
-        { status: getStatusCode(AUTH_ERRORS.FORBIDDEN) }
-      );
+      return NextResponse.json(createErrorResponse(AUTH_ERRORS.FORBIDDEN), {
+        status: getStatusCode(AUTH_ERRORS.FORBIDDEN),
+      });
     }
 
     // 2. 기존 리포트 확인 (pending, in_progress, failed 모두)
@@ -863,10 +851,9 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
         .single();
 
       if (userError || !userData) {
-        return NextResponse.json(
-          createErrorResponse(API_ERRORS.NOT_FOUND),
-          { status: getStatusCode(API_ERRORS.NOT_FOUND) }
-        );
+        return NextResponse.json(createErrorResponse(API_ERRORS.NOT_FOUND), {
+          status: getStatusCode(API_ERRORS.NOT_FOUND),
+        });
       }
 
       currentUserCredits = userData.credits;
@@ -951,10 +938,9 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
             .update({ credits: currentUserCredits, updated_at: new Date().toISOString() })
             .eq('id', userId);
         }
-        return NextResponse.json(
-          createErrorResponse(API_ERRORS.SERVER_ERROR),
-          { status: getStatusCode(API_ERRORS.SERVER_ERROR) }
-        );
+        return NextResponse.json(createErrorResponse(API_ERRORS.SERVER_ERROR), {
+          status: getStatusCode(API_ERRORS.SERVER_ERROR),
+        });
       }
 
       reportId = newReport.id;
@@ -1008,10 +994,9 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
           })
           .eq('id', reportId);
 
-        return NextResponse.json(
-          createErrorResponse(API_ERRORS.EXTERNAL_SERVICE_ERROR),
-          { status: getStatusCode(API_ERRORS.EXTERNAL_SERVICE_ERROR) }
-        );
+        return NextResponse.json(createErrorResponse(API_ERRORS.EXTERNAL_SERVICE_ERROR), {
+          status: getStatusCode(API_ERRORS.EXTERNAL_SERVICE_ERROR),
+        });
       }
 
       const pythonResult = await pythonResponse.json();
@@ -1049,10 +1034,9 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
         })
         .eq('id', reportId);
 
-      return NextResponse.json(
-        createErrorResponse(API_ERRORS.EXTERNAL_SERVICE_ERROR),
-        { status: 503 }
-      );
+      return NextResponse.json(createErrorResponse(API_ERRORS.EXTERNAL_SERVICE_ERROR), {
+        status: 503,
+      });
     }
 
     // 7. 즉시 응답 반환
@@ -1064,10 +1048,9 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
     });
   } catch (error) {
     console.error('[API] POST /api/profiles/[id]/report 에러:', error);
-    return NextResponse.json(
-      createErrorResponse(API_ERRORS.SERVER_ERROR),
-      { status: getStatusCode(API_ERRORS.SERVER_ERROR) }
-    );
+    return NextResponse.json(createErrorResponse(API_ERRORS.SERVER_ERROR), {
+      status: getStatusCode(API_ERRORS.SERVER_ERROR),
+    });
   }
 }
 
