@@ -63,12 +63,29 @@ export default function PaymentPage({ params: { locale } }: { params: { locale: 
     setError(null);
 
     const paymentId = generatePaymentId();
+    const storeId = PORTONE_CONFIG.storeId;
+    const channelKey = PORTONE_CHANNELS[selectedMethod];
+
+    // 환경변수 검증
+    if (!storeId) {
+      setError('결제 설정 오류: Store ID가 설정되지 않았습니다.');
+      setIsLoading(false);
+      console.error('PORTONE_CONFIG.storeId is empty. Check NEXT_PUBLIC_PORTONE_STORE_ID env var.');
+      return;
+    }
+
+    if (!channelKey) {
+      setError('결제 설정 오류: Channel Key가 설정되지 않았습니다.');
+      setIsLoading(false);
+      console.error('Channel key is empty for method:', selectedMethod);
+      return;
+    }
 
     try {
       // PortOne SDK 결제 요청
       const response = await PortOne.requestPayment({
-        storeId: PORTONE_CONFIG.storeId,
-        channelKey: PORTONE_CHANNELS[selectedMethod],
+        storeId,
+        channelKey,
         paymentId,
         orderName: `${selectedPackage.credits}C 크레딧`,
         totalAmount: selectedPackage.price,

@@ -71,17 +71,25 @@ export type PaymentMethod = 'card' | 'kakaopay';
 
 /**
  * PortOne 설정
+ * 환경변수가 없을 경우 테스트용 기본값 사용
  */
 export const PORTONE_CONFIG = {
-  storeId: process.env.NEXT_PUBLIC_PORTONE_STORE_ID || '',
+  storeId:
+    process.env.NEXT_PUBLIC_PORTONE_STORE_ID ||
+    'store-3560d3c9-7670-47ce-8287-d72b9d8b64b5',
 };
 
 /**
  * 결제 수단별 채널 키
+ * 환경변수가 없을 경우 테스트용 기본값 사용
  */
 export const PORTONE_CHANNELS: Record<PaymentMethod, string> = {
-  card: process.env.NEXT_PUBLIC_PORTONE_CHANNEL_KEY_CARD || '',
-  kakaopay: process.env.NEXT_PUBLIC_PORTONE_CHANNEL_KEY_KAKAO || '',
+  card:
+    process.env.NEXT_PUBLIC_PORTONE_CHANNEL_KEY_CARD ||
+    'channel-key-713a2e03-fb68-40c3-8ef2-e05aaab2d9e2',
+  kakaopay:
+    process.env.NEXT_PUBLIC_PORTONE_CHANNEL_KEY_KAKAO ||
+    'channel-key-99f9d0e4-e8db-4a06-a3fb-75436608dde5',
 };
 
 /**
