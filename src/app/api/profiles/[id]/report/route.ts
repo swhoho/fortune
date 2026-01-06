@@ -297,16 +297,20 @@ function transformAptitude(aptitude: any, scores: any) {
       content: aptitude.analysis_summary?.core_logic || talentUtil?.advice || '',
     };
 
-    // recommendedFields 우선 지원 (새 Gemini 응답)
+    // recommendedFields 우선 지원 (새 Gemini 응답) + 한글 키 폴백
     recommendedJobs = (aptitude.recommendedFields || aptitude.recommended_fields || []).map(
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      (field: any) => (typeof field === 'string' ? field : field.fieldName || field.name || field.field || '')
+      (field: any) =>
+        typeof field === 'string' ? field : field.fieldName || field.name || field.이름 || field.field || field.분야 || ''
     );
 
-    // avoidFields 우선 지원 (새 Gemini 응답)
+    // avoidFields 우선 지원 (새 Gemini 응답) + 한글 키 폴백
     avoidedFields = (aptitude.avoidFields || aptitude.avoided_fields || [])
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      .map((field: any) => (typeof field === 'string' ? field : field.fieldName || field.reason || field.name || field.field || ''))
+      .map(
+        (field: any) =>
+          typeof field === 'string' ? field : field.fieldName || field.reason || field.name || field.이름 || field.field || field.분야 || ''
+      )
       .filter(Boolean);
   }
 
