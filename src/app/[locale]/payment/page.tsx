@@ -49,7 +49,7 @@ export default function PaymentPage({ params: { locale } }: { params: { locale: 
   const [selectedPackage, setSelectedPackage] = useState<CreditPackage | null>(
     CREDIT_PACKAGES.find((p) => p.popular) || null
   );
-  const [selectedMethod, setSelectedMethod] = useState<PaymentMethod>('card');
+  const [selectedMethod, setSelectedMethod] = useState<PaymentMethod>('kakaopay');
   const [phoneNumber, setPhoneNumber] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -309,9 +309,7 @@ export default function PaymentPage({ params: { locale } }: { params: { locale: 
                       placeholder="01012345678"
                       className="w-full rounded-lg border-2 border-[#333] bg-[#1a1a1a] px-4 py-3 text-white placeholder-gray-500 focus:border-[#d4af37] focus:outline-none"
                     />
-                    <p className="mt-1 text-xs text-gray-500">
-                      KG이니시스 결제 시 필수 입력
-                    </p>
+                    <p className="mt-1 text-xs text-gray-500">KG이니시스 결제 시 필수 입력</p>
                   </div>
                 )}
 
