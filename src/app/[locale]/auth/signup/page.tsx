@@ -60,8 +60,13 @@ export default function SignUpPage() {
 
       if (data.user) {
         // users 테이블은 DB 트리거가 자동 생성
-        // 회원가입 성공 - 로그인 페이지로 이동
-        router.push('/auth/signin?message=signup_success');
+        // 이메일 확인이 필요한 경우 (session이 null)
+        if (!data.session) {
+          router.push('/auth/verify-email?email=' + encodeURIComponent(email));
+        } else {
+          // 이메일 확인이 비활성화된 경우 바로 홈으로
+          router.push('/home');
+        }
       }
     } catch {
       setError('회원가입 중 오류가 발생했습니다.');

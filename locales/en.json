@@ -556,8 +556,8 @@
     },
     "empty": {
       "title": "No profiles registered",
-      "description": "Register a profile to start fortune analysis",
-      "addFirst": "Register Profile"
+      "subtitle": "Please register a profile first to analyze",
+      "addButton": "Register Profile"
     },
     "form": {
       "name": "Name",
@@ -685,5 +685,44 @@
       "cancel": "Cancel",
       "confirm": "Start Analysis"
     }
+  },
+  "errors": {
+    "AUTH_UNAUTHORIZED": "Please sign in to continue",
+    "AUTH_SESSION_EXPIRED": "Your session has expired. Please sign in again",
+    "AUTH_FORBIDDEN": "You don't have permission to access this resource",
+    "AUTH_INVALID_CREDENTIALS": "Invalid email or password",
+    "AUTH_EMAIL_NOT_VERIFIED": "Please verify your email address",
+    "AUTH_EMAIL_ALREADY_EXISTS": "This email is already registered",
+    "AUTH_WEAK_PASSWORD": "Password is too weak. Please use at least 8 characters",
+    "API_SERVER_ERROR": "Server error occurred. Please try again later",
+    "API_BAD_REQUEST": "Invalid request",
+    "API_NOT_FOUND": "The requested data was not found",
+    "API_TIMEOUT": "Request timed out. Please try again",
+    "API_RATE_LIMITED": "Too many requests. Please try again later",
+    "API_EXTERNAL_SERVICE_ERROR": "External service error occurred",
+    "ANALYSIS_TIMEOUT": "Analysis timed out. Please try again later",
+    "ANALYSIS_ABORTED": "Analysis was aborted",
+    "ANALYSIS_SAVE_FAILED": "Failed to save analysis results",
+    "ANALYSIS_AI_SERVICE_ERROR": "AI service error occurred",
+    "ANALYSIS_AI_CONFIG_ERROR": "AI service configuration error",
+    "ANALYSIS_AI_RATE_LIMITED": "AI service rate limit exceeded. Please try again later",
+    "ANALYSIS_INVALID_SAJU_DATA": "Invalid birth data",
+    "ANALYSIS_MANSERYEOK_ERROR": "Calendar calculation error occurred",
+    "PROFILE_NOT_FOUND": "Profile not found",
+    "PROFILE_CREATE_FAILED": "Failed to create profile",
+    "PROFILE_UPDATE_FAILED": "Failed to update profile",
+    "PROFILE_DELETE_FAILED": "Failed to delete profile",
+    "PROFILE_MAX_LIMIT_EXCEEDED": "Maximum profile limit exceeded",
+    "CREDIT_INSUFFICIENT": "Insufficient credits",
+    "CREDIT_DEDUCTION_FAILED": "Failed to deduct credits",
+    "CREDIT_FETCH_FAILED": "Failed to fetch credit balance",
+    "PAYMENT_SESSION_CREATE_FAILED": "Failed to create payment session",
+    "PAYMENT_VERIFICATION_FAILED": "Payment verification failed",
+    "PAYMENT_CANCELLED": "Payment was cancelled",
+    "PAYMENT_AMOUNT_MISMATCH": "Payment amount mismatch",
+    "VALIDATION_REQUIRED_FIELD_MISSING": "Please fill in all required fields",
+    "VALIDATION_INVALID_DATE": "Please enter a valid date",
+    "VALIDATION_INVALID_EMAIL": "Please enter a valid email address",
+    "VALIDATION_OUT_OF_RANGE": "Value is out of allowed range"
   }
 }

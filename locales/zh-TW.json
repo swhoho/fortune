@@ -466,6 +466,46 @@
       "saju": "四柱",
       "daewun": "大運"
     },
+    "profile": {
+      "title": "檔案資訊",
+      "birthday": "出生日期",
+      "age": "年齡",
+      "solar": "陽曆",
+      "lunar": "陰曆",
+      "lunarLeap": "陰曆(閏月)"
+    },
+    "sajuTable": {
+      "title": "四柱命盤",
+      "hour": "時",
+      "day": "日",
+      "month": "月",
+      "year": "年",
+      "division": "區分"
+    },
+    "daewun": {
+      "title": "大運",
+      "current": "目前大運",
+      "scrollHint": "左右滑動查看"
+    },
+    "personality": {
+      "title": "性格與特徵",
+      "willpower": "意志力",
+      "willpowerDesc": "內心的強度，越強越固執",
+      "average": "平均",
+      "weak": "弱",
+      "normal": "普通",
+      "strong": "強",
+      "outer": "外在性格",
+      "outerDesc": "初次見面時表現出的性格",
+      "inner": "內在性格",
+      "innerDesc": "熟悉後一起工作或旅行時才能了解的真實性格",
+      "social": "人際關係",
+      "socialDesc": "家庭宮的環境狀況與人際關係風格"
+    },
+    "characteristics": {
+      "title": "八字特徵",
+      "subtitle": "八字中呈現的特徵"
+    },
     "wealth": {
       "title": "財運與異性",
       "wealthBlessing": "財運",
@@ -525,7 +565,8 @@
       "fortune": "正在查看財運和戀愛運...",
       "scoring": "正在計算分析評分...",
       "visualization": "正在生成八字命盤...",
-      "saving": "正在儲存分析結果..."
+      "saving": "正在儲存分析結果...",
+      "complete": "分析完成！"
     },
     "preparing": "正在準備分析...",
     "progress": "進度",
@@ -579,8 +620,8 @@
     },
     "empty": {
       "title": "暫無檔案",
-      "description": "新增檔案開始運勢分析",
-      "addFirst": "新增檔案"
+      "subtitle": "請先新增檔案進行分析",
+      "addButton": "新增檔案"
     },
     "form": {
       "name": "姓名",
@@ -644,5 +685,44 @@
       "deleteSuccess": "檔案刪除成功",
       "error": "發生錯誤"
     }
+  },
+  "errors": {
+    "AUTH_UNAUTHORIZED": "請登入後繼續",
+    "AUTH_SESSION_EXPIRED": "工作階段已過期，請重新登入",
+    "AUTH_FORBIDDEN": "沒有存取權限",
+    "AUTH_INVALID_CREDENTIALS": "電子郵件或密碼不正確",
+    "AUTH_EMAIL_NOT_VERIFIED": "請先驗證您的電子郵件",
+    "AUTH_EMAIL_ALREADY_EXISTS": "此電子郵件已註冊",
+    "AUTH_WEAK_PASSWORD": "密碼強度太弱，請使用至少8個字元",
+    "API_SERVER_ERROR": "伺服器錯誤，請稍後再試",
+    "API_BAD_REQUEST": "無效的請求",
+    "API_NOT_FOUND": "找不到請求的資料",
+    "API_TIMEOUT": "請求逾時，請重試",
+    "API_RATE_LIMITED": "請求次數過多，請稍後再試",
+    "API_EXTERNAL_SERVICE_ERROR": "外部服務錯誤",
+    "ANALYSIS_TIMEOUT": "分析逾時，請稍後再試",
+    "ANALYSIS_ABORTED": "分析已中止",
+    "ANALYSIS_SAVE_FAILED": "分析結果儲存失敗",
+    "ANALYSIS_AI_SERVICE_ERROR": "AI服務發生問題",
+    "ANALYSIS_AI_CONFIG_ERROR": "AI服務設定錯誤",
+    "ANALYSIS_AI_RATE_LIMITED": "AI服務請求超限，請稍後再試",
+    "ANALYSIS_INVALID_SAJU_DATA": "出生資料無效",
+    "ANALYSIS_MANSERYEOK_ERROR": "萬年曆計算出錯",
+    "PROFILE_NOT_FOUND": "找不到檔案",
+    "PROFILE_CREATE_FAILED": "檔案建立失敗",
+    "PROFILE_UPDATE_FAILED": "檔案更新失敗",
+    "PROFILE_DELETE_FAILED": "檔案刪除失敗",
+    "PROFILE_MAX_LIMIT_EXCEEDED": "超過檔案最大數量限制",
+    "CREDIT_INSUFFICIENT": "積分不足",
+    "CREDIT_DEDUCTION_FAILED": "積分扣除失敗",
+    "CREDIT_FETCH_FAILED": "積分查詢失敗",
+    "PAYMENT_SESSION_CREATE_FAILED": "付款工作階段建立失敗",
+    "PAYMENT_VERIFICATION_FAILED": "付款驗證失敗",
+    "PAYMENT_CANCELLED": "付款已取消",
+    "PAYMENT_AMOUNT_MISMATCH": "付款金額不符",
+    "VALIDATION_REQUIRED_FIELD_MISSING": "請填寫必填欄位",
+    "VALIDATION_INVALID_DATE": "請輸入有效的日期",
+    "VALIDATION_INVALID_EMAIL": "請輸入有效的電子郵件地址",
+    "VALIDATION_OUT_OF_RANGE": "輸入值超出允許範圍"
   }
 }

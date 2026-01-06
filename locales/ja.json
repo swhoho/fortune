@@ -466,6 +466,46 @@
       "saju": "四柱",
       "daewun": "大運"
     },
+    "profile": {
+      "title": "プロフィール情報",
+      "birthday": "生年月日",
+      "age": "年齢",
+      "solar": "新暦",
+      "lunar": "旧暦",
+      "lunarLeap": "旧暦(閏月)"
+    },
+    "sajuTable": {
+      "title": "四柱命式",
+      "hour": "時",
+      "day": "日",
+      "month": "月",
+      "year": "年",
+      "division": "区分"
+    },
+    "daewun": {
+      "title": "大運",
+      "current": "現在の大運",
+      "scrollHint": "左右にスクロールしてください"
+    },
+    "personality": {
+      "title": "性格と特徴",
+      "willpower": "意志力",
+      "willpowerDesc": "心の強さ、強いほど頑固",
+      "average": "平均",
+      "weak": "弱い",
+      "normal": "普通",
+      "strong": "強い",
+      "outer": "外面性格",
+      "outerDesc": "第一印象として表に出る性格",
+      "inner": "内面性格",
+      "innerDesc": "親しくなって一緒に仕事や旅行をすると分かる本当の性格",
+      "social": "対人関係",
+      "socialDesc": "家族宮の環境と対人関係スタイル"
+    },
+    "characteristics": {
+      "title": "四柱特徴",
+      "subtitle": "四柱に現れた特徴"
+    },
     "wealth": {
       "title": "財運と異性",
       "wealthBlessing": "財運",
@@ -525,7 +565,8 @@
       "fortune": "財運と恋愛運を調べています...",
       "scoring": "分析スコアを計算しています...",
       "visualization": "四柱命盤を生成しています...",
-      "saving": "分析結果を保存しています..."
+      "saving": "分析結果を保存しています...",
+      "complete": "分析が完了しました！"
     },
     "preparing": "分析を準備しています...",
     "progress": "進行状況",
@@ -579,8 +620,8 @@
     },
     "empty": {
       "title": "登録されたプロフィールがありません",
-      "description": "プロフィールを登録して運勢分析を始めましょう",
-      "addFirst": "プロフィールを登録"
+      "subtitle": "分析するプロフィールを先に登録してください",
+      "addButton": "プロフィールを登録する"
     },
     "form": {
       "name": "氏名",
@@ -644,5 +685,44 @@
       "deleteSuccess": "プロフィールを削除しました",
       "error": "エラーが発生しました"
     }
+  },
+  "errors": {
+    "AUTH_UNAUTHORIZED": "ログインが必要です",
+    "AUTH_SESSION_EXPIRED": "セッションが期限切れです。再度ログインしてください",
+    "AUTH_FORBIDDEN": "アクセス権限がありません",
+    "AUTH_INVALID_CREDENTIALS": "メールアドレスまたはパスワードが正しくありません",
+    "AUTH_EMAIL_NOT_VERIFIED": "メールアドレスの認証が必要です",
+    "AUTH_EMAIL_ALREADY_EXISTS": "このメールアドレスは既に登録されています",
+    "AUTH_WEAK_PASSWORD": "パスワードが弱すぎます。8文字以上で入力してください",
+    "API_SERVER_ERROR": "サーバーエラーが発生しました。しばらくしてから再試行してください",
+    "API_BAD_REQUEST": "無効なリクエストです",
+    "API_NOT_FOUND": "リクエストされたデータが見つかりません",
+    "API_TIMEOUT": "リクエストがタイムアウトしました。再試行してください",
+    "API_RATE_LIMITED": "リクエストが多すぎます。しばらくしてから再試行してください",
+    "API_EXTERNAL_SERVICE_ERROR": "外部サービスエラーが発生しました",
+    "ANALYSIS_TIMEOUT": "分析がタイムアウトしました。しばらくしてから再試行してください",
+    "ANALYSIS_ABORTED": "分析が中断されました",
+    "ANALYSIS_SAVE_FAILED": "分析結果の保存に失敗しました",
+    "ANALYSIS_AI_SERVICE_ERROR": "AIサービスに問題が発生しました",
+    "ANALYSIS_AI_CONFIG_ERROR": "AIサービスの設定に問題があります",
+    "ANALYSIS_AI_RATE_LIMITED": "AIサービスのリクエスト制限を超えました。しばらくしてから再試行してください",
+    "ANALYSIS_INVALID_SAJU_DATA": "生年月日データが正しくありません",
+    "ANALYSIS_MANSERYEOK_ERROR": "万年暦の計算中にエラーが発生しました",
+    "PROFILE_NOT_FOUND": "プロフィールが見つかりません",
+    "PROFILE_CREATE_FAILED": "プロフィールの作成に失敗しました",
+    "PROFILE_UPDATE_FAILED": "プロフィールの更新に失敗しました",
+    "PROFILE_DELETE_FAILED": "プロフィールの削除に失敗しました",
+    "PROFILE_MAX_LIMIT_EXCEEDED": "プロフィールの最大数を超えました",
+    "CREDIT_INSUFFICIENT": "クレジットが不足しています",
+    "CREDIT_DEDUCTION_FAILED": "クレジットの差し引きに失敗しました",
+    "CREDIT_FETCH_FAILED": "クレジット残高の取得に失敗しました",
+    "PAYMENT_SESSION_CREATE_FAILED": "決済セッションの作成に失敗しました",
+    "PAYMENT_VERIFICATION_FAILED": "決済の検証に失敗しました",
+    "PAYMENT_CANCELLED": "決済がキャンセルされました",
+    "PAYMENT_AMOUNT_MISMATCH": "決済金額が一致しません",
+    "VALIDATION_REQUIRED_FIELD_MISSING": "必須項目を入力してください",
+    "VALIDATION_INVALID_DATE": "正しい日付を入力してください",
+    "VALIDATION_INVALID_EMAIL": "正しいメールアドレスを入力してください",
+    "VALIDATION_OUT_OF_RANGE": "入力値が許容範囲外です"
   }
 }

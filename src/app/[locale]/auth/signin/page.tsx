@@ -24,12 +24,14 @@ function SignInForm() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [isEmailNotConfirmed, setIsEmailNotConfirmed] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [isGoogleLoading] = useState(false);
 
   const handleEmailSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
+    setIsEmailNotConfirmed(false);
     setIsLoading(true);
 
     try {
@@ -39,7 +41,15 @@ function SignInForm() {
       });
 
       if (error) {
-        setError(error.message);
+        // 이메일 미확인 에러 처리
+        if (error.message.toLowerCase().includes('email not confirmed')) {
+          setIsEmailNotConfirmed(true);
+          setError('이메일 인증이 완료되지 않았습니다. 이메일을 확인해주세요.');
+        } else if (error.message.toLowerCase().includes('invalid login credentials')) {
+          setError('이메일 또는 비밀번호가 올바르지 않습니다.');
+        } else {
+          setError(error.message);
+        }
       } else if (data.user) {
         router.push(callbackUrl);
         router.refresh();
@@ -82,7 +92,17 @@ function SignInForm() {
 
           <form onSubmit={handleEmailSignIn} className="space-y-4">
             {error && (
-              <div className="rounded-md bg-red-900/30 p-3 text-sm text-red-400">{error}</div>
+              <div className="rounded-md bg-red-900/30 p-3 text-sm text-red-400">
+                {error}
+                {isEmailNotConfirmed && (
+                  <Link
+                    href={`/auth/verify-email?email=${encodeURIComponent(email)}`}
+                    className="mt-2 block text-[#d4af37] hover:underline"
+                  >
+                    인증 메일 재전송하기
+                  </Link>
+                )}
+              </div>
             )}
 
             <div className="space-y-2">
@@ -102,9 +122,17 @@ function SignInForm() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="password" className="text-gray-300">
-                비밀번호
-              </Label>
+              <div className="flex items-center justify-between">
+                <Label htmlFor="password" className="text-gray-300">
+                  비밀번호
+                </Label>
+                <Link
+                  href="/auth/forgot-password"
+                  className="text-xs text-gray-400 hover:text-[#d4af37]"
+                >
+                  비밀번호 찾기
+                </Link>
+              </div>
               <Input
                 id="password"
                 type="password"

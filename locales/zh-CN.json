@@ -466,6 +466,46 @@
       "saju": "四柱",
       "daewun": "大运"
     },
+    "profile": {
+      "title": "档案信息",
+      "birthday": "出生日期",
+      "age": "年龄",
+      "solar": "阳历",
+      "lunar": "阴历",
+      "lunarLeap": "阴历(闰月)"
+    },
+    "sajuTable": {
+      "title": "四柱命盘",
+      "hour": "时",
+      "day": "日",
+      "month": "月",
+      "year": "年",
+      "division": "区分"
+    },
+    "daewun": {
+      "title": "大运",
+      "current": "当前大运",
+      "scrollHint": "左右滑动查看"
+    },
+    "personality": {
+      "title": "性格与特征",
+      "willpower": "意志力",
+      "willpowerDesc": "内心的强度，越强越固执",
+      "average": "平均",
+      "weak": "弱",
+      "normal": "普通",
+      "strong": "强",
+      "outer": "外在性格",
+      "outerDesc": "初次见面时表现出的性格",
+      "inner": "内在性格",
+      "innerDesc": "熟悉后一起工作或旅行时才能了解的真实性格",
+      "social": "人际关系",
+      "socialDesc": "家庭宫的环境状况与人际关系风格"
+    },
+    "characteristics": {
+      "title": "八字特征",
+      "subtitle": "八字中呈现的特征"
+    },
     "wealth": {
       "title": "财运与异性",
       "wealthBlessing": "财运",
@@ -525,7 +565,8 @@
       "fortune": "正在查看财运和恋爱运...",
       "scoring": "正在计算分析评分...",
       "visualization": "正在生成八字命盘...",
-      "saving": "正在保存分析结果..."
+      "saving": "正在保存分析结果...",
+      "complete": "分析完成！"
     },
     "preparing": "正在准备分析...",
     "progress": "进度",
@@ -579,8 +620,8 @@
     },
     "empty": {
       "title": "暂无档案",
-      "description": "添加档案开始运势分析",
-      "addFirst": "添加档案"
+      "subtitle": "请先添加档案进行分析",
+      "addButton": "添加档案"
     },
     "form": {
       "name": "姓名",
@@ -644,5 +685,44 @@
       "deleteSuccess": "档案删除成功",
       "error": "发生错误"
     }
+  },
+  "errors": {
+    "AUTH_UNAUTHORIZED": "请登录后继续",
+    "AUTH_SESSION_EXPIRED": "会话已过期，请重新登录",
+    "AUTH_FORBIDDEN": "没有访问权限",
+    "AUTH_INVALID_CREDENTIALS": "邮箱或密码不正确",
+    "AUTH_EMAIL_NOT_VERIFIED": "请先验证您的邮箱",
+    "AUTH_EMAIL_ALREADY_EXISTS": "该邮箱已注册",
+    "AUTH_WEAK_PASSWORD": "密码强度太弱，请使用至少8个字符",
+    "API_SERVER_ERROR": "服务器错误，请稍后再试",
+    "API_BAD_REQUEST": "无效的请求",
+    "API_NOT_FOUND": "未找到请求的数据",
+    "API_TIMEOUT": "请求超时，请重试",
+    "API_RATE_LIMITED": "请求次数过多，请稍后再试",
+    "API_EXTERNAL_SERVICE_ERROR": "外部服务错误",
+    "ANALYSIS_TIMEOUT": "分析超时，请稍后再试",
+    "ANALYSIS_ABORTED": "分析已中止",
+    "ANALYSIS_SAVE_FAILED": "分析结果保存失败",
+    "ANALYSIS_AI_SERVICE_ERROR": "AI服务出现问题",
+    "ANALYSIS_AI_CONFIG_ERROR": "AI服务配置错误",
+    "ANALYSIS_AI_RATE_LIMITED": "AI服务请求超限，请稍后再试",
+    "ANALYSIS_INVALID_SAJU_DATA": "出生数据无效",
+    "ANALYSIS_MANSERYEOK_ERROR": "万年历计算出错",
+    "PROFILE_NOT_FOUND": "未找到档案",
+    "PROFILE_CREATE_FAILED": "档案创建失败",
+    "PROFILE_UPDATE_FAILED": "档案更新失败",
+    "PROFILE_DELETE_FAILED": "档案删除失败",
+    "PROFILE_MAX_LIMIT_EXCEEDED": "超过档案最大数量限制",
+    "CREDIT_INSUFFICIENT": "积分不足",
+    "CREDIT_DEDUCTION_FAILED": "积分扣除失败",
+    "CREDIT_FETCH_FAILED": "积分查询失败",
+    "PAYMENT_SESSION_CREATE_FAILED": "支付会话创建失败",
+    "PAYMENT_VERIFICATION_FAILED": "支付验证失败",
+    "PAYMENT_CANCELLED": "支付已取消",
+    "PAYMENT_AMOUNT_MISMATCH": "支付金额不匹配",
+    "VALIDATION_REQUIRED_FIELD_MISSING": "请填写必填项",
+    "VALIDATION_INVALID_DATE": "请输入有效的日期",
+    "VALIDATION_INVALID_EMAIL": "请输入有效的邮箱地址",
+    "VALIDATION_OUT_OF_RANGE": "输入值超出允许范围"
   }
 }

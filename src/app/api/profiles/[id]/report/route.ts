@@ -86,11 +86,50 @@ function getDefaultDaewunDescription(tenGod: string | undefined, _age: number): 
 
 /**
  * DB personality 데이터를 클라이언트 PersonalitySectionData 형식으로 변환
+ *
+ * 지원 구조:
+ * 1. 영문 키: { willpower_analysis, outer_personality, inner_personality, interpersonal_style }
+ * 2. 한글 키: { 성격분석: { 겉성격, 속성격, 의지력, 대인관계_스타일 } }
  */
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function transformPersonality(personality: any) {
   if (!personality) return null;
 
+  // 한글 키 구조 감지 (성격분석 래퍼 또는 직접 한글 키)
+  const koreanData = personality.성격분석 || personality;
+  const isKoreanKeys = koreanData.겉성격 || koreanData.속성격 || koreanData.의지력;
+
+  if (isKoreanKeys) {
+    // 한글 키 구조 (Gemini 한글 응답)
+    const outer = koreanData.겉성격 || {};
+    const inner = koreanData.속성격 || {};
+    const willpower = koreanData.의지력 || {};
+    const social = koreanData.대인관계_스타일 || {};
+
+    return {
+      willpower: {
+        score: willpower.점수 || willpower.score || 0,
+        description: willpower.설명 || willpower.description || '',
+      },
+      outerPersonality: {
+        label: outer.인상 || outer.유형 || '외면',
+        summary: outer.근거 || outer.특성 || '',
+        description: outer.사회적_페르소나 || outer.설명 || '',
+      },
+      innerPersonality: {
+        label: inner.본성 || inner.유형 || '내면',
+        summary: inner.근거 || inner.특성 || '',
+        description: inner.감정_처리방식 || inner.설명 || '',
+      },
+      socialStyle: {
+        label: social.유형 || social.스타일 || '대인관계',
+        summary: Array.isArray(social.강점) ? social.강점.join(', ') : (social.강점 || ''),
+        description: Array.isArray(social.약점) ? social.약점.join(', ') : (social.약점 || ''),
+      },
+    };
+  }
+
+  // 영문 키 구조 (기존 호환)
   return {
     willpower: {
       score: personality.willpower_analysis?.score || 0,
@@ -153,50 +192,105 @@ function transformCharacteristics(basicAnalysis: any) {
 
 /**
  * DB aptitude 데이터를 클라이언트 AptitudeSectionData 형식으로 변환
+ *
+ * 지원 구조:
+ * 1. 영문 키: { talents, recommended_fields, analysis_summary, talent_utilization }
+ * 2. 한글 키: { 타고난_재능, 추천_분야, 핵심_키워드, 재능_활용_상태 }
  */
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function transformAptitude(aptitude: any, scores: any) {
   if (!aptitude) return null;
 
-  // 키워드 추출
-  const keywords: string[] = aptitude.analysis_summary?.keywords || [];
+  // 한글 키 vs 영문 키 감지
+  const isKoreanKeys = aptitude.타고난_재능 || aptitude.추천_분야 || aptitude.핵심_키워드;
 
-  // 주 재능 (첫 번째 talent 사용)
-  const firstTalent = aptitude.talents?.[0];
-  const mainTalent = {
-    label: '주 재능',
-    title: firstTalent?.name || '재능 분석',
-    content: firstTalent?.description || '',
-  };
+  let keywords: string[] = [];
+  let mainTalent = { label: '주 재능', title: '재능 분석', content: '' };
+  let talentStatus = { label: '재능의 상태', title: '재능 활용 상태', content: '' };
+  let careerChoice = { label: '진로선택', title: '진로 선택 가이드', content: '' };
+  let recommendedJobs: string[] = [];
+  let avoidedFields: string[] = [];
 
-  // 재능의 상태
-  const talentUtil = aptitude.talent_utilization;
-  const talentStatus = {
-    label: '재능의 상태',
-    title: talentUtil
-      ? `현재 ${talentUtil.current_level || 0}% → 잠재력 ${talentUtil.potential_level || 0}%`
-      : '재능 활용 상태',
-    content: talentUtil?.advice || '',
-  };
+  if (isKoreanKeys) {
+    // 한글 키 구조 (Gemini 한글 응답)
+    keywords = aptitude.핵심_키워드 || [];
 
-  // 진로선택 (analysis_summary.core_logic 사용)
-  const careerChoice = {
-    label: '진로선택',
-    title: '진로 선택 가이드',
-    content: aptitude.analysis_summary?.core_logic || '',
-  };
+    // 주 재능
+    const talents = aptitude.타고난_재능 || [];
+    if (talents.length > 0) {
+      const firstTalent = talents[0];
+      mainTalent = {
+        label: '주 재능',
+        title: typeof firstTalent === 'string' ? firstTalent : (firstTalent.이름 || firstTalent.name || '재능 분석'),
+        content: typeof firstTalent === 'string' ? '' : (firstTalent.설명 || firstTalent.description || ''),
+      };
+    }
 
-  // 추천직종
-  const recommendedJobs: string[] = (aptitude.recommended_fields || []).map(
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    (field: any) => (typeof field === 'string' ? field : field.name || field.field || '')
-  );
+    // 재능 활용 상태
+    const talentUtil = aptitude.재능_활용_상태 || {};
+    if (talentUtil.현재_수준 !== undefined || talentUtil.잠재력 !== undefined) {
+      talentStatus = {
+        label: '재능의 상태',
+        title: `현재 ${talentUtil.현재_수준 || 0}% → 잠재력 ${talentUtil.잠재력 || 0}%`,
+        content: talentUtil.조언 || talentUtil.advice || '',
+      };
+    }
 
-  // 회피직종 정보도 업무스타일에 포함
-  const avoidedFields = (aptitude.avoided_fields || [])
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    .map((field: any) => (typeof field === 'string' ? field : field.name || field.field || ''))
-    .filter(Boolean);
+    // 진로 선택 (분석 요약에서 추출)
+    const summary = aptitude.분석_요약 || aptitude.analysis_summary || {};
+    careerChoice = {
+      label: '진로선택',
+      title: '진로 선택 가이드',
+      content: summary.핵심_논리 || summary.core_logic || '',
+    };
+
+    // 추천 직종
+    recommendedJobs = (aptitude.추천_분야 || []).map(
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      (field: any) => (typeof field === 'string' ? field : (field.이름 || field.분야 || field.name || ''))
+    );
+
+    // 회피 직종
+    avoidedFields = (aptitude.회피_분야 || []).map(
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      (field: any) => (typeof field === 'string' ? field : (field.이름 || field.분야 || field.name || ''))
+    ).filter(Boolean);
+  } else {
+    // 영문 키 구조 (기존 호환)
+    keywords = aptitude.analysis_summary?.keywords || [];
+
+    const firstTalent = aptitude.talents?.[0];
+    mainTalent = {
+      label: '주 재능',
+      title: firstTalent?.name || '재능 분석',
+      content: firstTalent?.description || '',
+    };
+
+    const talentUtil = aptitude.talent_utilization;
+    talentStatus = {
+      label: '재능의 상태',
+      title: talentUtil
+        ? `현재 ${talentUtil.current_level || 0}% → 잠재력 ${talentUtil.potential_level || 0}%`
+        : '재능 활용 상태',
+      content: talentUtil?.advice || '',
+    };
+
+    careerChoice = {
+      label: '진로선택',
+      title: '진로 선택 가이드',
+      content: aptitude.analysis_summary?.core_logic || '',
+    };
+
+    recommendedJobs = (aptitude.recommended_fields || []).map(
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      (field: any) => (typeof field === 'string' ? field : field.name || field.field || '')
+    );
+
+    avoidedFields = (aptitude.avoided_fields || [])
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      .map((field: any) => (typeof field === 'string' ? field : field.name || field.field || ''))
+      .filter(Boolean);
+  }
 
   // 업무스타일
   const workStyle = {
@@ -205,19 +299,18 @@ function transformAptitude(aptitude: any, scores: any) {
     content: avoidedFields.length > 0 ? `피해야 할 분야: ${avoidedFields.join(', ')}` : '',
   };
 
-  // 학업스타일 (기본값)
+  // 학업스타일
   const studyStyle = {
     label: '학업스타일',
     title: '나의 학습 방식',
-    content: aptitude.study_style?.description || '',
+    content: aptitude.study_style?.description || aptitude.학습_스타일?.설명 || '',
   };
 
   // 일자리 능력 그래프 (scores.work에서 생성)
-  // NOTE: calculator.ts 필드명 사용 (drive, execution, completion, management, planning)
   const workScores = scores?.work || {};
   const jobAbilityTraits = [
     { label: '기획/연구', value: workScores.planning || 0 },
-    { label: '끈기/정력', value: workScores.drive || 0 }, // perseverance → drive
+    { label: '끈기/정력', value: workScores.drive || 0 },
     { label: '실천/수단', value: workScores.execution || 0 },
     { label: '완성/판매', value: workScores.completion || 0 },
     { label: '관리/평가', value: workScores.management || 0 },
@@ -237,7 +330,10 @@ function transformAptitude(aptitude: any, scores: any) {
 
 /**
  * DB wealth 데이터를 클라이언트 WealthSectionData 형식으로 변환
- * FortuneResult.wealth 구조: { pattern, strengths, risks, advice }
+ *
+ * 지원 구조:
+ * 1. 영문 키: fortune.wealth { pattern, strengths, risks, advice }
+ * 2. 한글 키: fortune.재물운 { 패턴_유형, 재물운_강점, 재물운_리스크, 조언, 재물_점수, 패턴_상세_설명 }
  */
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function transformWealth(wealth: any, scores: any) {
@@ -252,29 +348,55 @@ function transformWealth(wealth: any, scores: any) {
 
   if (!wealth) return defaultWealth;
 
-  // FortuneResult.wealth 구조에서 content 생성
+  // 한글 키 vs 영문 키 감지
+  const isKoreanKeys = wealth.패턴_유형 || wealth.재물운_강점 || wealth.조언;
+
   let content = '';
-  if (wealth.pattern) {
-    content += `재물 패턴: ${wealth.pattern}\n\n`;
-  }
-  if (wealth.strengths?.length > 0) {
-    content += `강점: ${wealth.strengths.join(', ')}\n\n`;
-  }
-  if (wealth.risks?.length > 0) {
-    content += `주의사항: ${wealth.risks.join(', ')}\n\n`;
-  }
-  if (wealth.advice) {
-    content += wealth.advice;
-  }
-  // 기존 구조도 지원 (하위 호환)
-  if (!content && (wealth.description || wealth.content)) {
-    content = wealth.description || wealth.content || '';
+  let patternTitle = '';
+  let wealthScore = wealth.score;
+
+  if (isKoreanKeys) {
+    // 한글 키 구조 (Gemini 한글 응답)
+    patternTitle = wealth.패턴_유형 || '';
+    wealthScore = wealth.재물_점수 || wealthScore;
+
+    if (wealth.패턴_상세_설명) {
+      content += `${wealth.패턴_상세_설명}\n\n`;
+    }
+    if (wealth.재물운_강점?.length > 0) {
+      content += `**강점**\n${wealth.재물운_강점.join('\n')}\n\n`;
+    }
+    if (wealth.재물운_리스크?.length > 0) {
+      content += `**주의사항**\n${wealth.재물운_리스크.join('\n')}\n\n`;
+    }
+    if (wealth.조언) {
+      content += `**조언**\n${wealth.조언}`;
+    }
+  } else {
+    // 영문 키 구조 (기존 호환)
+    patternTitle = wealth.pattern || '';
+    if (wealth.pattern) {
+      content += `재물 패턴: ${wealth.pattern}\n\n`;
+    }
+    if (wealth.strengths?.length > 0) {
+      content += `강점: ${wealth.strengths.join(', ')}\n\n`;
+    }
+    if (wealth.risks?.length > 0) {
+      content += `주의사항: ${wealth.risks.join(', ')}\n\n`;
+    }
+    if (wealth.advice) {
+      content += wealth.advice;
+    }
+    // 기존 구조도 지원 (하위 호환)
+    if (!content && (wealth.description || wealth.content)) {
+      content = wealth.description || wealth.content || '';
+    }
   }
 
   // 재물복 카드
   const wealthFortune = {
     label: wealth.label || '재물복',
-    title: wealth.title || wealth.pattern || '내안에 존재하는 재물복',
+    title: wealth.title || patternTitle || '내안에 존재하는 재물복',
     content: content || '재물운 분석 데이터가 없습니다.',
   };
 
@@ -299,13 +421,16 @@ function transformWealth(wealth: any, scores: any) {
     wealthFortune,
     partnerInfluence,
     wealthTraits,
-    score: wealth.score,
+    score: wealthScore,
   };
 }
 
 /**
  * DB love 데이터를 클라이언트 RomanceSectionData 형식으로 변환
- * FortuneResult.love 구조: { style, idealPartner, compatibilityPoints, warnings }
+ *
+ * 지원 구조:
+ * 1. 영문 키: fortune.love { style, idealPartner, compatibilityPoints, warnings }
+ * 2. 한글 키: fortune.연애운 { 스타일_유형, 이상형_특성, 궁합_점수, 주의사항, 결혼관, 연애_조언 }
  */
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function transformRomance(love: any, scores: any) {
@@ -313,20 +438,18 @@ function transformRomance(love: any, scores: any) {
   const loveScores = scores?.love || {};
 
   // NOTE: calculator.ts 필드명 → RomanceSectionData 필드명 매핑
-  // love: consideration, humor, emotion, selfEsteem, adventure, sincerity, sociability, finance, trustworthiness, expressiveness
-  // aptitude: artistry
   const aptitudeScores = scores?.aptitude || {};
   const defaultRomanceTraits = {
     consideration: loveScores.consideration || 50,
     humor: loveScores.humor || 50,
-    artistry: aptitudeScores.artistry || 50, // aptitude에서 가져오기
-    vanity: loveScores.selfEsteem || 50, // selfEsteem → vanity (개념 유사)
+    artistry: aptitudeScores.artistry || 50,
+    vanity: loveScores.selfEsteem || 50,
     adventure: loveScores.adventure || 50,
     sincerity: loveScores.sincerity || 50,
     sociability: loveScores.sociability || 50,
-    financial: loveScores.finance || 50, // finance → financial
-    reliability: loveScores.trustworthiness || 50, // trustworthiness → reliability
-    expression: loveScores.expressiveness || 50, // expressiveness → expression
+    financial: loveScores.finance || 50,
+    reliability: loveScores.trustworthiness || 50,
+    expression: loveScores.expressiveness || 50,
   };
 
   const defaultRomance = {
@@ -345,28 +468,71 @@ function transformRomance(love: any, scores: any) {
 
   if (!love) return defaultRomance;
 
-  // FortuneResult.love 구조에서 content 생성
+  // 한글 키 vs 영문 키 감지
+  const isKoreanKeys = love.스타일_유형 || love.이상형_특성 || love.연애_조언;
+
   let datingContent = '';
-  if (love.style) {
-    datingContent += `연애 스타일: ${love.style}\n\n`;
-  }
-  if (love.idealPartner?.length > 0) {
-    datingContent += `이상형: ${love.idealPartner.join(', ')}\n\n`;
-  }
-  if (love.compatibilityPoints?.length > 0) {
-    datingContent += `궁합 포인트: ${love.compatibilityPoints.join(', ')}`;
-  }
-
   let spouseContent = '';
-  if (love.warnings?.length > 0) {
-    spouseContent = `주의사항: ${love.warnings.join(', ')}`;
+  let styleTitle = '';
+  let romanceScore = love.score;
+
+  if (isKoreanKeys) {
+    // 한글 키 구조 (Gemini 한글 응답)
+    styleTitle = love.스타일_유형 || '';
+    romanceScore = love.궁합_점수 || romanceScore;
+
+    if (love.스타일_유형) {
+      datingContent += `**연애 스타일**: ${love.스타일_유형}\n\n`;
+    }
+    if (love.이상형_특성 && typeof love.이상형_특성 === 'object') {
+      // 객체 구조인 경우
+      const idealPartner = love.이상형_특성;
+      if (idealPartner.외모_선호) {
+        datingContent += `**외모 선호**: ${idealPartner.외모_선호}\n`;
+      }
+      if (idealPartner.성격_선호) {
+        datingContent += `**성격 선호**: ${idealPartner.성격_선호}\n`;
+      }
+      if (idealPartner.가치관_선호) {
+        datingContent += `**가치관 선호**: ${idealPartner.가치관_선호}\n\n`;
+      }
+    } else if (typeof love.이상형_특성 === 'string') {
+      // 문자열로 반환된 경우
+      datingContent += `**이상형**: ${love.이상형_특성}\n\n`;
+    }
+    if (love.연애_조언) {
+      datingContent += `**조언**\n${love.연애_조언}`;
+    }
+
+    // 배우자관/결혼관
+    if (love.결혼관) {
+      spouseContent += `${love.결혼관}\n\n`;
+    }
+    if (love.주의사항?.length > 0) {
+      spouseContent += `**주의사항**\n${love.주의사항.join('\n')}`;
+    }
+  } else {
+    // 영문 키 구조 (기존 호환)
+    styleTitle = love.style || '';
+    if (love.style) {
+      datingContent += `연애 스타일: ${love.style}\n\n`;
+    }
+    if (love.idealPartner?.length > 0) {
+      datingContent += `이상형: ${love.idealPartner.join(', ')}\n\n`;
+    }
+    if (love.compatibilityPoints?.length > 0) {
+      datingContent += `궁합 포인트: ${love.compatibilityPoints.join(', ')}`;
+    }
+
+    if (love.warnings?.length > 0) {
+      spouseContent = `주의사항: ${love.warnings.join(', ')}`;
+    }
   }
 
-  // 연애심리 카드 - FortuneResult.love 구조 사용
-  // 기존 구조(dating_psychology)도 하위 호환 지원
+  // 연애심리 카드 - 기존 구조(dating_psychology)도 하위 호환 지원
   const datingPsychology = {
     label: love.dating_psychology?.label || '연애심리',
-    title: love.dating_psychology?.title || love.style || '결혼전 연애/데이트 심리',
+    title: love.dating_psychology?.title || styleTitle || '결혼전 연애/데이트 심리',
     content:
       love.dating_psychology?.description ||
       love.dating_psychology?.content ||
@@ -390,7 +556,7 @@ function transformRomance(love: any, scores: any) {
       }
     : undefined;
 
-  // 연애 특성 (scores에서 생성) - defaultRomanceTraits와 동일한 매핑 사용
+  // 연애 특성 (scores에서 생성)
   const romanceTraits = {
     consideration: loveScores.consideration || 50,
     humor: loveScores.humor || 50,
@@ -409,7 +575,7 @@ function transformRomance(love: any, scores: any) {
     spouseView,
     personalityPattern,
     romanceTraits,
-    score: love.score,
+    score: romanceScore,
   };
 }
 
@@ -498,11 +664,19 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
       daewun: transformDaewun(report.daewun || []),
       jijanggan: report.jijanggan,
       // 분석 결과 (analysis JSONB에서 추출 및 클라이언트 형식 변환)
+      // 한글 키(성격분석) 또는 영문 키(personality) 지원
       personality: transformPersonality(report.analysis?.personality),
       characteristics: transformCharacteristics(report.analysis?.basicAnalysis),
       aptitude: transformAptitude(report.analysis?.aptitude, report.scores),
-      wealth: transformWealth(report.analysis?.fortune?.wealth, report.scores),
-      romance: transformRomance(report.analysis?.fortune?.love, report.scores), // FortuneResult.love 사용
+      // fortune 데이터: 한글 키(재물운, 연애운) 또는 영문 키(wealth, love) 지원
+      wealth: transformWealth(
+        report.analysis?.fortune?.재물운 || report.analysis?.fortune?.wealth,
+        report.scores
+      ),
+      romance: transformRomance(
+        report.analysis?.fortune?.연애운 || report.analysis?.fortune?.love,
+        report.scores
+      ),
       // 점수 및 시각화
       scores: report.scores,
       visualizationUrl: report.visualization_url,
