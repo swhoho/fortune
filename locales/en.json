@@ -27,7 +27,7 @@
     }
   },
   "common": {
-    "appName": "Master's Insight AI",
+    "appName": "Master's Insight",
     "loading": "Loading...",
     "error": "An error occurred",
     "retry": "Retry",

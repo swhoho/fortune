@@ -27,7 +27,7 @@
     }
   },
   "common": {
-    "appName": "Master's Insight AI",
+    "appName": "Master's Insight",
     "loading": "載入中...",
     "error": "發生錯誤",
     "retry": "重試",
