@@ -254,7 +254,7 @@ export default function YearlyProcessingPage() {
         };
       }
 
-      setCurrentStep('build_prompt');
+      setCurrentStep('init');
 
       // POST 요청 (즉시 반환됨)
       const response = await fetch('/api/analysis/yearly', {

@@ -1,11 +1,10 @@
 /**
  * 상담 메시지 API (비동기/폴링 방식)
  * GET: 세션 메시지 조회 (status 포함)
- * POST: 메시지 전송 → 즉시 응답 → 백그라운드에서 AI 생성
+ * POST: 메시지 전송 → 즉시 응답 → Python 백엔드에서 AI 생성
  */
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient, getAuthenticatedUser } from '@/lib/supabase/server';
-import { consultationAI } from '@/lib/ai/consultation';
 import { AUTH_ERRORS, API_ERRORS, createErrorResponse, getStatusCode } from '@/lib/errors/codes';
 import type {
   ConsultationMessageRow,
@@ -13,8 +12,9 @@ import type {
   SendMessageResponse,
   GetMessagesResponse,
 } from '@/types/consultation';
-import type { ReportDaewunItem } from '@/types/report';
-import type { PillarsHanja } from '@/types/saju';
+
+// Vercel serverless 캐시 비활성화
+export const dynamic = 'force-dynamic';
 
 interface RouteContext {
   params: Promise<{ id: string; sessionId: string }>;
@@ -227,19 +227,50 @@ export async function POST(request: NextRequest, context: RouteContext) {
       );
     }
 
-    // 3. 백그라운드에서 AI 생성 (fire and forget 패턴)
-    // Promise를 시작하고 await 하지 않음 - Vercel이 응답 후에도 실행 계속
-    generateAIResponse({
-      aiMessageId: aiMessage.id,
-      sessionId,
-      profileReportId: session.profile_report_id,
-      userContent: body.content,
-      messageType: body.messageType,
-      skipClarification,
-      currentRound,
-    }).catch((err) => {
-      console.error('[ConsultationMessages] 백그라운드 AI 생성 에러:', err);
-    });
+    // 3. Python 백엔드에 AI 생성 요청 (Railway - 타임아웃 제한 없음)
+    const pythonApiUrl = process.env.PYTHON_API_URL;
+    if (!pythonApiUrl) {
+      console.error('[ConsultationMessages] PYTHON_API_URL 환경변수가 설정되지 않았습니다');
+      // Python URL 미설정 시 AI 메시지를 failed로 업데이트
+      await supabase
+        .from('consultation_messages')
+        .update({
+          status: 'failed',
+          error_message: '서버 구성 오류입니다. 관리자에게 문의해주세요.',
+        })
+        .eq('id', aiMessage.id);
+    } else {
+      // 언어 코드 추출 (Accept-Language 헤더 또는 기본값)
+      const acceptLanguage = request.headers.get('accept-language') || 'ko';
+      const language = acceptLanguage.split(',')[0]?.split('-')[0] || 'ko';
+
+      try {
+        await fetch(`${pythonApiUrl}/api/consultation/generate`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            message_id: aiMessage.id,
+            session_id: sessionId,
+            profile_report_id: session.profile_report_id,
+            user_content: body.content,
+            message_type: body.messageType,
+            skip_clarification: skipClarification,
+            question_round: currentRound,
+            language: language,
+          }),
+        });
+      } catch (err) {
+        console.error('[ConsultationMessages] Python 백엔드 호출 실패:', err);
+        // Python 호출 실패 시 AI 메시지를 failed로 업데이트
+        await supabase
+          .from('consultation_messages')
+          .update({
+            status: 'failed',
+            error_message: 'AI 서버 연결에 실패했습니다. 잠시 후 다시 시도해주세요.',
+          })
+          .eq('id', aiMessage.id);
+      }
+    }
 
     // 4. 즉시 응답 반환
     const response: SendMessageResponse = {
@@ -270,196 +301,5 @@ export async function POST(request: NextRequest, context: RouteContext) {
       { success: false, ...createErrorResponse(API_ERRORS.SERVER_ERROR) },
       { status: getStatusCode(API_ERRORS.SERVER_ERROR) }
     );
-  }
-}
-
-/**
- * 백그라운드 AI 응답 생성
- */
-async function generateAIResponse(params: {
-  aiMessageId: string;
-  sessionId: string;
-  profileReportId: string;
-  userContent: string;
-  messageType: 'user_question' | 'user_clarification';
-  skipClarification: boolean;
-  currentRound: number;
-}) {
-  const {
-    aiMessageId,
-    sessionId,
-    profileReportId,
-    userContent,
-    messageType,
-    skipClarification,
-    currentRound,
-  } = params;
-
-  // 새 Supabase 클라이언트 생성 (after 컨텍스트에서)
-  const supabase = createClient();
-
-  try {
-    // 리포트 데이터 조회
-    const { data: report, error: reportError } = await supabase
-      .from('profile_reports')
-      .select('pillars, daewun, analysis')
-      .eq('id', profileReportId)
-      .single();
-
-    if (reportError || !report) {
-      throw new Error('사주 분석 데이터를 불러올 수 없습니다');
-    }
-
-    // 이전 메시지 조회
-    const { data: previousMessages } = await supabase
-      .from('consultation_messages')
-      .select('*')
-      .eq('session_id', sessionId)
-      .neq('id', aiMessageId)
-      .order('created_at', { ascending: true });
-
-    // 세션 히스토리 구성
-    const sessionHistory: Array<{ question: string; answer: string }> = [];
-    let currentQuestion: string | null = null;
-
-    for (const msg of previousMessages || []) {
-      if (msg.message_type === 'user_question') {
-        currentQuestion = msg.content;
-      } else if (
-        msg.message_type === 'ai_answer' &&
-        msg.status === 'completed' &&
-        currentQuestion
-      ) {
-        sessionHistory.push({ question: currentQuestion, answer: msg.content });
-        currentQuestion = null;
-      }
-    }
-
-    // clarification 여부 확인
-    const lastClarification = (previousMessages || [])
-      .filter((m) => m.message_type === 'ai_clarification')
-      .pop();
-
-    const isUserQuestion = messageType === 'user_question';
-    const isUserClarification = messageType === 'user_clarification';
-
-    let aiContent: string;
-    let finalMessageType: 'ai_clarification' | 'ai_answer' = 'ai_answer';
-
-    if (isUserQuestion && !skipClarification && !lastClarification) {
-      // 첫 질문: clarification 시도
-      const clarificationResult = await consultationAI.generateClarification(userContent);
-
-      if (clarificationResult.success && clarificationResult.data) {
-        if (
-          clarificationResult.data.needsClarification &&
-          clarificationResult.data.clarificationQuestions.length > 0
-        ) {
-          finalMessageType = 'ai_clarification';
-          const questions = clarificationResult.data.clarificationQuestions;
-          aiContent = `더 정확한 상담을 위해 몇 가지 여쭤볼게요:\n\n${questions.map((q, i) => `${i + 1}. ${q}`).join('\n')}`;
-        } else if (!clarificationResult.data.isValidQuestion) {
-          aiContent =
-            clarificationResult.data.invalidReason ||
-            '죄송합니다. 사주 상담과 관련된 질문을 부탁드립니다.';
-        } else {
-          // 구체적인 질문 → 바로 답변
-          const answerResult = await consultationAI.generateAnswer({
-            question: userContent,
-            pillars: report.pillars as PillarsHanja,
-            daewun: (report.daewun || []) as ReportDaewunItem[],
-            analysisSummary: report.analysis?.summary,
-            sessionHistory,
-          });
-
-          if (!answerResult.success || !answerResult.data) {
-            throw new Error(answerResult.error?.message || 'AI 응답 생성 실패');
-          }
-          aiContent = answerResult.data.answer;
-        }
-      } else {
-        // clarification 실패 → 바로 답변 시도
-        const answerResult = await consultationAI.generateAnswer({
-          question: userContent,
-          pillars: report.pillars as PillarsHanja,
-          daewun: (report.daewun || []) as ReportDaewunItem[],
-          analysisSummary: report.analysis?.summary,
-          sessionHistory,
-        });
-
-        if (!answerResult.success || !answerResult.data) {
-          throw new Error(answerResult.error?.message || 'AI 응답 생성 실패');
-        }
-        aiContent = answerResult.data.answer;
-      }
-    } else {
-      // 추가 정보 응답 또는 건너뛰기 → 최종 답변
-      const originalQuestion =
-        (previousMessages || [])
-          .filter((m) => m.message_type === 'user_question' && m.question_round === currentRound)
-          .pop()?.content || userContent;
-
-      const answerResult = await consultationAI.generateAnswer({
-        question: originalQuestion,
-        pillars: report.pillars as PillarsHanja,
-        daewun: (report.daewun || []) as ReportDaewunItem[],
-        analysisSummary: report.analysis?.summary,
-        sessionHistory,
-        clarificationResponse: isUserClarification ? userContent : undefined,
-      });
-
-      if (!answerResult.success || !answerResult.data) {
-        throw new Error(answerResult.error?.message || 'AI 응답 생성 실패');
-      }
-      aiContent = answerResult.data.answer;
-    }
-
-    // 성공: AI 메시지 업데이트
-    await supabase
-      .from('consultation_messages')
-      .update({
-        content: aiContent,
-        message_type: finalMessageType,
-        status: 'completed',
-      })
-      .eq('id', aiMessageId);
-
-    // 최종 답변인 경우 세션 업데이트
-    if (finalMessageType === 'ai_answer') {
-      const { data: session } = await supabase
-        .from('consultation_sessions')
-        .select('question_count, title')
-        .eq('id', sessionId)
-        .single();
-
-      if (session) {
-        const newQuestionCount = session.question_count + 1;
-        const updateData: Record<string, unknown> = {
-          question_count: newQuestionCount,
-          status: newQuestionCount >= 5 ? 'completed' : 'active',
-          updated_at: new Date().toISOString(),
-        };
-
-        // 첫 답변이면 제목 업데이트
-        if (session.question_count === 0 && !session.title?.includes('상담')) {
-          updateData.title = userContent.slice(0, 30) + (userContent.length > 30 ? '...' : '');
-        }
-
-        await supabase.from('consultation_sessions').update(updateData).eq('id', sessionId);
-      }
-    }
-
-    console.log('[ConsultationMessages] AI 응답 생성 완료:', aiMessageId);
-  } catch (error) {
-    console.error('[ConsultationMessages] AI 응답 생성 실패:', error);
-
-    // 실패: 에러 상태로 업데이트
-    await supabase
-      .from('consultation_messages')
-      .update({
-        status: 'failed',
-        error_message: error instanceof Error ? error.message : 'AI 응답 생성에 실패했습니다',
-      })
-      .eq('id', aiMessageId);
   }
 }

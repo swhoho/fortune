@@ -605,6 +605,45 @@ async def start_section_reanalysis(request: dict):
         )
 
 
+# ============================================
+# 상담 AI 응답 생성 API (비동기 작업)
+# ============================================
+
+@app.post("/api/consultation/generate")
+async def start_consultation_generate(request: dict):
+    """
+    상담 AI 응답 생성 시작 (비동기)
+
+    백그라운드에서 Gemini AI로 상담 응답을 생성합니다.
+    상태 확인은 Next.js에서 DB를 폴링합니다.
+
+    - **message_id**: AI 메시지 ID (consultation_messages.id)
+    - **session_id**: 세션 ID
+    - **profile_report_id**: 리포트 ID
+    - **user_content**: 사용자 질문
+    - **message_type**: 메시지 타입 ('user_question' | 'user_clarification')
+    - **skip_clarification**: clarification 건너뛰기 여부
+    - **question_round**: 질문 라운드 (1-5)
+    - **language**: 언어 (ko, en, ja, zh-CN, zh-TW)
+
+    Returns:
+        처리 시작 확인
+    """
+    from services.consultation_service import consultation_service
+
+    try:
+        await consultation_service.start_generate(request)
+        return {
+            "success": True,
+            "message": "상담 응답 생성이 시작되었습니다."
+        }
+    except Exception as e:
+        raise HTTPException(
+            status_code=500,
+            detail=f"상담 응답 생성 시작 실패: {str(e)}"
+        )
+
+
 @app.exception_handler(ValueError)
 async def value_error_handler(request, exc):
     """입력값 오류 처리 (한국어)"""
