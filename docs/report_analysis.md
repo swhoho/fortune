@@ -102,24 +102,52 @@ class JobStore:
 
 ---
 
+## Normalize → Validate 파이프라인 (v2.4)
+
+Gemini 응답의 키 불일치 문제를 해결하는 2단계 파이프라인:
+
+```python
+# 1. Normalize: 한글/snake_case → camelCase
+normalized = normalize_all_keys(normalize_response(step_name, raw_response))
+
+# 2. Validate: Pydantic 스키마 검증 + default 값
+validated = validate_step_response(step_name, normalized, raise_on_error=True)
+```
+
+**스키마 파일**: `python/schemas/report_steps.py`
+
+```python
+class PersonalitySchema(BaseModel):
+    outerPersonality: str = Field(default="")
+    innerPersonality: str = Field(default="")
+    willpower: WillpowerSchema = Field(default_factory=WillpowerSchema)
+    socialStyle: SocialStyleSchema = Field(default_factory=SocialStyleSchema)
+```
+
+---
+
 ## 재시도 전략
 
-각 Gemini 분석 단계에서 **3회 재시도**:
+각 Gemini 분석 단계에서 **3회 재시도** + **Pydantic 검증**:
 
 ```python
 for attempt in range(1, max_retries + 1):
     try:
-        result = await self._call_gemini(prompt)
-        # 성공 시 DB 중간 저장
-        break
+        raw = await self._call_gemini(prompt)
+        normalized = normalize_all_keys(normalize_response(step_name, raw))
+        # Pydantic 검증 (실패 시 예외 발생 → 재시도)
+        validated = validate_step_response(step_name, normalized, raise_on_error=True)
+        return validated
     except Exception as e:
         logger.warning(f"실패 ({attempt}/{max_retries}): {e}")
 
-# 3회 실패 시 다음 단계로 진행 (부분 결과 허용)
+# 3회 실패 시 → Pydantic default 값으로 fallback (null 방지)
+return validate_step_response(step_name, {})  # 기본값 반환
 ```
 
 **실패 처리**:
-- Gemini 단계 실패 → 다음 단계로 진행 (해당 필드 없음)
+- Gemini 검증 실패 → 3회 재시도 후 default 값 적용
+- `failed_steps` 배열에 실패 단계 기록 (재분석 UI용)
 - 만세력/기본분석 실패 → 전체 중단
 - 최소 1개 분석 성공 시 → `completed` 상태로 완료
 
@@ -142,6 +170,44 @@ await self._update_db_status(
 **크래시 복구**:
 - 서버 재시작 시 마지막 저장 시점부터 재개 가능
 - `retry_from_step` 파라미터로 특정 단계부터 재시도
+
+**DB 컬럼**:
+| 컬럼 | 타입 | 설명 |
+|------|------|------|
+| `analysis` | JSONB | 전체 분석 결과 |
+| `failed_steps` | TEXT[] | 실패한 단계 목록 (재분석 UI용) |
+
+---
+
+## 섹션별 재분석 API (0C)
+
+실패한 섹션만 무료로 재분석:
+
+```
+POST /api/analysis/report/{report_id}/reanalyze/{step_type}
+```
+
+**Request**:
+```json
+{
+  "language": "ko"
+}
+```
+
+**step_type 값**:
+- `basic_analysis` - 기본 분석 (일간/격국/용신)
+- `personality` - 성격 분석
+- `aptitude` - 적성 분석
+- `fortune` - 재물/연애 분석
+
+**Response**:
+```json
+{
+  "success": true,
+  "step_type": "personality",
+  "result": { ... }
+}
+```
 
 ---
 
@@ -196,4 +262,14 @@ PersonalitySection → socialStyleDetail (type/strengths/weaknesses)
 
 ---
 
-**최종 수정**: 2026-01-07
+## 변경 이력
+
+| 날짜 | 버전 | 변경 내용 |
+|------|------|----------|
+| 2026-01-07 | v2.4 | Normalize→Validate 파이프라인, Pydantic 스키마, 재분석 API |
+| 2026-01-07 | v2.3 | 확장 데이터 UI (extended props) |
+| 2026-01-06 | v2.0 | Job Store 패턴, 비동기 파이프라인 |
+
+---
+
+**최종 수정**: 2026-01-07 (v2.4)

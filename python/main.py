@@ -2,7 +2,9 @@
 만세력 계산 API - FastAPI 엔트리포인트
 사주 팔자, 대운, 지장간 계산 서비스 + AI 프롬프트 빌더
 """
+from typing import Dict, List, Any, Optional
 from fastapi import FastAPI, HTTPException
+from pydantic import BaseModel
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
@@ -558,6 +560,78 @@ async def get_report_analysis_status(job_id: str) -> ReportAnalysisStatusRespons
         created_at=job["created_at"],
         updated_at=job["updated_at"],
     )
+
+
+# ============================================
+# 섹션 재분석 API (0C - 무료)
+# ============================================
+
+class ReanalyzeRequest(BaseModel):
+    """재분석 요청 스키마"""
+    pillars: Dict[str, Any]
+    daewun: List[Dict[str, Any]]
+    jijanggan: Dict[str, Any]
+    language: str = "ko"
+    existing_analysis: Optional[Dict[str, Any]] = None
+
+
+@app.post("/api/analysis/report/{report_id}/reanalyze/{step_type}")
+async def reanalyze_report_step(
+    report_id: str,
+    step_type: str,
+    request: ReanalyzeRequest
+):
+    """
+    특정 섹션만 재분석 (0C - 무료)
+
+    실패한 섹션이나 품질이 낮은 섹션을 다시 분석합니다.
+    크레딧 차감 없음.
+
+    - **report_id**: 리포트 ID
+    - **step_type**: 재분석할 단계 (personality, aptitude, fortune)
+    - **pillars**: 사주 팔자 데이터
+    - **daewun**: 대운 리스트
+    - **jijanggan**: 지장간 데이터
+    - **language**: 언어
+    - **existing_analysis**: 기존 분석 결과 (컨텍스트용)
+
+    Returns:
+        재분석 결과
+    """
+    from services.report_analysis import report_analysis_service
+
+    if step_type not in ["personality", "aptitude", "fortune"]:
+        raise HTTPException(
+            status_code=400,
+            detail=f"잘못된 step_type: {step_type}. 허용: personality, aptitude, fortune"
+        )
+
+    try:
+        result = await report_analysis_service.reanalyze_step(
+            report_id=report_id,
+            step_type=step_type,
+            pillars=request.pillars,
+            daewun=request.daewun,
+            jijanggan=request.jijanggan,
+            language=request.language,
+            existing_analysis=request.existing_analysis
+        )
+
+        if not result.get("success"):
+            raise HTTPException(
+                status_code=500,
+                detail=f"재분석 실패: {result.get('error', '알 수 없는 오류')}"
+            )
+
+        return result
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(
+            status_code=500,
+            detail=f"재분석 실패: {str(e)}"
+        )
 
 
 # ============================================

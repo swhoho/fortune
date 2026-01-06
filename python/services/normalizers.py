@@ -9,6 +9,39 @@ from typing import Any, Dict, Union, List
 # 키 매핑 정의
 # ============================================
 
+# Basic Analysis 키 매핑
+BASIC_KEY_MAPPING = {
+    '일간': 'dayMaster',
+    'day_master': 'dayMaster',
+    '격국': 'structure',
+    '용신': 'usefulGod',
+    'useful_god': 'usefulGod',
+    '요약': 'summary',
+}
+
+DAY_MASTER_MAPPING = {
+    '천간': 'stem',
+    '오행': 'element',
+    '음양': 'yinYang',
+    'yin_yang': 'yinYang',
+    '특성': 'characteristics',
+}
+
+STRUCTURE_MAPPING = {
+    '격국명': 'type',
+    '격국_유형': 'type',
+    '품질': 'quality',
+    '설명': 'description',
+}
+
+USEFUL_GOD_MAPPING = {
+    '용신_오행': 'primary',
+    '희신': 'secondary',
+    '기신': 'harmful',
+    '근거': 'reasoning',
+    'reason': 'reasoning',
+}
+
 # Aptitude 키 매핑
 APTITUDE_KEY_MAPPING = {
     'abilityStatus': 'talentUsage',
@@ -89,6 +122,19 @@ LOVE_KEY_MAPPING = {
 # ============================================
 
 KOREAN_KEY_MAPPING = {
+    # basic analysis
+    '일간': 'dayMaster',
+    '격국': 'structure',
+    '용신': 'usefulGod',
+    '요약': 'summary',
+    '천간': 'stem',
+    '오행': 'element',
+    '음양': 'yinYang',
+    '격국명': 'type',
+    '품질': 'quality',
+    '용신_오행': 'primary',
+    '희신': 'secondary',
+    '기신': 'harmful',
     # personality
     '겉성격': 'outerPersonality',
     '속성격': 'innerPersonality',
@@ -105,6 +151,7 @@ KOREAN_KEY_MAPPING = {
     '설명': 'description',
     '점수': 'score',
     '특성': 'traits',
+    '특성들': 'characteristics',
     # aptitude
     '핵심_키워드': 'keywords',
     '타고난_재능': 'talents',
@@ -114,18 +161,35 @@ KOREAN_KEY_MAPPING = {
     '현재_수준': 'currentLevel',
     '잠재력': 'potential',
     '조언': 'advice',
+    '이름': 'name',
+    '적합도': 'suitability',
+    '수준': 'level',
+    '이유': 'reason',
+    '학습_스타일': 'studyStyle',
     # fortune
     '재물운': 'wealth',
     '연애운': 'love',
     '패턴_유형': 'pattern',
+    '패턴': 'pattern',
     '재물_점수': 'wealthScore',
     '연애_점수': 'loveScore',
     '재물운_강점': 'strengths',
     '재물운_리스크': 'risks',
+    '리스크': 'risks',
     '스타일_유형': 'style',
+    '스타일': 'style',
     '이상형_특성': 'idealPartner',
+    '이상형': 'idealPartner',
     '궁합_포인트': 'compatibilityPoints',
+    '주의사항': 'warnings',
     '연애_조언': 'loveAdvice',
+    '재물_조언': 'advice',
+    # 기존 ContentCard 필드
+    '연애심리': 'datingPsychology',
+    '배우자관': 'spouseView',
+    '성격_패턴': 'personalityPattern',
+    '재물_유형': 'wealthFortune',
+    '배우자_영향': 'partnerInfluence',
     # yearly
     '상반기': 'firstHalf',
     '하반기': 'secondHalf',
@@ -291,9 +355,46 @@ def normalize_fortune(raw: Dict[str, Any]) -> Dict[str, Any]:
     return result
 
 
+def normalize_basic(raw: Dict[str, Any]) -> Dict[str, Any]:
+    """basic_analysis 응답 정규화"""
+    if raw is None:
+        return raw
+
+    result = _normalize_dict(raw, BASIC_KEY_MAPPING)
+
+    # dayMaster 정규화
+    if 'dayMaster' in result and isinstance(result['dayMaster'], dict):
+        result['dayMaster'] = _normalize_dict(result['dayMaster'], DAY_MASTER_MAPPING)
+        # characteristics 기본값
+        if 'characteristics' not in result['dayMaster']:
+            result['dayMaster']['characteristics'] = []
+
+    # structure 정규화
+    if 'structure' in result and isinstance(result['structure'], dict):
+        result['structure'] = _normalize_dict(result['structure'], STRUCTURE_MAPPING)
+
+    # usefulGod 정규화
+    if 'usefulGod' in result and isinstance(result['usefulGod'], dict):
+        result['usefulGod'] = _normalize_dict(result['usefulGod'], USEFUL_GOD_MAPPING)
+
+    # 기본값 보장
+    if 'summary' not in result:
+        result['summary'] = ''
+    if 'dayMaster' not in result:
+        result['dayMaster'] = {'stem': '', 'element': '', 'yinYang': '', 'characteristics': []}
+    if 'structure' not in result:
+        result['structure'] = {'type': '', 'quality': '中', 'description': ''}
+    if 'usefulGod' not in result:
+        result['usefulGod'] = {'primary': '', 'secondary': '', 'harmful': '', 'reasoning': ''}
+
+    return result
+
+
 def normalize_response(step_name: str, raw_response: Dict[str, Any]) -> Dict[str, Any]:
     """단계별 응답 정규화 라우터"""
     normalizers = {
+        'basic': normalize_basic,
+        'basic_analysis': normalize_basic,
         'personality': normalize_personality,
         'aptitude': normalize_aptitude,
         'fortune': normalize_fortune,
@@ -303,4 +404,4 @@ def normalize_response(step_name: str, raw_response: Dict[str, Any]) -> Dict[str
     if normalizer:
         return normalizer(raw_response)
 
-    return raw_response  # basic 등은 원본 반환
+    return raw_response  # 미등록 단계는 원본 반환

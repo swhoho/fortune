@@ -312,8 +312,11 @@ python/
 ├── services/               # 비동기 서비스
 │   ├── report_analysis.py  # 리포트 분석
 │   ├── yearly_analysis.py  # 신년 분석
+│   ├── normalizers.py      # Gemini 응답 키 정규화
 │   └── consultation_service.py
-├── schemas/                # Pydantic 모델
+├── schemas/                # Pydantic 스키마
+│   ├── report_steps.py     # 리포트 단계별 검증 스키마 (v2.4)
+│   └── yearly.py           # 신년 분석 스키마
 └── visualization/          # 이미지 생성
 
 src/lib/
@@ -349,6 +352,7 @@ src/lib/
 
 | 날짜 | 버전 | 변경 내용 |
 |------|------|----------|
+| 2026-01-07 | v2.4 | Normalize→Validate 파이프라인, Pydantic 스키마 검증, 재분석 API (0C) |
 | 2026-01-07 | v2.3 | 리포트 UI 확장 (지장간/기본분석/레이더차트/섹션별 extended 데이터) |
 | 2026-01-07 | v2.2 | 문서 4개 분리 (report/yearly/consultation) |
 | 2026-01-06 | v2.1 | 상담 프롬프트 개선 (재질문 금지) |
@@ -358,4 +362,4 @@ src/lib/
 
 ---
 
-**최종 수정**: 2026-01-07
+**최종 수정**: 2026-01-07 (v2.4)

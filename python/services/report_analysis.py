@@ -23,6 +23,7 @@ from manseryeok.constants import JIJANGGAN_TABLE
 from schemas.saju import CalculateRequest, Pillars, Pillar
 from visualization import SajuVisualizer
 from services.normalizers import normalize_response, normalize_all_keys
+from schemas.report_steps import validate_step_response, STEP_SCHEMAS
 
 logger = logging.getLogger(__name__)
 
@@ -363,10 +364,14 @@ class ReportAnalysisService:
                     if not result or (isinstance(result, dict) and len(result) == 0):
                         raise ValueError("빈 응답")
 
-                    # 성공 - DB 저장 전 키 정규화 (단계별 + 전역 camelCase)
+                    # Step 1: Normalize (한글/snake_case → camelCase)
                     normalized_result = normalize_all_keys(normalize_response(step_name, result))
-                    logger.info(f"[{job_id}] {step_name} 성공 (정규화됨): {json.dumps(normalized_result, ensure_ascii=False)[:300]}")
-                    analysis[step_name] = normalized_result
+
+                    # Step 2: Validate (Pydantic 스키마 검증, 실패 시 재시도)
+                    validated_result = validate_step_response(step_name, normalized_result, raise_on_error=True)
+
+                    logger.info(f"[{job_id}] {step_name} 성공 (정규화+검증): {json.dumps(validated_result, ensure_ascii=False)[:300]}")
+                    analysis[step_name] = validated_result
                     job_store.update(job_id, analysis=analysis)
                     job_store.update_step_status(job_id, step_name, "completed")
 
@@ -390,7 +395,10 @@ class ReportAnalysisService:
             if not success:
                 logger.error(f"[{job_id}] {step_name} 최종 실패 (3회 재시도 후): {last_error}")
                 job_store.update_step_status(job_id, step_name, "failed")
-                # 실패해도 다음 단계로 진행 (analysis에 해당 필드 없음)
+                # Fallback: 기본값으로 채우기 (null 방지)
+                fallback_result = validate_step_response(step_name, {})
+                analysis[step_name] = fallback_result
+                logger.info(f"[{job_id}] {step_name} 기본값으로 대체됨")
 
         # 최종 상태 저장
         job_store.update(job_id, analysis=analysis)
@@ -577,6 +585,13 @@ class ReportAnalysisService:
         job_store.update_step_status(job_id, "saving", "in_progress")
 
         job = job_store.get(job_id)
+        step_statuses = job.get("step_statuses", {})
+
+        # 실패한 단계 수집
+        failed_steps = [
+            step for step, status in step_statuses.items()
+            if status == "failed" and step in ["personality", "aptitude", "fortune"]
+        ]
 
         # Supabase에 결과 저장
         await self._update_db_status(
@@ -588,7 +603,8 @@ class ReportAnalysisService:
             analysis=job.get("analysis"),
             scores=job.get("scores"),
             visualization_url=job.get("visualization_url"),
-            step_statuses=job.get("step_statuses"),
+            step_statuses=step_statuses,
+            failed_steps=failed_steps,
             progress_percent=100
         )
 
@@ -654,6 +670,8 @@ class ReportAnalysisService:
             update_data["error"] = kwargs["error"]
         if "step_statuses" in kwargs:
             update_data["step_statuses"] = kwargs["step_statuses"]
+        if "failed_steps" in kwargs:
+            update_data["failed_steps"] = kwargs["failed_steps"]
 
         try:
             async with httpx.AsyncClient() as client:
@@ -680,6 +698,89 @@ class ReportAnalysisService:
     def get_status_by_report_id(self, report_id: str) -> Optional[Dict[str, Any]]:
         """리포트 ID로 작업 상태 조회"""
         return job_store.get_by_report_id(report_id)
+
+    async def reanalyze_step(
+        self,
+        report_id: str,
+        step_type: str,
+        pillars: Dict[str, Any],
+        daewun: List[Dict[str, Any]],
+        jijanggan: Dict[str, Any],
+        language: str = "ko",
+        existing_analysis: Dict[str, Any] = None
+    ) -> Dict[str, Any]:
+        """
+        특정 단계만 재분석 (0C - 무료)
+
+        Args:
+            report_id: profile_reports 테이블 ID
+            step_type: 재분석할 단계 (personality, aptitude, fortune)
+            pillars: 사주 팔자 데이터
+            daewun: 대운 리스트
+            jijanggan: 지장간 데이터
+            language: 언어 코드
+            existing_analysis: 기존 분석 결과 (컨텍스트용)
+
+        Returns:
+            재분석 결과
+        """
+        if step_type not in ["personality", "aptitude", "fortune"]:
+            raise ValueError(f"잘못된 step_type: {step_type}")
+
+        logger.info(f"[Reanalyze:{report_id}] {step_type} 재분석 시작")
+
+        # 이전 단계 결과 수집 (컨텍스트용)
+        previous_results = existing_analysis or {}
+
+        max_retries = 3
+        last_error = None
+
+        for attempt in range(1, max_retries + 1):
+            try:
+                logger.info(f"[Reanalyze:{report_id}] {step_type} 시도 {attempt}/{max_retries}")
+
+                prompt = await self._build_step_prompt(
+                    step_type, language, pillars, daewun, jijanggan, previous_results
+                )
+                result = await self._call_gemini(prompt)
+
+                if not result:
+                    raise ValueError("빈 응답")
+
+                # Normalize → Validate (실패 시 재시도)
+                normalized = normalize_all_keys(normalize_response(step_type, result))
+                validated = validate_step_response(step_type, normalized, raise_on_error=True)
+
+                # 기존 분석 결과와 병합
+                updated_analysis = dict(existing_analysis) if existing_analysis else {}
+                updated_analysis[step_type] = validated
+
+                # DB 업데이트
+                await self._update_db_status(
+                    report_id,
+                    analysis=updated_analysis,
+                    failed_steps=[]  # 재분석 성공 시 failed_steps 클리어
+                )
+
+                logger.info(f"[Reanalyze:{report_id}] {step_type} 재분석 성공")
+                return {
+                    "success": True,
+                    "step_type": step_type,
+                    "result": validated,
+                    "updated_analysis": updated_analysis
+                }
+
+            except Exception as e:
+                last_error = str(e)
+                logger.warning(f"[Reanalyze:{report_id}] {step_type} 실패 ({attempt}/{max_retries}): {e}")
+
+        # 모든 재시도 실패
+        logger.error(f"[Reanalyze:{report_id}] {step_type} 최종 실패: {last_error}")
+        return {
+            "success": False,
+            "step_type": step_type,
+            "error": last_error
+        }
 
 
 # 싱글톤 인스턴스
