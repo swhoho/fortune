@@ -184,7 +184,6 @@ export function MonthlyTimeline({ monthlyFortunes, year }: MonthlyTimelineProps)
       {/* 월별 카드 그리드 */}
       <div className="grid grid-cols-3 gap-3 sm:grid-cols-4 lg:grid-cols-6">
         {monthlyFortunes.map((fortune) => {
-          const isCurrentMonth = year === currentYear && fortune.month === currentMonth;
           const isExpanded = expandedMonth === fortune.month;
 
           return (

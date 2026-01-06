@@ -4,14 +4,7 @@ import { motion } from 'framer-motion';
 import { KeywordBadge } from './KeywordBadge';
 import { ContentCard } from './ContentCard';
 import { TraitGraph, type TraitItem } from './TraitGraph';
-import type {
-  ContentCardData,
-  AptitudeExtendedData,
-  TalentDetailItem,
-  AvoidFieldItem,
-  TalentUsageDetail,
-  RecommendedFieldItem,
-} from '@/types/report';
+import type { ContentCardData, AptitudeExtendedData } from '@/types/report';
 
 // ContentCardData를 re-export (하위 호환성)
 export type { ContentCardData };
@@ -75,8 +68,11 @@ export function AptitudeSection({ data, className = '' }: AptitudeSectionProps) 
   // 확장 데이터 존재 여부
   const hasExtendedTalents = extended?.talents && extended.talents.length > 0;
   const hasAvoidFields = extended?.avoidFields && extended.avoidFields.length > 0;
-  const hasTalentUsage = extended?.talentUsage && (extended.talentUsage.currentLevel > 0 || extended.talentUsage.potential > 0);
-  const hasRecommendedFields = extended?.recommendedFields && extended.recommendedFields.some(f => f.suitability);
+  const hasTalentUsage =
+    extended?.talentUsage &&
+    (extended.talentUsage.currentLevel > 0 || extended.talentUsage.potential > 0);
+  const hasRecommendedFields =
+    extended?.recommendedFields && extended.recommendedFields.some((f) => f.suitability);
 
   return (
     <motion.section
@@ -208,7 +204,9 @@ export function AptitudeSection({ data, className = '' }: AptitudeSectionProps) 
             <div className="space-y-2">
               <div className="flex items-center justify-between">
                 <span className="text-sm text-gray-400">현재 수준</span>
-                <span className="text-sm font-bold text-blue-400">{extended!.talentUsage!.currentLevel}%</span>
+                <span className="text-sm font-bold text-blue-400">
+                  {extended!.talentUsage!.currentLevel}%
+                </span>
               </div>
               <div className="h-3 overflow-hidden rounded-full bg-[#2a2a2a]">
                 <motion.div
@@ -223,7 +221,9 @@ export function AptitudeSection({ data, className = '' }: AptitudeSectionProps) 
             <div className="space-y-2">
               <div className="flex items-center justify-between">
                 <span className="text-sm text-gray-400">잠재력</span>
-                <span className="text-sm font-bold text-emerald-400">{extended!.talentUsage!.potential}%</span>
+                <span className="text-sm font-bold text-emerald-400">
+                  {extended!.talentUsage!.potential}%
+                </span>
               </div>
               <div className="h-3 overflow-hidden rounded-full bg-[#2a2a2a]">
                 <motion.div
@@ -236,11 +236,24 @@ export function AptitudeSection({ data, className = '' }: AptitudeSectionProps) 
             </div>
             {/* 성장 여력 */}
             <div className="mt-2 flex items-center gap-2 rounded-lg bg-[#0f0f0f] p-3">
-              <svg className="h-5 w-5 text-amber-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+              <svg
+                className="h-5 w-5 text-amber-400"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"
+                />
               </svg>
               <span className="text-sm text-gray-300">
-                성장 여력: <span className="font-bold text-amber-400">{extended!.talentUsage!.potential - extended!.talentUsage!.currentLevel}%</span>
+                성장 여력:{' '}
+                <span className="font-bold text-amber-400">
+                  {extended!.talentUsage!.potential - extended!.talentUsage!.currentLevel}%
+                </span>
               </span>
             </div>
             {extended!.talentUsage!.advice && (
@@ -286,7 +299,9 @@ export function AptitudeSection({ data, className = '' }: AptitudeSectionProps) 
                     <div className="flex items-center justify-between">
                       <span className="font-medium text-white">{field.name}</span>
                       {field.suitability !== undefined && (
-                        <span className="text-sm font-bold text-[#d4af37]">{field.suitability}%</span>
+                        <span className="text-sm font-bold text-[#d4af37]">
+                          {field.suitability}%
+                        </span>
                       )}
                     </div>
                     {field.suitability !== undefined && (
@@ -327,7 +342,12 @@ export function AptitudeSection({ data, className = '' }: AptitudeSectionProps) 
           <div className="mb-4 flex items-center gap-3">
             <span className="inline-flex items-center gap-1 rounded-md bg-red-500/20 px-2.5 py-1 text-xs font-bold text-red-400">
               <svg className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M6 18L18 6M6 6l12 12"
+                />
               </svg>
               피해야 할 분야
             </span>
@@ -342,15 +362,23 @@ export function AptitudeSection({ data, className = '' }: AptitudeSectionProps) 
                 className="flex items-start gap-3 rounded-lg bg-[#1a1a1a]/50 p-3"
               >
                 <div className="mt-0.5 flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full bg-red-500/20">
-                  <svg className="h-3 w-3 text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                  <svg
+                    className="h-3 w-3 text-red-400"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+                    />
                   </svg>
                 </div>
                 <div className="flex-1">
                   <span className="font-medium text-red-300">{field.name}</span>
-                  {field.reason && (
-                    <p className="mt-1 text-sm text-gray-400">{field.reason}</p>
-                  )}
+                  {field.reason && <p className="mt-1 text-sm text-gray-400">{field.reason}</p>}
                 </div>
               </motion.div>
             ))}

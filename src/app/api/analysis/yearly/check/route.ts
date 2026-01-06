@@ -12,6 +12,9 @@ import {
   getStatusCode,
 } from '@/lib/errors/codes';
 
+// 쿠키 사용으로 인해 동적 렌더링 강제
+export const dynamic = 'force-dynamic';
+
 /**
  * 기존 분석 조회 응답 타입
  */
