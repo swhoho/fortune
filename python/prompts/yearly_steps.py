@@ -156,8 +156,13 @@ Respond ONLY with the JSON below. No other text.
 - monthlyFortunes 배열에 {len(months)}개월({month_range}월) 데이터 필수
 - 각 월별 luckyDays 3-5개, unluckyDays 1-3개
 - overview는 서사체로 150-200자
-- score: 사주 원국과 해당 월 세운(월운)의 상호작용을 분석하여 0-100 사이 정수로 배정
 - 날짜 형식: YYYY-MM-DD
+
+**점수(score) 산정 규칙** (중요):
+- 용신(用神)이 득령(得令)하거나 생조(生助)받는 달: 높은 점수
+- 기신(忌神)이 왕성하거나 충극(冲剋)이 발생하는 달: 낮은 점수
+- 월지(月支)와 일간(日干)의 생극제화(生剋制化) 관계를 면밀히 분석
+- 반드시 월별로 차등 배점하여 편차를 크게 둘 것 (최고점과 최저점 간격 30점 이상 권장)
 """
         elif language == 'en':
             return f"""{persona}
@@ -195,7 +200,12 @@ Respond ONLY with the JSON below. No other text.
 **Requirements**:
 - Include {len(months)} months ({month_range}) in monthlyFortunes array
 - 3-5 luckyDays, 1-3 unluckyDays per month
-- score: Analyze the interaction between natal chart and monthly luck to assign 0-100
+
+**Score Assignment Rules** (Important):
+- Months when Useful God (用神) gains power: HIGH score
+- Months when Harmful God (忌神) is strong or clashes occur: LOW score
+- Analyze the relationship between Monthly Branch and Day Master
+- MUST vary scores significantly across months (min 30-point gap between highest and lowest)
 """
         else:
             return cls.build_monthly('ko', year, months, pillars, daewun, overview_result)

@@ -212,14 +212,6 @@ export function MonthlyTimeline({ monthlyFortunes, year }: MonthlyTimelineProps)
                 >
                   {fortune.score}
                 </p>
-                {isCurrentMonth && (
-                  <span
-                    className="mt-1 inline-block rounded px-1.5 py-0.5 text-xs font-medium"
-                    style={{ backgroundColor: BRAND_COLORS.primary, color: '#000' }}
-                  >
-                    현재
-                  </span>
-                )}
               </button>
             </motion.div>
           );
