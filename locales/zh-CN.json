@@ -37,7 +37,13 @@
     "cancel": "取消",
     "save": "保存",
     "delete": "删除",
-    "credits": "积分"
+    "credits": "积分",
+    "back": "返回",
+    "share": "分享",
+    "home": "首页",
+    "profile": "个人档案",
+    "pdfDownload": "下载PDF",
+    "unknownError": "未知错误"
   },
   "nav": {
     "login": "登录",
@@ -337,15 +343,27 @@
     },
     "signup": {
       "title": "注册",
+      "description": "创建新账户开始您的八字分析",
+      "name": "姓名",
+      "namePlaceholder": "张三",
       "email": "邮箱",
       "password": "密码",
+      "passwordPlaceholder": "至少6个字符",
       "confirmPassword": "确认密码",
       "submit": "注册",
+      "submitting": "注册中...",
       "hasAccount": "已有账号？",
-      "signinLink": "登录"
+      "signinLink": "登录",
+      "separator": "或使用邮箱注册",
+      "errors": {
+        "passwordMismatch": "密码不匹配。",
+        "passwordTooShort": "密码至少需要6个字符。",
+        "signupFailed": "注册过程中发生错误。"
+      }
     },
     "social": {
       "google": "使用Google继续",
+      "googleStart": "使用Google开始",
       "kakao": "使用Kakao继续"
     }
   },
@@ -448,7 +466,12 @@
       },
       "keyDates": {
         "title": "年度重要日期",
-        "subtitle": "值得关注的重要日子"
+        "subtitle": "值得关注的重要日子",
+        "types": {
+          "lucky": "吉日",
+          "unlucky": "注意",
+          "special": "特殊日"
+        }
       },
       "classics": {
         "title": "古典引用",
@@ -457,7 +480,12 @@
       "actions": {
         "analyzeOther": "分析其他年份",
         "goToMypage": "前往我的页面"
-      }
+      },
+      "errors": {
+        "loadFailed": "无法加载结果",
+        "fetchFailed": "获取分析结果失败。"
+      },
+      "yearlyFortune": "{year}年新年运势"
     }
   },
   "home": {
@@ -508,7 +536,9 @@
     "daewun": {
       "title": "大运",
       "current": "当前大运",
-      "scrollHint": "左右滑动查看"
+      "scrollHint": "左右滑动查看",
+      "previous": "上一个大运",
+      "next": "下一个大运"
     },
     "personality": {
       "title": "性格与特征",
@@ -549,7 +579,45 @@
       "personalityPatternDesc": "婚后的性格模式",
       "traits": "恋爱特性",
       "traitsDesc": "与恋爱相关的10个特性",
-      "score": "恋爱分数"
+      "score": "恋爱分数",
+      "traitLabels": {
+        "consideration": "体贴",
+        "humor": "幽默感",
+        "artistry": "艺术性",
+        "vanity": "虚荣心",
+        "adventure": "冒险心",
+        "sincerity": "诚实度",
+        "sociability": "社交能力",
+        "financial": "理财能力",
+        "reliability": "可靠性",
+        "expression": "表达力"
+      }
+    },
+    "aptitude": {
+      "title": "工作能力与适性",
+      "workAbility": "工作处理能力",
+      "workAbilityDesc": "各阶段能力比例",
+      "traits": "特征图",
+      "traitsDesc": "把握适性的10个特征",
+      "workLabels": {
+        "planning": "策划/研究",
+        "perseverance": "毅力/精力",
+        "execution": "实践/手段",
+        "completion": "完成/销售",
+        "management": "管理/评估"
+      },
+      "traitLabels": {
+        "criticism": "批判力",
+        "cooperation": "协作力",
+        "learning": "学习力",
+        "creativity": "创造力",
+        "artistry": "艺术性",
+        "expression": "表达力",
+        "activity": "活动力",
+        "adventure": "冒险心",
+        "business": "商业感觉",
+        "reliability": "可靠性"
+      }
     },
     "navigation": {
       "saju": "八字",
@@ -563,6 +631,24 @@
       "exportPdf": "导出PDF",
       "share": "分享",
       "back": "返回"
+    },
+    "page": {
+      "loading": "正在加载报告...",
+      "loadError": "无法加载报告",
+      "backToProfile": "返回档案",
+      "title": "八字报告",
+      "userTitle": "{name}的八字报告",
+      "noReport": {
+        "title": "暂无分析",
+        "description": "开始八字分析以查看详细报告",
+        "startAnalysis": "开始分析"
+      },
+      "noDaewun": "暂无大运数据",
+      "footer": "本分析为AI生成的参考资料。在做重要决定之前，建议咨询专家。"
+    },
+    "consultation": {
+      "title": "AI咨询",
+      "description": "根据分析的八字和大运，接受AI专家的咨询。"
     }
   },
   "pipeline": {

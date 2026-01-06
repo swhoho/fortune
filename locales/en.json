@@ -37,7 +37,13 @@
     "cancel": "Cancel",
     "save": "Save",
     "delete": "Delete",
-    "credits": "Credits"
+    "credits": "Credits",
+    "back": "Go Back",
+    "share": "Share",
+    "home": "Home",
+    "profile": "Profile",
+    "pdfDownload": "Download PDF",
+    "unknownError": "Unknown error"
   },
   "nav": {
     "login": "Sign In",
@@ -337,15 +343,27 @@
     },
     "signup": {
       "title": "Sign Up",
+      "description": "Create an account to start your destiny analysis",
+      "name": "Name",
+      "namePlaceholder": "John Doe",
       "email": "Email",
       "password": "Password",
+      "passwordPlaceholder": "At least 6 characters",
       "confirmPassword": "Confirm Password",
       "submit": "Sign Up",
+      "submitting": "Signing up...",
       "hasAccount": "Already have an account?",
-      "signinLink": "Sign In"
+      "signinLink": "Sign In",
+      "separator": "or sign up with email",
+      "errors": {
+        "passwordMismatch": "Passwords do not match.",
+        "passwordTooShort": "Password must be at least 6 characters.",
+        "signupFailed": "An error occurred during signup."
+      }
     },
     "social": {
       "google": "Continue with Google",
+      "googleStart": "Start with Google",
       "kakao": "Continue with Kakao"
     }
   },
@@ -448,7 +466,12 @@
       },
       "keyDates": {
         "title": "Key Dates",
-        "subtitle": "Important dates to note"
+        "subtitle": "Important dates to note",
+        "types": {
+          "lucky": "Lucky Day",
+          "unlucky": "Caution",
+          "special": "Special Day"
+        }
       },
       "classics": {
         "title": "Classical References",
@@ -457,7 +480,12 @@
       "actions": {
         "analyzeOther": "Analyze Another Year",
         "goToMypage": "Go to My Page"
-      }
+      },
+      "errors": {
+        "loadFailed": "Could not load results",
+        "fetchFailed": "Failed to fetch analysis results."
+      },
+      "yearlyFortune": "{year} New Year Fortune"
     }
   },
   "home": {
@@ -508,7 +536,9 @@
     "daewun": {
       "title": "Major Luck Cycles",
       "current": "Current Cycle",
-      "scrollHint": "Scroll left and right"
+      "scrollHint": "Scroll left and right",
+      "previous": "Previous cycle",
+      "next": "Next cycle"
     },
     "personality": {
       "title": "Personality & Traits",
@@ -549,7 +579,45 @@
       "personalityPatternDesc": "Personality patterns after marriage",
       "traits": "Trait Graph",
       "traitsDesc": "10 traits to understand your romantic aptitude",
-      "score": "Romance Score"
+      "score": "Romance Score",
+      "traitLabels": {
+        "consideration": "Consideration",
+        "humor": "Humor",
+        "artistry": "Artistry",
+        "vanity": "Vanity",
+        "adventure": "Adventure",
+        "sincerity": "Sincerity",
+        "sociability": "Sociability",
+        "financial": "Financial Sense",
+        "reliability": "Reliability",
+        "expression": "Expression"
+      }
+    },
+    "aptitude": {
+      "title": "Work Ability & Aptitude",
+      "workAbility": "Work Ability",
+      "workAbilityDesc": "Ability ratio by stage",
+      "traits": "Trait Graph",
+      "traitsDesc": "10 traits to understand your aptitude",
+      "workLabels": {
+        "planning": "Planning/Research",
+        "perseverance": "Perseverance",
+        "execution": "Execution",
+        "completion": "Completion/Sales",
+        "management": "Management"
+      },
+      "traitLabels": {
+        "criticism": "Critical Thinking",
+        "cooperation": "Cooperation",
+        "learning": "Learning",
+        "creativity": "Creativity",
+        "artistry": "Artistry",
+        "expression": "Expression",
+        "activity": "Activity",
+        "adventure": "Adventure",
+        "business": "Business Sense",
+        "reliability": "Reliability"
+      }
     },
     "navigation": {
       "saju": "Chart",
@@ -563,6 +631,24 @@
       "exportPdf": "Export PDF",
       "share": "Share",
       "back": "Back"
+    },
+    "page": {
+      "loading": "Loading report...",
+      "loadError": "Could not load report",
+      "backToProfile": "Back to Profile",
+      "title": "Destiny Report",
+      "userTitle": "{name}'s Destiny Report",
+      "noReport": {
+        "title": "No analysis yet",
+        "description": "Start a full destiny analysis to view your detailed report",
+        "startAnalysis": "Start Analysis"
+      },
+      "noDaewun": "No major fortune period data available",
+      "footer": "This analysis is AI-generated reference material. We recommend consulting an expert before making important decisions."
+    },
+    "consultation": {
+      "title": "AI Consultation",
+      "description": "Get professional AI guidance based on your analyzed destiny and fortune periods."
     }
   },
   "profile": {

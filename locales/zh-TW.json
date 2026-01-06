@@ -37,7 +37,13 @@
     "cancel": "取消",
     "save": "儲存",
     "delete": "刪除",
-    "credits": "積分"
+    "credits": "積分",
+    "back": "返回",
+    "share": "分享",
+    "home": "首頁",
+    "profile": "個人檔案",
+    "pdfDownload": "下載PDF",
+    "unknownError": "未知錯誤"
   },
   "nav": {
     "login": "登入",
@@ -337,15 +343,27 @@
     },
     "signup": {
       "title": "註冊",
+      "description": "建立新帳號開始您的八字分析",
+      "name": "姓名",
+      "namePlaceholder": "王小明",
       "email": "電子郵件",
       "password": "密碼",
+      "passwordPlaceholder": "至少6個字元",
       "confirmPassword": "確認密碼",
       "submit": "註冊",
+      "submitting": "註冊中...",
       "hasAccount": "已有帳號？",
-      "signinLink": "登入"
+      "signinLink": "登入",
+      "separator": "或使用電子郵件註冊",
+      "errors": {
+        "passwordMismatch": "密碼不符。",
+        "passwordTooShort": "密碼至少需要6個字元。",
+        "signupFailed": "註冊過程中發生錯誤。"
+      }
     },
     "social": {
       "google": "使用Google繼續",
+      "googleStart": "使用Google開始",
       "kakao": "使用Kakao繼續"
     }
   },
@@ -448,7 +466,12 @@
       },
       "keyDates": {
         "title": "年度重要日期",
-        "subtitle": "值得關注的重要日子"
+        "subtitle": "值得關注的重要日子",
+        "types": {
+          "lucky": "吉日",
+          "unlucky": "注意",
+          "special": "特殊日"
+        }
       },
       "classics": {
         "title": "古典引用",
@@ -457,7 +480,12 @@
       "actions": {
         "analyzeOther": "分析其他年份",
         "goToMypage": "前往我的頁面"
-      }
+      },
+      "errors": {
+        "loadFailed": "無法載入結果",
+        "fetchFailed": "取得分析結果失敗。"
+      },
+      "yearlyFortune": "{year}年新年運勢"
     }
   },
   "home": {
@@ -508,7 +536,9 @@
     "daewun": {
       "title": "大運",
       "current": "目前大運",
-      "scrollHint": "左右滑動查看"
+      "scrollHint": "左右滑動查看",
+      "previous": "上一個大運",
+      "next": "下一個大運"
     },
     "personality": {
       "title": "性格與特徵",
@@ -549,7 +579,45 @@
       "personalityPatternDesc": "婚後的性格模式",
       "traits": "戀愛特性",
       "traitsDesc": "與戀愛相關的10個特性",
-      "score": "戀愛分數"
+      "score": "戀愛分數",
+      "traitLabels": {
+        "consideration": "體貼",
+        "humor": "幽默感",
+        "artistry": "藝術性",
+        "vanity": "虛榮心",
+        "adventure": "冒險心",
+        "sincerity": "誠實度",
+        "sociability": "社交能力",
+        "financial": "理財能力",
+        "reliability": "可靠性",
+        "expression": "表達力"
+      }
+    },
+    "aptitude": {
+      "title": "工作能力與適性",
+      "workAbility": "工作處理能力",
+      "workAbilityDesc": "各階段能力比例",
+      "traits": "特徵圖",
+      "traitsDesc": "把握適性的10個特徵",
+      "workLabels": {
+        "planning": "策劃/研究",
+        "perseverance": "毅力/精力",
+        "execution": "實踐/手段",
+        "completion": "完成/銷售",
+        "management": "管理/評估"
+      },
+      "traitLabels": {
+        "criticism": "批判力",
+        "cooperation": "協作力",
+        "learning": "學習力",
+        "creativity": "創造力",
+        "artistry": "藝術性",
+        "expression": "表達力",
+        "activity": "活動力",
+        "adventure": "冒險心",
+        "business": "商業感覺",
+        "reliability": "可靠性"
+      }
     },
     "navigation": {
       "saju": "八字",
@@ -563,6 +631,24 @@
       "exportPdf": "匯出PDF",
       "share": "分享",
       "back": "返回"
+    },
+    "page": {
+      "loading": "正在載入報告...",
+      "loadError": "無法載入報告",
+      "backToProfile": "返回檔案",
+      "title": "八字報告",
+      "userTitle": "{name}的八字報告",
+      "noReport": {
+        "title": "暫無分析",
+        "description": "開始八字分析以查看詳細報告",
+        "startAnalysis": "開始分析"
+      },
+      "noDaewun": "暫無大運資料",
+      "footer": "本分析為AI生成的參考資料。在做重要決定之前，建議諮詢專家。"
+    },
+    "consultation": {
+      "title": "AI諮詢",
+      "description": "根據分析的八字和大運，接受AI專家的諮詢。"
     }
   },
   "pipeline": {

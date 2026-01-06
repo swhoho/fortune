@@ -37,7 +37,13 @@
     "cancel": "キャンセル",
     "save": "保存",
     "delete": "削除",
-    "credits": "クレジット"
+    "credits": "クレジット",
+    "back": "戻る",
+    "share": "共有",
+    "home": "ホームへ",
+    "profile": "プロフィール",
+    "pdfDownload": "PDFダウンロード",
+    "unknownError": "不明なエラー"
   },
   "nav": {
     "login": "ログイン",
@@ -337,15 +343,27 @@
     },
     "signup": {
       "title": "新規登録",
+      "description": "新しいアカウントを作成して四柱推命分析を始めましょう",
+      "name": "お名前",
+      "namePlaceholder": "山田太郎",
       "email": "メールアドレス",
       "password": "パスワード",
+      "passwordPlaceholder": "6文字以上",
       "confirmPassword": "パスワード確認",
       "submit": "新規登録",
+      "submitting": "登録中...",
       "hasAccount": "すでにアカウントをお持ちですか？",
-      "signinLink": "ログイン"
+      "signinLink": "ログイン",
+      "separator": "またはメールで登録",
+      "errors": {
+        "passwordMismatch": "パスワードが一致しません。",
+        "passwordTooShort": "パスワードは6文字以上必要です。",
+        "signupFailed": "登録中にエラーが発生しました。"
+      }
     },
     "social": {
       "google": "Googleで続ける",
+      "googleStart": "Googleで始める",
       "kakao": "Kakaoで続ける"
     }
   },
@@ -448,7 +466,12 @@
       },
       "keyDates": {
         "title": "年間重要日",
-        "subtitle": "注目すべき重要な日"
+        "subtitle": "注目すべき重要な日",
+        "types": {
+          "lucky": "吉日",
+          "unlucky": "注意",
+          "special": "特別日"
+        }
       },
       "classics": {
         "title": "古典参照",
@@ -457,7 +480,12 @@
       "actions": {
         "analyzeOther": "他の年を分析",
         "goToMypage": "マイページへ"
-      }
+      },
+      "errors": {
+        "loadFailed": "結果を読み込めませんでした",
+        "fetchFailed": "分析結果の取得に失敗しました。"
+      },
+      "yearlyFortune": "{year}年新年運勢"
     }
   },
   "home": {
@@ -508,7 +536,9 @@
     "daewun": {
       "title": "大運",
       "current": "現在の大運",
-      "scrollHint": "左右にスクロールしてください"
+      "scrollHint": "左右にスクロールしてください",
+      "previous": "前の大運",
+      "next": "次の大運"
     },
     "personality": {
       "title": "性格と特徴",
@@ -549,7 +579,45 @@
       "personalityPatternDesc": "結婚後の性格パターン",
       "traits": "恋愛特性",
       "traitsDesc": "恋愛に関する特性10個",
-      "score": "恋愛点数"
+      "score": "恋愛点数",
+      "traitLabels": {
+        "consideration": "思いやり",
+        "humor": "ユーモア",
+        "artistry": "芸術性",
+        "vanity": "虚栄心",
+        "adventure": "冒険心",
+        "sincerity": "誠実さ",
+        "sociability": "社交性",
+        "financial": "財テク",
+        "reliability": "信頼性",
+        "expression": "表現力"
+      }
+    },
+    "aptitude": {
+      "title": "業務能力と適性",
+      "workAbility": "仕事処理能力",
+      "workAbilityDesc": "各段階別の能力比率",
+      "traits": "特徴グラフ",
+      "traitsDesc": "適性を把握する特徴10個",
+      "workLabels": {
+        "planning": "企画/研究",
+        "perseverance": "根気/精力",
+        "execution": "実践/手段",
+        "completion": "完成/販売",
+        "management": "管理/評価"
+      },
+      "traitLabels": {
+        "criticism": "批判力",
+        "cooperation": "協調性",
+        "learning": "習得力",
+        "creativity": "創造力",
+        "artistry": "芸術性",
+        "expression": "表現力",
+        "activity": "活動力",
+        "adventure": "冒険心",
+        "business": "ビジネス感覚",
+        "reliability": "信頼性"
+      }
     },
     "navigation": {
       "saju": "四柱",
@@ -563,6 +631,24 @@
       "exportPdf": "PDF出力",
       "share": "共有",
       "back": "戻る"
+    },
+    "page": {
+      "loading": "レポートを読み込んでいます...",
+      "loadError": "レポートを読み込めませんでした",
+      "backToProfile": "プロフィールに戻る",
+      "title": "四柱推命レポート",
+      "userTitle": "{name}さんの四柱推命レポート",
+      "noReport": {
+        "title": "まだ分析がありません",
+        "description": "四柱推命分析を開始して詳細なレポートを確認しましょう",
+        "startAnalysis": "分析を開始"
+      },
+      "noDaewun": "大運データがありません",
+      "footer": "この分析はAI生成の参考資料です。重要な決定の前に専門家への相談をお勧めします。"
+    },
+    "consultation": {
+      "title": "AI相談",
+      "description": "分析された四柱推命と大運に基づいて、AIの専門家にご相談ください。"
     }
   },
   "pipeline": {

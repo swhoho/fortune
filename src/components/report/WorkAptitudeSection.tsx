@@ -1,6 +1,7 @@
 'use client';
 
 import { motion } from 'framer-motion';
+import { useTranslations } from 'next-intl';
 import { TraitGraph, type TraitItem } from './TraitGraph';
 
 /**
@@ -71,27 +72,29 @@ export function WorkAptitudeSection({
   aptitudeTraits,
   className = '',
 }: WorkAptitudeSectionProps) {
+  const t = useTranslations('report.aptitude');
+
   // 업무 능력 데이터를 TraitItem 배열로 변환
   const workItems: TraitItem[] = [
-    { label: '기획/연구', value: workAbility.planning },
-    { label: '끈기/정력', value: workAbility.perseverance },
-    { label: '실천/수단', value: workAbility.execution },
-    { label: '완성/판매', value: workAbility.completion },
-    { label: '관리/평가', value: workAbility.management },
+    { label: t('workLabels.planning'), value: workAbility.planning },
+    { label: t('workLabels.perseverance'), value: workAbility.perseverance },
+    { label: t('workLabels.execution'), value: workAbility.execution },
+    { label: t('workLabels.completion'), value: workAbility.completion },
+    { label: t('workLabels.management'), value: workAbility.management },
   ];
 
   // 적성 특성 데이터를 TraitItem 배열로 변환
   const aptitudeItems: TraitItem[] = [
-    { label: '비판력', value: aptitudeTraits.criticism },
-    { label: '협동심', value: aptitudeTraits.cooperation },
-    { label: '습득력', value: aptitudeTraits.learning },
-    { label: '창의력', value: aptitudeTraits.creativity },
-    { label: '예술성', value: aptitudeTraits.artistry },
-    { label: '표현력', value: aptitudeTraits.expression },
-    { label: '활동력', value: aptitudeTraits.activity },
-    { label: '모험심', value: aptitudeTraits.adventure },
-    { label: '사업감각', value: aptitudeTraits.business },
-    { label: '신뢰성', value: aptitudeTraits.reliability },
+    { label: t('traitLabels.criticism'), value: aptitudeTraits.criticism },
+    { label: t('traitLabels.cooperation'), value: aptitudeTraits.cooperation },
+    { label: t('traitLabels.learning'), value: aptitudeTraits.learning },
+    { label: t('traitLabels.creativity'), value: aptitudeTraits.creativity },
+    { label: t('traitLabels.artistry'), value: aptitudeTraits.artistry },
+    { label: t('traitLabels.expression'), value: aptitudeTraits.expression },
+    { label: t('traitLabels.activity'), value: aptitudeTraits.activity },
+    { label: t('traitLabels.adventure'), value: aptitudeTraits.adventure },
+    { label: t('traitLabels.business'), value: aptitudeTraits.business },
+    { label: t('traitLabels.reliability'), value: aptitudeTraits.reliability },
   ];
 
   return (
@@ -108,14 +111,14 @@ export function WorkAptitudeSection({
         transition={{ duration: 0.4 }}
         className="flex items-center gap-3"
       >
-        <h2 className="font-serif text-xl font-bold text-white">업무 능력과 적성</h2>
+        <h2 className="font-serif text-xl font-bold text-white">{t('title')}</h2>
         <div className="h-px flex-1 bg-gradient-to-r from-[#d4af37]/50 to-transparent" />
       </motion.div>
 
       {/* 1. 일처리 능력 그래프 (5개 항목) */}
       <TraitGraph
-        title="일처리 능력"
-        subtitle="각 단계별 능력 비율"
+        title={t('workAbility')}
+        subtitle={t('workAbilityDesc')}
         traits={workItems}
         threshold={50}
         showLegend={true}
@@ -123,8 +126,8 @@ export function WorkAptitudeSection({
 
       {/* 2. 적성 특성 그래프 (10개 항목) */}
       <TraitGraph
-        title="특징그래프"
-        subtitle="적성을 파악하는 특징 10개"
+        title={t('traits')}
+        subtitle={t('traitsDesc')}
         traits={aptitudeItems}
         threshold={50}
         showLegend={true}

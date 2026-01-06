@@ -1,6 +1,7 @@
 'use client';
 
 import { motion } from 'framer-motion';
+import { useTranslations } from 'next-intl';
 import { ContentCard } from './ContentCard';
 import { TraitGraph, type TraitItem, type TraitDescription } from './TraitGraph';
 import type { ContentCardData } from '@/types/report';
@@ -148,20 +149,21 @@ interface RomanceSectionProps {
  * 4. 연애 특성 그래프 (10개 항목)
  */
 export function RomanceSection({ data, className = '' }: RomanceSectionProps) {
+  const t = useTranslations('report.romance');
   const { datingPsychology, spouseView, personalityPattern, romanceTraits, score } = data;
 
   // 연애 특성 데이터를 TraitItem 배열로 변환
   const romanceItems: TraitItem[] = [
-    { label: '배려심', value: romanceTraits.consideration },
-    { label: '유머감각', value: romanceTraits.humor },
-    { label: '예술성', value: romanceTraits.artistry },
-    { label: '허영심', value: romanceTraits.vanity },
-    { label: '모험심', value: romanceTraits.adventure },
-    { label: '성실도', value: romanceTraits.sincerity },
-    { label: '사교력', value: romanceTraits.sociability },
-    { label: '재테크', value: romanceTraits.financial },
-    { label: '신뢰성', value: romanceTraits.reliability },
-    { label: '표현력', value: romanceTraits.expression },
+    { label: t('traitLabels.consideration'), value: romanceTraits.consideration },
+    { label: t('traitLabels.humor'), value: romanceTraits.humor },
+    { label: t('traitLabels.artistry'), value: romanceTraits.artistry },
+    { label: t('traitLabels.vanity'), value: romanceTraits.vanity },
+    { label: t('traitLabels.adventure'), value: romanceTraits.adventure },
+    { label: t('traitLabels.sincerity'), value: romanceTraits.sincerity },
+    { label: t('traitLabels.sociability'), value: romanceTraits.sociability },
+    { label: t('traitLabels.financial'), value: romanceTraits.financial },
+    { label: t('traitLabels.reliability'), value: romanceTraits.reliability },
+    { label: t('traitLabels.expression'), value: romanceTraits.expression },
   ];
 
   return (
@@ -198,7 +200,7 @@ export function RomanceSection({ data, className = '' }: RomanceSectionProps) {
               />
             </svg>
           </motion.div>
-          <h2 className="font-serif text-xl font-bold text-white">연애와 결혼</h2>
+          <h2 className="font-serif text-xl font-bold text-white">{t('title')}</h2>
         </div>
 
         {/* 점수 배지 (선택) */}
@@ -209,8 +211,8 @@ export function RomanceSection({ data, className = '' }: RomanceSectionProps) {
             transition={{ duration: 0.4, delay: 0.2 }}
             className="flex items-center gap-1.5 rounded-full bg-pink-500/10 px-3 py-1"
           >
-            <span className="text-xs text-pink-400/70">연애운</span>
-            <span className="text-sm font-bold text-pink-400">{score}점</span>
+            <span className="text-xs text-pink-400/70">{t('score')}</span>
+            <span className="text-sm font-bold text-pink-400">{score}</span>
           </motion.div>
         )}
 
@@ -249,8 +251,8 @@ export function RomanceSection({ data, className = '' }: RomanceSectionProps) {
 
       {/* 4. 연애 특성 그래프 */}
       <TraitGraph
-        title="특징그래프"
-        subtitle="연애적성을 파악하는 특징 10개"
+        title={t('traits')}
+        subtitle={t('traitsDesc')}
         traits={romanceItems}
         descriptions={ROMANCE_TRAIT_DESCRIPTIONS}
         threshold={50}

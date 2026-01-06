@@ -2,6 +2,7 @@
 
 import { useRef } from 'react';
 import { motion } from 'framer-motion';
+import { useTranslations } from 'next-intl';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import type { ReportDaewunItem } from '@/types/report';
 
@@ -20,6 +21,7 @@ export function DaewunHorizontalScroll({
   currentAge,
   className = '',
 }: DaewunHorizontalScrollProps) {
+  const t = useTranslations('report.daewun');
   const scrollRef = useRef<HTMLDivElement>(null);
 
   // 스크롤 핸들러
@@ -80,7 +82,7 @@ export function DaewunHorizontalScroll({
       <button
         onClick={() => scroll('left')}
         className="absolute left-0 top-1/2 z-10 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full bg-[#1a1a1a]/90 text-[#d4af37] shadow-lg backdrop-blur-sm transition-all hover:scale-110 hover:bg-[#2a2a2a]"
-        aria-label="이전 대운"
+        aria-label={t('previous')}
       >
         <ChevronLeft className="h-5 w-5" />
       </button>
@@ -89,7 +91,7 @@ export function DaewunHorizontalScroll({
       <button
         onClick={() => scroll('right')}
         className="absolute right-0 top-1/2 z-10 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full bg-[#1a1a1a]/90 text-[#d4af37] shadow-lg backdrop-blur-sm transition-all hover:scale-110 hover:bg-[#2a2a2a]"
-        aria-label="다음 대운"
+        aria-label={t('next')}
       >
         <ChevronRight className="h-5 w-5" />
       </button>

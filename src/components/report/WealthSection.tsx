@@ -1,6 +1,7 @@
 'use client';
 
 import { motion } from 'framer-motion';
+import { useTranslations } from 'next-intl';
 import { ContentCard } from './ContentCard';
 import { TraitGraph, type TraitItem } from './TraitGraph';
 import type { ContentCardData } from '@/types/report';
@@ -40,6 +41,7 @@ interface WealthSectionProps {
  * 3. 이성의 존재 카드 (ContentCard)
  */
 export function WealthSection({ data, className = '' }: WealthSectionProps) {
+  const t = useTranslations('report.wealth');
   const { wealthFortune, partnerInfluence, wealthTraits, score } = data;
 
   return (
@@ -72,7 +74,7 @@ export function WealthSection({ data, className = '' }: WealthSectionProps) {
               <path d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v1H8a1 1 0 100 2h.5a.5.5 0 01.5.5v1a.5.5 0 01-.5.5H8a1 1 0 100 2h1v1a1 1 0 102 0v-1h.5a1.5 1.5 0 001.5-1.5v-1a1.5 1.5 0 00-1.5-1.5H11V8h.5a1 1 0 100-2H11V5z" />
             </svg>
           </motion.div>
-          <h2 className="font-serif text-xl font-bold text-white">재물과 이성</h2>
+          <h2 className="font-serif text-xl font-bold text-white">{t('title')}</h2>
         </div>
 
         {/* 점수 배지 (선택) */}
@@ -83,8 +85,8 @@ export function WealthSection({ data, className = '' }: WealthSectionProps) {
             transition={{ duration: 0.4, delay: 0.2 }}
             className="flex items-center gap-1.5 rounded-full bg-[#d4af37]/10 px-3 py-1"
           >
-            <span className="text-xs text-[#d4af37]/70">재물운</span>
-            <span className="text-sm font-bold text-[#d4af37]">{score}점</span>
+            <span className="text-xs text-[#d4af37]/70">{t('score')}</span>
+            <span className="text-sm font-bold text-[#d4af37]">{score}</span>
           </motion.div>
         )}
 
@@ -95,8 +97,8 @@ export function WealthSection({ data, className = '' }: WealthSectionProps) {
       {/* 1. 재물 특성 그래프 (선택) - 레퍼런스에서 상단 위치 */}
       {wealthTraits && wealthTraits.length > 0 && (
         <TraitGraph
-          title="재물특성"
-          subtitle="나의 재물 성향을 나타내는 특성"
+          title={t('traits')}
+          subtitle={t('traitsDesc')}
           traits={wealthTraits}
           threshold={50}
           showLegend={true}
