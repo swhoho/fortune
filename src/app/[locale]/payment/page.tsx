@@ -50,6 +50,7 @@ export default function PaymentPage({ params: { locale } }: { params: { locale: 
     CREDIT_PACKAGES.find((p) => p.popular) || null
   );
   const [selectedMethod, setSelectedMethod] = useState<PaymentMethod>('card');
+  const [phoneNumber, setPhoneNumber] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -98,6 +99,16 @@ export default function PaymentPage({ params: { locale } }: { params: { locale: 
         return;
       }
 
+      // 신용카드 결제 시 휴대폰 번호 필수
+      if (selectedMethod === 'card' && !phoneNumber.trim()) {
+        setError('신용카드 결제 시 휴대폰 번호를 입력해주세요.');
+        setIsLoading(false);
+        return;
+      }
+
+      // 전화번호 형식 정리 (숫자만)
+      const formattedPhone = phoneNumber.replace(/[^0-9]/g, '');
+
       // PortOne SDK 결제 요청
       const response = await PortOne.requestPayment({
         storeId,
@@ -110,6 +121,7 @@ export default function PaymentPage({ params: { locale } }: { params: { locale: 
         customer: {
           email: customerEmail,
           fullName: customerName,
+          phoneNumber: formattedPhone || undefined,
         },
         redirectUrl: `${window.location.origin}/${locale}/payment/success?paymentId=${paymentId}&packageId=${selectedPackage.id}`,
       });
@@ -283,6 +295,25 @@ export default function PaymentPage({ params: { locale } }: { params: { locale: 
                     ))}
                   </div>
                 </div>
+
+                {/* 신용카드 결제 시 휴대폰 번호 입력 */}
+                {selectedMethod === 'card' && (
+                  <div className="mb-6">
+                    <label className="mb-2 block text-sm font-medium text-gray-400">
+                      휴대폰 번호 <span className="text-red-400">*</span>
+                    </label>
+                    <input
+                      type="tel"
+                      value={phoneNumber}
+                      onChange={(e) => setPhoneNumber(e.target.value)}
+                      placeholder="01012345678"
+                      className="w-full rounded-lg border-2 border-[#333] bg-[#1a1a1a] px-4 py-3 text-white placeholder-gray-500 focus:border-[#d4af37] focus:outline-none"
+                    />
+                    <p className="mt-1 text-xs text-gray-500">
+                      KG이니시스 결제 시 필수 입력
+                    </p>
+                  </div>
+                )}
 
                 {/* Summary & CTA */}
                 <div className="mt-auto rounded-xl border border-white/5 bg-[#1a1a1a] p-6">
