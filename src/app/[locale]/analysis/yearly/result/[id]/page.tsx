@@ -8,7 +8,7 @@
 import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
-import { ArrowLeft, Share2, Sparkles, Calendar, BookOpen, Loader2 } from 'lucide-react';
+import { ArrowLeft, Share2, Sparkles, Calendar, BookOpen, Loader2, Home } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 import { MonthlyTimeline, LuckyDaysCalendar, YearlyAdviceCard } from '@/components/analysis/yearly';
@@ -103,13 +103,22 @@ export default function YearlyResultPage() {
         className="sticky top-0 z-10 border-b border-gray-200 bg-white/80 px-4 py-4 backdrop-blur-sm"
       >
         <div className="mx-auto flex max-w-4xl items-center justify-between">
-          <button
-            onClick={handleBack}
-            className="flex items-center gap-2 text-gray-600 hover:text-gray-900"
-          >
-            <ArrowLeft className="h-5 w-5" />
-            <span className="hidden sm:inline">돌아가기</span>
-          </button>
+          <div className="flex items-center gap-1">
+            <button
+              onClick={() => router.push('/home')}
+              className="flex h-10 w-10 items-center justify-center rounded-lg text-gray-600 hover:bg-gray-100 hover:text-gray-900"
+              title="홈으로"
+            >
+              <Home className="h-5 w-5" />
+            </button>
+            <button
+              onClick={handleBack}
+              className="flex items-center gap-2 text-gray-600 hover:text-gray-900"
+            >
+              <ArrowLeft className="h-5 w-5" />
+              <span className="hidden sm:inline">돌아가기</span>
+            </button>
+          </div>
           <h1 className="font-serif text-lg font-semibold text-gray-900">
             {result.year}년 신년 운세
           </h1>

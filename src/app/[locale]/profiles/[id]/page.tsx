@@ -8,7 +8,7 @@
 import { useState, useEffect } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { motion } from 'framer-motion';
-import { ArrowLeft, Loader2 } from 'lucide-react';
+import { ArrowLeft, Loader2, Home } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { useQuery } from '@tanstack/react-query';
 import { toast } from 'sonner';
@@ -192,13 +192,20 @@ export default function ProfileDetailPage({ params }: PageProps) {
       {/* 헤더 */}
       <header className="sticky top-0 z-10 border-b border-[#333] bg-[#111111]/90 backdrop-blur-sm">
         <div className="mx-auto flex max-w-2xl items-center justify-between px-6 py-4">
-          <Button variant="ghost" size="icon" asChild className="text-white hover:bg-[#242424]">
-            <Link href="/profiles">
-              <ArrowLeft className="h-5 w-5" />
-            </Link>
-          </Button>
+          <div className="flex items-center gap-2">
+            <Button variant="ghost" size="icon" asChild className="text-white hover:bg-[#242424]">
+              <Link href="/home">
+                <Home className="h-5 w-5" />
+              </Link>
+            </Button>
+            <Button variant="ghost" size="icon" asChild className="text-white hover:bg-[#242424]">
+              <Link href="/profiles">
+                <ArrowLeft className="h-5 w-5" />
+              </Link>
+            </Button>
+          </div>
           <h1 className="font-serif text-lg font-semibold text-white">{t('pageTitle.detail')}</h1>
-          <div className="w-10" /> {/* 균형을 위한 빈 공간 */}
+          <div className="w-20" /> {/* 균형을 위한 빈 공간 */}
         </div>
       </header>
 

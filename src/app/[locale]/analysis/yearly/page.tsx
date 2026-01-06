@@ -9,7 +9,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { useTranslations } from 'next-intl';
-import { ArrowRight, Sparkles } from 'lucide-react';
+import { ArrowRight, Sparkles, Home } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 import { YearSelector } from '@/components/analysis/yearly';
@@ -64,10 +64,26 @@ export default function YearlyAnalysisPage() {
   return (
     <div className="min-h-screen bg-[#0a0a0a] px-4 py-8">
       <div className="mx-auto max-w-2xl">
+        {/* 상단 네비게이션 */}
+        <motion.div
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="mb-4"
+        >
+          <button
+            onClick={() => router.push('/home')}
+            className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#1a1a1a] text-gray-400 transition-all hover:bg-[#242424] hover:text-white"
+            title="홈으로"
+          >
+            <Home className="h-5 w-5" />
+          </button>
+        </motion.div>
+
         {/* 헤더 */}
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.05 }}
           className="mb-8 text-center"
         >
           <div
