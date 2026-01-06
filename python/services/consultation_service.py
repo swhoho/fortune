@@ -233,6 +233,7 @@ class ConsultationService:
             session_history=session_history,
             clarification_response=clarification_response,
             language=language,
+            today=datetime.now().strftime('%Y-%m-%d'),
         )
 
         answer = await gemini.generate_text(answer_prompt)

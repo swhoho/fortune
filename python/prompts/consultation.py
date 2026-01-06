@@ -48,6 +48,7 @@ def build_clarification_prompt(question: str, language: str = "ko") -> str:
 - 너무 많은 질문은 사용자를 지치게 합니다. 꼭 필요한 1-2개만 질문하세요.
 - 질문이 충분히 구체적이면 needsClarification: false로 응답하세요.
 - 사주와 무관한 질문(날씨, 뉴스 등)은 isValidQuestion: false로 응답하세요.
+- **절대 금지**: 생년월일시, 양/음력, 성별, 사주 명식 등 사주 기본 정보는 이미 시스템에 저장되어 있습니다. 이런 정보를 절대 다시 묻지 마세요.
 
 JSON만 응답해주세요.""",
 
@@ -82,6 +83,7 @@ A user has requested a Four Pillars (Saju) consultation. Analyze the question an
 - Too many questions will tire the user. Ask only 1-2 essential questions.
 - If the question is specific enough, respond with needsClarification: false.
 - For unrelated questions (weather, news, etc.), respond with isValidQuestion: false.
+- **NEVER ASK**: Birth date/time, lunar/solar calendar, gender, or chart details are already stored in the system. Do NOT ask for this information.
 
 Respond with JSON only.""",
 
@@ -116,6 +118,7 @@ Respond with JSON only.""",
 - 質問が多すぎるとユーザーが疲れます。必要な1-2個だけ質問してください。
 - 質問が十分に具体的であればneedsClarification: falseで応答してください。
 - 四柱推命と無関係な質問（天気、ニュースなど）はisValidQuestion: falseで応答してください。
+- **絶対禁止**: 生年月日時、陰暦/陽暦、性別、命式などの基本情報はすでにシステムに保存されています。この情報を絶対に聞かないでください。
 
 JSONのみで応答してください。""",
 
@@ -150,6 +153,7 @@ JSONのみで応答してください。""",
 - 问题太多会让用户疲惫。只问必要的1-2个问题。
 - 如果问题足够具体，请以needsClarification: false回应。
 - 与八字无关的问题（天气、新闻等）请以isValidQuestion: false回应。
+- **绝对禁止**: 出生日期时间、阴历/阳历、性别、命盘等基本信息已存储在系统中。绝对不要询问这些信息。
 
 只回复JSON。""",
 
@@ -184,6 +188,7 @@ JSONのみで応答してください。""",
 - 問題太多會讓用戶疲憊。只問必要的1-2個問題。
 - 如果問題足夠具體，請以needsClarification: false回應。
 - 與八字無關的問題（天氣、新聞等）請以isValidQuestion: false回應。
+- **絕對禁止**: 出生日期時間、陰曆/陽曆、性別、命盤等基本資訊已儲存在系統中。絕對不要詢問這些資訊。
 
 只回覆JSON。"""
     }
@@ -198,7 +203,8 @@ def build_answer_prompt(
     analysis_summary: Optional[str] = None,
     session_history: Optional[List[Dict[str, str]]] = None,
     clarification_response: Optional[str] = None,
-    language: str = "ko"
+    language: str = "ko",
+    today: Optional[str] = None
 ) -> str:
     """
     최종 답변 프롬프트
@@ -211,6 +217,7 @@ def build_answer_prompt(
         session_history: 세션 내 이전 대화 기록
         clarification_response: 사용자가 제공한 추가 정보
         language: 언어 코드
+        today: 오늘 날짜 (YYYY-MM-DD 형식)
 
     Returns:
         Gemini에 전송할 프롬프트 문자열
@@ -254,11 +261,18 @@ def build_answer_prompt(
     if clarification_response:
         clarification_info = f"\n추가로 제공된 정보:\n{clarification_response}"
 
+    # 오늘 날짜 포맷
+    today_info = f"오늘 날짜: {today}" if today else ""
+    today_info_en = f"Today's Date: {today}" if today else ""
+    today_info_ja = f"本日の日付: {today}" if today else ""
+    today_info_zh = f"今日日期: {today}" if today else ""
+
     prompts = {
         "ko": f"""당신은 30년 경력의 명리학 전문가입니다.
 사용자의 사주를 바탕으로 상담 요청에 답변해주세요.
 
 ## 사주 정보
+{today_info}
 {pillars_info}
 {daewun_info}
 {f"분석 요약: {analysis_summary}" if analysis_summary else ""}
@@ -285,6 +299,7 @@ def build_answer_prompt(
 Please respond to the consultation request based on the user's Four Pillars chart.
 
 ## Four Pillars Information
+{today_info_en}
 {pillars_info}
 {daewun_info}
 {f"Analysis Summary: {analysis_summary}" if analysis_summary else ""}
@@ -311,6 +326,7 @@ Write only the answer (no JSON format needed).""",
 ユーザーの四柱推命に基づいて相談にお答えください。
 
 ## 四柱情報
+{today_info_ja}
 {pillars_info}
 {daewun_info}
 {f"分析要約: {analysis_summary}" if analysis_summary else ""}
@@ -337,6 +353,7 @@ Write only the answer (no JSON format needed).""",
 请根据用户的八字命盘回答咨询。
 
 ## 八字信息
+{today_info_zh}
 {pillars_info}
 {daewun_info}
 {f"分析摘要: {analysis_summary}" if analysis_summary else ""}
@@ -363,6 +380,7 @@ Write only the answer (no JSON format needed).""",
 請根據用戶的八字命盤回答諮詢。
 
 ## 八字資訊
+{today_info_zh}
 {pillars_info}
 {daewun_info}
 {f"分析摘要: {analysis_summary}" if analysis_summary else ""}
