@@ -1,7 +1,30 @@
 {
   "metadata": {
     "title": "Master's Insight AI | AI Four Pillars of Destiny Analysis",
-    "description": "Eastern fortune-telling wisdom meets cutting-edge AI to analyze your destiny."
+    "description": "Eastern fortune-telling wisdom meets cutting-edge AI to analyze your destiny.",
+    "keywords": "AI fortune telling, BaZi analysis, Four Pillars of Destiny, Chinese astrology, destiny reading, horoscope, fortune analysis",
+    "pages": {
+      "landing": {
+        "title": "AI Fortune Analysis | Trusted by 30-Year Masters",
+        "description": "AI-powered BaZi analysis based on Ziping Zhenchuan and Qiongtong Baojian. Experience the accuracy that amazed fortune-telling masters."
+      },
+      "home": {
+        "title": "Home | AI Fortune Analysis Service",
+        "description": "From profile registration to comprehensive destiny analysis and yearly fortune. Let AI analyze your fate."
+      },
+      "analysisFocus": {
+        "title": "Select Focus Area | Wealth, Love, Career Fortune",
+        "description": "Choose your focus area: wealth, love, career, or health fortune. AI provides customized in-depth analysis."
+      },
+      "analysisQuestion": {
+        "title": "Enter Your Concerns | AI Personalized Consultation",
+        "description": "Enter your specific concerns and AI will provide tailored advice based on your destiny analysis."
+      },
+      "profileNew": {
+        "title": "Register Profile | Enter Birth Information for Analysis",
+        "description": "Enter your birth date, time, and gender for accurate Four Pillars destiny analysis."
+      }
+    }
   },
   "common": {
     "appName": "Master's Insight AI",
@@ -723,6 +746,15 @@
     "VALIDATION_REQUIRED_FIELD_MISSING": "Please fill in all required fields",
     "VALIDATION_INVALID_DATE": "Please enter a valid date",
     "VALIDATION_INVALID_EMAIL": "Please enter a valid email address",
-    "VALIDATION_OUT_OF_RANGE": "Value is out of allowed range"
+    "VALIDATION_OUT_OF_RANGE": "Value is out of allowed range",
+    "VALIDATION_INVALID_INPUT": "Invalid input value",
+    "VALIDATION_NO_UPDATES": "No changes to update",
+    "PAYMENT_INVALID_PACKAGE": "Invalid package selected",
+    "PAYMENT_INFO_FETCH_FAILED": "Failed to retrieve payment information",
+    "PAYMENT_NOT_COMPLETED": "Payment was not completed",
+    "PAYMENT_ALREADY_PROCESSED": "This payment has already been processed",
+    "PAYMENT_RECORD_CREATE_FAILED": "Failed to create payment record",
+    "PAYMENT_USER_FETCH_FAILED": "Failed to retrieve user information",
+    "PAYMENT_CREDIT_UPDATE_FAILED": "Failed to update credits"
   }
 }

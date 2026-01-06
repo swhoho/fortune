@@ -1,7 +1,30 @@
 {
   "metadata": {
     "title": "Master's Insight AI | AI四柱推命分析",
-    "description": "東洋の命理学の知恵と最新のAI技術があなたの運命を分析します。"
+    "description": "東洋の命理学の知恵と最新のAI技術があなたの運命を分析します。",
+    "keywords": "AI 四柱推命, AI 占い, 運勢, 命理学, 四柱八字, 占い無料, 今日の運勢, 新年運勢",
+    "pages": {
+      "landing": {
+        "title": "AI四柱推命分析 | 30年の巨匠が認めた精度",
+        "description": "子平真詮、窮通宝鑑に基づくAI四柱推命分析。30年のベテランも認めた圧倒的な品質を今すぐ体験。"
+      },
+      "home": {
+        "title": "ホーム | AI四柱推命分析サービス",
+        "description": "プロフィール登録から総合運勢分析、新年運勢まで。AIがあなたの運命を分析します。"
+      },
+      "analysisFocus": {
+        "title": "分析エリア選択 | 財運、恋愛運、仕事運",
+        "description": "財運、恋愛運、仕事運、健康運から集中分析するエリアを選択。AIがカスタマイズされた深層分析を提供します。"
+      },
+      "analysisQuestion": {
+        "title": "お悩み入力 | AIカスタマイズ相談",
+        "description": "具体的なお悩みを入力すると、AIが四柱推命分析に基づいてカスタマイズされたアドバイスを提供します。"
+      },
+      "profileNew": {
+        "title": "プロフィール登録 | 分析のための生年月日入力",
+        "description": "正確な四柱推命分析のために生年月日、出生時間、性別を入力してください。"
+      }
+    }
   },
   "common": {
     "appName": "Master's Insight AI",
@@ -723,6 +746,15 @@
     "VALIDATION_REQUIRED_FIELD_MISSING": "必須項目を入力してください",
     "VALIDATION_INVALID_DATE": "正しい日付を入力してください",
     "VALIDATION_INVALID_EMAIL": "正しいメールアドレスを入力してください",
-    "VALIDATION_OUT_OF_RANGE": "入力値が許容範囲外です"
+    "VALIDATION_OUT_OF_RANGE": "入力値が許容範囲外です",
+    "VALIDATION_INVALID_INPUT": "入力値が正しくありません",
+    "VALIDATION_NO_UPDATES": "変更する内容がありません",
+    "PAYMENT_INVALID_PACKAGE": "無効なパッケージです",
+    "PAYMENT_INFO_FETCH_FAILED": "決済情報の取得に失敗しました",
+    "PAYMENT_NOT_COMPLETED": "決済が完了していません",
+    "PAYMENT_ALREADY_PROCESSED": "すでに処理済みの決済です",
+    "PAYMENT_RECORD_CREATE_FAILED": "決済記録の作成に失敗しました",
+    "PAYMENT_USER_FETCH_FAILED": "ユーザー情報の取得に失敗しました",
+    "PAYMENT_CREDIT_UPDATE_FAILED": "クレジットの更新に失敗しました"
   }
 }

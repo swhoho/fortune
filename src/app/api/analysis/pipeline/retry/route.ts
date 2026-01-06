@@ -5,6 +5,13 @@
  */
 import { NextRequest, NextResponse } from 'next/server';
 import { getAuthenticatedUser } from '@/lib/supabase/server';
+import {
+  AUTH_ERRORS,
+  API_ERRORS,
+  VALIDATION_ERRORS,
+  createErrorResponse,
+  getStatusCode,
+} from '@/lib/errors/codes';
 
 import { createAnalysisPipeline } from '@/lib/ai/pipeline';
 import type {
@@ -90,7 +97,10 @@ export async function POST(request: NextRequest) {
     // 1. 인증 확인
     const user = await getAuthenticatedUser();
     if (!user) {
-      return NextResponse.json({ error: '로그인이 필요합니다' }, { status: 401 });
+      return NextResponse.json(
+        createErrorResponse(AUTH_ERRORS.UNAUTHORIZED),
+        { status: getStatusCode(AUTH_ERRORS.UNAUTHORIZED) }
+      );
     }
 
     // 2. 요청 본문 파싱
@@ -99,11 +109,12 @@ export async function POST(request: NextRequest) {
 
     if (!validationResult.success) {
       return NextResponse.json(
-        {
-          error: '요청 데이터가 올바르지 않습니다',
-          details: validationResult.error.flatten(),
-        },
-        { status: 400 }
+        createErrorResponse(
+          VALIDATION_ERRORS.INVALID_INPUT,
+          undefined,
+          JSON.stringify(validationResult.error.flatten())
+        ),
+        { status: getStatusCode(VALIDATION_ERRORS.INVALID_INPUT) }
       );
     }
 
@@ -180,10 +191,13 @@ export async function POST(request: NextRequest) {
     return NextResponse.json(
       {
         success: false,
-        error: '서버 오류가 발생했습니다.',
-        code: 'INTERNAL_ERROR',
+        ...createErrorResponse(
+          API_ERRORS.SERVER_ERROR,
+          undefined,
+          error instanceof Error ? error.message : undefined
+        ),
       },
-      { status: 500 }
+      { status: getStatusCode(API_ERRORS.SERVER_ERROR) }
     );
   }
 }

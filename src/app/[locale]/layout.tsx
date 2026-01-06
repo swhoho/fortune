@@ -142,16 +142,10 @@ export async function generateMetadata({
       alternateLocale: Object.values(ogLocales).filter((l) => l !== ogLocales[locale]),
       images: [
         {
-          url: `${baseUrl}/og-image-${locale}.png`,
-          width: 1200,
-          height: 630,
-          alt: title,
-        },
-        {
           url: `${baseUrl}/og-image.png`,
           width: 1200,
           height: 630,
-          alt: "Master's Insight AI",
+          alt: title,
         },
       ],
     },
@@ -161,7 +155,7 @@ export async function generateMetadata({
       card: 'summary_large_image',
       title,
       description,
-      images: [`${baseUrl}/og-image-${locale}.png`],
+      images: [`${baseUrl}/og-image.png`],
     },
 
     // 기타

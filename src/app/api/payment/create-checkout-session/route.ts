@@ -5,6 +5,12 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getStripeServer, CREDIT_PACKAGES } from '@/lib/stripe';
 import { getAuthenticatedUser } from '@/lib/supabase/server';
+import {
+  AUTH_ERRORS,
+  PAYMENT_ERRORS,
+  createErrorResponse,
+  getStatusCode,
+} from '@/lib/errors/codes';
 
 interface CreateCheckoutRequest {
   packageId: string;
@@ -20,18 +26,21 @@ export async function POST(request: NextRequest) {
     // 패키지 검증
     const selectedPackage = CREDIT_PACKAGES.find((p) => p.id === packageId);
     if (!selectedPackage) {
-      return NextResponse.json({ error: '유효하지 않은 패키지입니다' }, { status: 400 });
+      const errorResponse = createErrorResponse(PAYMENT_ERRORS.INVALID_PACKAGE);
+      return NextResponse.json(errorResponse, { status: getStatusCode(PAYMENT_ERRORS.INVALID_PACKAGE) });
     }
 
     // 금액 검증
     if (amount !== selectedPackage.price) {
-      return NextResponse.json({ error: '금액이 일치하지 않습니다' }, { status: 400 });
+      const errorResponse = createErrorResponse(PAYMENT_ERRORS.AMOUNT_MISMATCH);
+      return NextResponse.json(errorResponse, { status: getStatusCode(PAYMENT_ERRORS.AMOUNT_MISMATCH) });
     }
 
     // 사용자 인증 확인 (Supabase Auth)
     const user = await getAuthenticatedUser();
     if (!user) {
-      return NextResponse.json({ error: '로그인이 필요합니다' }, { status: 401 });
+      const errorResponse = createErrorResponse(AUTH_ERRORS.UNAUTHORIZED);
+      return NextResponse.json(errorResponse, { status: getStatusCode(AUTH_ERRORS.UNAUTHORIZED) });
     }
 
     const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
@@ -66,11 +75,11 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ url: checkoutSession.url });
   } catch (error) {
     console.error('Checkout session creation error:', error);
-    return NextResponse.json(
-      {
-        error: error instanceof Error ? error.message : '결제 세션 생성에 실패했습니다',
-      },
-      { status: 500 }
+    const errorResponse = createErrorResponse(
+      PAYMENT_ERRORS.SESSION_CREATE_FAILED,
+      undefined,
+      error instanceof Error ? error.message : undefined
     );
+    return NextResponse.json(errorResponse, { status: getStatusCode(PAYMENT_ERRORS.SESSION_CREATE_FAILED) });
   }
 }

@@ -9,6 +9,14 @@ import { getAuthenticatedUser } from '@/lib/supabase/server';
 import { sajuAnalyzer } from '@/lib/ai';
 import type { GeminiAnalysisInput, FocusArea } from '@/lib/ai';
 import { z } from 'zod';
+import {
+  AUTH_ERRORS,
+  API_ERRORS,
+  ANALYSIS_ERRORS,
+  VALIDATION_ERRORS,
+  createErrorResponse,
+  getStatusCode,
+} from '@/lib/errors/codes';
 
 /**
  * 기둥 데이터 스키마
@@ -54,21 +62,21 @@ const analysisRequestSchema = z.object({
 });
 
 /**
- * 에러 코드에 따른 HTTP 상태 코드 반환
+ * 내부 AI 에러 코드를 표준 에러 코드로 매핑
  */
-function getStatusCodeFromError(code?: string): number {
+function mapAiErrorToStandardCode(code?: string): typeof ANALYSIS_ERRORS[keyof typeof ANALYSIS_ERRORS] {
   switch (code) {
     case 'INVALID_INPUT':
-      return 400;
+      return ANALYSIS_ERRORS.INVALID_SAJU_DATA;
     case 'INVALID_API_KEY':
     case 'MODEL_NOT_FOUND':
-      return 500;
+      return ANALYSIS_ERRORS.AI_CONFIG_ERROR;
     case 'RATE_LIMIT':
-      return 429;
+      return ANALYSIS_ERRORS.AI_RATE_LIMITED;
     case 'TIMEOUT':
-      return 504;
+      return ANALYSIS_ERRORS.TIMEOUT;
     default:
-      return 500;
+      return ANALYSIS_ERRORS.AI_SERVICE_ERROR;
   }
 }
 
@@ -81,7 +89,10 @@ export async function POST(request: NextRequest) {
     // 1. 인증 확인
     const user = await getAuthenticatedUser();
     if (!user) {
-      return NextResponse.json({ error: '로그인이 필요합니다' }, { status: 401 });
+      return NextResponse.json(
+        createErrorResponse(AUTH_ERRORS.UNAUTHORIZED),
+        { status: getStatusCode(AUTH_ERRORS.UNAUTHORIZED) }
+      );
     }
 
     // 2. 요청 본문 파싱 및 검증
@@ -90,11 +101,12 @@ export async function POST(request: NextRequest) {
 
     if (!validationResult.success) {
       return NextResponse.json(
-        {
-          error: '요청 데이터가 올바르지 않습니다',
-          details: validationResult.error.flatten(),
-        },
-        { status: 400 }
+        createErrorResponse(
+          VALIDATION_ERRORS.INVALID_INPUT,
+          undefined,
+          JSON.stringify(validationResult.error.flatten())
+        ),
+        { status: getStatusCode(VALIDATION_ERRORS.INVALID_INPUT) }
       );
     }
 
@@ -122,14 +134,15 @@ export async function POST(request: NextRequest) {
     if (!analysisResult.success) {
       console.error('[API] /api/analysis/gemini 분석 실패', analysisResult.error);
 
-      const statusCode = getStatusCodeFromError(analysisResult.error?.code);
+      const errorCode = mapAiErrorToStandardCode(analysisResult.error?.code);
 
       return NextResponse.json(
-        {
-          error: analysisResult.error?.message ?? 'AI 분석에 실패했습니다',
-          code: analysisResult.error?.code,
-        },
-        { status: statusCode }
+        createErrorResponse(
+          errorCode,
+          undefined,
+          analysisResult.error?.message
+        ),
+        { status: getStatusCode(errorCode) }
       );
     }
 
@@ -147,11 +160,12 @@ export async function POST(request: NextRequest) {
     console.error('[API] /api/analysis/gemini 에러:', error);
 
     return NextResponse.json(
-      {
-        error: '서버 오류가 발생했습니다. 잠시 후 다시 시도해주세요.',
-        code: 'INTERNAL_ERROR',
-      },
-      { status: 500 }
+      createErrorResponse(
+        API_ERRORS.SERVER_ERROR,
+        undefined,
+        error instanceof Error ? error.message : undefined
+      ),
+      { status: getStatusCode(API_ERRORS.SERVER_ERROR) }
     );
   }
 }

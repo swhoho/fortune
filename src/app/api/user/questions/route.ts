@@ -6,6 +6,12 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getAuthenticatedUser } from '@/lib/supabase/server';
 
 import { getSupabaseAdmin } from '@/lib/supabase/client';
+import {
+  AUTH_ERRORS,
+  API_ERRORS,
+  createErrorResponse,
+  getStatusCode,
+} from '@/lib/errors/codes';
 
 /** 질문 조인 결과 타입 */
 interface QuestionWithProfile {
@@ -25,7 +31,8 @@ export async function GET(_request: NextRequest) {
   try {
     const user = await getAuthenticatedUser();
     if (!user) {
-      return NextResponse.json({ error: '로그인이 필요합니다' }, { status: 401 });
+      const error = createErrorResponse(AUTH_ERRORS.UNAUTHORIZED);
+      return NextResponse.json(error, { status: getStatusCode(AUTH_ERRORS.UNAUTHORIZED) });
     }
 
     const userId = user.id;
@@ -51,7 +58,8 @@ export async function GET(_request: NextRequest) {
 
     if (error) {
       console.error('[API] 질문 조회 실패:', error);
-      return NextResponse.json({ error: '질문 조회에 실패했습니다' }, { status: 500 });
+      const errorResponse = createErrorResponse(API_ERRORS.SERVER_ERROR);
+      return NextResponse.json(errorResponse, { status: getStatusCode(API_ERRORS.SERVER_ERROR) });
     }
 
     // 응답 형식 정리 (타입 안전하게 캐스팅)
@@ -71,7 +79,8 @@ export async function GET(_request: NextRequest) {
     });
   } catch (error) {
     console.error('[API] GET /api/user/questions 에러:', error);
-    return NextResponse.json({ error: '서버 오류가 발생했습니다' }, { status: 500 });
+    const errorResponse = createErrorResponse(API_ERRORS.SERVER_ERROR);
+    return NextResponse.json(errorResponse, { status: getStatusCode(API_ERRORS.SERVER_ERROR) });
   }
 }
 

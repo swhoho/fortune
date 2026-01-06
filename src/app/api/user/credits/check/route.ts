@@ -7,6 +7,13 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getAuthenticatedUser } from '@/lib/supabase/server';
 import { getSupabaseAdmin } from '@/lib/supabase/client';
 import { z } from 'zod';
+import {
+  AUTH_ERRORS,
+  API_ERRORS,
+  PROFILE_ERRORS,
+  createErrorResponse,
+  getStatusCode,
+} from '@/lib/errors/codes';
 
 /**
  * 쿼리 파라미터 스키마
@@ -34,7 +41,8 @@ export async function GET(request: NextRequest) {
     // 1. 인증 확인 (Supabase Auth)
     const user = await getAuthenticatedUser();
     if (!user) {
-      return NextResponse.json({ error: '로그인이 필요합니다' }, { status: 401 });
+      const error = createErrorResponse(AUTH_ERRORS.UNAUTHORIZED);
+      return NextResponse.json(error, { status: getStatusCode(AUTH_ERRORS.UNAUTHORIZED) });
     }
 
     const userId = user.id;
@@ -57,7 +65,8 @@ export async function GET(request: NextRequest) {
 
     if (userError || !userData) {
       console.error('[API] 사용자 조회 실패:', userError);
-      return NextResponse.json({ error: '사용자 정보를 찾을 수 없습니다' }, { status: 404 });
+      const error = createErrorResponse(PROFILE_ERRORS.NOT_FOUND);
+      return NextResponse.json(error, { status: getStatusCode(PROFILE_ERRORS.NOT_FOUND) });
     }
 
     const currentCredits = userData.credits ?? 0;
@@ -83,13 +92,8 @@ export async function GET(request: NextRequest) {
     });
   } catch (error) {
     console.error('[API] /api/user/credits/check 에러:', error);
-    return NextResponse.json(
-      {
-        error: '서버 오류가 발생했습니다',
-        code: 'INTERNAL_ERROR',
-      },
-      { status: 500 }
-    );
+    const errorResponse = createErrorResponse(API_ERRORS.SERVER_ERROR);
+    return NextResponse.json(errorResponse, { status: getStatusCode(API_ERRORS.SERVER_ERROR) });
   }
 }
 

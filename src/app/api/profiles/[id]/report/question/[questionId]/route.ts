@@ -5,6 +5,13 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getAuthenticatedUser } from '@/lib/supabase/server';
 import { getSupabaseAdmin } from '@/lib/supabase/client';
+import {
+  AUTH_ERRORS,
+  API_ERRORS,
+  PROFILE_ERRORS,
+  createErrorResponse,
+  getStatusCode,
+} from '@/lib/errors/codes';
 
 /**
  * GET /api/profiles/:id/report/question/:questionId
@@ -19,8 +26,8 @@ export async function GET(
     const user = await getAuthenticatedUser();
     if (!user) {
       return NextResponse.json(
-        { error: '로그인이 필요합니다', code: 'UNAUTHORIZED' },
-        { status: 401 }
+        createErrorResponse(AUTH_ERRORS.UNAUTHORIZED),
+        { status: getStatusCode(AUTH_ERRORS.UNAUTHORIZED) }
       );
     }
 
@@ -37,15 +44,15 @@ export async function GET(
 
     if (profileError || !profile) {
       return NextResponse.json(
-        { error: '프로필을 찾을 수 없습니다', code: 'NOT_FOUND' },
-        { status: 404 }
+        createErrorResponse(PROFILE_ERRORS.NOT_FOUND),
+        { status: getStatusCode(PROFILE_ERRORS.NOT_FOUND) }
       );
     }
 
     if (profile.user_id !== userId) {
       return NextResponse.json(
-        { error: '접근 권한이 없습니다', code: 'FORBIDDEN' },
-        { status: 403 }
+        createErrorResponse(AUTH_ERRORS.FORBIDDEN),
+        { status: getStatusCode(AUTH_ERRORS.FORBIDDEN) }
       );
     }
 
@@ -59,8 +66,8 @@ export async function GET(
 
     if (questionError || !question) {
       return NextResponse.json(
-        { error: '질문을 찾을 수 없습니다', code: 'NOT_FOUND' },
-        { status: 404 }
+        createErrorResponse(API_ERRORS.NOT_FOUND),
+        { status: getStatusCode(API_ERRORS.NOT_FOUND) }
       );
     }
 
@@ -79,8 +86,8 @@ export async function GET(
   } catch (error) {
     console.error('[API] GET /api/profiles/:id/report/question/:questionId 에러:', error);
     return NextResponse.json(
-      { error: '서버 오류가 발생했습니다', code: 'INTERNAL_ERROR' },
-      { status: 500 }
+      createErrorResponse(API_ERRORS.SERVER_ERROR),
+      { status: getStatusCode(API_ERRORS.SERVER_ERROR) }
     );
   }
 }

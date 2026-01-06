@@ -6,6 +6,14 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient, getAuthenticatedUser } from '@/lib/supabase/server';
 import { SERVICE_CREDITS } from '@/lib/stripe';
+import {
+  AUTH_ERRORS,
+  API_ERRORS,
+  PROFILE_ERRORS,
+  CREDIT_ERRORS,
+  createErrorResponse,
+  getStatusCode,
+} from '@/lib/errors/codes';
 import type {
   ConsultationSessionRow,
   GetSessionsResponse,
@@ -25,7 +33,10 @@ export async function GET(request: NextRequest, context: RouteContext) {
     // 1. 인증 확인
     const user = await getAuthenticatedUser();
     if (!user) {
-      return NextResponse.json({ success: false, error: '로그인이 필요합니다' }, { status: 401 });
+      return NextResponse.json(
+        { success: false, ...createErrorResponse(AUTH_ERRORS.UNAUTHORIZED) },
+        { status: getStatusCode(AUTH_ERRORS.UNAUTHORIZED) }
+      );
     }
 
     const { id: profileId } = await context.params;
@@ -40,13 +51,16 @@ export async function GET(request: NextRequest, context: RouteContext) {
 
     if (profileError || !profile) {
       return NextResponse.json(
-        { success: false, error: '프로필을 찾을 수 없습니다' },
-        { status: 404 }
+        { success: false, ...createErrorResponse(PROFILE_ERRORS.NOT_FOUND) },
+        { status: getStatusCode(PROFILE_ERRORS.NOT_FOUND) }
       );
     }
 
     if (profile.user_id !== user.id) {
-      return NextResponse.json({ success: false, error: '권한이 없습니다' }, { status: 403 });
+      return NextResponse.json(
+        { success: false, ...createErrorResponse(AUTH_ERRORS.FORBIDDEN) },
+        { status: getStatusCode(AUTH_ERRORS.FORBIDDEN) }
+      );
     }
 
     // 3. 세션 목록 조회 (최신순)
@@ -59,8 +73,8 @@ export async function GET(request: NextRequest, context: RouteContext) {
     if (sessionsError) {
       console.error('[ConsultationSessions] 조회 오류:', sessionsError);
       return NextResponse.json(
-        { success: false, error: '세션 목록을 불러올 수 없습니다' },
-        { status: 500 }
+        { success: false, ...createErrorResponse(API_ERRORS.SERVER_ERROR) },
+        { status: getStatusCode(API_ERRORS.SERVER_ERROR) }
       );
     }
 
@@ -99,8 +113,8 @@ export async function GET(request: NextRequest, context: RouteContext) {
   } catch (error) {
     console.error('[ConsultationSessions] GET 오류:', error);
     return NextResponse.json(
-      { success: false, error: '서버 오류가 발생했습니다' },
-      { status: 500 }
+      { success: false, ...createErrorResponse(API_ERRORS.SERVER_ERROR) },
+      { status: getStatusCode(API_ERRORS.SERVER_ERROR) }
     );
   }
 }
@@ -114,7 +128,10 @@ export async function POST(request: NextRequest, context: RouteContext) {
     // 1. 인증 확인
     const user = await getAuthenticatedUser();
     if (!user) {
-      return NextResponse.json({ success: false, error: '로그인이 필요합니다' }, { status: 401 });
+      return NextResponse.json(
+        { success: false, ...createErrorResponse(AUTH_ERRORS.UNAUTHORIZED) },
+        { status: getStatusCode(AUTH_ERRORS.UNAUTHORIZED) }
+      );
     }
 
     const { id: profileId } = await context.params;
@@ -137,13 +154,16 @@ export async function POST(request: NextRequest, context: RouteContext) {
 
     if (profileError || !profile) {
       return NextResponse.json(
-        { success: false, error: '프로필을 찾을 수 없습니다' },
-        { status: 404 }
+        { success: false, ...createErrorResponse(PROFILE_ERRORS.NOT_FOUND) },
+        { status: getStatusCode(PROFILE_ERRORS.NOT_FOUND) }
       );
     }
 
     if (profile.user_id !== user.id) {
-      return NextResponse.json({ success: false, error: '권한이 없습니다' }, { status: 403 });
+      return NextResponse.json(
+        { success: false, ...createErrorResponse(AUTH_ERRORS.FORBIDDEN) },
+        { status: getStatusCode(AUTH_ERRORS.FORBIDDEN) }
+      );
     }
 
     // 4. 완료된 리포트 확인
@@ -170,20 +190,16 @@ export async function POST(request: NextRequest, context: RouteContext) {
 
     if (userError || !userData) {
       return NextResponse.json(
-        { success: false, error: '사용자 정보를 확인할 수 없습니다' },
-        { status: 500 }
+        { success: false, ...createErrorResponse(API_ERRORS.SERVER_ERROR) },
+        { status: getStatusCode(API_ERRORS.SERVER_ERROR) }
       );
     }
 
     const creditsRequired = SERVICE_CREDITS.question; // 10C
     if (userData.credits < creditsRequired) {
       return NextResponse.json(
-        {
-          success: false,
-          error: '크레딧이 부족합니다',
-          code: 'INSUFFICIENT_CREDITS',
-        },
-        { status: 402 }
+        { success: false, ...createErrorResponse(CREDIT_ERRORS.INSUFFICIENT) },
+        { status: getStatusCode(CREDIT_ERRORS.INSUFFICIENT) }
       );
     }
 
@@ -197,14 +213,14 @@ export async function POST(request: NextRequest, context: RouteContext) {
     if (deductError || !deductRow?.success) {
       if (deductRow?.error_message === 'INSUFFICIENT_CREDITS') {
         return NextResponse.json(
-          { success: false, error: '크레딧이 부족합니다', code: 'INSUFFICIENT_CREDITS' },
-          { status: 402 }
+          { success: false, ...createErrorResponse(CREDIT_ERRORS.INSUFFICIENT) },
+          { status: getStatusCode(CREDIT_ERRORS.INSUFFICIENT) }
         );
       }
       console.error('[ConsultationSessions] 크레딧 차감 오류:', deductError, deductRow);
       return NextResponse.json(
-        { success: false, error: '크레딧 처리 중 오류가 발생했습니다' },
-        { status: 500 }
+        { success: false, ...createErrorResponse(CREDIT_ERRORS.DEDUCTION_FAILED) },
+        { status: getStatusCode(CREDIT_ERRORS.DEDUCTION_FAILED) }
       );
     }
 
@@ -234,8 +250,8 @@ export async function POST(request: NextRequest, context: RouteContext) {
 
       console.error('[ConsultationSessions] 세션 생성 오류:', createError);
       return NextResponse.json(
-        { success: false, error: '세션 생성 중 오류가 발생했습니다' },
-        { status: 500 }
+        { success: false, ...createErrorResponse(API_ERRORS.SERVER_ERROR) },
+        { status: getStatusCode(API_ERRORS.SERVER_ERROR) }
       );
     }
 
@@ -262,8 +278,8 @@ export async function POST(request: NextRequest, context: RouteContext) {
   } catch (error) {
     console.error('[ConsultationSessions] POST 오류:', error);
     return NextResponse.json(
-      { success: false, error: '서버 오류가 발생했습니다' },
-      { status: 500 }
+      { success: false, ...createErrorResponse(API_ERRORS.SERVER_ERROR) },
+      { status: getStatusCode(API_ERRORS.SERVER_ERROR) }
     );
   }
 }

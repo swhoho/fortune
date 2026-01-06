@@ -1,7 +1,30 @@
 {
   "metadata": {
     "title": "Master's Insight AI | AI四柱八字分析",
-    "description": "东方命理学的智慧与最新AI技术相结合，分析您的命运。"
+    "description": "东方命理学的智慧与最新AI技术相结合，分析您的命运。",
+    "keywords": "AI 八字, AI 算命, 四柱八字, 命理, 运势分析, 免费算命, 今日运势, 新年运势",
+    "pages": {
+      "landing": {
+        "title": "AI八字分析 | 30年大师认可的精准度",
+        "description": "基于子平真诠、穷通宝鉴的AI八字分析。体验让30年老师傅都惊叹的压倒性品质。"
+      },
+      "home": {
+        "title": "首页 | AI八字分析服务",
+        "description": "从档案登记到综合命理分析、新年运势。让AI分析您的命运。"
+      },
+      "analysisFocus": {
+        "title": "选择分析领域 | 财运、爱情运、事业运",
+        "description": "选择您想集中分析的领域：财运、爱情运、事业运或健康运。AI提供定制化深度分析。"
+      },
+      "analysisQuestion": {
+        "title": "输入问题 | AI定制咨询",
+        "description": "输入您的具体问题，AI将根据八字分析提供定制化建议。"
+      },
+      "profileNew": {
+        "title": "添加档案 | 输入出生信息进行分析",
+        "description": "请输入出生日期、出生时间和性别，以进行精准的四柱八字分析。"
+      }
+    }
   },
   "common": {
     "appName": "Master's Insight AI",
@@ -723,6 +746,15 @@
     "VALIDATION_REQUIRED_FIELD_MISSING": "请填写必填项",
     "VALIDATION_INVALID_DATE": "请输入有效的日期",
     "VALIDATION_INVALID_EMAIL": "请输入有效的邮箱地址",
-    "VALIDATION_OUT_OF_RANGE": "输入值超出允许范围"
+    "VALIDATION_OUT_OF_RANGE": "输入值超出允许范围",
+    "VALIDATION_INVALID_INPUT": "输入值无效",
+    "VALIDATION_NO_UPDATES": "没有需要更新的内容",
+    "PAYMENT_INVALID_PACKAGE": "无效的套餐",
+    "PAYMENT_INFO_FETCH_FAILED": "获取支付信息失败",
+    "PAYMENT_NOT_COMPLETED": "支付未完成",
+    "PAYMENT_ALREADY_PROCESSED": "此支付已处理",
+    "PAYMENT_RECORD_CREATE_FAILED": "创建支付记录失败",
+    "PAYMENT_USER_FETCH_FAILED": "获取用户信息失败",
+    "PAYMENT_CREDIT_UPDATE_FAILED": "积分更新失败"
   }
 }

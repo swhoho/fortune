@@ -7,6 +7,15 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getAuthenticatedUser } from '@/lib/supabase/server';
 import { getSupabaseAdmin } from '@/lib/supabase/client';
 import { z } from 'zod';
+import {
+  AUTH_ERRORS,
+  API_ERRORS,
+  ANALYSIS_ERRORS,
+  CREDIT_ERRORS,
+  VALIDATION_ERRORS,
+  createErrorResponse,
+  getStatusCode,
+} from '@/lib/errors/codes';
 
 /** 신년 분석 크레딧 비용 */
 const YEARLY_ANALYSIS_CREDIT_COST = 50;
@@ -92,7 +101,10 @@ export async function POST(request: NextRequest) {
     // 1. 인증 확인
     const user = await getAuthenticatedUser();
     if (!user) {
-      return NextResponse.json({ error: '로그인이 필요합니다' }, { status: 401 });
+      return NextResponse.json(
+        createErrorResponse(AUTH_ERRORS.UNAUTHORIZED),
+        { status: getStatusCode(AUTH_ERRORS.UNAUTHORIZED) }
+      );
     }
 
     const userId = user.id;
@@ -104,11 +116,8 @@ export async function POST(request: NextRequest) {
 
     if (!validationResult.success) {
       return NextResponse.json(
-        {
-          error: '요청 데이터가 올바르지 않습니다',
-          details: validationResult.error.flatten(),
-        },
-        { status: 400 }
+        createErrorResponse(VALIDATION_ERRORS.REQUIRED_FIELD_MISSING, undefined, JSON.stringify(validationResult.error.flatten())),
+        { status: getStatusCode(VALIDATION_ERRORS.REQUIRED_FIELD_MISSING) }
       );
     }
 
@@ -123,18 +132,19 @@ export async function POST(request: NextRequest) {
 
     if (userError || !userData) {
       console.error('[API] 사용자 조회 실패:', userError);
-      return NextResponse.json({ error: '사용자 정보를 찾을 수 없습니다' }, { status: 404 });
+      return NextResponse.json(
+        createErrorResponse(API_ERRORS.NOT_FOUND),
+        { status: getStatusCode(API_ERRORS.NOT_FOUND) }
+      );
     }
 
     if (userData.credits < YEARLY_ANALYSIS_CREDIT_COST) {
       return NextResponse.json(
-        {
-          error: '크레딧이 부족합니다',
-          code: 'INSUFFICIENT_CREDITS',
+        createErrorResponse(CREDIT_ERRORS.INSUFFICIENT, {
           required: YEARLY_ANALYSIS_CREDIT_COST,
           current: userData.credits,
-        },
-        { status: 402 }
+        }),
+        { status: getStatusCode(CREDIT_ERRORS.INSUFFICIENT) }
       );
     }
 
@@ -200,7 +210,10 @@ export async function POST(request: NextRequest) {
 
       if (profileError || !profile) {
         console.error('[API] 프로필 조회 실패:', profileError);
-        return NextResponse.json({ error: '프로필 정보를 찾을 수 없습니다' }, { status: 404 });
+        return NextResponse.json(
+          createErrorResponse(API_ERRORS.NOT_FOUND),
+          { status: getStatusCode(API_ERRORS.NOT_FOUND) }
+        );
       }
 
       profileId = profile.id;
@@ -243,7 +256,10 @@ export async function POST(request: NextRequest) {
           daewun = manseryeokData.daewun || [];
         } catch (manseryeokError) {
           console.error('[API] 만세력 계산 실패:', manseryeokError);
-          return NextResponse.json({ error: '사주 정보 계산에 실패했습니다.' }, { status: 500 });
+          return NextResponse.json(
+            createErrorResponse(ANALYSIS_ERRORS.MANSERYEOK_ERROR),
+            { status: getStatusCode(API_ERRORS.SERVER_ERROR) }
+          );
         }
       }
     } else if (data.existingAnalysisId) {
@@ -255,7 +271,10 @@ export async function POST(request: NextRequest) {
         .single();
 
       if (analysisError || !existingAnalysis) {
-        return NextResponse.json({ error: '기존 분석 정보를 찾을 수 없습니다' }, { status: 404 });
+        return NextResponse.json(
+          createErrorResponse(API_ERRORS.NOT_FOUND),
+          { status: getStatusCode(API_ERRORS.NOT_FOUND) }
+        );
       }
 
       pillars = existingAnalysis.pillars;
@@ -268,7 +287,10 @@ export async function POST(request: NextRequest) {
     }
 
     if (!pillars) {
-      return NextResponse.json({ error: '사주 정보가 필요합니다.' }, { status: 400 });
+      return NextResponse.json(
+        createErrorResponse(VALIDATION_ERRORS.REQUIRED_FIELD_MISSING),
+        { status: getStatusCode(VALIDATION_ERRORS.REQUIRED_FIELD_MISSING) }
+      );
     }
 
     if (!birthYear) {
@@ -316,8 +338,8 @@ export async function POST(request: NextRequest) {
       const errorData = await pythonResponse.json().catch(() => ({}));
       console.error('[API] Python API 호출 실패:', errorData);
       return NextResponse.json(
-        { error: errorData.detail || '분석 시작에 실패했습니다' },
-        { status: 500 }
+        createErrorResponse(API_ERRORS.EXTERNAL_SERVICE_ERROR, undefined, errorData.detail),
+        { status: getStatusCode(API_ERRORS.EXTERNAL_SERVICE_ERROR) }
       );
     }
 
@@ -353,8 +375,8 @@ export async function POST(request: NextRequest) {
         .eq('id', userId);
 
       return NextResponse.json(
-        { error: '분석 기록 저장에 실패했습니다. 다시 시도해주세요.' },
-        { status: 500 }
+        createErrorResponse(ANALYSIS_ERRORS.SAVE_FAILED),
+        { status: getStatusCode(API_ERRORS.SERVER_ERROR) }
       );
     }
 
@@ -375,7 +397,10 @@ export async function POST(request: NextRequest) {
     });
   } catch (error) {
     console.error('[API] /api/analysis/yearly 에러:', error);
-    return NextResponse.json({ error: '서버 오류가 발생했습니다.' }, { status: 500 });
+    return NextResponse.json(
+      createErrorResponse(API_ERRORS.SERVER_ERROR),
+      { status: getStatusCode(API_ERRORS.SERVER_ERROR) }
+    );
   }
 }
 

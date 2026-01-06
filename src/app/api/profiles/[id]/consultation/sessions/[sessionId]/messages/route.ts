@@ -6,6 +6,12 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient, getAuthenticatedUser } from '@/lib/supabase/server';
 import { consultationAI } from '@/lib/ai/consultation';
+import {
+  AUTH_ERRORS,
+  API_ERRORS,
+  createErrorResponse,
+  getStatusCode,
+} from '@/lib/errors/codes';
 import type {
   ConsultationMessageRow,
   SendMessageRequest,
@@ -27,7 +33,10 @@ export async function GET(request: NextRequest, context: RouteContext) {
   try {
     const user = await getAuthenticatedUser();
     if (!user) {
-      return NextResponse.json({ success: false, error: '로그인이 필요합니다' }, { status: 401 });
+      return NextResponse.json(
+        { success: false, ...createErrorResponse(AUTH_ERRORS.UNAUTHORIZED) },
+        { status: getStatusCode(AUTH_ERRORS.UNAUTHORIZED) }
+      );
     }
 
     const { id: profileId, sessionId } = await context.params;
@@ -43,13 +52,16 @@ export async function GET(request: NextRequest, context: RouteContext) {
 
     if (sessionError || !session) {
       return NextResponse.json(
-        { success: false, error: '세션을 찾을 수 없습니다' },
-        { status: 404 }
+        { success: false, ...createErrorResponse(API_ERRORS.NOT_FOUND) },
+        { status: getStatusCode(API_ERRORS.NOT_FOUND) }
       );
     }
 
     if (session.user_id !== user.id) {
-      return NextResponse.json({ success: false, error: '권한이 없습니다' }, { status: 403 });
+      return NextResponse.json(
+        { success: false, ...createErrorResponse(AUTH_ERRORS.FORBIDDEN) },
+        { status: getStatusCode(AUTH_ERRORS.FORBIDDEN) }
+      );
     }
 
     // 메시지 목록 조회 (status, error_message 포함)
@@ -62,8 +74,8 @@ export async function GET(request: NextRequest, context: RouteContext) {
     if (messagesError) {
       console.error('[ConsultationMessages] 조회 오류:', messagesError);
       return NextResponse.json(
-        { success: false, error: '메시지를 불러올 수 없습니다' },
-        { status: 500 }
+        { success: false, ...createErrorResponse(API_ERRORS.SERVER_ERROR) },
+        { status: getStatusCode(API_ERRORS.SERVER_ERROR) }
       );
     }
 
@@ -98,8 +110,8 @@ export async function GET(request: NextRequest, context: RouteContext) {
   } catch (error) {
     console.error('[ConsultationMessages] GET 오류:', error);
     return NextResponse.json(
-      { success: false, error: '서버 오류가 발생했습니다' },
-      { status: 500 }
+      { success: false, ...createErrorResponse(API_ERRORS.SERVER_ERROR) },
+      { status: getStatusCode(API_ERRORS.SERVER_ERROR) }
     );
   }
 }
@@ -112,7 +124,10 @@ export async function POST(request: NextRequest, context: RouteContext) {
   try {
     const user = await getAuthenticatedUser();
     if (!user) {
-      return NextResponse.json({ success: false, error: '로그인이 필요합니다' }, { status: 401 });
+      return NextResponse.json(
+        { success: false, ...createErrorResponse(AUTH_ERRORS.UNAUTHORIZED) },
+        { status: getStatusCode(AUTH_ERRORS.UNAUTHORIZED) }
+      );
     }
 
     const { id: profileId, sessionId } = await context.params;
@@ -121,13 +136,16 @@ export async function POST(request: NextRequest, context: RouteContext) {
 
     // 유효성 검사
     if (!body.content || body.content.trim() === '') {
-      return NextResponse.json({ success: false, error: '메시지를 입력해주세요' }, { status: 400 });
+      return NextResponse.json(
+        { success: false, ...createErrorResponse(API_ERRORS.BAD_REQUEST) },
+        { status: getStatusCode(API_ERRORS.BAD_REQUEST) }
+      );
     }
 
     if (body.content.length > 500) {
       return NextResponse.json(
-        { success: false, error: '메시지는 500자 이내로 입력해주세요' },
-        { status: 400 }
+        { success: false, ...createErrorResponse(API_ERRORS.BAD_REQUEST) },
+        { status: getStatusCode(API_ERRORS.BAD_REQUEST) }
       );
     }
 
@@ -141,26 +159,29 @@ export async function POST(request: NextRequest, context: RouteContext) {
 
     if (sessionError || !session) {
       return NextResponse.json(
-        { success: false, error: '세션을 찾을 수 없습니다' },
-        { status: 404 }
+        { success: false, ...createErrorResponse(API_ERRORS.NOT_FOUND) },
+        { status: getStatusCode(API_ERRORS.NOT_FOUND) }
       );
     }
 
     if (session.user_id !== user.id) {
-      return NextResponse.json({ success: false, error: '권한이 없습니다' }, { status: 403 });
+      return NextResponse.json(
+        { success: false, ...createErrorResponse(AUTH_ERRORS.FORBIDDEN) },
+        { status: getStatusCode(AUTH_ERRORS.FORBIDDEN) }
+      );
     }
 
     if (session.status === 'completed') {
       return NextResponse.json(
-        { success: false, error: '이 세션은 완료되었습니다.', code: 'SESSION_COMPLETED' },
-        { status: 400 }
+        { success: false, ...createErrorResponse(API_ERRORS.BAD_REQUEST) },
+        { status: getStatusCode(API_ERRORS.BAD_REQUEST) }
       );
     }
 
     if (session.question_count >= 5) {
       return NextResponse.json(
-        { success: false, error: '질문 한도(5개)에 도달했습니다.', code: 'QUESTION_LIMIT' },
-        { status: 400 }
+        { success: false, ...createErrorResponse(API_ERRORS.BAD_REQUEST) },
+        { status: getStatusCode(API_ERRORS.BAD_REQUEST) }
       );
     }
 
@@ -184,8 +205,8 @@ export async function POST(request: NextRequest, context: RouteContext) {
     if (userMsgError || !userMessage) {
       console.error('[ConsultationMessages] 사용자 메시지 저장 오류:', userMsgError);
       return NextResponse.json(
-        { success: false, error: '메시지 저장 중 오류가 발생했습니다' },
-        { status: 500 }
+        { success: false, ...createErrorResponse(API_ERRORS.SERVER_ERROR) },
+        { status: getStatusCode(API_ERRORS.SERVER_ERROR) }
       );
     }
 
@@ -206,8 +227,8 @@ export async function POST(request: NextRequest, context: RouteContext) {
     if (aiMsgError || !aiMessage) {
       console.error('[ConsultationMessages] AI placeholder 저장 오류:', aiMsgError);
       return NextResponse.json(
-        { success: false, error: 'AI 응답 준비 중 오류가 발생했습니다' },
-        { status: 500 }
+        { success: false, ...createErrorResponse(API_ERRORS.SERVER_ERROR) },
+        { status: getStatusCode(API_ERRORS.SERVER_ERROR) }
       );
     }
 
@@ -251,8 +272,8 @@ export async function POST(request: NextRequest, context: RouteContext) {
   } catch (error) {
     console.error('[ConsultationMessages] POST 오류:', error);
     return NextResponse.json(
-      { success: false, error: '서버 오류가 발생했습니다' },
-      { status: 500 }
+      { success: false, ...createErrorResponse(API_ERRORS.SERVER_ERROR) },
+      { status: getStatusCode(API_ERRORS.SERVER_ERROR) }
     );
   }
 }

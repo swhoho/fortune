@@ -10,6 +10,14 @@ import { getAuthenticatedUser } from '@/lib/supabase/server';
 import { getSupabaseAdmin } from '@/lib/supabase/client';
 import { createProfileSchema } from '@/lib/validations/profile';
 import type { ProfileResponse, ReportStatus } from '@/types/profile';
+import {
+  AUTH_ERRORS,
+  API_ERRORS,
+  PROFILE_ERRORS,
+  VALIDATION_ERRORS,
+  createErrorResponse,
+  getStatusCode,
+} from '@/lib/errors/codes';
 
 /**
  * DB 레코드를 API 응답 형식으로 변환 (snake_case → camelCase)
@@ -50,8 +58,8 @@ export async function POST(request: NextRequest) {
     const user = await getAuthenticatedUser();
     if (!user) {
       return NextResponse.json(
-        { error: '로그인이 필요합니다', code: 'UNAUTHORIZED' },
-        { status: 401 }
+        createErrorResponse(AUTH_ERRORS.UNAUTHORIZED),
+        { status: getStatusCode(AUTH_ERRORS.UNAUTHORIZED) }
       );
     }
 
@@ -64,11 +72,10 @@ export async function POST(request: NextRequest) {
     if (!validation.success) {
       return NextResponse.json(
         {
-          error: '입력 데이터가 올바르지 않습니다',
-          code: 'INVALID_INPUT',
+          ...createErrorResponse(VALIDATION_ERRORS.REQUIRED_FIELD_MISSING),
           details: validation.error.flatten(),
         },
-        { status: 400 }
+        { status: getStatusCode(VALIDATION_ERRORS.REQUIRED_FIELD_MISSING) }
       );
     }
 
@@ -92,8 +99,8 @@ export async function POST(request: NextRequest) {
     if (error) {
       console.error('[API] 프로필 생성 실패:', error);
       return NextResponse.json(
-        { error: '프로필 생성에 실패했습니다', code: 'CREATE_ERROR' },
-        { status: 500 }
+        createErrorResponse(PROFILE_ERRORS.CREATE_FAILED),
+        { status: getStatusCode(PROFILE_ERRORS.CREATE_FAILED) }
       );
     }
 
@@ -105,8 +112,8 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     console.error('[API] /api/profiles POST 에러:', error);
     return NextResponse.json(
-      { error: '서버 오류가 발생했습니다', code: 'INTERNAL_ERROR' },
-      { status: 500 }
+      createErrorResponse(API_ERRORS.SERVER_ERROR),
+      { status: getStatusCode(API_ERRORS.SERVER_ERROR) }
     );
   }
 }
@@ -121,8 +128,8 @@ export async function GET() {
     const user = await getAuthenticatedUser();
     if (!user) {
       return NextResponse.json(
-        { error: '로그인이 필요합니다', code: 'UNAUTHORIZED' },
-        { status: 401 }
+        createErrorResponse(AUTH_ERRORS.UNAUTHORIZED),
+        { status: getStatusCode(AUTH_ERRORS.UNAUTHORIZED) }
       );
     }
 
@@ -138,8 +145,8 @@ export async function GET() {
     if (error) {
       console.error('[API] 프로필 목록 조회 실패:', error);
       return NextResponse.json(
-        { error: '프로필 목록을 불러올 수 없습니다', code: 'FETCH_ERROR' },
-        { status: 500 }
+        createErrorResponse(API_ERRORS.SERVER_ERROR),
+        { status: getStatusCode(API_ERRORS.SERVER_ERROR) }
       );
     }
 
@@ -173,8 +180,8 @@ export async function GET() {
   } catch (error) {
     console.error('[API] /api/profiles GET 에러:', error);
     return NextResponse.json(
-      { error: '서버 오류가 발생했습니다', code: 'INTERNAL_ERROR' },
-      { status: 500 }
+      createErrorResponse(API_ERRORS.SERVER_ERROR),
+      { status: getStatusCode(API_ERRORS.SERVER_ERROR) }
     );
   }
 }

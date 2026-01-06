@@ -8,13 +8,22 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getAuthenticatedUser } from '@/lib/supabase/server';
 import { getSupabaseAdmin } from '@/lib/supabase/client';
+import {
+  AUTH_ERRORS,
+  API_ERRORS,
+  PROFILE_ERRORS,
+  VALIDATION_ERRORS,
+  createErrorResponse,
+  getStatusCode,
+} from '@/lib/errors/codes';
 
 /** 프로필 조회 */
 export async function GET() {
   try {
     const user = await getAuthenticatedUser();
     if (!user) {
-      return NextResponse.json({ error: '인증이 필요합니다' }, { status: 401 });
+      const error = createErrorResponse(AUTH_ERRORS.UNAUTHORIZED);
+      return NextResponse.json(error, { status: getStatusCode(AUTH_ERRORS.UNAUTHORIZED) });
     }
 
     const adminClient = getSupabaseAdmin();
@@ -28,7 +37,8 @@ export async function GET() {
 
     if (error || !data) {
       console.error('사용자 조회 실패:', error);
-      return NextResponse.json({ error: '사용자를 찾을 수 없습니다' }, { status: 404 });
+      const errorResponse = createErrorResponse(PROFILE_ERRORS.NOT_FOUND);
+      return NextResponse.json(errorResponse, { status: getStatusCode(PROFILE_ERRORS.NOT_FOUND) });
     }
 
     return NextResponse.json({
@@ -43,7 +53,8 @@ export async function GET() {
     });
   } catch (error) {
     console.error('프로필 조회 오류:', error);
-    return NextResponse.json({ error: '서버 오류가 발생했습니다' }, { status: 500 });
+    const errorResponse = createErrorResponse(API_ERRORS.SERVER_ERROR);
+    return NextResponse.json(errorResponse, { status: getStatusCode(API_ERRORS.SERVER_ERROR) });
   }
 }
 
@@ -60,14 +71,16 @@ export async function PATCH(request: NextRequest) {
   try {
     const user = await getAuthenticatedUser();
     if (!user) {
-      return NextResponse.json({ error: '인증이 필요합니다' }, { status: 401 });
+      const error = createErrorResponse(AUTH_ERRORS.UNAUTHORIZED);
+      return NextResponse.json(error, { status: getStatusCode(AUTH_ERRORS.UNAUTHORIZED) });
     }
 
     const body: ProfileUpdateData = await request.json();
 
     // 유효성 검사
     if (body.preferredLanguage && !['ko', 'en', 'ja', 'zh'].includes(body.preferredLanguage)) {
-      return NextResponse.json({ error: '지원하지 않는 언어입니다' }, { status: 400 });
+      const error = createErrorResponse(VALIDATION_ERRORS.INVALID_INPUT);
+      return NextResponse.json(error, { status: getStatusCode(VALIDATION_ERRORS.INVALID_INPUT) });
     }
 
     // Supabase 업데이트 데이터 구성 (snake_case로 변환)
@@ -81,7 +94,8 @@ export async function PATCH(request: NextRequest) {
       updateData.preferred_language = body.preferredLanguage;
 
     if (Object.keys(updateData).length === 0) {
-      return NextResponse.json({ error: '수정할 데이터가 없습니다' }, { status: 400 });
+      const error = createErrorResponse(VALIDATION_ERRORS.NO_UPDATES);
+      return NextResponse.json(error, { status: getStatusCode(VALIDATION_ERRORS.NO_UPDATES) });
     }
 
     const adminClient = getSupabaseAdmin();
@@ -96,7 +110,10 @@ export async function PATCH(request: NextRequest) {
 
     if (error) {
       console.error('프로필 수정 실패:', error);
-      return NextResponse.json({ error: '프로필 수정에 실패했습니다' }, { status: 500 });
+      const errorResponse = createErrorResponse(PROFILE_ERRORS.UPDATE_FAILED);
+      return NextResponse.json(errorResponse, {
+        status: getStatusCode(PROFILE_ERRORS.UPDATE_FAILED),
+      });
     }
 
     return NextResponse.json({
@@ -111,6 +128,7 @@ export async function PATCH(request: NextRequest) {
     });
   } catch (error) {
     console.error('프로필 수정 오류:', error);
-    return NextResponse.json({ error: '서버 오류가 발생했습니다' }, { status: 500 });
+    const errorResponse = createErrorResponse(API_ERRORS.SERVER_ERROR);
+    return NextResponse.json(errorResponse, { status: getStatusCode(API_ERRORS.SERVER_ERROR) });
   }
 }

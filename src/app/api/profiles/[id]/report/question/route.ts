@@ -10,6 +10,15 @@ import { z } from 'zod';
 import { getSupabaseAdmin } from '@/lib/supabase/client';
 import { SERVICE_CREDITS } from '@/lib/stripe';
 import type { SajuAnalysisResult, SajuPillarsData, QuestionHistoryItem } from '@/lib/ai/types';
+import {
+  AUTH_ERRORS,
+  API_ERRORS,
+  PROFILE_ERRORS,
+  CREDIT_ERRORS,
+  VALIDATION_ERRORS,
+  createErrorResponse,
+  getStatusCode,
+} from '@/lib/errors/codes';
 
 /** 요청 스키마 */
 const questionSchema = z.object({
@@ -26,8 +35,8 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
     const user = await getAuthenticatedUser();
     if (!user) {
       return NextResponse.json(
-        { error: '로그인이 필요합니다', code: 'UNAUTHORIZED' },
-        { status: 401 }
+        createErrorResponse(AUTH_ERRORS.UNAUTHORIZED),
+        { status: getStatusCode(AUTH_ERRORS.UNAUTHORIZED) }
       );
     }
 
@@ -41,19 +50,16 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
       body = await request.json();
     } catch {
       return NextResponse.json(
-        { error: '잘못된 요청 형식입니다', code: 'INVALID_REQUEST' },
-        { status: 400 }
+        createErrorResponse(API_ERRORS.BAD_REQUEST),
+        { status: getStatusCode(API_ERRORS.BAD_REQUEST) }
       );
     }
 
     const validation = questionSchema.safeParse(body);
     if (!validation.success) {
       return NextResponse.json(
-        {
-          error: validation.error.issues[0]?.message || '입력 오류',
-          code: 'INVALID_INPUT',
-        },
-        { status: 400 }
+        createErrorResponse(VALIDATION_ERRORS.INVALID_INPUT),
+        { status: getStatusCode(VALIDATION_ERRORS.INVALID_INPUT) }
       );
     }
 
@@ -68,15 +74,15 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
 
     if (profileError || !profile) {
       return NextResponse.json(
-        { error: '프로필을 찾을 수 없습니다', code: 'NOT_FOUND' },
-        { status: 404 }
+        createErrorResponse(PROFILE_ERRORS.NOT_FOUND),
+        { status: getStatusCode(PROFILE_ERRORS.NOT_FOUND) }
       );
     }
 
     if (profile.user_id !== userId) {
       return NextResponse.json(
-        { error: '접근 권한이 없습니다', code: 'FORBIDDEN' },
-        { status: 403 }
+        createErrorResponse(AUTH_ERRORS.FORBIDDEN),
+        { status: getStatusCode(AUTH_ERRORS.FORBIDDEN) }
       );
     }
 
@@ -92,8 +98,8 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
 
     if (reportError || !report) {
       return NextResponse.json(
-        { error: '완료된 리포트가 없습니다. 먼저 리포트를 생성해주세요.', code: 'NO_REPORT' },
-        { status: 404 }
+        createErrorResponse(API_ERRORS.NOT_FOUND),
+        { status: getStatusCode(API_ERRORS.NOT_FOUND) }
       );
     }
 
@@ -131,8 +137,8 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
     if (creditError) {
       console.error('[API] 크레딧 차감 RPC 오류:', creditError);
       return NextResponse.json(
-        { error: '크레딧 처리 중 오류가 발생했습니다', code: 'CREDIT_ERROR' },
-        { status: 500 }
+        createErrorResponse(CREDIT_ERRORS.DEDUCTION_FAILED),
+        { status: getStatusCode(CREDIT_ERRORS.DEDUCTION_FAILED) }
       );
     }
 
@@ -140,18 +146,16 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
     if (!deductResult?.success) {
       if (deductResult?.error_message === 'INSUFFICIENT_CREDITS') {
         return NextResponse.json(
-          {
-            error: `크레딧이 부족합니다. 필요: ${SERVICE_CREDITS.question}C, 보유: ${deductResult.new_credits}C`,
-            code: 'INSUFFICIENT_CREDITS',
+          createErrorResponse(CREDIT_ERRORS.INSUFFICIENT, {
             required: SERVICE_CREDITS.question,
             current: deductResult.new_credits,
-          },
-          { status: 402 }
+          }),
+          { status: getStatusCode(CREDIT_ERRORS.INSUFFICIENT) }
         );
       }
       return NextResponse.json(
-        { error: '사용자 정보를 찾을 수 없습니다', code: 'USER_NOT_FOUND' },
-        { status: 404 }
+        createErrorResponse(API_ERRORS.NOT_FOUND),
+        { status: getStatusCode(API_ERRORS.NOT_FOUND) }
       );
     }
 
@@ -180,8 +184,8 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
         p_amount: -SERVICE_CREDITS.question,
       });
       return NextResponse.json(
-        { error: '질문 저장에 실패했습니다', code: 'SAVE_ERROR' },
-        { status: 500 }
+        createErrorResponse(API_ERRORS.SERVER_ERROR),
+        { status: getStatusCode(API_ERRORS.SERVER_ERROR) }
       );
     }
 
@@ -252,11 +256,8 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
   } catch (error) {
     console.error('[API] /api/profiles/:id/report/question 에러:', error);
     return NextResponse.json(
-      {
-        error: '서버 오류가 발생했습니다',
-        code: 'INTERNAL_ERROR',
-      },
-      { status: 500 }
+      createErrorResponse(API_ERRORS.SERVER_ERROR),
+      { status: getStatusCode(API_ERRORS.SERVER_ERROR) }
     );
   }
 }
@@ -269,7 +270,10 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
   try {
     const user = await getAuthenticatedUser();
     if (!user) {
-      return NextResponse.json({ error: '로그인이 필요합니다' }, { status: 401 });
+      return NextResponse.json(
+        createErrorResponse(AUTH_ERRORS.UNAUTHORIZED),
+        { status: getStatusCode(AUTH_ERRORS.UNAUTHORIZED) }
+      );
     }
 
     const { id: profileId } = await params;
@@ -284,11 +288,17 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
       .single();
 
     if (profileError || !profile) {
-      return NextResponse.json({ error: '프로필을 찾을 수 없습니다' }, { status: 404 });
+      return NextResponse.json(
+        createErrorResponse(PROFILE_ERRORS.NOT_FOUND),
+        { status: getStatusCode(PROFILE_ERRORS.NOT_FOUND) }
+      );
     }
 
     if (profile.user_id !== userId) {
-      return NextResponse.json({ error: '접근 권한이 없습니다' }, { status: 403 });
+      return NextResponse.json(
+        createErrorResponse(AUTH_ERRORS.FORBIDDEN),
+        { status: getStatusCode(AUTH_ERRORS.FORBIDDEN) }
+      );
     }
 
     // 질문 히스토리 조회 (status도 포함)
@@ -300,7 +310,10 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
 
     if (questionsError) {
       console.error('[API] 질문 조회 실패:', questionsError);
-      return NextResponse.json({ error: '질문 조회에 실패했습니다' }, { status: 500 });
+      return NextResponse.json(
+        createErrorResponse(API_ERRORS.SERVER_ERROR),
+        { status: getStatusCode(API_ERRORS.SERVER_ERROR) }
+      );
     }
 
     return NextResponse.json({
@@ -309,7 +322,10 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
     });
   } catch (error) {
     console.error('[API] GET /api/profiles/:id/report/question 에러:', error);
-    return NextResponse.json({ error: '서버 오류가 발생했습니다' }, { status: 500 });
+    return NextResponse.json(
+      createErrorResponse(API_ERRORS.SERVER_ERROR),
+      { status: getStatusCode(API_ERRORS.SERVER_ERROR) }
+    );
   }
 }
 

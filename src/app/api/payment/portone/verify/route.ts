@@ -8,6 +8,12 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getPackageById, verifyPaymentWithPortOne } from '@/lib/portone';
 import { getSupabaseAdmin } from '@/lib/supabase/client';
 import { getAuthenticatedUser } from '@/lib/supabase/server';
+import {
+  AUTH_ERRORS,
+  PAYMENT_ERRORS,
+  createErrorResponse,
+  getStatusCode,
+} from '@/lib/errors/codes';
 
 interface VerifyPaymentRequest {
   paymentId: string;
@@ -23,40 +29,51 @@ export async function POST(request: NextRequest) {
     // 1. 사용자 인증 확인
     const user = await getAuthenticatedUser();
     if (!user) {
-      return NextResponse.json({ success: false, error: '로그인이 필요합니다' }, { status: 401 });
+      const errorResponse = createErrorResponse(AUTH_ERRORS.UNAUTHORIZED);
+      return NextResponse.json(
+        { success: false, ...errorResponse },
+        { status: getStatusCode(AUTH_ERRORS.UNAUTHORIZED) }
+      );
     }
 
     // 2. 패키지 검증
     const selectedPackage = getPackageById(packageId);
     if (!selectedPackage) {
+      const errorResponse = createErrorResponse(PAYMENT_ERRORS.INVALID_PACKAGE);
       return NextResponse.json(
-        { success: false, error: '유효하지 않은 패키지입니다' },
-        { status: 400 }
+        { success: false, ...errorResponse },
+        { status: getStatusCode(PAYMENT_ERRORS.INVALID_PACKAGE) }
       );
     }
 
     // 3. 금액 검증 (클라이언트 전송 금액 vs 패키지 금액)
     if (expectedAmount !== selectedPackage.price) {
+      const errorResponse = createErrorResponse(PAYMENT_ERRORS.AMOUNT_MISMATCH);
       return NextResponse.json(
-        { success: false, error: '금액이 일치하지 않습니다' },
-        { status: 400 }
+        { success: false, ...errorResponse },
+        { status: getStatusCode(PAYMENT_ERRORS.AMOUNT_MISMATCH) }
       );
     }
 
     // 4. 포트원 API로 결제 정보 조회
     const payment = await verifyPaymentWithPortOne(paymentId);
     if (!payment) {
+      const errorResponse = createErrorResponse(PAYMENT_ERRORS.INFO_FETCH_FAILED);
       return NextResponse.json(
-        { success: false, error: '결제 정보를 조회할 수 없습니다' },
-        { status: 400 }
+        { success: false, ...errorResponse },
+        { status: getStatusCode(PAYMENT_ERRORS.INFO_FETCH_FAILED) }
       );
     }
 
     // 5. 결제 상태 확인
     if (payment.status !== 'PAID') {
+      const errorResponse = createErrorResponse(
+        PAYMENT_ERRORS.NOT_COMPLETED,
+        { status: payment.status }
+      );
       return NextResponse.json(
-        { success: false, error: `결제가 완료되지 않았습니다 (상태: ${payment.status})` },
-        { status: 400 }
+        { success: false, ...errorResponse },
+        { status: getStatusCode(PAYMENT_ERRORS.NOT_COMPLETED) }
       );
     }
 
@@ -65,9 +82,10 @@ export async function POST(request: NextRequest) {
       console.error(
         `Amount mismatch: expected ${selectedPackage.price}, got ${payment.amount.total}`
       );
+      const errorResponse = createErrorResponse(PAYMENT_ERRORS.AMOUNT_MISMATCH);
       return NextResponse.json(
-        { success: false, error: '결제 금액이 일치하지 않습니다' },
-        { status: 400 }
+        { success: false, ...errorResponse },
+        { status: getStatusCode(PAYMENT_ERRORS.AMOUNT_MISMATCH) }
       );
     }
 
@@ -81,9 +99,10 @@ export async function POST(request: NextRequest) {
       .single();
 
     if (existingPurchase) {
+      const errorResponse = createErrorResponse(PAYMENT_ERRORS.ALREADY_PROCESSED);
       return NextResponse.json(
-        { success: false, error: '이미 처리된 결제입니다' },
-        { status: 400 }
+        { success: false, ...errorResponse },
+        { status: getStatusCode(PAYMENT_ERRORS.ALREADY_PROCESSED) }
       );
     }
 
@@ -100,9 +119,10 @@ export async function POST(request: NextRequest) {
 
     if (purchaseError) {
       console.error('Failed to create purchase record:', purchaseError);
+      const errorResponse = createErrorResponse(PAYMENT_ERRORS.RECORD_CREATE_FAILED);
       return NextResponse.json(
-        { success: false, error: '결제 기록 생성에 실패했습니다' },
-        { status: 500 }
+        { success: false, ...errorResponse },
+        { status: getStatusCode(PAYMENT_ERRORS.RECORD_CREATE_FAILED) }
       );
     }
 
@@ -115,9 +135,10 @@ export async function POST(request: NextRequest) {
 
     if (getUserError) {
       console.error('Failed to get user:', getUserError);
+      const errorResponse = createErrorResponse(PAYMENT_ERRORS.USER_FETCH_FAILED);
       return NextResponse.json(
-        { success: false, error: '사용자 정보 조회에 실패했습니다' },
-        { status: 500 }
+        { success: false, ...errorResponse },
+        { status: getStatusCode(PAYMENT_ERRORS.USER_FETCH_FAILED) }
       );
     }
 
@@ -130,9 +151,10 @@ export async function POST(request: NextRequest) {
 
     if (updateError) {
       console.error('Failed to update user credits:', updateError);
+      const errorResponse = createErrorResponse(PAYMENT_ERRORS.CREDIT_UPDATE_FAILED);
       return NextResponse.json(
-        { success: false, error: '크레딧 업데이트에 실패했습니다' },
-        { status: 500 }
+        { success: false, ...errorResponse },
+        { status: getStatusCode(PAYMENT_ERRORS.CREDIT_UPDATE_FAILED) }
       );
     }
 
@@ -147,12 +169,14 @@ export async function POST(request: NextRequest) {
     });
   } catch (error) {
     console.error('Payment verification error:', error);
+    const errorResponse = createErrorResponse(
+      PAYMENT_ERRORS.VERIFICATION_FAILED,
+      undefined,
+      error instanceof Error ? error.message : undefined
+    );
     return NextResponse.json(
-      {
-        success: false,
-        error: error instanceof Error ? error.message : '결제 검증에 실패했습니다',
-      },
-      { status: 500 }
+      { success: false, ...errorResponse },
+      { status: getStatusCode(PAYMENT_ERRORS.VERIFICATION_FAILED) }
     );
   }
 }

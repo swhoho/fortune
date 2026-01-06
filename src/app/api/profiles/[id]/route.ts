@@ -10,6 +10,14 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getAuthenticatedUser } from '@/lib/supabase/server';
 import { getSupabaseAdmin } from '@/lib/supabase/client';
 import { updateProfileSchema } from '@/lib/validations/profile';
+import {
+  AUTH_ERRORS,
+  API_ERRORS,
+  PROFILE_ERRORS,
+  VALIDATION_ERRORS,
+  createErrorResponse,
+  getStatusCode,
+} from '@/lib/errors/codes';
 import type { ProfileResponse } from '@/types/profile';
 
 /**
@@ -48,10 +56,9 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
     // 1. 인증 확인 (Supabase Auth)
     const user = await getAuthenticatedUser();
     if (!user) {
-      return NextResponse.json(
-        { error: '로그인이 필요합니다', code: 'UNAUTHORIZED' },
-        { status: 401 }
-      );
+      return NextResponse.json(createErrorResponse(AUTH_ERRORS.UNAUTHORIZED), {
+        status: getStatusCode(AUTH_ERRORS.UNAUTHORIZED),
+      });
     }
 
     // 2. 프로필 조회 (소유권 확인 포함)
@@ -64,10 +71,9 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
       .single();
 
     if (error || !profile) {
-      return NextResponse.json(
-        { error: '프로필을 찾을 수 없습니다', code: 'NOT_FOUND' },
-        { status: 404 }
-      );
+      return NextResponse.json(createErrorResponse(PROFILE_ERRORS.NOT_FOUND), {
+        status: getStatusCode(PROFILE_ERRORS.NOT_FOUND),
+      });
     }
 
     // 3. 응답
@@ -77,10 +83,9 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
     });
   } catch (error) {
     console.error('[API] /api/profiles/:id GET 에러:', error);
-    return NextResponse.json(
-      { error: '서버 오류가 발생했습니다', code: 'INTERNAL_ERROR' },
-      { status: 500 }
-    );
+    return NextResponse.json(createErrorResponse(API_ERRORS.SERVER_ERROR), {
+      status: getStatusCode(API_ERRORS.SERVER_ERROR),
+    });
   }
 }
 
@@ -95,10 +100,9 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
     // 1. 인증 확인 (Supabase Auth)
     const user = await getAuthenticatedUser();
     if (!user) {
-      return NextResponse.json(
-        { error: '로그인이 필요합니다', code: 'UNAUTHORIZED' },
-        { status: 401 }
-      );
+      return NextResponse.json(createErrorResponse(AUTH_ERRORS.UNAUTHORIZED), {
+        status: getStatusCode(AUTH_ERRORS.UNAUTHORIZED),
+      });
     }
 
     // 2. 요청 파싱 및 검증
@@ -108,11 +112,10 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
     if (!validation.success) {
       return NextResponse.json(
         {
-          error: '입력 데이터가 올바르지 않습니다',
-          code: 'INVALID_INPUT',
+          ...createErrorResponse(VALIDATION_ERRORS.INVALID_INPUT),
           details: validation.error.flatten(),
         },
-        { status: 400 }
+        { status: getStatusCode(VALIDATION_ERRORS.INVALID_INPUT) }
       );
     }
 
@@ -120,10 +123,9 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
 
     // 3. 업데이트 데이터가 있는지 확인
     if (Object.keys(updates).length === 0) {
-      return NextResponse.json(
-        { error: '수정할 데이터가 없습니다', code: 'NO_UPDATES' },
-        { status: 400 }
-      );
+      return NextResponse.json(createErrorResponse(VALIDATION_ERRORS.NO_UPDATES), {
+        status: getStatusCode(VALIDATION_ERRORS.NO_UPDATES),
+      });
     }
 
     // 4. snake_case로 변환
@@ -146,10 +148,9 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
       .single();
 
     if (error || !profile) {
-      return NextResponse.json(
-        { error: '프로필을 찾을 수 없거나 수정에 실패했습니다', code: 'UPDATE_ERROR' },
-        { status: 404 }
-      );
+      return NextResponse.json(createErrorResponse(PROFILE_ERRORS.UPDATE_FAILED), {
+        status: getStatusCode(PROFILE_ERRORS.UPDATE_FAILED),
+      });
     }
 
     // 6. 응답
@@ -159,10 +160,9 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
     });
   } catch (error) {
     console.error('[API] /api/profiles/:id PUT 에러:', error);
-    return NextResponse.json(
-      { error: '서버 오류가 발생했습니다', code: 'INTERNAL_ERROR' },
-      { status: 500 }
-    );
+    return NextResponse.json(createErrorResponse(API_ERRORS.SERVER_ERROR), {
+      status: getStatusCode(API_ERRORS.SERVER_ERROR),
+    });
   }
 }
 
@@ -180,10 +180,9 @@ export async function DELETE(
     // 1. 인증 확인 (Supabase Auth)
     const user = await getAuthenticatedUser();
     if (!user) {
-      return NextResponse.json(
-        { error: '로그인이 필요합니다', code: 'UNAUTHORIZED' },
-        { status: 401 }
-      );
+      return NextResponse.json(createErrorResponse(AUTH_ERRORS.UNAUTHORIZED), {
+        status: getStatusCode(AUTH_ERRORS.UNAUTHORIZED),
+      });
     }
 
     // 2. 프로필 삭제 (소유권 확인 포함)
@@ -197,10 +196,9 @@ export async function DELETE(
       .single();
 
     if (error || !data) {
-      return NextResponse.json(
-        { error: '프로필을 찾을 수 없거나 삭제에 실패했습니다', code: 'DELETE_ERROR' },
-        { status: 404 }
-      );
+      return NextResponse.json(createErrorResponse(PROFILE_ERRORS.DELETE_FAILED), {
+        status: getStatusCode(PROFILE_ERRORS.DELETE_FAILED),
+      });
     }
 
     // 3. 응답
@@ -210,10 +208,9 @@ export async function DELETE(
     });
   } catch (error) {
     console.error('[API] /api/profiles/:id DELETE 에러:', error);
-    return NextResponse.json(
-      { error: '서버 오류가 발생했습니다', code: 'INTERNAL_ERROR' },
-      { status: 500 }
-    );
+    return NextResponse.json(createErrorResponse(API_ERRORS.SERVER_ERROR), {
+      status: getStatusCode(API_ERRORS.SERVER_ERROR),
+    });
   }
 }
 
