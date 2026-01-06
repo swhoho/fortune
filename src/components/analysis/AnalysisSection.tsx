@@ -51,7 +51,7 @@ export function AnalysisSection({ title, content, score, advice, keywords }: Ana
       className="space-y-4"
     >
       {/* 제목 */}
-      <h3 className="font-serif text-xl font-semibold text-gray-900">{title}</h3>
+      <h3 className="font-serif text-xl font-semibold text-white">{title}</h3>
 
       {/* 키워드 태그 (성격 분석용) */}
       {keywords && keywords.length > 0 && (
@@ -75,12 +75,12 @@ export function AnalysisSection({ title, content, score, advice, keywords }: Ana
       {typeof score === 'number' && (
         <div className="space-y-2">
           <div className="flex items-center justify-between">
-            <span className="text-sm text-gray-500">운세 점수</span>
+            <span className="text-sm text-gray-400">운세 점수</span>
             <span className="text-sm font-semibold" style={{ color: getScoreColor(score) }}>
               {score}점 · {getScoreLabel(score)}
             </span>
           </div>
-          <div className="h-2 overflow-hidden rounded-full bg-gray-200">
+          <div className="h-2 overflow-hidden rounded-full bg-[#333]">
             <motion.div
               className="h-full rounded-full"
               style={{ backgroundColor: getScoreColor(score) }}
@@ -93,17 +93,17 @@ export function AnalysisSection({ title, content, score, advice, keywords }: Ana
       )}
 
       {/* 본문 (마크다운) */}
-      <div className="prose prose-sm max-w-none text-gray-700">
+      <div className="prose prose-sm max-w-none text-gray-300">
         <ReactMarkdown
           components={{
             p: ({ children }) => <p className="mb-3 leading-relaxed">{children}</p>,
             strong: ({ children }) => (
-              <strong className="font-semibold text-gray-900">{children}</strong>
+              <strong className="font-semibold text-white">{children}</strong>
             ),
             ul: ({ children }) => (
               <ul className="my-3 list-inside list-disc space-y-1">{children}</ul>
             ),
-            li: ({ children }) => <li className="text-gray-700">{children}</li>,
+            li: ({ children }) => <li className="text-gray-300">{children}</li>,
           }}
         >
           {content}
@@ -119,8 +119,8 @@ export function AnalysisSection({ title, content, score, advice, keywords }: Ana
             backgroundColor: `${BRAND_COLORS.primary}10`,
           }}
         >
-          <p className="text-sm font-medium text-gray-900">조언</p>
-          <p className="mt-1 text-sm text-gray-700">{advice}</p>
+          <p className="text-sm font-medium text-white">조언</p>
+          <p className="mt-1 text-sm text-gray-300">{advice}</p>
         </div>
       )}
     </motion.div>

@@ -160,10 +160,10 @@ export function PipelineProcessingScreen({
           <div className="mb-4 text-6xl">
             <AlertCircle className="mx-auto h-16 w-16 text-red-500" />
           </div>
-          <h2 className="mb-2 text-xl font-semibold text-gray-900">
+          <h2 className="mb-2 text-xl font-semibold text-white">
             {t('error.title', { step: errorStepLabel })}
           </h2>
-          <p className="mb-6 text-gray-500">{error.error}</p>
+          <p className="mb-6 text-gray-400">{error.error}</p>
 
           {/* 완료된 단계 표시 */}
           <div className="mb-6 space-y-2 text-left">
@@ -237,7 +237,7 @@ export function PipelineProcessingScreen({
       <motion.h2
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
-        className="mb-2 text-center text-xl font-semibold text-gray-900"
+        className="mb-2 text-center text-xl font-semibold text-white"
       >
         {currentStep ? getActiveLabel(currentStep) : t('preparing')}
       </motion.h2>
@@ -247,7 +247,7 @@ export function PipelineProcessingScreen({
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          className="mb-6 flex items-center gap-1 text-sm text-gray-500"
+          className="mb-6 flex items-center gap-1 text-sm text-gray-400"
         >
           <Clock className="h-4 w-4" />
           <span>{formatRemainingTime(countdown)}</span>
@@ -257,7 +257,7 @@ export function PipelineProcessingScreen({
       {/* 진행률 바 */}
       <div className="mb-6 w-full max-w-md">
         <div className="mb-2 flex justify-between text-sm">
-          <span className="text-gray-500">{t('progress')}</span>
+          <span className="text-gray-400">{t('progress')}</span>
           <span className="font-medium" style={{ color: BRAND_COLORS.primary }}>
             {progressPercent}%
           </span>
@@ -310,7 +310,7 @@ export function PipelineProcessingScreen({
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -10 }}
             transition={{ duration: 0.3 }}
-            className="text-sm text-gray-600"
+            className="text-sm text-gray-400"
           >
             &ldquo;{FORTUNE_TIPS[currentTipIndex]}&rdquo;
           </motion.p>

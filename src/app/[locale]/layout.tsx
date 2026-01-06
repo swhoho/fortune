@@ -195,7 +195,7 @@ export default async function LocaleLayout({ children, params }: Props) {
   const messages = await getMessages();
 
   return (
-    <html lang={locale} className="overflow-x-hidden">
+    <html lang={locale} className="dark overflow-x-hidden">
       <body className={`${geistSans.variable} ${geistMono.variable} overflow-x-hidden antialiased`}>
         <OrganizationJsonLd locale={locale} />
         <NextIntlClientProvider locale={locale} messages={messages}>
