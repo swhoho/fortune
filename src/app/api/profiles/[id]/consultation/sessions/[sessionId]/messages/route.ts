@@ -75,16 +75,38 @@ export async function GET(request: NextRequest, context: RouteContext) {
     }
 
     const messages = (messagesData || []).map(
-      (msg: ConsultationMessageRow & { status?: string; error_message?: string }) => ({
-        id: msg.id,
-        sessionId: msg.session_id,
-        type: msg.message_type,
-        content: msg.content,
-        questionRound: msg.question_round,
-        createdAt: msg.created_at,
-        status: msg.status || 'completed',
-        errorMessage: msg.error_message,
-      })
+      (msg: ConsultationMessageRow & { status?: string; error_message?: string }) => {
+        // Stale 메시지 감지: 1분 이상 generating 상태
+        const isStale =
+          msg.status === 'generating' &&
+          msg.created_at &&
+          new Date().getTime() - new Date(msg.created_at).getTime() > 60000;
+
+        // Stale 메시지 자동 실패 처리 (비동기 DB 업데이트)
+        if (isStale) {
+          supabase
+            .from('consultation_messages')
+            .update({
+              status: 'failed',
+              error_message: '응답 생성 시간이 초과되었습니다. 다시 시도해주세요.',
+            })
+            .eq('id', msg.id)
+            .then(() => console.log(`[ConsultationMessages] Stale 메시지 처리: ${msg.id}`));
+        }
+
+        return {
+          id: msg.id,
+          sessionId: msg.session_id,
+          type: msg.message_type,
+          content: msg.content,
+          questionRound: msg.question_round,
+          createdAt: msg.created_at,
+          status: isStale ? 'failed' : msg.status || 'completed',
+          errorMessage: isStale
+            ? '응답 생성 시간이 초과되었습니다. 다시 시도해주세요.'
+            : msg.error_message,
+        };
+      }
     );
 
     const response: GetMessagesResponse = {
@@ -228,7 +250,15 @@ export async function POST(request: NextRequest, context: RouteContext) {
     }
 
     // 3. Python 백엔드에 AI 생성 요청 (Railway - 타임아웃 제한 없음)
-    const pythonApiUrl = process.env.PYTHON_API_URL;
+    // URL 프로토콜 자동 추가 (리포트 시스템과 동일한 패턴)
+    let pythonApiUrl = process.env.PYTHON_API_URL || '';
+    if (
+      pythonApiUrl &&
+      !pythonApiUrl.startsWith('http://') &&
+      !pythonApiUrl.startsWith('https://')
+    ) {
+      pythonApiUrl = `https://${pythonApiUrl}`;
+    }
     if (!pythonApiUrl) {
       console.error('[ConsultationMessages] PYTHON_API_URL 환경변수가 설정되지 않았습니다');
       // Python URL 미설정 시 AI 메시지를 failed로 업데이트
@@ -297,6 +327,160 @@ export async function POST(request: NextRequest, context: RouteContext) {
     return NextResponse.json(response);
   } catch (error) {
     console.error('[ConsultationMessages] POST 오류:', error);
+    return NextResponse.json(
+      { success: false, ...createErrorResponse(API_ERRORS.SERVER_ERROR) },
+      { status: getStatusCode(API_ERRORS.SERVER_ERROR) }
+    );
+  }
+}
+
+/**
+ * PATCH /api/profiles/[id]/consultation/sessions/[sessionId]/messages
+ * 실패한 AI 메시지 재생성 (크레딧 차감 없음)
+ */
+export async function PATCH(request: NextRequest, context: RouteContext) {
+  try {
+    const user = await getAuthenticatedUser();
+    if (!user) {
+      return NextResponse.json(
+        { success: false, ...createErrorResponse(AUTH_ERRORS.UNAUTHORIZED) },
+        { status: getStatusCode(AUTH_ERRORS.UNAUTHORIZED) }
+      );
+    }
+
+    const { id: _profileId, sessionId } = await context.params;
+    const supabase = createClient();
+    const body = await request.json();
+    const { messageId } = body;
+
+    // profileId는 라우트 검증에 사용됨 (Next.js가 자동 검증)
+    void _profileId;
+
+    if (!messageId) {
+      return NextResponse.json(
+        { success: false, ...createErrorResponse(API_ERRORS.BAD_REQUEST) },
+        { status: getStatusCode(API_ERRORS.BAD_REQUEST) }
+      );
+    }
+
+    // 1. 메시지 조회 및 검증
+    const { data: aiMessage, error: msgError } = await supabase
+      .from('consultation_messages')
+      .select('*, consultation_sessions!inner(user_id, profile_report_id)')
+      .eq('id', messageId)
+      .eq('session_id', sessionId)
+      .single();
+
+    if (msgError || !aiMessage) {
+      return NextResponse.json(
+        { success: false, ...createErrorResponse(API_ERRORS.NOT_FOUND) },
+        { status: getStatusCode(API_ERRORS.NOT_FOUND) }
+      );
+    }
+
+    // 소유권 확인
+    if (aiMessage.consultation_sessions.user_id !== user.id) {
+      return NextResponse.json(
+        { success: false, ...createErrorResponse(AUTH_ERRORS.FORBIDDEN) },
+        { status: getStatusCode(AUTH_ERRORS.FORBIDDEN) }
+      );
+    }
+
+    // failed 상태만 재생성 가능
+    if (aiMessage.status !== 'failed') {
+      return NextResponse.json(
+        { success: false, error: '실패한 메시지만 재생성할 수 있습니다.' },
+        { status: 400 }
+      );
+    }
+
+    // 2. 이전 사용자 질문 찾기 (같은 question_round)
+    const { data: userQuestion } = await supabase
+      .from('consultation_messages')
+      .select('content, message_type')
+      .eq('session_id', sessionId)
+      .eq('question_round', aiMessage.question_round)
+      .in('message_type', ['user_question', 'user_clarification'])
+      .order('created_at', { ascending: false })
+      .limit(1)
+      .single();
+
+    if (!userQuestion) {
+      return NextResponse.json(
+        { success: false, error: '원본 질문을 찾을 수 없습니다.' },
+        { status: 400 }
+      );
+    }
+
+    // 3. AI 메시지 상태를 generating으로 리셋
+    await supabase
+      .from('consultation_messages')
+      .update({
+        status: 'generating',
+        content: '',
+        error_message: null,
+      })
+      .eq('id', messageId);
+
+    // 4. Python 백엔드에 재생성 요청
+    let pythonApiUrl = process.env.PYTHON_API_URL || '';
+    if (
+      pythonApiUrl &&
+      !pythonApiUrl.startsWith('http://') &&
+      !pythonApiUrl.startsWith('https://')
+    ) {
+      pythonApiUrl = `https://${pythonApiUrl}`;
+    }
+
+    const acceptLanguage = request.headers.get('accept-language') || 'ko';
+    const language = acceptLanguage.split(',')[0]?.split('-')[0] || 'ko';
+
+    if (pythonApiUrl) {
+      try {
+        await fetch(`${pythonApiUrl}/api/consultation/generate`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            message_id: messageId,
+            session_id: sessionId,
+            profile_report_id: aiMessage.consultation_sessions.profile_report_id,
+            user_content: userQuestion.content,
+            message_type: userQuestion.message_type,
+            skip_clarification: true,
+            question_round: aiMessage.question_round,
+            language: language,
+          }),
+        });
+        console.log(`[ConsultationMessages] 재생성 요청 전송: ${messageId}`);
+      } catch (err) {
+        console.error('[ConsultationMessages] 재생성 Python 호출 실패:', err);
+        await supabase
+          .from('consultation_messages')
+          .update({
+            status: 'failed',
+            error_message: 'AI 서버 연결에 실패했습니다. 잠시 후 다시 시도해주세요.',
+          })
+          .eq('id', messageId);
+      }
+    } else {
+      await supabase
+        .from('consultation_messages')
+        .update({
+          status: 'failed',
+          error_message: '서버 구성 오류입니다. 관리자에게 문의해주세요.',
+        })
+        .eq('id', messageId);
+    }
+
+    return NextResponse.json({
+      success: true,
+      data: {
+        messageId,
+        status: 'generating',
+      },
+    });
+  } catch (error) {
+    console.error('[ConsultationMessages] PATCH 오류:', error);
     return NextResponse.json(
       { success: false, ...createErrorResponse(API_ERRORS.SERVER_ERROR) },
       { status: getStatusCode(API_ERRORS.SERVER_ERROR) }

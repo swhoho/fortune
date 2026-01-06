@@ -17,6 +17,8 @@ import type { ConsultationMessage } from '@/types/consultation';
 
 /** 폴링 간격 (ms) */
 const POLLING_INTERVAL = 2000;
+/** 최대 폴링 횟수 (2분 = 60회 × 2초) */
+const MAX_POLL_ATTEMPTS = 60;
 
 interface ChatAreaProps {
   /** 프로필 ID */
@@ -41,7 +43,7 @@ export function ChatArea({
   // 메시지 조회
   const { data, isLoading, error, refetch } = useConsultationMessages(profileId, sessionId);
   const sendMessage = useSendMessage();
-  const { invalidateMessages, invalidateSessions } = useInvalidateConsultation();
+  const { invalidateSessions } = useInvalidateConsultation();
 
   // 스크롤 ref
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -51,6 +53,13 @@ export function ChatArea({
 
   // 폴링 상태
   const [isPolling, setIsPolling] = useState(false);
+  const pollAttemptsRef = useRef(0);
+
+  // 타임아웃 에러 상태
+  const [timeoutError, setTimeoutError] = useState<string | null>(null);
+
+  // 재생성 중인 메시지 ID
+  const [regeneratingId, setRegeneratingId] = useState<string | null>(null);
 
   // generating 상태 메시지 확인
   const generatingMessage = data?.messages?.find(
@@ -76,16 +85,29 @@ export function ChatArea({
     }
   }, [data?.messages]);
 
-  // 폴링 로직: generating 상태 메시지가 있으면 주기적으로 refetch
+  // 폴링 로직: generating 상태 메시지가 있으면 주기적으로 refetch (타임아웃 포함)
   useEffect(() => {
     if (!generatingMessage) {
+      pollAttemptsRef.current = 0;
       setIsPolling(false);
+      setTimeoutError(null);
       return;
     }
 
     setIsPolling(true);
+    setTimeoutError(null);
 
     const pollInterval = setInterval(async () => {
+      pollAttemptsRef.current++;
+
+      // 타임아웃 체크 (2분 = 60회)
+      if (pollAttemptsRef.current >= MAX_POLL_ATTEMPTS) {
+        clearInterval(pollInterval);
+        setTimeoutError('응답 생성 시간이 초과되었습니다. 다시 시도해주세요.');
+        setIsPolling(false);
+        return;
+      }
+
       await refetch();
     }, POLLING_INTERVAL);
 
@@ -132,29 +154,51 @@ export function ChatArea({
   );
 
   /**
-   * 실패한 메시지 재시도
+   * 실패한 메시지 재생성 (PATCH API - 크레딧 차감 없음)
+   */
+  const handleRegenerate = useCallback(
+    async (messageId: string) => {
+      if (!profileId || !sessionId) return;
+
+      setRegeneratingId(messageId);
+      setTimeoutError(null);
+
+      try {
+        const res = await fetch(
+          `/api/profiles/${profileId}/consultation/sessions/${sessionId}/messages`,
+          {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ messageId }),
+          }
+        );
+
+        if (!res.ok) {
+          const errorData = await res.json();
+          throw new Error(errorData.error || '재생성에 실패했습니다.');
+        }
+
+        // 폴링 카운터 리셋
+        pollAttemptsRef.current = 0;
+
+        // 폴링 재시작 (generating 상태 감지)
+        await refetch();
+      } catch (err) {
+        console.error('[ChatArea] 재생성 실패:', err);
+      } finally {
+        setRegeneratingId(null);
+      }
+    },
+    [profileId, sessionId, refetch]
+  );
+
+  /**
+   * 실패한 메시지 재시도 (재생성 API 호출)
    */
   const handleRetry = useCallback(async () => {
     if (!failedMessage || !sessionId) return;
-
-    // 실패한 AI 메시지를 삭제하고 새로 요청
-    // (또는 generate API를 다시 호출하는 방식으로 구현 가능)
-    // 간단히: 메시지 목록 갱신 후 마지막 사용자 질문 기반으로 재요청
-
-    const userMessages = data?.messages?.filter(
-      (m: ConsultationMessage) => m.type === 'user_question' || m.type === 'user_clarification'
-    );
-    const lastUserMessage = userMessages?.[userMessages.length - 1];
-
-    if (lastUserMessage) {
-      // invalidate 후 새로 전송
-      await invalidateMessages(sessionId);
-      await handleSendMessage(
-        lastUserMessage.content,
-        lastUserMessage.type === 'user_clarification'
-      );
-    }
-  }, [failedMessage, sessionId, data?.messages, invalidateMessages, handleSendMessage]);
+    await handleRegenerate(failedMessage.id);
+  }, [failedMessage, sessionId, handleRegenerate]);
 
   // 세션 미선택 상태
   if (!sessionId) {
@@ -263,7 +307,24 @@ export function ChatArea({
               </motion.div>
             )}
 
-            {/* 에러 발생 시 재시도 UI */}
+            {/* 타임아웃 에러 UI */}
+            {timeoutError && !failedMessage && !generatingMessage && (
+              <motion.div
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="rounded-lg border border-yellow-900/50 bg-yellow-950/30 p-4"
+              >
+                <div className="flex items-start gap-3">
+                  <AlertCircle className="mt-0.5 h-5 w-5 flex-shrink-0 text-yellow-400" />
+                  <div className="flex-1">
+                    <p className="text-sm font-medium text-yellow-400">응답 시간 초과</p>
+                    <p className="mt-1 text-xs text-gray-400">{timeoutError}</p>
+                  </div>
+                </div>
+              </motion.div>
+            )}
+
+            {/* 에러 발생 시 재생성 UI */}
             {failedMessage && !generatingMessage && (
               <motion.div
                 initial={{ opacity: 0, y: 10 }}
@@ -280,10 +341,20 @@ export function ChatArea({
                     <div className="mt-3 flex gap-2">
                       <button
                         onClick={handleRetry}
-                        className="flex items-center gap-1.5 rounded-md bg-[#d4af37] px-3 py-1.5 text-xs font-medium text-white transition-colors hover:bg-[#c19a2e]"
+                        disabled={regeneratingId === failedMessage.id}
+                        className="flex items-center gap-1.5 rounded-md bg-[#d4af37] px-3 py-1.5 text-xs font-medium text-white transition-colors hover:bg-[#c19a2e] disabled:opacity-50"
                       >
-                        <RefreshCw className="h-3.5 w-3.5" />
-                        재시도
+                        {regeneratingId === failedMessage.id ? (
+                          <>
+                            <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                            재생성 중...
+                          </>
+                        ) : (
+                          <>
+                            <RefreshCw className="h-3.5 w-3.5" />
+                            다시 생성하기
+                          </>
+                        )}
                       </button>
                     </div>
                   </div>
@@ -318,16 +389,16 @@ export function ChatArea({
         ) : (
           <ChatInput
             onSendMessage={handleSendMessage}
-            isLoading={sendMessage.isPending || !!generatingMessage}
-            disabled={!canAskMore || !!generatingMessage || !!failedMessage}
+            isLoading={sendMessage.isPending || !!generatingMessage || !!regeneratingId}
+            disabled={!canAskMore || !!generatingMessage || !!failedMessage || !!regeneratingId}
             placeholder={
-              generatingMessage
+              generatingMessage || regeneratingId
                 ? '답변 생성 중...'
                 : awaitingClarification
                   ? '추가 정보를 입력해주세요...'
                   : '질문을 입력하세요... (최대 500자)'
             }
-            showSkipButton={awaitingClarification && !generatingMessage}
+            showSkipButton={awaitingClarification && !generatingMessage && !regeneratingId}
             questionCount={session?.questionCount || 0}
             maxQuestions={5}
           />
