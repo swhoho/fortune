@@ -39,6 +39,8 @@ export function useProfiles(sort?: 'name' | 'created') {
 
       return profiles;
     },
+    staleTime: 0, // 항상 stale로 간주 → 리포트 상태 변경 즉시 반영
+    refetchOnMount: 'always', // 페이지 진입 시 항상 최신 상태 조회
   });
 }
 

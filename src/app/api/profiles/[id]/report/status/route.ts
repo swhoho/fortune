@@ -199,8 +199,8 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
       const now = new Date();
       const elapsedMinutes = (now.getTime() - updatedAt.getTime()) / (1000 * 60);
 
-      // 5분 이상 업데이트 없으면 stale job으로 판단
-      if (elapsedMinutes > 5) {
+      // 1분 이상 업데이트 없으면 stale job으로 판단 (서버 재시작 시 빠른 감지)
+      if (elapsedMinutes > 1) {
         console.warn(
           `[API] Stale job detected: report_id=${report.id}, elapsed=${elapsedMinutes.toFixed(1)}분`
         );
