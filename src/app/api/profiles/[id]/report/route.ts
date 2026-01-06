@@ -295,12 +295,13 @@ function transformAptitude(aptitude: any, scores: any) {
       content: firstTalent?.description || '',
     };
 
-    // talentUsageStatus 우선 지원 (새 Gemini 응답)
-    const talentUtil = aptitude.talentUsageStatus || aptitude.talent_utilization;
+    // talentUsage > talentUsageStatus > talent_utilization (키 이름 변동 대응)
+    const talentUtil =
+      aptitude.talentUsage || aptitude.talentUsageStatus || aptitude.talent_utilization;
     talentStatus = {
       label: '재능의 상태',
       title: talentUtil
-        ? // currentLevel/potential 우선 지원 (새 Gemini 응답)
+        ? // currentLevel/potential 우선 지원
           `현재 ${talentUtil.currentLevel || talentUtil.current_level || 0}% → 잠재력 ${talentUtil.potential || talentUtil.potential_level || 0}%`
         : '재능 활용 상태',
       content: talentUtil?.advice || '',
@@ -309,7 +310,7 @@ function transformAptitude(aptitude: any, scores: any) {
     careerChoice = {
       label: '진로선택',
       title: '진로 선택 가이드',
-      // analysis_summary 외에 talentUsageStatus.advice도 폴백으로 사용
+      // analysis_summary > talentUsage.advice 폴백
       content: aptitude.analysis_summary?.core_logic || talentUtil?.advice || '',
     };
 
