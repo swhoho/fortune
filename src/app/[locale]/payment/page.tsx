@@ -12,6 +12,7 @@ import { motion } from 'framer-motion';
 import * as PortOne from '@portone/browser-sdk/v2';
 import { Button } from '@/components/ui/button';
 import { useOnboardingStore } from '@/stores/onboarding-store';
+import { useAuth } from '@/hooks/use-user';
 import { FocusAreaLabel } from '@/types/saju';
 import {
   CREDIT_PACKAGES,
@@ -43,6 +44,7 @@ const analysisIncludes = [
 
 export default function PaymentPage({ params: { locale } }: { params: { locale: string } }) {
   const router = useRouter();
+  const { user } = useAuth();
   const { focusArea, question } = useOnboardingStore();
   const [selectedPackage, setSelectedPackage] = useState<CreditPackage | null>(
     CREDIT_PACKAGES.find((p) => p.popular) || null
@@ -82,6 +84,20 @@ export default function PaymentPage({ params: { locale } }: { params: { locale: 
     }
 
     try {
+      // 구매자 정보 (KG이니시스 V2 필수)
+      const customerEmail = user?.email || '';
+      const customerName =
+        user?.user_metadata?.full_name ||
+        user?.user_metadata?.name ||
+        user?.email?.split('@')[0] ||
+        '구매자';
+
+      if (!customerEmail) {
+        setError('로그인이 필요합니다.');
+        setIsLoading(false);
+        return;
+      }
+
       // PortOne SDK 결제 요청
       const response = await PortOne.requestPayment({
         storeId,
@@ -91,6 +107,10 @@ export default function PaymentPage({ params: { locale } }: { params: { locale: 
         totalAmount: selectedPackage.price,
         currency: 'CURRENCY_KRW',
         payMethod: selectedMethod === 'kakaopay' ? 'EASY_PAY' : 'CARD',
+        customer: {
+          email: customerEmail,
+          fullName: customerName,
+        },
         redirectUrl: `${window.location.origin}/${locale}/payment/success?paymentId=${paymentId}&packageId=${selectedPackage.id}`,
       });
 
