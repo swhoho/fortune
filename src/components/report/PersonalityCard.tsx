@@ -60,7 +60,7 @@ export function PersonalityCard({
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.3, delay: 0.4 + delay }}
-          className="mb-3 font-serif text-lg font-semibold leading-snug text-white"
+          className="mb-3 font-serif text-base font-semibold leading-snug text-white"
         >
           {summary}
         </motion.h4>

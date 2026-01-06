@@ -48,7 +48,7 @@ export function CharacteristicsSection({
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5 }}
-      className={`relative overflow-hidden rounded-2xl bg-[#1a1a1a] ${className}`}
+      className={`relative overflow-hidden rounded-xl bg-[#1a1a1a] ${className}`}
     >
       {/* 배경 장식 */}
       <div className="absolute right-0 top-0 h-40 w-40 -translate-y-10 translate-x-10 rounded-full bg-[#d4af37]/5 blur-3xl" />
