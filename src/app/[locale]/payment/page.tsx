@@ -17,6 +17,7 @@ import {
   PillarsSection,
   SocialProofSection,
 } from '@/components/payment/PaymentSections';
+import { Footer } from '@/components/layout/Footer';
 
 /** Analysis Includes */
 const analysisIncludes = [
@@ -243,6 +244,9 @@ export default function PaymentPage({ params: { locale } }: { params: { locale: 
           </motion.div>
         </div>
       </div>
+
+      {/* Footer */}
+      <Footer />
     </div>
   );
 }
