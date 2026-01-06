@@ -269,7 +269,7 @@ def calculate_daewun_with_ten_god(
     count: int = 10
 ) -> list[dict]:
     """
-    대운 계산 (십신 포함)
+    대운 계산 (십신 + favorablePercent 포함)
 
     Args:
         birth_dt: 양력 생년월일시
@@ -287,7 +287,9 @@ def calculate_daewun_with_ten_god(
                 "startYear": 1997,
                 "startDate": "1997-07-26",
                 "tenGod": "편인",
-                "tenGodType": "인성운"
+                "tenGodType": "인성운",
+                "favorablePercent": 55,
+                "unfavorablePercent": 45
             },
             ...
         ]
@@ -295,11 +297,14 @@ def calculate_daewun_with_ten_god(
     # 기본 대운 계산
     basic_daewun = calculate_daewun(birth_dt, gender, count)
 
-    # 십신 정보 추가
+    # 십신 정보 + favorablePercent 추가
     result = []
     for dw in basic_daewun:
         ten_god = get_ten_god_relation(day_stem, dw["stem"])
         ten_god_type = get_ten_god_type(ten_god)
+
+        # favorablePercent 계산
+        favorable = _calculate_favorable_percent(ten_god, dw["branch"])
 
         result.append({
             "age": dw["age"],
@@ -310,6 +315,83 @@ def calculate_daewun_with_ten_god(
             "startDate": f"{dw['startYear']}-01-01",  # TODO: 정확한 절입일 계산
             "tenGod": ten_god,
             "tenGodType": ten_god_type,
+            "favorablePercent": favorable,
+            "unfavorablePercent": 100 - favorable,
         })
 
     return result
+
+
+# ============================================
+# 대운 순풍운 비율 계산 (favorablePercent)
+# ============================================
+
+# 십신별 기본 순풍운 비율
+# 정통 명리학에서 십신의 길흉 해석 기반
+TEN_GOD_BASE_FAVORABLE = {
+    # 인성 (나를 생함) - 보호, 학습, 안정
+    "정인": 68,  # 바른 보호와 학습운
+    "편인": 52,  # 독특한 기술, 단 도식(倒食) 주의
+
+    # 비겁 (동류) - 자립, 경쟁
+    "비견": 55,  # 동료, 경쟁자
+    "겁재": 42,  # 재물 손실 주의, 경쟁 심화
+
+    # 식상 (내가 생함) - 표현, 창조
+    "식신": 70,  # 복록, 재능 발휘
+    "상관": 45,  # 창의적이나 관성 충돌 주의
+
+    # 재성 (내가 극함) - 재물, 부친
+    "정재": 65,  # 안정적 재물
+    "편재": 58,  # 투자 기회, 변동성
+
+    # 관성 (나를 극함) - 명예, 직장
+    "정관": 72,  # 승진, 안정, 명예
+    "편관": 40,  # 도전과 압박, 칠살(七殺) 주의
+}
+
+# 지지별 보정값 (대운 지지의 영향)
+BRANCH_FAVORABLE_MODIFIER = {
+    # 사계절 중심 지지
+    "子": 0,   # 수기(水氣) 중심
+    "午": 2,   # 화기(火氣) 양명
+    "卯": 3,   # 목기(木氣) 생장
+    "酉": 1,   # 금기(金氣) 수렴
+
+    # 계절 전환 지지 (고지)
+    "丑": -2,  # 습토, 차가움
+    "辰": 1,   # 양토, 봄기운
+    "未": 3,   # 양토, 여름 열기
+    "戌": 0,   # 양토, 가을 수렴
+
+    # 생지
+    "寅": 5,   # 삼양(三陽) 시작, 활력
+    "巳": 2,   # 화기 강해짐
+    "申": 1,   # 금기, 변화
+    "亥": -1,  # 수기, 저장
+}
+
+
+def _calculate_favorable_percent(ten_god: str, branch: str) -> int:
+    """
+    대운의 순풍운 비율(favorablePercent) 계산
+
+    계산 공식:
+    favorablePercent = 십신기본점수 + 지지보정값
+
+    Args:
+        ten_god: 대운 천간의 십신
+        branch: 대운 지지
+
+    Returns:
+        순풍운 비율 (20~85 범위)
+    """
+    # 기본 점수
+    base = TEN_GOD_BASE_FAVORABLE.get(ten_god, 50)
+
+    # 지지 보정
+    modifier = BRANCH_FAVORABLE_MODIFIER.get(branch, 0)
+
+    # 최종 점수 (20~85 범위로 클램프)
+    favorable = base + modifier
+    return max(20, min(85, favorable))

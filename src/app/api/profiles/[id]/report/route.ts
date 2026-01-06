@@ -87,69 +87,81 @@ function getDefaultDaewunDescription(tenGod: string | undefined, _age: number): 
 /**
  * DB personality 데이터를 클라이언트 PersonalitySectionData 형식으로 변환
  *
- * 지원 구조:
- * 1. 영문 키: { willpower_analysis, outer_personality, inner_personality, interpersonal_style }
- * 2. 한글 키: { 성격분석: { 겉성격, 속성격, 의지력, 대인관계_스타일 } }
+ * 유연한 키 구조 지원 (Gemini 응답 변동 대응):
+ * - willpower / willpower_analysis / 의지력
+ * - outerPersonality / outer_personality / 겉성격
+ * - innerPersonality / inner_personality / 속성격
+ * - socialStyle / interpersonal_style / 대인관계_스타일
+ * - 문자열 또는 객체 형태 모두 지원
  */
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function transformPersonality(personality: any) {
   if (!personality) return null;
 
-  // 한글 키 구조 감지 (성격분석 래퍼 또는 직접 한글 키)
-  const koreanData = personality.성격분석 || personality;
-  const isKoreanKeys = koreanData.겉성격 || koreanData.속성격 || koreanData.의지력;
+  // 한글 래퍼 처리
+  const data = personality.성격분석 || personality;
 
-  if (isKoreanKeys) {
-    // 한글 키 구조 (Gemini 한글 응답)
-    const outer = koreanData.겉성격 || {};
-    const inner = koreanData.속성격 || {};
-    const willpower = koreanData.의지력 || {};
-    const social = koreanData.대인관계_스타일 || {};
+  // 의지력: willpower > willpower_analysis > 의지력
+  const willpowerData = data.willpower || data.willpower_analysis || data.의지력 || {};
+  const willpower = {
+    score: willpowerData.score || willpowerData.점수 || 0,
+    description: willpowerData.description || willpowerData.설명 || '',
+  };
 
-    return {
-      willpower: {
-        score: willpower.점수 || willpower.score || 0,
-        description: willpower.설명 || willpower.description || '',
-      },
-      outerPersonality: {
-        label: outer.인상 || outer.유형 || '외면',
-        summary: outer.근거 || outer.특성 || '',
-        description: outer.사회적_페르소나 || outer.설명 || '',
-      },
-      innerPersonality: {
-        label: inner.본성 || inner.유형 || '내면',
-        summary: inner.근거 || inner.특성 || '',
-        description: inner.감정_처리방식 || inner.설명 || '',
-      },
-      socialStyle: {
-        label: social.유형 || social.스타일 || '대인관계',
-        summary: Array.isArray(social.강점) ? social.강점.join(', ') : (social.강점 || ''),
-        description: Array.isArray(social.약점) ? social.약점.join(', ') : (social.약점 || ''),
-      },
+  // 겉성격: outerPersonality > outer_personality > 겉성격 (문자열 또는 객체)
+  const outerRaw = data.outerPersonality || data.outer_personality || data.겉성격;
+  let outerPersonality;
+  if (typeof outerRaw === 'string') {
+    // 문자열인 경우 description으로 사용
+    outerPersonality = {
+      label: '외면',
+      summary: '',
+      description: outerRaw,
     };
+  } else if (outerRaw && typeof outerRaw === 'object') {
+    outerPersonality = {
+      label: outerRaw.impression || outerRaw.인상 || outerRaw.유형 || '외면',
+      summary: outerRaw.basis || outerRaw.근거 || outerRaw.특성 || '',
+      description: outerRaw.social_persona || outerRaw.사회적_페르소나 || outerRaw.설명 || '',
+    };
+  } else {
+    outerPersonality = { label: '외면', summary: '', description: '' };
   }
 
-  // 영문 키 구조 (기존 호환)
+  // 속성격: innerPersonality > inner_personality > 속성격 (문자열 또는 객체)
+  const innerRaw = data.innerPersonality || data.inner_personality || data.속성격;
+  let innerPersonality;
+  if (typeof innerRaw === 'string') {
+    innerPersonality = {
+      label: '내면',
+      summary: '',
+      description: innerRaw,
+    };
+  } else if (innerRaw && typeof innerRaw === 'object') {
+    innerPersonality = {
+      label: innerRaw.true_nature || innerRaw.본성 || innerRaw.유형 || '내면',
+      summary: innerRaw.basis || innerRaw.근거 || innerRaw.특성 || '',
+      description: innerRaw.emotional_processing || innerRaw.감정_처리방식 || innerRaw.설명 || '',
+    };
+  } else {
+    innerPersonality = { label: '내면', summary: '', description: '' };
+  }
+
+  // 대인관계: socialStyle > interpersonal_style > 대인관계_스타일
+  const socialRaw = data.socialStyle || data.interpersonal_style || data.대인관계_스타일 || {};
+  const strengths = socialRaw.strengths || socialRaw.강점 || [];
+  const weaknesses = socialRaw.weaknesses || socialRaw.약점 || [];
+  const socialStyle = {
+    label: socialRaw.type || socialRaw.유형 || socialRaw.스타일 || '대인관계',
+    summary: Array.isArray(strengths) ? strengths.join(', ') : (strengths || ''),
+    description: Array.isArray(weaknesses) ? weaknesses.join(', ') : (weaknesses || ''),
+  };
+
   return {
-    willpower: {
-      score: personality.willpower_analysis?.score || 0,
-      description: personality.willpower_analysis?.description || '',
-    },
-    outerPersonality: {
-      label: personality.outer_personality?.impression || '외면',
-      summary: personality.outer_personality?.basis || '',
-      description: personality.outer_personality?.social_persona || '',
-    },
-    innerPersonality: {
-      label: personality.inner_personality?.true_nature || '내면',
-      summary: personality.inner_personality?.basis || '',
-      description: personality.inner_personality?.emotional_processing || '',
-    },
-    socialStyle: {
-      label: personality.interpersonal_style?.type || '대인관계',
-      summary: personality.interpersonal_style?.strengths?.join(', ') || '',
-      description: personality.interpersonal_style?.weaknesses?.join(', ') || '',
-    },
+    willpower,
+    outerPersonality,
+    innerPersonality,
+    socialStyle,
   };
 }
 
@@ -256,21 +268,24 @@ function transformAptitude(aptitude: any, scores: any) {
       (field: any) => (typeof field === 'string' ? field : (field.이름 || field.분야 || field.name || ''))
     ).filter(Boolean);
   } else {
-    // 영문 키 구조 (기존 호환)
-    keywords = aptitude.analysis_summary?.keywords || [];
+    // 영문 키 구조 (기존 호환 + talentName/currentLevel/potential 등 새 필드 지원)
+    keywords = aptitude.keywords || aptitude.analysis_summary?.keywords || [];
 
     const firstTalent = aptitude.talents?.[0];
     mainTalent = {
       label: '주 재능',
-      title: firstTalent?.name || '재능 분석',
+      // talentName 우선 지원 (새 Gemini 응답)
+      title: firstTalent?.talentName || firstTalent?.name || '재능 분석',
       content: firstTalent?.description || '',
     };
 
-    const talentUtil = aptitude.talent_utilization;
+    // talentUsageStatus 우선 지원 (새 Gemini 응답)
+    const talentUtil = aptitude.talentUsageStatus || aptitude.talent_utilization;
     talentStatus = {
       label: '재능의 상태',
       title: talentUtil
-        ? `현재 ${talentUtil.current_level || 0}% → 잠재력 ${talentUtil.potential_level || 0}%`
+        // currentLevel/potential 우선 지원 (새 Gemini 응답)
+        ? `현재 ${talentUtil.currentLevel || talentUtil.current_level || 0}% → 잠재력 ${talentUtil.potential || talentUtil.potential_level || 0}%`
         : '재능 활용 상태',
       content: talentUtil?.advice || '',
     };
@@ -278,17 +293,20 @@ function transformAptitude(aptitude: any, scores: any) {
     careerChoice = {
       label: '진로선택',
       title: '진로 선택 가이드',
-      content: aptitude.analysis_summary?.core_logic || '',
+      // analysis_summary 외에 talentUsageStatus.advice도 폴백으로 사용
+      content: aptitude.analysis_summary?.core_logic || talentUtil?.advice || '',
     };
 
-    recommendedJobs = (aptitude.recommended_fields || []).map(
+    // recommendedFields 우선 지원 (새 Gemini 응답)
+    recommendedJobs = (aptitude.recommendedFields || aptitude.recommended_fields || []).map(
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      (field: any) => (typeof field === 'string' ? field : field.name || field.field || '')
+      (field: any) => (typeof field === 'string' ? field : field.fieldName || field.name || field.field || '')
     );
 
-    avoidedFields = (aptitude.avoided_fields || [])
+    // avoidFields 우선 지원 (새 Gemini 응답)
+    avoidedFields = (aptitude.avoidFields || aptitude.avoided_fields || [])
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      .map((field: any) => (typeof field === 'string' ? field : field.name || field.field || ''))
+      .map((field: any) => (typeof field === 'string' ? field : field.fieldName || field.reason || field.name || field.field || ''))
       .filter(Boolean);
   }
 
