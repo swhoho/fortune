@@ -7,7 +7,7 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
 import {
-  ArrowLeft,
+  Home,
   Loader2,
   Sparkles,
   UserPlus,
@@ -77,9 +77,9 @@ export default function FullAnalysisPage() {
       {/* 헤더 */}
       <header className="sticky top-0 z-10 border-b border-[#333] bg-[#0a0a0a]/80 backdrop-blur-sm">
         <div className="mx-auto flex max-w-2xl items-center justify-between px-6 py-4">
-          <Button variant="ghost" size="icon" asChild className="text-gray-400 hover:text-white">
+          <Button variant="ghost" size="icon" asChild className="text-white hover:bg-[#242424]">
             <Link href="/home">
-              <ArrowLeft className="h-5 w-5" />
+              <Home className="h-5 w-5" />
             </Link>
           </Button>
           <h1 className="font-serif text-lg font-semibold text-white">
