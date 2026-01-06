@@ -7,6 +7,7 @@
 import { Suspense, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
+import { useTranslations } from 'next-intl';
 import { supabase } from '@/lib/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -15,9 +16,33 @@ import { GoogleSignInButton } from '@/components/auth/google-signin-button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Loader2 } from 'lucide-react';
 
+/**
+ * Supabase 로그인 오류 메시지를 번역 키로 변환
+ */
+function getSignInErrorKey(message: string): string {
+  const lowerMessage = message.toLowerCase();
+
+  if (lowerMessage.includes('email not confirmed')) {
+    return 'emailNotConfirmed';
+  }
+  if (lowerMessage.includes('invalid login credentials') || lowerMessage.includes('invalid credentials')) {
+    return 'invalidCredentials';
+  }
+  if (lowerMessage.includes('rate limit') || lowerMessage.includes('too many requests')) {
+    return 'rateLimitExceeded';
+  }
+  if (lowerMessage.includes('network') || lowerMessage.includes('fetch')) {
+    return 'networkError';
+  }
+
+  return 'unknownError';
+}
+
 function SignInForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const t = useTranslations('auth.signin');
+  const tSocial = useTranslations('auth.social');
   const message = searchParams.get('message');
   const callbackUrl = searchParams.get('callbackUrl') || '/home';
 
@@ -35,27 +60,23 @@ function SignInForm() {
     setIsLoading(true);
 
     try {
-      const { data, error } = await supabase.auth.signInWithPassword({
+      const { data, error: signInError } = await supabase.auth.signInWithPassword({
         email,
         password,
       });
 
-      if (error) {
-        // 이메일 미확인 에러 처리
-        if (error.message.toLowerCase().includes('email not confirmed')) {
+      if (signInError) {
+        const errorKey = getSignInErrorKey(signInError.message);
+        if (errorKey === 'emailNotConfirmed') {
           setIsEmailNotConfirmed(true);
-          setError('이메일 인증이 완료되지 않았습니다. 이메일을 확인해주세요.');
-        } else if (error.message.toLowerCase().includes('invalid login credentials')) {
-          setError('이메일 또는 비밀번호가 올바르지 않습니다.');
-        } else {
-          setError(error.message);
         }
+        setError(t(`errors.${errorKey}`));
       } else if (data.user) {
         router.push(callbackUrl);
         router.refresh();
       }
     } catch {
-      setError('로그인 중 오류가 발생했습니다.');
+      setError(t('errors.signinFailed'));
     } finally {
       setIsLoading(false);
     }
@@ -66,27 +87,27 @@ function SignInForm() {
   return (
     <Card className="w-full max-w-md border-[#333] bg-[#1a1a1a]">
       <CardHeader className="text-center">
-        <CardTitle className="text-2xl font-bold text-white">로그인</CardTitle>
+        <CardTitle className="text-2xl font-bold text-white">{t('title')}</CardTitle>
         <CardDescription className="text-gray-400">
-          Master&apos;s Insight AI에 오신 것을 환영합니다
+          {t('description')}
         </CardDescription>
       </CardHeader>
       <CardContent>
         {message === 'signup_success' && (
           <div className="mb-4 rounded-md bg-green-900/30 p-3 text-sm text-green-400">
-            회원가입이 완료되었습니다. 로그인해주세요.
+            {t('signupSuccess')}
           </div>
         )}
 
         <div className="space-y-4">
-          <GoogleSignInButton callbackUrl={callbackUrl} />
+          <GoogleSignInButton callbackUrl={callbackUrl} text={tSocial('google')} />
 
           <div className="relative">
             <div className="absolute inset-0 flex items-center">
               <span className="w-full border-t border-[#333]" />
             </div>
             <div className="relative flex justify-center text-xs uppercase">
-              <span className="bg-[#1a1a1a] px-2 text-gray-500">또는 이메일로 계속</span>
+              <span className="bg-[#1a1a1a] px-2 text-gray-500">{t('separator')}</span>
             </div>
           </div>
 
@@ -99,7 +120,7 @@ function SignInForm() {
                     href={`/auth/verify-email?email=${encodeURIComponent(email)}`}
                     className="mt-2 block text-[#d4af37] hover:underline"
                   >
-                    인증 메일 재전송하기
+                    {t('resendVerification')}
                   </Link>
                 )}
               </div>
@@ -107,7 +128,7 @@ function SignInForm() {
 
             <div className="space-y-2">
               <Label htmlFor="email" className="text-gray-300">
-                이메일
+                {t('email')}
               </Label>
               <Input
                 id="email"
@@ -124,13 +145,13 @@ function SignInForm() {
             <div className="space-y-2">
               <div className="flex items-center justify-between">
                 <Label htmlFor="password" className="text-gray-300">
-                  비밀번호
+                  {t('password')}
                 </Label>
                 <Link
                   href="/auth/forgot-password"
                   className="text-xs text-gray-400 hover:text-[#d4af37]"
                 >
-                  비밀번호 찾기
+                  {t('forgotPassword')}
                 </Link>
               </div>
               <Input
@@ -150,14 +171,14 @@ function SignInForm() {
               disabled={isLoading || isGoogleLoading}
             >
               {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
-              {isLoading ? '로그인 중...' : '로그인'}
+              {isLoading ? t('submitting') : t('submit')}
             </Button>
           </form>
 
           <div className="mt-4 text-center text-sm text-gray-400">
-            계정이 없으신가요?{' '}
+            {t('noAccount')}{' '}
             <Link href="/auth/signup" className="text-[#d4af37] hover:underline">
-              회원가입
+              {t('signupLink')}
             </Link>
           </div>
         </div>

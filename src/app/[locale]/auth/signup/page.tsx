@@ -6,6 +6,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { useTranslations } from 'next-intl';
 import { supabase } from '@/lib/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -14,8 +15,68 @@ import { GoogleSignInButton } from '@/components/auth/google-signin-button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Loader2 } from 'lucide-react';
 
+/**
+ * Supabase Auth 오류 메시지를 번역 키로 변환
+ */
+function getAuthErrorKey(message: string): string {
+  const lowerMessage = message.toLowerCase();
+
+  // 이미 가입된 이메일
+  if (lowerMessage.includes('user already registered') || lowerMessage.includes('already been registered')) {
+    return 'userAlreadyRegistered';
+  }
+
+  // 이메일 형식 오류
+  if (lowerMessage.includes('invalid email') || lowerMessage.includes('unable to validate email')) {
+    return 'invalidEmail';
+  }
+
+  // 비밀번호 정책 오류 (영문자, 숫자 필요 등)
+  if (lowerMessage.includes('password should contain')) {
+    if (lowerMessage.includes('abcdefghijklmnopqrstuvwxyz') && lowerMessage.includes('0123456789')) {
+      return 'passwordRequiresLetter';
+    }
+    if (lowerMessage.includes('uppercase')) {
+      return 'passwordRequiresUppercase';
+    }
+    if (lowerMessage.includes('lowercase')) {
+      return 'passwordRequiresLowercase';
+    }
+    if (lowerMessage.includes('0123456789') || lowerMessage.includes('digit') || lowerMessage.includes('number')) {
+      return 'passwordRequiresNumber';
+    }
+    if (lowerMessage.includes('symbol') || lowerMessage.includes('special')) {
+      return 'passwordRequiresSymbol';
+    }
+    return 'weakPassword';
+  }
+
+  // 비밀번호 약함
+  if (lowerMessage.includes('weak password') || lowerMessage.includes('password is too weak')) {
+    return 'weakPassword';
+  }
+
+  // Rate limit
+  if (lowerMessage.includes('rate limit') || lowerMessage.includes('too many requests')) {
+    return 'rateLimitExceeded';
+  }
+
+  // 이메일 rate limit
+  if (lowerMessage.includes('email rate limit')) {
+    return 'emailRateLimitExceeded';
+  }
+
+  // 네트워크 오류
+  if (lowerMessage.includes('network') || lowerMessage.includes('fetch')) {
+    return 'networkError';
+  }
+
+  return 'unknownError';
+}
+
 export default function SignUpPage() {
   const router = useRouter();
+  const t = useTranslations('auth.signup');
 
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
@@ -30,12 +91,12 @@ export default function SignUpPage() {
     setError('');
 
     if (password !== confirmPassword) {
-      setError('비밀번호가 일치하지 않습니다.');
+      setError(t('errors.passwordMismatch'));
       return;
     }
 
     if (password.length < 6) {
-      setError('비밀번호는 최소 6자 이상이어야 합니다.');
+      setError(t('errors.passwordTooShort'));
       return;
     }
 
@@ -54,7 +115,9 @@ export default function SignUpPage() {
       });
 
       if (signUpError) {
-        setError(signUpError.message);
+        // Supabase 오류를 번역된 메시지로 변환
+        const errorKey = getAuthErrorKey(signUpError.message);
+        setError(t(`errors.${errorKey}`));
         return;
       }
 
@@ -69,31 +132,33 @@ export default function SignUpPage() {
         }
       }
     } catch {
-      setError('회원가입 중 오류가 발생했습니다.');
+      setError(t('errors.signupFailed'));
     } finally {
       setIsLoading(false);
     }
   };
 
+  const tSocial = useTranslations('auth.social');
+
   return (
     <div className="flex min-h-screen items-center justify-center bg-[#0a0a0a] px-4">
       <Card className="w-full max-w-md border-[#333] bg-[#1a1a1a]">
         <CardHeader className="text-center">
-          <CardTitle className="text-2xl font-bold text-white">회원가입</CardTitle>
+          <CardTitle className="text-2xl font-bold text-white">{t('title')}</CardTitle>
           <CardDescription className="text-gray-400">
-            새 계정을 만들어 사주 분석을 시작하세요
+            {t('description')}
           </CardDescription>
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
-            <GoogleSignInButton text="Google로 시작하기" />
+            <GoogleSignInButton text={tSocial('googleStart')} />
 
             <div className="relative">
               <div className="absolute inset-0 flex items-center">
                 <span className="w-full border-t border-[#333]" />
               </div>
               <div className="relative flex justify-center text-xs uppercase">
-                <span className="bg-[#1a1a1a] px-2 text-gray-500">또는 이메일로 가입</span>
+                <span className="bg-[#1a1a1a] px-2 text-gray-500">{t('separator')}</span>
               </div>
             </div>
 
@@ -104,12 +169,12 @@ export default function SignUpPage() {
 
               <div className="space-y-2">
                 <Label htmlFor="name" className="text-gray-300">
-                  이름
+                  {t('name')}
                 </Label>
                 <Input
                   id="name"
                   type="text"
-                  placeholder="홍길동"
+                  placeholder={t('namePlaceholder')}
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   required
@@ -120,7 +185,7 @@ export default function SignUpPage() {
 
               <div className="space-y-2">
                 <Label htmlFor="email" className="text-gray-300">
-                  이메일
+                  {t('email')}
                 </Label>
                 <Input
                   id="email"
@@ -136,12 +201,12 @@ export default function SignUpPage() {
 
               <div className="space-y-2">
                 <Label htmlFor="password" className="text-gray-300">
-                  비밀번호
+                  {t('password')}
                 </Label>
                 <Input
                   id="password"
                   type="password"
-                  placeholder="최소 6자 이상"
+                  placeholder={t('passwordPlaceholder')}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required
@@ -152,7 +217,7 @@ export default function SignUpPage() {
 
               <div className="space-y-2">
                 <Label htmlFor="confirmPassword" className="text-gray-300">
-                  비밀번호 확인
+                  {t('confirmPassword')}
                 </Label>
                 <Input
                   id="confirmPassword"
@@ -171,14 +236,14 @@ export default function SignUpPage() {
                 disabled={isLoading || isGoogleLoading}
               >
                 {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
-                {isLoading ? '가입 중...' : '회원가입'}
+                {isLoading ? t('submitting') : t('submit')}
               </Button>
             </form>
 
             <div className="mt-4 text-center text-sm text-gray-400">
-              이미 계정이 있으신가요?{' '}
+              {t('hasAccount')}{' '}
               <Link href="/auth/signin" className="text-[#d4af37] hover:underline">
-                로그인
+                {t('signinLink')}
               </Link>
             </div>
           </div>

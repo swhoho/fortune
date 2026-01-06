@@ -335,11 +335,25 @@
   "auth": {
     "signin": {
       "title": "Sign In",
+      "description": "Welcome to Master's Insight AI",
       "email": "Email",
       "password": "Password",
       "submit": "Sign In",
+      "submitting": "Signing in...",
       "noAccount": "Don't have an account?",
-      "signupLink": "Sign Up"
+      "signupLink": "Sign Up",
+      "separator": "or continue with email",
+      "forgotPassword": "Forgot password?",
+      "signupSuccess": "Sign up complete. Please sign in.",
+      "resendVerification": "Resend verification email",
+      "errors": {
+        "emailNotConfirmed": "Email not verified. Please check your email.",
+        "invalidCredentials": "Invalid email or password.",
+        "signinFailed": "An error occurred during sign in.",
+        "rateLimitExceeded": "Too many requests. Please try again later.",
+        "networkError": "Network error. Please check your internet connection.",
+        "unknownError": "An unknown error occurred. Please try again."
+      }
     },
     "signup": {
       "title": "Sign Up",
@@ -358,7 +372,19 @@
       "errors": {
         "passwordMismatch": "Passwords do not match.",
         "passwordTooShort": "Password must be at least 6 characters.",
-        "signupFailed": "An error occurred during signup."
+        "signupFailed": "An error occurred during signup.",
+        "userAlreadyRegistered": "This email is already registered.",
+        "invalidEmail": "Invalid email address.",
+        "weakPassword": "Password is too weak.",
+        "passwordRequiresLetter": "Password must contain letters (a-z, A-Z).",
+        "passwordRequiresNumber": "Password must contain numbers (0-9).",
+        "passwordRequiresUppercase": "Password must contain uppercase letters.",
+        "passwordRequiresLowercase": "Password must contain lowercase letters.",
+        "passwordRequiresSymbol": "Password must contain special characters.",
+        "rateLimitExceeded": "Too many requests. Please try again later.",
+        "emailRateLimitExceeded": "Email rate limit reached. Please try again later.",
+        "networkError": "Network error. Please check your internet connection.",
+        "unknownError": "An unknown error occurred. Please try again."
       }
     },
     "social": {

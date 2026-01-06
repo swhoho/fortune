@@ -335,11 +335,25 @@
   "auth": {
     "signin": {
       "title": "로그인",
+      "description": "Master's Insight AI에 오신 것을 환영합니다",
       "email": "이메일",
       "password": "비밀번호",
       "submit": "로그인",
+      "submitting": "로그인 중...",
       "noAccount": "계정이 없으신가요?",
-      "signupLink": "회원가입"
+      "signupLink": "회원가입",
+      "separator": "또는 이메일로 계속",
+      "forgotPassword": "비밀번호 찾기",
+      "signupSuccess": "회원가입이 완료되었습니다. 로그인해주세요.",
+      "resendVerification": "인증 메일 재전송하기",
+      "errors": {
+        "emailNotConfirmed": "이메일 인증이 완료되지 않았습니다. 이메일을 확인해주세요.",
+        "invalidCredentials": "이메일 또는 비밀번호가 올바르지 않습니다.",
+        "signinFailed": "로그인 중 오류가 발생했습니다.",
+        "rateLimitExceeded": "요청이 너무 많습니다. 잠시 후 다시 시도해주세요.",
+        "networkError": "네트워크 오류가 발생했습니다. 인터넷 연결을 확인해주세요.",
+        "unknownError": "알 수 없는 오류가 발생했습니다. 다시 시도해주세요."
+      }
     },
     "signup": {
       "title": "회원가입",
@@ -358,7 +372,19 @@
       "errors": {
         "passwordMismatch": "비밀번호가 일치하지 않습니다.",
         "passwordTooShort": "비밀번호는 최소 6자 이상이어야 합니다.",
-        "signupFailed": "회원가입 중 오류가 발생했습니다."
+        "signupFailed": "회원가입 중 오류가 발생했습니다.",
+        "userAlreadyRegistered": "이미 가입된 이메일입니다.",
+        "invalidEmail": "유효하지 않은 이메일 주소입니다.",
+        "weakPassword": "비밀번호가 너무 약합니다.",
+        "passwordRequiresLetter": "비밀번호에 영문자(a-z, A-Z)가 포함되어야 합니다.",
+        "passwordRequiresNumber": "비밀번호에 숫자(0-9)가 포함되어야 합니다.",
+        "passwordRequiresUppercase": "비밀번호에 대문자가 포함되어야 합니다.",
+        "passwordRequiresLowercase": "비밀번호에 소문자가 포함되어야 합니다.",
+        "passwordRequiresSymbol": "비밀번호에 특수문자가 포함되어야 합니다.",
+        "rateLimitExceeded": "요청이 너무 많습니다. 잠시 후 다시 시도해주세요.",
+        "emailRateLimitExceeded": "이메일 발송 제한에 도달했습니다. 잠시 후 다시 시도해주세요.",
+        "networkError": "네트워크 오류가 발생했습니다. 인터넷 연결을 확인해주세요.",
+        "unknownError": "알 수 없는 오류가 발생했습니다. 다시 시도해주세요."
       }
     },
     "social": {

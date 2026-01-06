@@ -335,11 +335,25 @@
   "auth": {
     "signin": {
       "title": "登录",
+      "description": "欢迎来到 Master's Insight AI",
       "email": "邮箱",
       "password": "密码",
       "submit": "登录",
+      "submitting": "登录中...",
       "noAccount": "没有账号？",
-      "signupLink": "注册"
+      "signupLink": "注册",
+      "separator": "或使用邮箱继续",
+      "forgotPassword": "忘记密码？",
+      "signupSuccess": "注册成功，请登录。",
+      "resendVerification": "重新发送验证邮件",
+      "errors": {
+        "emailNotConfirmed": "邮箱未验证，请查看您的邮箱。",
+        "invalidCredentials": "邮箱或密码错误。",
+        "signinFailed": "登录过程中发生错误。",
+        "rateLimitExceeded": "请求过于频繁，请稍后再试。",
+        "networkError": "网络错误，请检查您的网络连接。",
+        "unknownError": "发生未知错误，请重试。"
+      }
     },
     "signup": {
       "title": "注册",
@@ -358,7 +372,19 @@
       "errors": {
         "passwordMismatch": "密码不匹配。",
         "passwordTooShort": "密码至少需要6个字符。",
-        "signupFailed": "注册过程中发生错误。"
+        "signupFailed": "注册过程中发生错误。",
+        "userAlreadyRegistered": "该邮箱已被注册。",
+        "invalidEmail": "无效的邮箱地址。",
+        "weakPassword": "密码强度太弱。",
+        "passwordRequiresLetter": "密码必须包含字母(a-z, A-Z)。",
+        "passwordRequiresNumber": "密码必须包含数字(0-9)。",
+        "passwordRequiresUppercase": "密码必须包含大写字母。",
+        "passwordRequiresLowercase": "密码必须包含小写字母。",
+        "passwordRequiresSymbol": "密码必须包含特殊字符。",
+        "rateLimitExceeded": "请求过于频繁，请稍后再试。",
+        "emailRateLimitExceeded": "邮件发送已达上限，请稍后再试。",
+        "networkError": "网络错误，请检查您的网络连接。",
+        "unknownError": "发生未知错误，请重试。"
       }
     },
     "social": {

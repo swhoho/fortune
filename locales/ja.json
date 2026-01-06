@@ -335,11 +335,25 @@
   "auth": {
     "signin": {
       "title": "ログイン",
+      "description": "Master's Insight AIへようこそ",
       "email": "メールアドレス",
       "password": "パスワード",
       "submit": "ログイン",
+      "submitting": "ログイン中...",
       "noAccount": "アカウントをお持ちでないですか？",
-      "signupLink": "新規登録"
+      "signupLink": "新規登録",
+      "separator": "またはメールで続ける",
+      "forgotPassword": "パスワードをお忘れですか？",
+      "signupSuccess": "登録が完了しました。ログインしてください。",
+      "resendVerification": "認証メールを再送信",
+      "errors": {
+        "emailNotConfirmed": "メール認証が完了していません。メールをご確認ください。",
+        "invalidCredentials": "メールアドレスまたはパスワードが正しくありません。",
+        "signinFailed": "ログイン中にエラーが発生しました。",
+        "rateLimitExceeded": "リクエストが多すぎます。しばらくしてから再試行してください。",
+        "networkError": "ネットワークエラーが発生しました。インターネット接続を確認してください。",
+        "unknownError": "不明なエラーが発生しました。再試行してください。"
+      }
     },
     "signup": {
       "title": "新規登録",
@@ -358,7 +372,19 @@
       "errors": {
         "passwordMismatch": "パスワードが一致しません。",
         "passwordTooShort": "パスワードは6文字以上必要です。",
-        "signupFailed": "登録中にエラーが発生しました。"
+        "signupFailed": "登録中にエラーが発生しました。",
+        "userAlreadyRegistered": "このメールアドレスは既に登録されています。",
+        "invalidEmail": "無効なメールアドレスです。",
+        "weakPassword": "パスワードが弱すぎます。",
+        "passwordRequiresLetter": "パスワードに英字(a-z, A-Z)を含める必要があります。",
+        "passwordRequiresNumber": "パスワードに数字(0-9)を含める必要があります。",
+        "passwordRequiresUppercase": "パスワードに大文字を含める必要があります。",
+        "passwordRequiresLowercase": "パスワードに小文字を含める必要があります。",
+        "passwordRequiresSymbol": "パスワードに特殊文字を含める必要があります。",
+        "rateLimitExceeded": "リクエストが多すぎます。しばらくしてから再試行してください。",
+        "emailRateLimitExceeded": "メール送信制限に達しました。しばらくしてから再試行してください。",
+        "networkError": "ネットワークエラーが発生しました。インターネット接続を確認してください。",
+        "unknownError": "不明なエラーが発生しました。再試行してください。"
       }
     },
     "social": {

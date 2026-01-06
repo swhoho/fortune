@@ -335,11 +335,25 @@
   "auth": {
     "signin": {
       "title": "登入",
+      "description": "歡迎來到 Master's Insight AI",
       "email": "電子郵件",
       "password": "密碼",
       "submit": "登入",
+      "submitting": "登入中...",
       "noAccount": "沒有帳號？",
-      "signupLink": "註冊"
+      "signupLink": "註冊",
+      "separator": "或使用電子郵件繼續",
+      "forgotPassword": "忘記密碼？",
+      "signupSuccess": "註冊成功，請登入。",
+      "resendVerification": "重新發送驗證郵件",
+      "errors": {
+        "emailNotConfirmed": "電子郵件未驗證，請查看您的郵箱。",
+        "invalidCredentials": "電子郵件或密碼錯誤。",
+        "signinFailed": "登入過程中發生錯誤。",
+        "rateLimitExceeded": "請求過於頻繁，請稍後再試。",
+        "networkError": "網路錯誤，請檢查您的網路連線。",
+        "unknownError": "發生未知錯誤，請重試。"
+      }
     },
     "signup": {
       "title": "註冊",
@@ -358,7 +372,19 @@
       "errors": {
         "passwordMismatch": "密碼不符。",
         "passwordTooShort": "密碼至少需要6個字元。",
-        "signupFailed": "註冊過程中發生錯誤。"
+        "signupFailed": "註冊過程中發生錯誤。",
+        "userAlreadyRegistered": "此電子郵件已被註冊。",
+        "invalidEmail": "無效的電子郵件地址。",
+        "weakPassword": "密碼強度太弱。",
+        "passwordRequiresLetter": "密碼必須包含字母(a-z, A-Z)。",
+        "passwordRequiresNumber": "密碼必須包含數字(0-9)。",
+        "passwordRequiresUppercase": "密碼必須包含大寫字母。",
+        "passwordRequiresLowercase": "密碼必須包含小寫字母。",
+        "passwordRequiresSymbol": "密碼必須包含特殊字元。",
+        "rateLimitExceeded": "請求過於頻繁，請稍後再試。",
+        "emailRateLimitExceeded": "郵件發送已達上限，請稍後再試。",
+        "networkError": "網路錯誤，請檢查您的網路連線。",
+        "unknownError": "發生未知錯誤，請重試。"
       }
     },
     "social": {
