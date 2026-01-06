@@ -238,8 +238,8 @@ export function AnalysisHistory() {
           <p className="mt-1 text-sm text-gray-400">등록된 프로필과 사주 리포트를 확인하세요</p>
         </div>
         {profiles && profiles.length > 0 && (
-          <div className="flex items-center gap-3">
-            <span className="rounded-full bg-[#242424] px-3 py-1 text-sm font-medium text-gray-400">
+          <div className="flex items-center gap-2 sm:gap-3">
+            <span className="hidden rounded-full bg-[#242424] px-3 py-1 text-sm font-medium text-gray-400 sm:inline-flex">
               총 {profiles.length}명
             </span>
             <Button
