@@ -185,8 +185,8 @@ class ReportAnalysisService:
             # 3. 기본 분석 (Gemini)
             await self._step_basic_analysis(job_id, request.language)
 
-            # 4-6. 순차 분석 (Gemini) - 각 단계별 3회 재시도
-            await self._step_sequential_analysis(job_id, request.language)
+            # 4-6. 순차 분석 (Gemini) - 각 단계별 3회 재시도 + DB 중간 저장
+            await self._step_sequential_analysis(job_id, request.report_id, request.language)
 
             # 7. 점수 계산
             await self._step_scoring(job_id)
@@ -322,8 +322,8 @@ class ReportAnalysisService:
         job_store.update_step_status(job_id, "basic_analysis", "completed")
         logger.info(f"[{job_id}] 기본 분석 완료")
 
-    async def _step_sequential_analysis(self, job_id: str, language: str):
-        """순차 분석 단계 (personality → aptitude → fortune)"""
+    async def _step_sequential_analysis(self, job_id: str, report_id: str, language: str):
+        """순차 분석 단계 (personality → aptitude → fortune) - 각 단계 성공 시 DB 중간 저장"""
         job = job_store.get(job_id)
         pillars = job.get("pillars", {})
         daewun = job.get("daewun", [])
@@ -357,11 +357,22 @@ class ReportAnalysisService:
                     if not result or (isinstance(result, dict) and len(result) == 0):
                         raise ValueError("빈 응답")
 
-                    # 성공 - 즉시 저장
+                    # 성공 - 인메모리 즉시 저장
                     logger.info(f"[{job_id}] {step_name} 성공: {json.dumps(result, ensure_ascii=False)[:300]}")
                     analysis[step_name] = result
                     job_store.update(job_id, analysis=analysis)
                     job_store.update_step_status(job_id, step_name, "completed")
+
+                    # Supabase 중간 저장 (크래시 복구용)
+                    await self._update_db_status(
+                        report_id,
+                        status="in_progress",
+                        analysis=analysis,
+                        step_statuses=job_store.get(job_id).get("step_statuses"),
+                        progress_percent=STEP_PROGRESS[step_name]
+                    )
+                    logger.info(f"[{job_id}] {step_name} DB 중간 저장 완료")
+
                     success = True
                     break
 
