@@ -65,11 +65,31 @@ export const REANALYZABLE_SECTIONS = ['personality', 'aptitude', 'fortune'] as c
 export type ReanalyzableSection = (typeof REANALYZABLE_SECTIONS)[number];
 
 /**
+ * 결제 수단 타입
+ */
+export type PaymentMethod = 'card' | 'kakaopay';
+
+/**
  * PortOne 설정
  */
 export const PORTONE_CONFIG = {
   storeId: process.env.NEXT_PUBLIC_PORTONE_STORE_ID || '',
-  channelKey: process.env.NEXT_PUBLIC_PORTONE_CHANNEL_KEY || '',
+};
+
+/**
+ * 결제 수단별 채널 키
+ */
+export const PORTONE_CHANNELS: Record<PaymentMethod, string> = {
+  card: process.env.NEXT_PUBLIC_PORTONE_CHANNEL_KEY_CARD || '',
+  kakaopay: process.env.NEXT_PUBLIC_PORTONE_CHANNEL_KEY_KAKAO || '',
+};
+
+/**
+ * 결제 수단 라벨 (UI 표시용)
+ */
+export const PAYMENT_METHOD_LABELS: Record<PaymentMethod, { ko: string; icon: string }> = {
+  card: { ko: '신용카드', icon: '💳' },
+  kakaopay: { ko: '카카오페이', icon: '🟡' },
 };
 
 /**
