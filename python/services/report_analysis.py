@@ -6,6 +6,7 @@ import asyncio
 import uuid
 import logging
 import os
+import json
 import httpx
 from datetime import datetime
 from typing import Dict, Any, Optional, List
@@ -19,7 +20,7 @@ from prompts.builder import PromptBuilder, PromptBuildOptions
 from .gemini import get_gemini_service
 from manseryeok.engine import ManseryeokEngine
 from manseryeok.constants import JIJANGGAN_TABLE
-from schemas.saju import CalculateRequest
+from schemas.saju import CalculateRequest, Pillars, Pillar
 from visualization import SajuVisualizer
 
 logger = logging.getLogger(__name__)
@@ -184,8 +185,8 @@ class ReportAnalysisService:
             # 3. 기본 분석 (Gemini)
             await self._step_basic_analysis(job_id, request.language)
 
-            # 4-6. 병렬 분석 (Gemini)
-            await self._step_parallel_analysis(job_id, request.language)
+            # 4-6. 순차 분석 (Gemini) - 각 단계별 3회 재시도
+            await self._step_sequential_analysis(job_id, request.language)
 
             # 7. 점수 계산
             await self._step_scoring(job_id)
@@ -321,56 +322,67 @@ class ReportAnalysisService:
         job_store.update_step_status(job_id, "basic_analysis", "completed")
         logger.info(f"[{job_id}] 기본 분석 완료")
 
-    async def _step_parallel_analysis(self, job_id: str, language: str):
-        """병렬 분석 단계 (personality, aptitude, fortune)"""
+    async def _step_sequential_analysis(self, job_id: str, language: str):
+        """순차 분석 단계 (personality → aptitude → fortune)"""
         job = job_store.get(job_id)
         pillars = job.get("pillars", {})
         daewun = job.get("daewun", [])
         jijanggan = job.get("jijanggan", {})
         analysis = job.get("analysis") or {}
 
-        # 병렬 실행
-        async def run_personality():
-            job_store.update_step_status(job_id, "personality", "in_progress")
-            job_store.update(job_id, current_step="personality", progress_percent=STEP_PROGRESS["personality"])
-            prompt = await self._build_step_prompt("personality", language, pillars, daewun, jijanggan, analysis)
-            return await self._call_gemini(prompt)
+        steps = ["personality", "aptitude", "fortune"]
+        max_retries = 3
 
-        async def run_aptitude():
-            job_store.update_step_status(job_id, "aptitude", "in_progress")
-            job_store.update(job_id, current_step="aptitude", progress_percent=STEP_PROGRESS["aptitude"])
-            prompt = await self._build_step_prompt("aptitude", language, pillars, daewun, jijanggan, analysis)
-            return await self._call_gemini(prompt)
+        for step_name in steps:
+            job_store.update_step_status(job_id, step_name, "in_progress")
+            job_store.update(
+                job_id,
+                current_step=step_name,
+                progress_percent=STEP_PROGRESS[step_name]
+            )
 
-        async def run_fortune():
-            job_store.update_step_status(job_id, "fortune", "in_progress")
-            job_store.update(job_id, current_step="fortune", progress_percent=STEP_PROGRESS["fortune"])
-            prompt = await self._build_step_prompt("fortune", language, pillars, daewun, jijanggan, analysis)
-            return await self._call_gemini(prompt)
+            success = False
+            last_error = None
 
-        results = await asyncio.gather(
-            run_personality(),
-            run_aptitude(),
-            run_fortune(),
-            return_exceptions=True
-        )
+            for attempt in range(1, max_retries + 1):
+                try:
+                    logger.info(f"[{job_id}] {step_name} 분석 시도 {attempt}/{max_retries}")
 
-        # 결과 처리
-        errors = []
-        for i, result in enumerate(results):
-            step_name = ["personality", "aptitude", "fortune"][i]
-            if isinstance(result, Exception):
-                errors.append(f"{step_name}: {str(result)}")
+                    prompt = await self._build_step_prompt(
+                        step_name, language, pillars, daewun, jijanggan, analysis
+                    )
+                    result = await self._call_gemini(prompt)
+
+                    # 응답 검증
+                    if not result or (isinstance(result, dict) and len(result) == 0):
+                        raise ValueError("빈 응답")
+
+                    # 성공 - 즉시 저장
+                    logger.info(f"[{job_id}] {step_name} 성공: {json.dumps(result, ensure_ascii=False)[:300]}")
+                    analysis[step_name] = result
+                    job_store.update(job_id, analysis=analysis)
+                    job_store.update_step_status(job_id, step_name, "completed")
+                    success = True
+                    break
+
+                except Exception as e:
+                    last_error = str(e)
+                    logger.warning(f"[{job_id}] {step_name} 실패 ({attempt}/{max_retries}): {e}")
+
+            if not success:
+                logger.error(f"[{job_id}] {step_name} 최종 실패 (3회 재시도 후): {last_error}")
                 job_store.update_step_status(job_id, step_name, "failed")
-            else:
-                analysis[step_name] = result
-                job_store.update_step_status(job_id, step_name, "completed")
+                # 실패해도 다음 단계로 진행 (analysis에 해당 필드 없음)
 
-        if errors:
-            raise Exception(f"병렬 분석 실패: {', '.join(errors)}")
-
+        # 최종 상태 저장
         job_store.update(job_id, analysis=analysis)
-        logger.info(f"[{job_id}] 병렬 분석 완료 (personality, aptitude, fortune)")
+
+        # 모두 실패했는지 확인
+        success_count = sum(1 for s in steps if s in analysis)
+        logger.info(f"[{job_id}] 순차 분석 완료 ({success_count}/{len(steps)} 성공)")
+
+        if success_count == 0:
+            raise Exception("모든 분석 실패 (personality, aptitude, fortune)")
 
     async def _step_scoring(self, job_id: str):
         """점수 계산 단계"""
@@ -412,9 +424,16 @@ class ReportAnalysisService:
         job_store.update_step_status(job_id, "visualization", "in_progress")
 
         job = job_store.get(job_id)
-        pillars = job.get("pillars", {})
+        pillars_dict = job.get("pillars", {})
 
         try:
+            # dict를 Pillars 모델로 변환
+            pillars = Pillars(
+                year=Pillar(**pillars_dict.get("year", {})),
+                month=Pillar(**pillars_dict.get("month", {})),
+                day=Pillar(**pillars_dict.get("day", {})),
+                hour=Pillar(**pillars_dict.get("hour", {})),
+            )
             # 시각화 생성
             image_base64 = visualizer.generate(pillars)
             job_store.update(job_id, visualization_url=image_base64)
@@ -446,6 +465,7 @@ class ReportAnalysisService:
             analysis=job.get("analysis"),
             scores=job.get("scores"),
             visualization_url=job.get("visualization_url"),
+            step_statuses=job.get("step_statuses"),
             progress_percent=100
         )
 
@@ -509,6 +529,8 @@ class ReportAnalysisService:
             update_data["visualization_url"] = kwargs["visualization_url"]
         if "error" in kwargs:
             update_data["error"] = kwargs["error"]
+        if "step_statuses" in kwargs:
+            update_data["step_statuses"] = kwargs["step_statuses"]
 
         try:
             async with httpx.AsyncClient() as client:
