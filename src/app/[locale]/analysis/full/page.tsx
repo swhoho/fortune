@@ -45,6 +45,12 @@ export default function FullAnalysisPage() {
       return;
     }
 
+    // 진행 중인 리포트가 있는 경우 → generating 페이지로 이동
+    if (profile.reportStatus === 'in_progress') {
+      router.push(`/profiles/${profile.id}/generating`);
+      return;
+    }
+
     // 실패한 리포트가 있는 경우 → 크레딧 차감 없이 재시작
     if (profile.reportStatus === 'failed' || profile.reportStatus === 'pending') {
       router.push(`/profiles/${profile.id}/generating`);
@@ -125,6 +131,7 @@ export default function FullAnalysisPage() {
               const isFailed = profile.reportStatus === 'failed';
               const isCompleted = profile.reportStatus === 'completed';
               const isPending = profile.reportStatus === 'pending';
+              const isInProgress = profile.reportStatus === 'in_progress';
 
               return (
                 <motion.button
@@ -138,7 +145,9 @@ export default function FullAnalysisPage() {
                       ? 'border-red-900/50 bg-red-950/30 hover:border-red-800'
                       : isCompleted
                         ? 'border-green-900/50 bg-green-950/30 hover:border-green-800'
-                        : 'border-[#333] bg-[#1a1a1a] hover:border-[#d4af37]/30 hover:bg-[#242424]'
+                        : isInProgress
+                          ? 'border-[#d4af37]/50 bg-[#d4af37]/10 hover:border-[#d4af37]'
+                          : 'border-[#333] bg-[#1a1a1a] hover:border-[#d4af37]/30 hover:bg-[#242424]'
                   }`}
                 >
                   <div className="flex items-center justify-between">

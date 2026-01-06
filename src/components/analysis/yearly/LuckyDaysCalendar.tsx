@@ -105,7 +105,7 @@ export function LuckyDaysCalendar({ monthlyFortunes, year }: LuckyDaysCalendarPr
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5, delay: 0.3 }}
-      className="w-full rounded-2xl border border-gray-200 bg-white p-6 shadow-lg"
+      className="w-full rounded-2xl border border-[#333] bg-[#1a1a1a] p-6 shadow-lg"
     >
       {/* 헤더 */}
       <div className="mb-6 flex items-center gap-3">
@@ -116,8 +116,8 @@ export function LuckyDaysCalendar({ monthlyFortunes, year }: LuckyDaysCalendarPr
           <Calendar className="h-5 w-5" style={{ color: BRAND_COLORS.primary }} />
         </div>
         <div>
-          <h3 className="font-serif text-lg font-semibold text-gray-900">길흉일 캘린더</h3>
-          <p className="text-sm text-gray-500">중요한 날들을 미리 확인하세요</p>
+          <h3 className="font-serif text-lg font-semibold text-white">길흉일 캘린더</h3>
+          <p className="text-sm text-gray-400">중요한 날들을 미리 확인하세요</p>
         </div>
       </div>
 
@@ -126,19 +126,19 @@ export function LuckyDaysCalendar({ monthlyFortunes, year }: LuckyDaysCalendarPr
         <button
           onClick={handlePrevMonth}
           disabled={selectedMonth === 1}
-          className="rounded-full p-2 transition-colors hover:bg-gray-100 disabled:opacity-30"
+          className="rounded-full p-2 transition-colors hover:bg-[#242424] disabled:opacity-30"
         >
-          <ChevronLeft className="h-5 w-5 text-gray-600" />
+          <ChevronLeft className="h-5 w-5 text-gray-400" />
         </button>
-        <h4 className="font-serif text-xl font-semibold text-gray-900">
+        <h4 className="font-serif text-xl font-semibold text-white">
           {year}년 {MONTH_NAMES[selectedMonth - 1]}
         </h4>
         <button
           onClick={handleNextMonth}
           disabled={selectedMonth === 12}
-          className="rounded-full p-2 transition-colors hover:bg-gray-100 disabled:opacity-30"
+          className="rounded-full p-2 transition-colors hover:bg-[#242424] disabled:opacity-30"
         >
-          <ChevronRight className="h-5 w-5 text-gray-600" />
+          <ChevronRight className="h-5 w-5 text-gray-400" />
         </button>
       </div>
 
@@ -146,11 +146,11 @@ export function LuckyDaysCalendar({ monthlyFortunes, year }: LuckyDaysCalendarPr
       <div className="mb-4 flex items-center justify-center gap-6">
         <div className="flex items-center gap-2">
           <div className="h-3 w-3 rounded-full bg-green-500" />
-          <span className="text-sm text-gray-600">길일 ({luckyDays.length}일)</span>
+          <span className="text-sm text-gray-400">길일 ({luckyDays.length}일)</span>
         </div>
         <div className="flex items-center gap-2">
           <div className="h-3 w-3 rounded-full bg-red-500" />
-          <span className="text-sm text-gray-600">주의일 ({unluckyDays.length}일)</span>
+          <span className="text-sm text-gray-400">주의일 ({unluckyDays.length}일)</span>
         </div>
       </div>
 
@@ -191,44 +191,44 @@ export function LuckyDaysCalendar({ monthlyFortunes, year }: LuckyDaysCalendarPr
               transition={{ delay: 0.01 * day }}
               className={`group relative aspect-square cursor-pointer rounded-lg p-1 transition-all ${
                 isLucky
-                  ? 'bg-green-100 hover:bg-green-200'
+                  ? 'bg-green-900/30 hover:bg-green-900/50'
                   : isUnlucky
-                    ? 'bg-red-100 hover:bg-red-200'
-                    : 'hover:bg-gray-100'
+                    ? 'bg-red-900/30 hover:bg-red-900/50'
+                    : 'hover:bg-[#242424]'
               } ${isToday ? 'ring-2 ring-[#d4af37]' : ''}`}
             >
               <div className="flex h-full flex-col items-center justify-center">
                 <span
                   className={`text-sm font-medium ${
                     dayOfWeek === 0
-                      ? 'text-red-500'
+                      ? 'text-red-400'
                       : dayOfWeek === 6
-                        ? 'text-blue-500'
-                        : 'text-gray-700'
+                        ? 'text-blue-400'
+                        : 'text-gray-300'
                   }`}
                 >
                   {day}
                 </span>
-                {isLucky && <Star className="mt-0.5 h-3 w-3 text-green-600" />}
-                {isUnlucky && <AlertTriangle className="mt-0.5 h-3 w-3 text-red-600" />}
+                {isLucky && <Star className="mt-0.5 h-3 w-3 text-green-500" />}
+                {isUnlucky && <AlertTriangle className="mt-0.5 h-3 w-3 text-red-500" />}
               </div>
 
               {/* 툴팁 */}
               {(isLucky || isUnlucky) && (
-                <div className="pointer-events-none absolute bottom-full left-1/2 z-10 mb-2 hidden w-48 -translate-x-1/2 rounded-lg border border-gray-200 bg-white p-3 shadow-lg group-hover:block">
-                  <p className="text-sm font-medium text-gray-900">
+                <div className="pointer-events-none absolute bottom-full left-1/2 z-10 mb-2 hidden w-48 -translate-x-1/2 rounded-lg border border-[#444] bg-[#242424] p-3 shadow-lg group-hover:block">
+                  <p className="text-sm font-medium text-white">
                     {selectedMonth}월 {day}일
                   </p>
                   {isLucky && luckyInfo && (
                     <div className="mt-2">
-                      <p className="text-xs font-medium text-green-600">길일</p>
-                      <p className="text-xs text-gray-600">{luckyInfo.reason}</p>
+                      <p className="text-xs font-medium text-green-400">길일</p>
+                      <p className="text-xs text-gray-400">{luckyInfo.reason}</p>
                       {luckyInfo.suitableFor && luckyInfo.suitableFor.length > 0 && (
                         <div className="mt-1 flex flex-wrap gap-1">
                           {luckyInfo.suitableFor.map((item, i) => (
                             <span
                               key={i}
-                              className="rounded bg-green-100 px-1.5 py-0.5 text-xs text-green-700"
+                              className="rounded bg-green-900/50 px-1.5 py-0.5 text-xs text-green-400"
                             >
                               {item}
                             </span>
@@ -239,14 +239,14 @@ export function LuckyDaysCalendar({ monthlyFortunes, year }: LuckyDaysCalendarPr
                   )}
                   {isUnlucky && unluckyInfo && (
                     <div className="mt-2">
-                      <p className="text-xs font-medium text-red-600">주의일</p>
-                      <p className="text-xs text-gray-600">{unluckyInfo.reason}</p>
+                      <p className="text-xs font-medium text-red-400">주의일</p>
+                      <p className="text-xs text-gray-400">{unluckyInfo.reason}</p>
                       {unluckyInfo.avoid && unluckyInfo.avoid.length > 0 && (
                         <div className="mt-1 flex flex-wrap gap-1">
                           {unluckyInfo.avoid.map((item, i) => (
                             <span
                               key={i}
-                              className="rounded bg-red-100 px-1.5 py-0.5 text-xs text-red-700"
+                              className="rounded bg-red-900/50 px-1.5 py-0.5 text-xs text-red-400"
                             >
                               {item}
                             </span>
@@ -267,26 +267,26 @@ export function LuckyDaysCalendar({ monthlyFortunes, year }: LuckyDaysCalendarPr
         {/* 길일 목록 */}
         {luckyDays.length > 0 && (
           <div>
-            <h5 className="mb-2 flex items-center gap-2 text-sm font-medium text-green-700">
+            <h5 className="mb-2 flex items-center gap-2 text-sm font-medium text-green-400">
               <Star className="h-4 w-4" />
               이달의 길일
             </h5>
             <div className="space-y-2">
               {luckyDays.map((day, i) => (
-                <div key={i} className="rounded-lg bg-green-50 p-3">
+                <div key={i} className="rounded-lg bg-green-900/20 p-3">
                   <div className="flex items-center justify-between">
-                    <span className="font-medium text-green-800">{day.date}</span>
+                    <span className="font-medium text-green-400">{day.date}</span>
                     {day.dayOfWeek && (
-                      <span className="text-sm text-green-600">({day.dayOfWeek})</span>
+                      <span className="text-sm text-green-500">({day.dayOfWeek})</span>
                     )}
                   </div>
-                  <p className="mt-1 text-sm text-green-700">{day.reason}</p>
+                  <p className="mt-1 text-sm text-green-300/80">{day.reason}</p>
                   {day.suitableFor && day.suitableFor.length > 0 && (
                     <div className="mt-2 flex flex-wrap gap-1">
                       {day.suitableFor.map((item, j) => (
                         <span
                           key={j}
-                          className="rounded-full bg-green-200 px-2 py-0.5 text-xs text-green-800"
+                          className="rounded-full bg-green-900/50 px-2 py-0.5 text-xs text-green-400"
                         >
                           {item}
                         </span>
@@ -302,26 +302,26 @@ export function LuckyDaysCalendar({ monthlyFortunes, year }: LuckyDaysCalendarPr
         {/* 흉일 목록 */}
         {unluckyDays.length > 0 && (
           <div>
-            <h5 className="mb-2 flex items-center gap-2 text-sm font-medium text-red-700">
+            <h5 className="mb-2 flex items-center gap-2 text-sm font-medium text-red-400">
               <AlertTriangle className="h-4 w-4" />
               이달의 주의일
             </h5>
             <div className="space-y-2">
               {unluckyDays.map((day, i) => (
-                <div key={i} className="rounded-lg bg-red-50 p-3">
+                <div key={i} className="rounded-lg bg-red-900/20 p-3">
                   <div className="flex items-center justify-between">
-                    <span className="font-medium text-red-800">{day.date}</span>
+                    <span className="font-medium text-red-400">{day.date}</span>
                     {day.dayOfWeek && (
-                      <span className="text-sm text-red-600">({day.dayOfWeek})</span>
+                      <span className="text-sm text-red-500">({day.dayOfWeek})</span>
                     )}
                   </div>
-                  <p className="mt-1 text-sm text-red-700">{day.reason}</p>
+                  <p className="mt-1 text-sm text-red-300/80">{day.reason}</p>
                   {day.avoid && day.avoid.length > 0 && (
                     <div className="mt-2 flex flex-wrap gap-1">
                       {day.avoid.map((item, j) => (
                         <span
                           key={j}
-                          className="rounded-full bg-red-200 px-2 py-0.5 text-xs text-red-800"
+                          className="rounded-full bg-red-900/50 px-2 py-0.5 text-xs text-red-400"
                         >
                           {item}
                         </span>

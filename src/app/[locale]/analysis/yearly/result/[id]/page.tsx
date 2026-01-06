@@ -72,7 +72,7 @@ export default function YearlyResultPage() {
   // 로딩 화면
   if (loading) {
     return (
-      <div className="flex min-h-screen items-center justify-center">
+      <div className="flex min-h-screen items-center justify-center bg-[#0a0a0a]">
         <Loader2 className="h-8 w-8 animate-spin" style={{ color: BRAND_COLORS.primary }} />
       </div>
     );
@@ -81,12 +81,16 @@ export default function YearlyResultPage() {
   // 에러 화면
   if (error || !result) {
     return (
-      <div className="flex min-h-screen flex-col items-center justify-center px-6">
+      <div className="flex min-h-screen flex-col items-center justify-center bg-[#0a0a0a] px-6">
         <div className="text-center">
           <div className="mb-4 text-6xl">⚠️</div>
-          <h2 className="mb-2 text-xl font-semibold text-gray-900">결과를 불러올 수 없습니다</h2>
-          <p className="mb-6 text-gray-500">{error}</p>
-          <Button onClick={handleBack} variant="outline">
+          <h2 className="mb-2 text-xl font-semibold text-white">결과를 불러올 수 없습니다</h2>
+          <p className="mb-6 text-gray-400">{error}</p>
+          <Button
+            onClick={handleBack}
+            variant="outline"
+            className="border-[#333] text-white hover:bg-[#242424]"
+          >
             마이페이지로 이동
           </Button>
         </div>
@@ -95,40 +99,38 @@ export default function YearlyResultPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white">
+    <div className="min-h-screen bg-[#0a0a0a]">
       {/* 헤더 */}
       <motion.header
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="sticky top-0 z-10 border-b border-gray-200 bg-white/80 px-4 py-4 backdrop-blur-sm"
+        className="sticky top-0 z-10 border-b border-[#333] bg-[#0a0a0a]/80 px-4 py-4 backdrop-blur-sm"
       >
         <div className="mx-auto flex max-w-4xl items-center justify-between">
           <div className="flex items-center gap-1 sm:gap-2">
             <button
               onClick={() => router.push('/home')}
-              className="flex h-10 w-10 items-center justify-center rounded-lg text-gray-600 hover:bg-gray-100 hover:text-gray-900"
+              className="flex h-10 w-10 items-center justify-center rounded-lg text-gray-400 hover:bg-[#242424] hover:text-white"
               title="홈으로"
             >
               <Home className="h-5 w-5" />
             </button>
             <button
               onClick={handleBack}
-              className="flex h-10 w-10 items-center justify-center rounded-lg text-gray-600 hover:bg-gray-100 hover:text-gray-900"
+              className="flex h-10 w-10 items-center justify-center rounded-lg text-gray-400 hover:bg-[#242424] hover:text-white"
               title="돌아가기"
             >
               <ArrowLeft className="h-5 w-5" />
             </button>
           </div>
-          <h1 className="font-serif text-lg font-semibold text-gray-900">
-            {result.year}년 신년 운세
-          </h1>
+          <h1 className="font-serif text-lg font-semibold text-white">{result.year}년 신년 운세</h1>
           <div className="flex gap-2">
             <button
               onClick={handleShare}
-              className="rounded-full p-2 hover:bg-gray-100"
+              className="rounded-full p-2 hover:bg-[#242424]"
               title="공유하기"
             >
-              <Share2 className="h-5 w-5 text-gray-600" />
+              <Share2 className="h-5 w-5 text-gray-400" />
             </button>
           </div>
         </div>
@@ -141,7 +143,7 @@ export default function YearlyResultPage() {
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="rounded-2xl border border-gray-200 bg-white p-6 shadow-lg"
+            className="rounded-2xl border border-[#333] bg-[#1a1a1a] p-6 shadow-lg"
           >
             <div className="mb-4 flex items-center gap-3">
               <div
@@ -151,17 +153,17 @@ export default function YearlyResultPage() {
                 <Sparkles className="h-6 w-6" style={{ color: BRAND_COLORS.primary }} />
               </div>
               <div>
-                <h2 className="font-serif text-2xl font-bold text-gray-900">
+                <h2 className="font-serif text-2xl font-bold text-white">
                   {result.year}년{' '}
                   <span style={{ color: BRAND_COLORS.primary }}>{result.yearlyTheme}</span>
                 </h2>
-                <p className="text-gray-500">종합 점수: {result.overallScore}점</p>
+                <p className="text-gray-400">종합 점수: {result.overallScore}점</p>
               </div>
             </div>
 
             {/* 점수 게이지 */}
             <div className="mb-4">
-              <div className="h-4 overflow-hidden rounded-full bg-gray-200">
+              <div className="h-4 overflow-hidden rounded-full bg-[#333]">
                 <motion.div
                   initial={{ width: 0 }}
                   animate={{ width: `${result.overallScore}%` }}
@@ -180,7 +182,7 @@ export default function YearlyResultPage() {
             </div>
 
             {/* 요약 */}
-            <p className="leading-relaxed text-gray-700">{result.summary}</p>
+            <p className="leading-relaxed text-gray-300">{result.summary}</p>
           </motion.div>
 
           {/* 월별 타임라인 */}
@@ -204,7 +206,7 @@ export default function YearlyResultPage() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.6 }}
-              className="rounded-2xl border border-gray-200 bg-white p-6 shadow-lg"
+              className="rounded-2xl border border-[#333] bg-[#1a1a1a] p-6 shadow-lg"
             >
               <div className="mb-4 flex items-center gap-3">
                 <div
@@ -214,8 +216,8 @@ export default function YearlyResultPage() {
                   <Calendar className="h-5 w-5" style={{ color: BRAND_COLORS.primary }} />
                 </div>
                 <div>
-                  <h3 className="font-serif text-lg font-semibold text-gray-900">연중 핵심 날짜</h3>
-                  <p className="text-sm text-gray-500">{result.year}년 주목해야 할 중요한 날들</p>
+                  <h3 className="font-serif text-lg font-semibold text-white">연중 핵심 날짜</h3>
+                  <p className="text-sm text-gray-400">{result.year}년 주목해야 할 중요한 날들</p>
                 </div>
               </div>
 
@@ -225,21 +227,21 @@ export default function YearlyResultPage() {
                     key={index}
                     className={`rounded-lg p-4 ${
                       keyDate.type === 'lucky'
-                        ? 'border border-green-200 bg-green-50'
+                        ? 'border border-green-900/50 bg-green-900/20'
                         : keyDate.type === 'unlucky'
-                          ? 'border border-red-200 bg-red-50'
-                          : 'border border-gray-200 bg-gray-50'
+                          ? 'border border-red-900/50 bg-red-900/20'
+                          : 'border border-[#444] bg-[#242424]'
                     }`}
                   >
                     <div className="flex items-center justify-between">
-                      <span className="font-medium text-gray-900">{keyDate.date}</span>
+                      <span className="font-medium text-white">{keyDate.date}</span>
                       <span
                         className={`rounded-full px-2 py-0.5 text-xs font-medium ${
                           keyDate.type === 'lucky'
-                            ? 'bg-green-200 text-green-800'
+                            ? 'bg-green-900/50 text-green-400'
                             : keyDate.type === 'unlucky'
-                              ? 'bg-red-200 text-red-800'
-                              : 'bg-gray-200 text-gray-800'
+                              ? 'bg-red-900/50 text-red-400'
+                              : 'bg-[#333] text-gray-300'
                         }`}
                       >
                         {keyDate.type === 'lucky'
@@ -249,7 +251,7 @@ export default function YearlyResultPage() {
                             : '특별일'}
                       </span>
                     </div>
-                    <p className="mt-1 text-sm text-gray-600">{keyDate.significance}</p>
+                    <p className="mt-1 text-sm text-gray-400">{keyDate.significance}</p>
                     {keyDate.recommendation && (
                       <p className="mt-2 text-sm text-gray-500">💡 {keyDate.recommendation}</p>
                     )}
@@ -265,7 +267,7 @@ export default function YearlyResultPage() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.7 }}
-              className="rounded-2xl border border-gray-200 bg-white p-6 shadow-lg"
+              className="rounded-2xl border border-[#333] bg-[#1a1a1a] p-6 shadow-lg"
             >
               <div className="mb-4 flex items-center gap-3">
                 <div
@@ -275,14 +277,14 @@ export default function YearlyResultPage() {
                   <BookOpen className="h-5 w-5" style={{ color: BRAND_COLORS.primary }} />
                 </div>
                 <div>
-                  <h3 className="font-serif text-lg font-semibold text-gray-900">고전 참조</h3>
-                  <p className="text-sm text-gray-500">자평진전, 궁통보감 등 고전 인용</p>
+                  <h3 className="font-serif text-lg font-semibold text-white">고전 참조</h3>
+                  <p className="text-sm text-gray-400">자평진전, 궁통보감 등 고전 인용</p>
                 </div>
               </div>
 
               <div className="space-y-4">
                 {result.classicalReferences.map((ref, index) => (
-                  <div key={index} className="rounded-lg bg-gray-50 p-4">
+                  <div key={index} className="rounded-lg bg-[#242424] p-4">
                     <div className="mb-2 flex items-center gap-2">
                       <span
                         className="rounded px-2 py-0.5 text-xs font-medium"
@@ -294,8 +296,8 @@ export default function YearlyResultPage() {
                         {ref.source}
                       </span>
                     </div>
-                    <p className="font-serif italic text-gray-700">&ldquo;{ref.quote}&rdquo;</p>
-                    <p className="mt-2 text-sm text-gray-600">{ref.interpretation}</p>
+                    <p className="font-serif italic text-gray-300">&ldquo;{ref.quote}&rdquo;</p>
+                    <p className="mt-2 text-sm text-gray-400">{ref.interpretation}</p>
                   </div>
                 ))}
               </div>
@@ -311,13 +313,17 @@ export default function YearlyResultPage() {
           >
             <Button
               onClick={() => router.push('/analysis/yearly')}
-              className="flex-1"
+              className="flex-1 text-[#0a0a0a]"
               style={{ backgroundColor: BRAND_COLORS.primary }}
             >
               <Calendar className="mr-2 h-5 w-5" />
               다른 연도 분석하기
             </Button>
-            <Button onClick={handleBack} variant="outline" className="flex-1">
+            <Button
+              onClick={handleBack}
+              variant="outline"
+              className="flex-1 border-[#333] text-white hover:bg-[#242424]"
+            >
               마이페이지로 이동
             </Button>
           </motion.div>

@@ -82,7 +82,7 @@ type SectionKey = (typeof SECTIONS)[number]['key'];
 type HalfPeriod = 'first_half' | 'second_half';
 
 export function YearlyAdviceCard({ yearlyAdvice, year }: YearlyAdviceCardProps) {
-  const [selectedSection, setSelectedSection] = useState<SectionKey | null>(null);
+  const [selectedSection, setSelectedSection] = useState<SectionKey>('nature_and_soul'); // 기본으로 열림
   const [selectedHalf, setSelectedHalf] = useState<HalfPeriod>('first_half');
 
   /** 섹션 데이터 가져오기 */
@@ -123,7 +123,7 @@ export function YearlyAdviceCard({ yearlyAdvice, year }: YearlyAdviceCardProps) 
               key={section.key}
               onClick={() => {
                 if (hasData) {
-                  setSelectedSection(isSelected ? null : section.key);
+                  setSelectedSection(section.key); // 항상 선택 (닫힘 없음)
                 }
               }}
               initial={{ opacity: 0, y: 10 }}
@@ -173,84 +173,80 @@ export function YearlyAdviceCard({ yearlyAdvice, year }: YearlyAdviceCardProps) 
         })}
       </div>
 
-      {/* 선택된 섹션 상세 */}
-      <AnimatePresence>
-        {selectedSection && (
-          <motion.div
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: 'auto' }}
-            exit={{ opacity: 0, height: 0 }}
-            transition={{ duration: 0.3 }}
-            className="overflow-hidden"
-          >
-            {(() => {
-              const section = SECTIONS.find((s) => s.key === selectedSection);
-              const data = getSectionData(selectedSection);
-              if (!section || !data) return null;
+      {/* 선택된 섹션 상세 (항상 표시) */}
+      <motion.div
+        key={selectedSection}
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.3 }}
+        className="overflow-hidden"
+      >
+        {(() => {
+          const section = SECTIONS.find((s) => s.key === selectedSection);
+          const data = getSectionData(selectedSection);
+          if (!section || !data) return null;
 
-              const Icon = section.icon;
+          const Icon = section.icon;
 
-              return (
-                <div className="border-t border-[#333] bg-[#111111] p-5">
-                  {/* 섹션 헤더 */}
-                  <div className="mb-5 flex items-center gap-3">
-                    <div
-                      className="flex h-12 w-12 items-center justify-center rounded-xl"
-                      style={{ backgroundColor: section.color }}
-                    >
-                      <Icon className="h-6 w-6 text-white" />
-                    </div>
-                    <div>
-                      <h4 className="text-lg font-semibold text-white">{section.label}</h4>
-                      <p className="text-sm text-gray-400">{section.description}</p>
-                    </div>
-                  </div>
-
-                  {/* 상반기/하반기 탭 */}
-                  <div className="mb-4 flex gap-2">
-                    <button
-                      onClick={() => setSelectedHalf('first_half')}
-                      className={`flex-1 rounded-lg px-4 py-2.5 text-sm font-medium transition-all ${
-                        selectedHalf === 'first_half'
-                          ? 'bg-[#d4af37] text-[#0a0a0a]'
-                          : 'bg-[#242424] text-gray-400 hover:bg-[#333] hover:text-white'
-                      }`}
-                    >
-                      상반기 (1~6월)
-                    </button>
-                    <button
-                      onClick={() => setSelectedHalf('second_half')}
-                      className={`flex-1 rounded-lg px-4 py-2.5 text-sm font-medium transition-all ${
-                        selectedHalf === 'second_half'
-                          ? 'bg-[#d4af37] text-[#0a0a0a]'
-                          : 'bg-[#242424] text-gray-400 hover:bg-[#333] hover:text-white'
-                      }`}
-                    >
-                      하반기 (7~12월)
-                    </button>
-                  </div>
-
-                  {/* 본문 콘텐츠 */}
-                  <AnimatePresence mode="wait">
-                    <motion.div
-                      key={selectedHalf}
-                      initial={{ opacity: 0, x: selectedHalf === 'first_half' ? -10 : 10 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      exit={{ opacity: 0, x: selectedHalf === 'first_half' ? 10 : -10 }}
-                      transition={{ duration: 0.2 }}
-                      className="rounded-xl bg-[#1a1a1a] p-5"
-                    >
-                      <p className="whitespace-pre-wrap text-[15px] leading-relaxed text-gray-300">
-                        {data[selectedHalf]}
-                      </p>
-                    </motion.div>
-                  </AnimatePresence>
+          return (
+            <div className="border-t border-[#333] bg-[#111111] p-5">
+              {/* 섹션 헤더 */}
+              <div className="mb-5 flex items-center gap-3">
+                <div
+                  className="flex h-12 w-12 items-center justify-center rounded-xl"
+                  style={{ backgroundColor: section.color }}
+                >
+                  <Icon className="h-6 w-6 text-white" />
                 </div>
-              );
-            })()}
-          </motion.div>
-        )}
-      </AnimatePresence>
+                <div>
+                  <h4 className="text-lg font-semibold text-white">{section.label}</h4>
+                  <p className="text-sm text-gray-400">{section.description}</p>
+                </div>
+              </div>
+
+              {/* 상반기/하반기 탭 */}
+              <div className="mb-4 flex gap-2">
+                <button
+                  onClick={() => setSelectedHalf('first_half')}
+                  className={`flex-1 rounded-lg px-4 py-2.5 text-sm font-medium transition-all ${
+                    selectedHalf === 'first_half'
+                      ? 'bg-[#d4af37] text-[#0a0a0a]'
+                      : 'bg-[#242424] text-gray-400 hover:bg-[#333] hover:text-white'
+                  }`}
+                >
+                  상반기 (1~6월)
+                </button>
+                <button
+                  onClick={() => setSelectedHalf('second_half')}
+                  className={`flex-1 rounded-lg px-4 py-2.5 text-sm font-medium transition-all ${
+                    selectedHalf === 'second_half'
+                      ? 'bg-[#d4af37] text-[#0a0a0a]'
+                      : 'bg-[#242424] text-gray-400 hover:bg-[#333] hover:text-white'
+                  }`}
+                >
+                  하반기 (7~12월)
+                </button>
+              </div>
+
+              {/* 본문 콘텐츠 */}
+              <AnimatePresence mode="wait">
+                <motion.div
+                  key={selectedHalf}
+                  initial={{ opacity: 0, x: selectedHalf === 'first_half' ? -10 : 10 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: selectedHalf === 'first_half' ? 10 : -10 }}
+                  transition={{ duration: 0.2 }}
+                  className="rounded-xl bg-[#1a1a1a] p-5"
+                >
+                  <p className="whitespace-pre-wrap text-[15px] leading-relaxed text-gray-300">
+                    {data[selectedHalf]}
+                  </p>
+                </motion.div>
+              </AnimatePresence>
+            </div>
+          );
+        })()}
+      </motion.div>
     </motion.div>
   );
 }
