@@ -12,6 +12,14 @@ import { SERVICE_CREDITS } from '@/lib/stripe';
 import { PIPELINE_STEPS } from '@/lib/ai/pipeline/types';
 import type { PipelineStep, StepStatus } from '@/lib/ai/types';
 import { z } from 'zod';
+import {
+  AUTH_ERRORS,
+  API_ERRORS,
+  PROFILE_ERRORS,
+  CREDIT_ERRORS,
+  createErrorResponse,
+  getStatusCode,
+} from '@/lib/errors/codes';
 
 /**
  * 재시도 시 단계 상태 생성
@@ -448,10 +456,16 @@ function transformWealth(wealth: any, scores: any) {
       }
     : undefined;
 
+  // 재물 특성 키 한글 매핑
+  const WEALTH_LABELS: Record<string, string> = {
+    stability: '안정성',
+    growth: '성장성',
+  };
+
   // 재물 특성 그래프 (선택, scores에서 생성 가능)
   const wealthTraits = scores?.wealth
     ? Object.entries(scores.wealth).map(([key, value]) => ({
-        label: key,
+        label: WEALTH_LABELS[key] || key,
         value: typeof value === 'number' ? value : 0,
       }))
     : undefined;
@@ -626,7 +640,10 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
   try {
     const user = await getAuthenticatedUser();
     if (!user) {
-      return NextResponse.json({ error: '로그인이 필요합니다' }, { status: 401 });
+      return NextResponse.json(
+        createErrorResponse(AUTH_ERRORS.UNAUTHORIZED),
+        { status: getStatusCode(AUTH_ERRORS.UNAUTHORIZED) }
+      );
     }
 
     const { id: profileId } = await params;
@@ -641,11 +658,17 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
       .single();
 
     if (profileError || !profile) {
-      return NextResponse.json({ error: '프로필을 찾을 수 없습니다' }, { status: 404 });
+      return NextResponse.json(
+        createErrorResponse(PROFILE_ERRORS.NOT_FOUND),
+        { status: getStatusCode(PROFILE_ERRORS.NOT_FOUND) }
+      );
     }
 
     if (profile.user_id !== userId) {
-      return NextResponse.json({ error: '접근 권한이 없습니다' }, { status: 403 });
+      return NextResponse.json(
+        createErrorResponse(AUTH_ERRORS.FORBIDDEN),
+        { status: getStatusCode(AUTH_ERRORS.FORBIDDEN) }
+      );
     }
 
     // 2. 리포트 조회 (profile 정보 JOIN)
@@ -672,11 +695,17 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
 
     if (reportError) {
       console.error('[API] 리포트 조회 실패:', reportError);
-      return NextResponse.json({ error: '리포트 조회에 실패했습니다' }, { status: 500 });
+      return NextResponse.json(
+        createErrorResponse(API_ERRORS.SERVER_ERROR),
+        { status: getStatusCode(API_ERRORS.SERVER_ERROR) }
+      );
     }
 
     if (!report) {
-      return NextResponse.json({ error: '리포트가 없습니다' }, { status: 404 });
+      return NextResponse.json(
+        createErrorResponse(API_ERRORS.NOT_FOUND),
+        { status: getStatusCode(API_ERRORS.NOT_FOUND) }
+      );
     }
 
     // 3. 클라이언트 ReportData 형식으로 변환
@@ -731,7 +760,10 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
     });
   } catch (error) {
     console.error('[API] GET /api/profiles/[id]/report 에러:', error);
-    return NextResponse.json({ error: '서버 오류가 발생했습니다' }, { status: 500 });
+    return NextResponse.json(
+      createErrorResponse(API_ERRORS.SERVER_ERROR),
+      { status: getStatusCode(API_ERRORS.SERVER_ERROR) }
+    );
   }
 }
 
@@ -747,7 +779,10 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
   try {
     const user = await getAuthenticatedUser();
     if (!user) {
-      return NextResponse.json({ error: '로그인이 필요합니다' }, { status: 401 });
+      return NextResponse.json(
+        createErrorResponse(AUTH_ERRORS.UNAUTHORIZED),
+        { status: getStatusCode(AUTH_ERRORS.UNAUTHORIZED) }
+      );
     }
 
     const { id: profileId } = await params;
@@ -775,11 +810,17 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
       .single();
 
     if (profileError || !profile) {
-      return NextResponse.json({ error: '프로필을 찾을 수 없습니다' }, { status: 404 });
+      return NextResponse.json(
+        createErrorResponse(PROFILE_ERRORS.NOT_FOUND),
+        { status: getStatusCode(PROFILE_ERRORS.NOT_FOUND) }
+      );
     }
 
     if (profile.user_id !== userId) {
-      return NextResponse.json({ error: '접근 권한이 없습니다' }, { status: 403 });
+      return NextResponse.json(
+        createErrorResponse(AUTH_ERRORS.FORBIDDEN),
+        { status: getStatusCode(AUTH_ERRORS.FORBIDDEN) }
+      );
     }
 
     // 2. 기존 리포트 확인 (pending, in_progress, failed 모두)
@@ -834,20 +875,21 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
         .single();
 
       if (userError || !userData) {
-        return NextResponse.json({ error: '사용자 정보를 찾을 수 없습니다' }, { status: 404 });
+        return NextResponse.json(
+          createErrorResponse(API_ERRORS.NOT_FOUND),
+          { status: getStatusCode(API_ERRORS.NOT_FOUND) }
+        );
       }
 
       currentUserCredits = userData.credits;
 
       if (userData.credits < SERVICE_CREDITS.profileReport) {
         return NextResponse.json(
-          {
-            error: '크레딧이 부족합니다',
-            code: 'INSUFFICIENT_CREDITS',
+          createErrorResponse(CREDIT_ERRORS.INSUFFICIENT, {
             required: SERVICE_CREDITS.profileReport,
             current: userData.credits,
-          },
-          { status: 402 }
+          }),
+          { status: getStatusCode(CREDIT_ERRORS.INSUFFICIENT) }
         );
       }
 
@@ -921,7 +963,10 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
             .update({ credits: currentUserCredits, updated_at: new Date().toISOString() })
             .eq('id', userId);
         }
-        return NextResponse.json({ error: '리포트 생성에 실패했습니다' }, { status: 500 });
+        return NextResponse.json(
+          createErrorResponse(API_ERRORS.SERVER_ERROR),
+          { status: getStatusCode(API_ERRORS.SERVER_ERROR) }
+        );
       }
 
       reportId = newReport.id;
@@ -976,8 +1021,8 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
           .eq('id', reportId);
 
         return NextResponse.json(
-          { error: errorData.detail || '분석 시작에 실패했습니다' },
-          { status: 500 }
+          createErrorResponse(API_ERRORS.EXTERNAL_SERVICE_ERROR),
+          { status: getStatusCode(API_ERRORS.EXTERNAL_SERVICE_ERROR) }
         );
       }
 
@@ -1016,7 +1061,10 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
         })
         .eq('id', reportId);
 
-      return NextResponse.json({ error: '분석 서버에 연결할 수 없습니다' }, { status: 503 });
+      return NextResponse.json(
+        createErrorResponse(API_ERRORS.EXTERNAL_SERVICE_ERROR),
+        { status: 503 }
+      );
     }
 
     // 7. 즉시 응답 반환
@@ -1028,7 +1076,10 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
     });
   } catch (error) {
     console.error('[API] POST /api/profiles/[id]/report 에러:', error);
-    return NextResponse.json({ error: '서버 오류가 발생했습니다' }, { status: 500 });
+    return NextResponse.json(
+      createErrorResponse(API_ERRORS.SERVER_ERROR),
+      { status: getStatusCode(API_ERRORS.SERVER_ERROR) }
+    );
   }
 }
 

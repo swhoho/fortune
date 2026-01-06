@@ -412,7 +412,10 @@ class ReportAnalysisService:
         try:
             from scoring import calculate_scores
             scores = calculate_scores(pillars, jijanggan)
-        except ImportError:
+            logger.info(f"[{job_id}] 점수 계산 성공: {list(scores.keys())}")
+        except Exception as e:
+            # 모든 예외 처리 (ImportError, KeyError, TypeError 등)
+            logger.error(f"[{job_id}] 점수 계산 실패: {type(e).__name__}: {e}")
             # 기본 점수
             scores = {
                 "work": {"planning": 50, "drive": 50, "execution": 50, "completion": 50, "management": 50},
@@ -423,7 +426,7 @@ class ReportAnalysisService:
 
         job_store.update(job_id, scores=scores)
         job_store.update_step_status(job_id, "scoring", "completed")
-        logger.info(f"[{job_id}] 점수 계산 완료")
+        logger.info(f"[{job_id}] 점수 계산 완료: {scores}")
 
     async def _step_visualization(self, job_id: str):
         """시각화 생성 단계"""

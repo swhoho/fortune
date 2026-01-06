@@ -143,16 +143,31 @@ def _extract_ten_god_counts(pillars: Dict[str, Any], jijanggan: Dict[str, Any] =
 
     천간: 각 주(年月時)의 십신 (일간 제외)
     지지: 각 주의 지지 본기 십신
+
+    Note: DB에 stemTenGod 키가 없는 경우 stem 값으로 직접 계산
     """
+    # daewun.py의 십신 계산 함수 import
+    from manseryeok.daewun import get_ten_god_relation
+
     counts: Dict[str, int] = {}
+
+    # 일간 추출 (십신 계산의 기준)
+    day_stem = pillars.get("day", {}).get("stem", "")
 
     # 천간 십신
     for pillar_name in ["year", "month", "hour"]:  # day는 일간이므로 제외
         pillar = pillars.get(pillar_name, {})
 
-        # 천간 십신
+        # 1순위: 이미 저장된 십신 키 사용
         stem_ten_god = pillar.get("stemTenGod") or pillar.get("stem_ten_god", "")
-        if stem_ten_god:
+
+        # 2순위: stem 값으로 직접 십신 계산
+        if not stem_ten_god and day_stem:
+            stem = pillar.get("stem", "")
+            if stem:
+                stem_ten_god = get_ten_god_relation(day_stem, stem)
+
+        if stem_ten_god and stem_ten_god != "알수없음":
             counts[stem_ten_god] = counts.get(stem_ten_god, 0) + 1
 
     # 지지 십신 (지장간 정기 기준)
@@ -161,7 +176,7 @@ def _extract_ten_god_counts(pillars: Dict[str, Any], jijanggan: Dict[str, Any] =
 
         # 지지 십신 (직접 저장된 경우)
         branch_ten_god = pillar.get("branchTenGod") or pillar.get("branch_ten_god", "")
-        if branch_ten_god:
+        if branch_ten_god and branch_ten_god != "알수없음":
             counts[branch_ten_god] = counts.get(branch_ten_god, 0) + 1
 
     # 지장간 정보가 있으면 추가 카운트 (정기 위주)
@@ -172,7 +187,7 @@ def _extract_ten_god_counts(pillars: Dict[str, Any], jijanggan: Dict[str, Any] =
                 main_jj = jj_list[-1] if jj_list else {}
                 if isinstance(main_jj, dict):
                     jj_ten_god = main_jj.get("tenGod") or main_jj.get("ten_god", "")
-                    if jj_ten_god:
+                    if jj_ten_god and jj_ten_god != "알수없음":
                         counts[jj_ten_god] = counts.get(jj_ten_god, 0) + 0.5  # 지장간은 0.5 가중치
 
     # 정수로 변환 (반올림)
