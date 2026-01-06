@@ -28,6 +28,8 @@ import {
   WealthSection,
   RomanceSection,
   ReportNavigation,
+  BasicAnalysisSection,
+  DetailedScoresSection,
 } from '@/components/report';
 import { ConsultationTab } from '@/components/consultation';
 import type { ReportTabType } from '@/components/report/ReportNavigation';
@@ -37,6 +39,9 @@ import type {
   CharacteristicsSectionData,
   AptitudeSectionData,
   ReportDaewunItem,
+  BasicAnalysisData,
+  JijangganData,
+  DetailedScoresData,
 } from '@/types/report';
 import type { WealthSectionData } from '@/components/report/WealthSection';
 import type { RomanceSectionData } from '@/components/report/RomanceSection';
@@ -51,11 +56,14 @@ interface ReportData {
   profile: ReportProfileInfo;
   pillars: PillarsHanja;
   daewun: ReportDaewunItem[];
+  jijanggan?: JijangganData | null;
+  basicAnalysis?: BasicAnalysisData | null;
   personality: PersonalitySectionData | null;
   characteristics: CharacteristicsSectionData | null;
   aptitude: AptitudeSectionData | null;
   wealth: WealthSectionData | null;
   romance: RomanceSectionData | null;
+  detailedScores?: DetailedScoresData | null;
 }
 
 /**
@@ -361,12 +369,20 @@ export default function ProfileReportPage({ params }: PageProps) {
               transition={{ duration: 0.3 }}
               className="space-y-12"
             >
-              {/* 사주 탭: 프로필 + 명식 + 대운 미리보기 */}
+              {/* 사주 탭: 프로필 + 명식 + 지장간 + 대운 미리보기 */}
               <section className="space-y-6">
                 <ProfileInfoHeader {...reportData.profile} />
-                <SajuTable pillars={reportData.pillars} />
+                <SajuTable
+                  pillars={reportData.pillars}
+                  jijanggan={reportData.jijanggan || undefined}
+                />
                 <DaewunHorizontalScroll daewun={reportData.daewun} />
               </section>
+
+              {/* Task 25: 기본 분석 (용신/기신/격국/일간) */}
+              {reportData.basicAnalysis && (
+                <BasicAnalysisSection data={reportData.basicAnalysis} />
+              )}
 
               {/* 성격 분석 */}
               {reportData.personality && <PersonalitySection {...reportData.personality} />}
@@ -384,6 +400,11 @@ export default function ProfileReportPage({ params }: PageProps) {
 
               {/* 연애/결혼 */}
               {reportData.romance && <RomanceSection data={reportData.romance} />}
+
+              {/* Task 25: 세부 점수 레이더 차트 */}
+              {reportData.detailedScores && (
+                <DetailedScoresSection data={reportData.detailedScores} />
+              )}
             </motion.div>
           )}
 

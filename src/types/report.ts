@@ -1,7 +1,232 @@
 /**
  * 리포트 관련 타입 정의
  * Task 12-14: Phase 3 리포트 UI
+ * Task 25: 누락 데이터 표시 개선
  */
+
+// ============================================
+// 기본 분석 (BasicAnalysis) - 신규
+// ============================================
+
+/** 일간 특성 */
+export interface DayMasterData {
+  /** 천간 (甲, 乙, 丙, ...) */
+  stem: string;
+  /** 오행 (木, 火, 土, 金, 水) */
+  element: string;
+  /** 음양 (陰, 陽) */
+  yinYang: string;
+  /** 특성 키워드 */
+  characteristics: string[];
+}
+
+/** 격국 정보 */
+export interface StructureData {
+  /** 격국명 (정재격, 편재격, ...) */
+  type: string;
+  /** 품질 (上, 中, 下) */
+  quality: string;
+  /** 격국 설명 */
+  description: string;
+}
+
+/** 용신/기신 정보 */
+export interface UsefulGodData {
+  /** 용신 (丙, 丁 등) */
+  primary: string;
+  /** 희신/보조 오행 (火, 土 등) */
+  secondary: string;
+  /** 기신 (水, 金 등) */
+  harmful: string;
+  /** 용신 선정 근거 */
+  reasoning: string;
+}
+
+/** 기본 분석 섹션 데이터 */
+export interface BasicAnalysisData {
+  /** 사주 요약 */
+  summary: string;
+  /** 일간 특성 */
+  dayMaster: DayMasterData;
+  /** 격국 */
+  structure: StructureData;
+  /** 용신/기신 */
+  usefulGod: UsefulGodData;
+}
+
+// ============================================
+// 지장간 (Jijanggan) - 신규
+// ============================================
+
+/** 지장간 데이터 */
+export interface JijangganData {
+  /** 시주 지장간 (여기, 중기, 정기) */
+  hour: string[];
+  /** 일주 지장간 */
+  day: string[];
+  /** 월주 지장간 */
+  month: string[];
+  /** 연주 지장간 */
+  year: string[];
+}
+
+// ============================================
+// 세부 점수 (DetailedScores) - 신규
+// ============================================
+
+/** 연애 점수 (10개) */
+export interface LoveScores {
+  humor: number;
+  emotion: number;
+  finance: number;
+  adventure: number;
+  sincerity: number;
+  selfEsteem: number;
+  sociability: number;
+  consideration: number;
+  expressiveness: number;
+  trustworthiness: number;
+}
+
+/** 업무 점수 (5개) */
+export interface WorkScores {
+  drive: number;
+  planning: number;
+  execution: number;
+  completion: number;
+  management: number;
+}
+
+/** 재물 점수 (2개) */
+export interface WealthScores {
+  growth: number;
+  stability: number;
+}
+
+/** 적성 점수 (2개) */
+export interface AptitudeScores {
+  artistry: number;
+  business: number;
+}
+
+/** 세부 점수 전체 */
+export interface DetailedScoresData {
+  love: LoveScores;
+  work: WorkScores;
+  wealth: WealthScores;
+  aptitude: AptitudeScores;
+  willpower?: number;
+}
+
+// ============================================
+// 적성 확장 데이터 - 신규
+// ============================================
+
+/** 재능 상세 (basis, level 포함) */
+export interface TalentDetailItem {
+  /** 재능명 */
+  name: string;
+  /** 근거 십신 (예: 식신(丁火)) */
+  basis?: string;
+  /** 재능 수준 (0-100) */
+  level?: number;
+  /** 설명 */
+  description?: string;
+}
+
+/** 피해야 할 분야 */
+export interface AvoidFieldItem {
+  /** 분야명 */
+  name: string;
+  /** 회피 이유 */
+  reason: string;
+}
+
+/** 재능 활용 상태 상세 */
+export interface TalentUsageDetail {
+  /** 현재 수준 (0-100) */
+  currentLevel: number;
+  /** 잠재력 (0-100) */
+  potential: number;
+  /** 조언 */
+  advice: string;
+}
+
+/** 추천 분야 상세 */
+export interface RecommendedFieldItem {
+  /** 분야명 */
+  name: string;
+  /** 적합도 (0-100) */
+  suitability?: number;
+  /** 설명 */
+  description?: string;
+}
+
+/** 적성 섹션 확장 데이터 */
+export interface AptitudeExtendedData {
+  /** 재능 상세 리스트 */
+  talents?: TalentDetailItem[];
+  /** 피해야 할 분야 */
+  avoidFields?: AvoidFieldItem[];
+  /** 재능 활용 상태 상세 */
+  talentUsage?: TalentUsageDetail;
+  /** 추천 분야 상세 */
+  recommendedFields?: RecommendedFieldItem[];
+}
+
+// ============================================
+// 연애 확장 데이터 - 신규
+// ============================================
+
+/** 연애 섹션 확장 데이터 */
+export interface RomanceExtendedData {
+  /** 연애 스타일 (적극형, 소극형 등) */
+  style?: string;
+  /** 이상형 특성 */
+  idealPartner?: string[];
+  /** 연애 주의사항 */
+  warnings?: string[];
+  /** 궁합 포인트 */
+  compatibilityPoints?: string[];
+  /** 연애 조언 */
+  loveAdvice?: string;
+}
+
+// ============================================
+// 재물 확장 데이터 - 신규
+// ============================================
+
+/** 재물 섹션 확장 데이터 */
+export interface WealthExtendedData {
+  /** 재물 패턴 (투자형, 축재형 등) */
+  pattern?: string;
+  /** 재물 강점 */
+  strengths?: string[];
+  /** 재물 리스크 */
+  risks?: string[];
+  /** 재물 조언 */
+  advice?: string;
+}
+
+// ============================================
+// 성격 확장 데이터 - 신규
+// ============================================
+
+/** 대인관계 스타일 상세 */
+export interface SocialStyleDetail {
+  /** 유형 (협조형, 주도형 등) */
+  type?: string;
+  /** 강점 */
+  strengths?: string[];
+  /** 약점 */
+  weaknesses?: string[];
+}
+
+/** 성격 섹션 확장 데이터 */
+export interface PersonalityExtendedData {
+  /** 대인관계 스타일 상세 */
+  socialStyleDetail?: SocialStyleDetail;
+}
 
 /** 프로필 정보 표시용 */
 export interface ReportProfileInfo {
@@ -32,6 +257,8 @@ export interface PersonalitySectionData {
   outerPersonality: PersonalityCardData;
   innerPersonality: PersonalityCardData;
   socialStyle: PersonalityCardData;
+  /** Task 25: 확장 데이터 (선택) */
+  extended?: PersonalityExtendedData;
 }
 
 /** 사주 특성 섹션 데이터 */

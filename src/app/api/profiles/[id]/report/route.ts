@@ -140,11 +140,24 @@ function transformPersonality(personality: any, calculatedWillpower?: number) {
     description: Array.isArray(weaknesses) ? weaknesses.join(', ') : weaknesses || '',
   };
 
+  // Task 25: 확장 데이터 (대인관계 상세)
+  const strengthsArray = Array.isArray(strengths) ? strengths : (strengths ? [strengths] : []);
+  const weaknessesArray = Array.isArray(weaknesses) ? weaknesses : (weaknesses ? [weaknesses] : []);
+  const socialStyleType = socialRaw.type || socialRaw.style || undefined;
+
   return {
     willpower,
     outerPersonality,
     innerPersonality,
     socialStyle,
+    // Task 25: 확장 데이터
+    extended: {
+      socialStyleDetail: {
+        type: socialStyleType,
+        strengths: strengthsArray.length > 0 ? strengthsArray : undefined,
+        weaknesses: weaknessesArray.length > 0 ? weaknessesArray : undefined,
+      },
+    },
   };
 }
 
@@ -182,6 +195,119 @@ function transformCharacteristics(basicAnalysis: any) {
       ? `${data.day_master.gan}(${data.day_master.element || ''}) 일간`
       : '',
     paragraphs,
+  };
+}
+
+/**
+ * DB basicAnalysis 데이터를 클라이언트 BasicAnalysisData 형식으로 변환
+ * Task 25: 용신/기신/격국/일간 특성 표시용
+ */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function transformBasicAnalysis(basicAnalysis: any) {
+  if (!basicAnalysis) return null;
+
+  // 중첩 구조 처리
+  const data = basicAnalysis.basic_analysis || basicAnalysis;
+
+  // 일간 특성
+  const dayMasterRaw = data.day_master || data.dayMaster || {};
+  const dayMaster = {
+    stem: dayMasterRaw.gan || dayMasterRaw.stem || '',
+    element: dayMasterRaw.element || dayMasterRaw.오행 || '',
+    yinYang: dayMasterRaw.yin_yang || dayMasterRaw.yinYang || dayMasterRaw.음양 || '',
+    characteristics: Array.isArray(dayMasterRaw.characteristics)
+      ? dayMasterRaw.characteristics
+      : typeof dayMasterRaw.characteristics === 'string'
+        ? [dayMasterRaw.characteristics]
+        : dayMasterRaw.특성 || [],
+  };
+
+  // 격국
+  const structureRaw = data.structure || data.격국 || {};
+  const structure = {
+    type: structureRaw.type || structureRaw.격국명 || '',
+    quality: structureRaw.quality || structureRaw.품질 || '中',
+    description: structureRaw.description || structureRaw.설명 || '',
+  };
+
+  // 용신/기신
+  const usefulGodRaw = data.yongshin_analysis || data.usefulGod || data.용신분석 || {};
+  const usefulGod = {
+    primary: usefulGodRaw.yongshin || usefulGodRaw.primary || usefulGodRaw.용신 || '',
+    secondary: usefulGodRaw.heeshin || usefulGodRaw.secondary || usefulGodRaw.희신 || '',
+    harmful: usefulGodRaw.kishin || usefulGodRaw.harmful || usefulGodRaw.기신 || '',
+    reasoning: usefulGodRaw.reason || usefulGodRaw.reasoning || usefulGodRaw.근거 || '',
+  };
+
+  // 사주 요약
+  const summary = data.summary || data.요약 || '';
+
+  // 데이터가 모두 비어있으면 null 반환
+  if (!dayMaster.stem && !structure.type && !usefulGod.primary && !summary) {
+    return null;
+  }
+
+  return {
+    summary,
+    dayMaster,
+    structure,
+    usefulGod,
+  };
+}
+
+/**
+ * DB scores 데이터를 클라이언트 DetailedScoresData 형식으로 변환
+ * Task 25: 레이더 차트용 세부 점수
+ */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function transformDetailedScores(scores: any) {
+  if (!scores) return null;
+
+  // 연애 점수 (10개)
+  const loveRaw = scores.love || {};
+  const love = {
+    humor: loveRaw.humor ?? 50,
+    emotion: loveRaw.emotion ?? 50,
+    finance: loveRaw.finance ?? 50,
+    adventure: loveRaw.adventure ?? 50,
+    sincerity: loveRaw.sincerity ?? 50,
+    selfEsteem: loveRaw.selfEsteem ?? 50,
+    sociability: loveRaw.sociability ?? 50,
+    consideration: loveRaw.consideration ?? 50,
+    expressiveness: loveRaw.expressiveness ?? 50,
+    trustworthiness: loveRaw.trustworthiness ?? 50,
+  };
+
+  // 업무 점수 (5개)
+  const workRaw = scores.work || {};
+  const work = {
+    drive: workRaw.drive ?? 50,
+    planning: workRaw.planning ?? 50,
+    execution: workRaw.execution ?? 50,
+    completion: workRaw.completion ?? 50,
+    management: workRaw.management ?? 50,
+  };
+
+  // 재물 점수 (2개)
+  const wealthRaw = scores.wealth || {};
+  const wealth = {
+    growth: wealthRaw.growth ?? 50,
+    stability: wealthRaw.stability ?? 50,
+  };
+
+  // 적성 점수 (2개)
+  const aptitudeRaw = scores.aptitude || {};
+  const aptitude = {
+    artistry: aptitudeRaw.artistry ?? 50,
+    business: aptitudeRaw.business ?? 50,
+  };
+
+  return {
+    love,
+    work,
+    wealth,
+    aptitude,
+    willpower: scores.willpower,
   };
 }
 
@@ -339,6 +465,50 @@ function transformAptitude(aptitude: any, scores: any) {
     { label: '관리/평가', value: workScores.management || 0 },
   ];
 
+  // Task 25: 확장 데이터 추출
+  // 재능 상세 (basis, level 포함)
+  const talentsRaw = isKoreanKeys
+    ? aptitude.타고난_재능 || []
+    : aptitude.talents || [];
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const talentsExtended = talentsRaw.map((t: any) => ({
+    name: typeof t === 'string' ? t : t.talentName || t.name || t.이름 || '',
+    basis: t.basis || t.근거 || t.십신 || undefined,
+    level: t.level || t.점수 || t.수준 || undefined,
+    description: t.description || t.설명 || undefined,
+  })).filter((t: { name: string }) => t.name);
+
+  // 피해야 할 분야 (사유 포함)
+  const avoidRaw = isKoreanKeys
+    ? aptitude.회피_분야 || []
+    : aptitude.avoidFields || aptitude.avoided_fields || [];
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const avoidFieldsExtended = avoidRaw.map((f: any) => ({
+    name: typeof f === 'string' ? f : f.fieldName || f.name || f.분야 || f.이름 || '',
+    reason: typeof f === 'string' ? '' : f.reason || f.사유 || f.이유 || '',
+  })).filter((f: { name: string }) => f.name);
+
+  // 재능 활용 상태 상세
+  const talentUtilRaw = isKoreanKeys
+    ? aptitude.재능_활용_상태 || {}
+    : aptitude.talentUsage || aptitude.talentUsageStatus || aptitude.talent_utilization || {};
+  const talentUsageExtended = {
+    currentLevel: talentUtilRaw.currentLevel || talentUtilRaw.current_level || talentUtilRaw.현재_수준 || 0,
+    potential: talentUtilRaw.potential || talentUtilRaw.potential_level || talentUtilRaw.잠재력 || 0,
+    advice: talentUtilRaw.advice || talentUtilRaw.조언 || '',
+  };
+
+  // 추천 분야 상세 (적합도 포함)
+  const recRaw = isKoreanKeys
+    ? aptitude.추천_분야 || []
+    : aptitude.recommendedFields || aptitude.recommended_fields || [];
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const recommendedFieldsExtended = recRaw.map((f: any) => ({
+    name: typeof f === 'string' ? f : f.fieldName || f.name || f.분야 || f.이름 || '',
+    suitability: f.suitability || f.적합도 || f.점수 || undefined,
+    description: f.description || f.설명 || undefined,
+  })).filter((f: { name: string }) => f.name);
+
   return {
     keywords,
     mainTalent,
@@ -348,6 +518,15 @@ function transformAptitude(aptitude: any, scores: any) {
     workStyle,
     studyStyle,
     jobAbilityTraits,
+    // Task 25: 확장 데이터
+    extended: {
+      talents: talentsExtended,
+      avoidFields: avoidFieldsExtended,
+      talentUsage: talentUsageExtended.currentLevel || talentUsageExtended.potential
+        ? talentUsageExtended
+        : undefined,
+      recommendedFields: recommendedFieldsExtended,
+    },
   };
 }
 
@@ -446,11 +625,30 @@ function transformWealth(wealth: any, scores: any) {
       }))
     : undefined;
 
+  // Task 25: 확장 데이터 추출
+  const pattern = isKoreanKeys ? wealth.패턴_유형 : wealth.pattern || undefined;
+  const strengths = isKoreanKeys
+    ? wealth.재물운_강점 || []
+    : wealth.strengths || [];
+  const risks = isKoreanKeys
+    ? wealth.재물운_리스크 || []
+    : wealth.risks || [];
+  const advice = isKoreanKeys
+    ? wealth.조언 || ''
+    : wealth.advice || '';
+
   return {
     wealthFortune,
     partnerInfluence,
     wealthTraits,
     score: wealthScore,
+    // Task 25: 확장 데이터
+    extended: {
+      pattern: pattern || undefined,
+      strengths: strengths.length > 0 ? strengths : undefined,
+      risks: risks.length > 0 ? risks : undefined,
+      advice: advice || undefined,
+    },
   };
 }
 
@@ -599,12 +797,54 @@ function transformRomance(love: any, scores: any) {
     expression: loveScores.expressiveness || 50,
   };
 
+  // Task 25: 확장 데이터 추출
+  // 연애 스타일
+  const style = isKoreanKeys ? love.스타일_유형 : love.style || undefined;
+
+  // 이상형 특성
+  let idealPartnerList: string[] = [];
+  if (isKoreanKeys && love.이상형_특성) {
+    if (typeof love.이상형_특성 === 'object' && !Array.isArray(love.이상형_특성)) {
+      const ip = love.이상형_특성;
+      if (ip.외모_선호) idealPartnerList.push(ip.외모_선호);
+      if (ip.성격_선호) idealPartnerList.push(ip.성격_선호);
+      if (ip.가치관_선호) idealPartnerList.push(ip.가치관_선호);
+    } else if (typeof love.이상형_특성 === 'string') {
+      idealPartnerList = [love.이상형_특성];
+    }
+  } else if (Array.isArray(love.idealPartner)) {
+    idealPartnerList = love.idealPartner;
+  }
+
+  // 주의사항
+  const warnings = isKoreanKeys
+    ? love.주의사항 || []
+    : love.warnings || [];
+
+  // 궁합 포인트
+  const compatibilityPoints = isKoreanKeys
+    ? love.궁합_포인트 || []
+    : love.compatibilityPoints || [];
+
+  // 연애 조언
+  const loveAdvice = isKoreanKeys
+    ? love.연애_조언 || ''
+    : love.advice || love.loveAdvice || '';
+
   return {
     datingPsychology,
     spouseView,
     personalityPattern,
     romanceTraits,
     score: romanceScore,
+    // Task 25: 확장 데이터
+    extended: {
+      style,
+      idealPartner: idealPartnerList.length > 0 ? idealPartnerList : undefined,
+      warnings: warnings.length > 0 ? warnings : undefined,
+      compatibilityPoints: compatibilityPoints.length > 0 ? compatibilityPoints : undefined,
+      loveAdvice: loveAdvice || undefined,
+    },
   };
 }
 
@@ -702,6 +942,8 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
       pillars: report.pillars,
       daewun: transformDaewun(report.daewun || []),
       jijanggan: report.jijanggan,
+      // Task 25: 기본 분석 (용신/기신/격국/일간)
+      basicAnalysis: transformBasicAnalysis(report.analysis?.basicAnalysis),
       // 분석 결과 (analysis JSONB에서 추출 및 클라이언트 형식 변환)
       // 한글 키(성격분석) 또는 영문 키(personality) 지원
       // willpower 점수는 십신 기반 계산 값 사용 (scores.willpower)
@@ -719,6 +961,8 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
       ),
       // 점수 및 시각화
       scores: report.scores,
+      // Task 25: 세부 점수 (레이더 차트용)
+      detailedScores: transformDetailedScores(report.scores),
       visualizationUrl: report.visualization_url,
       // 메타 정보
       status: report.status,

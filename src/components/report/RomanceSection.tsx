@@ -4,7 +4,7 @@ import { motion } from 'framer-motion';
 import { useTranslations } from 'next-intl';
 import { ContentCard } from './ContentCard';
 import { TraitGraph, type TraitItem, type TraitDescription } from './TraitGraph';
-import type { ContentCardData } from '@/types/report';
+import type { ContentCardData, RomanceExtendedData } from '@/types/report';
 
 /**
  * 연애 특성 설명 데이터
@@ -127,6 +127,8 @@ export interface RomanceSectionData {
   romanceTraits: RomanceTraitsData;
   /** 연애 점수 (0-100, 선택) */
   score?: number;
+  /** Task 25: 확장 데이터 (선택) */
+  extended?: RomanceExtendedData;
 }
 
 interface RomanceSectionProps {
@@ -150,7 +152,14 @@ interface RomanceSectionProps {
  */
 export function RomanceSection({ data, className = '' }: RomanceSectionProps) {
   const t = useTranslations('report.romance');
-  const { datingPsychology, spouseView, personalityPattern, romanceTraits, score } = data;
+  const { datingPsychology, spouseView, personalityPattern, romanceTraits, score, extended } = data;
+
+  // 확장 데이터 존재 여부
+  const hasStyle = extended?.style;
+  const hasIdealPartner = extended?.idealPartner && extended.idealPartner.length > 0;
+  const hasWarnings = extended?.warnings && extended.warnings.length > 0;
+  const hasCompatibilityPoints = extended?.compatibilityPoints && extended.compatibilityPoints.length > 0;
+  const hasLoveAdvice = extended?.loveAdvice;
 
   // 연애 특성 데이터를 TraitItem 배열로 변환
   const romanceItems: TraitItem[] = [
@@ -220,6 +229,59 @@ export function RomanceSection({ data, className = '' }: RomanceSectionProps) {
         <div className="h-px flex-1 bg-gradient-to-r from-pink-500/50 via-[#d4af37]/30 to-transparent" />
       </motion.div>
 
+      {/* Task 25: 연애 스타일 배지 */}
+      {hasStyle && (
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4, delay: 0.05 }}
+          className="flex items-center gap-3 rounded-xl bg-gradient-to-r from-pink-500/10 to-rose-500/10 p-4"
+        >
+          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-pink-500/20">
+            <svg className="h-5 w-5 text-pink-400" fill="currentColor" viewBox="0 0 20 20">
+              <path fillRule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" clipRule="evenodd" />
+            </svg>
+          </div>
+          <div>
+            <span className="text-xs text-gray-400">연애 스타일</span>
+            <p className="font-bold text-pink-300">{extended!.style}</p>
+          </div>
+        </motion.div>
+      )}
+
+      {/* Task 25: 이상형 특성 */}
+      {hasIdealPartner && (
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.08 }}
+          className="rounded-xl bg-[#1a1a1a] p-5"
+        >
+          <div className="mb-4 flex items-center gap-3">
+            <span className="inline-flex items-center gap-1 rounded-md bg-pink-500/20 px-2.5 py-1 text-xs font-bold text-pink-400">
+              <svg className="h-3 w-3" fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" clipRule="evenodd" />
+              </svg>
+              이상형
+            </span>
+          </div>
+          <div className="space-y-2">
+            {extended!.idealPartner!.map((trait, idx) => (
+              <motion.div
+                key={trait}
+                initial={{ opacity: 0, x: -10 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.3, delay: 0.1 + idx * 0.05 }}
+                className="flex items-center gap-2"
+              >
+                <div className="h-1.5 w-1.5 rounded-full bg-pink-400" />
+                <span className="text-gray-300">{trait}</span>
+              </motion.div>
+            ))}
+          </div>
+        </motion.div>
+      )}
+
       {/* 1. 연애심리 카드 */}
       <ContentCard
         label={datingPsychology.label || '연애심리'}
@@ -247,6 +309,96 @@ export function RomanceSection({ data, className = '' }: RomanceSectionProps) {
           variant="default"
           delay={0.3}
         />
+      )}
+
+      {/* Task 25: 궁합 포인트 */}
+      {hasCompatibilityPoints && (
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.35 }}
+          className="rounded-xl bg-[#1a1a1a] p-5"
+        >
+          <div className="mb-4 flex items-center gap-3">
+            <span className="inline-flex items-center gap-1 rounded-md bg-purple-500/20 px-2.5 py-1 text-xs font-bold text-purple-400">
+              <svg className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
+              </svg>
+              궁합 포인트
+            </span>
+          </div>
+          <div className="space-y-2">
+            {extended!.compatibilityPoints!.map((point, idx) => (
+              <motion.div
+                key={point}
+                initial={{ opacity: 0, x: -10 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.3, delay: 0.4 + idx * 0.05 }}
+                className="flex items-center gap-2"
+              >
+                <svg className="h-4 w-4 flex-shrink-0 text-purple-400" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                </svg>
+                <span className="text-gray-300">{point}</span>
+              </motion.div>
+            ))}
+          </div>
+        </motion.div>
+      )}
+
+      {/* Task 25: 연애 주의사항 */}
+      {hasWarnings && (
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.4 }}
+          className="rounded-xl border border-amber-900/30 bg-amber-950/20 p-5"
+        >
+          <div className="mb-4 flex items-center gap-3">
+            <span className="inline-flex items-center gap-1 rounded-md bg-amber-500/20 px-2.5 py-1 text-xs font-bold text-amber-400">
+              <svg className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+              </svg>
+              연애 주의사항
+            </span>
+          </div>
+          <div className="space-y-3">
+            {extended!.warnings!.map((warning, idx) => (
+              <motion.div
+                key={warning}
+                initial={{ opacity: 0, x: -10 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.3, delay: 0.45 + idx * 0.05 }}
+                className="flex items-start gap-3 rounded-lg bg-[#1a1a1a]/50 p-3"
+              >
+                <div className="mt-0.5 flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full bg-amber-500/20">
+                  <svg className="h-3 w-3 text-amber-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01" />
+                  </svg>
+                </div>
+                <span className="text-gray-300">{warning}</span>
+              </motion.div>
+            ))}
+          </div>
+        </motion.div>
+      )}
+
+      {/* Task 25: 연애 조언 */}
+      {hasLoveAdvice && (
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.45 }}
+          className="rounded-xl bg-gradient-to-br from-[#1a1a1a] to-[#0f0f0f] p-5"
+        >
+          <div className="mb-3 flex items-center gap-2">
+            <svg className="h-5 w-5 text-[#d4af37]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+            </svg>
+            <span className="text-sm font-bold text-[#d4af37]">연애 조언</span>
+          </div>
+          <p className="text-gray-300 leading-relaxed">{extended!.loveAdvice}</p>
+        </motion.div>
       )}
 
       {/* 4. 연애 특성 그래프 */}

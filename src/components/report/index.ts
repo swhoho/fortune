@@ -20,6 +20,12 @@ export { PersonalitySection } from './PersonalitySection';
 // Task 14: 사주 특성 섹션
 export { CharacteristicsSection } from './CharacteristicsSection';
 
+// Task 25: 기본 분석 섹션 (용신/기신/격국/일간)
+export { BasicAnalysisSection } from './BasicAnalysisSection';
+
+// Task 25: 세부 점수 레이더 차트 섹션
+export { DetailedScoresSection } from './DetailedScoresSection';
+
 // Task 15: 특성 그래프
 export { TraitBar } from './TraitBar';
 export { TraitGraph } from './TraitGraph';

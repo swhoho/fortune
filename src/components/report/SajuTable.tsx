@@ -2,25 +2,54 @@
 
 import { motion } from 'framer-motion';
 import type { PillarsHanja } from '@/types/saju';
+import type { JijangganData } from '@/types/report';
+
+/** 오행별 색상 매핑 */
+const STEM_ELEMENT_MAP: Record<string, string> = {
+  '甲': '木', '乙': '木',
+  '丙': '火', '丁': '火',
+  '戊': '土', '己': '土',
+  '庚': '金', '辛': '金',
+  '壬': '水', '癸': '水',
+};
+
+const ELEMENT_COLORS: Record<string, string> = {
+  '木': '#4ade80',
+  '火': '#ef4444',
+  '土': '#f59e0b',
+  '金': '#e5e7eb',
+  '水': '#3b82f6',
+};
 
 interface SajuTableProps {
   pillars: PillarsHanja;
+  jijanggan?: JijangganData;
   name?: string;
   age?: number;
   className?: string;
 }
 
+/** 천간의 오행 색상 반환 */
+function getStemColor(stem: string): string {
+  const element = STEM_ELEMENT_MAP[stem];
+  if (!element) return '#d4af37';
+  return ELEMENT_COLORS[element] ?? '#d4af37';
+}
+
 /**
  * 사주명식 테이블 컴포넌트
  * Task 12.2: 시/일/월/년 + 천간/지지 테이블
+ * Task 25: 지장간 표시 추가
  */
-export function SajuTable({ pillars, name, age, className = '' }: SajuTableProps) {
+export function SajuTable({ pillars, jijanggan, name, age, className = '' }: SajuTableProps) {
   const columns = [
-    { key: 'hour', label: '時', pillar: pillars.hour },
-    { key: 'day', label: '日', pillar: pillars.day },
-    { key: 'month', label: '月', pillar: pillars.month },
-    { key: 'year', label: '年', pillar: pillars.year },
+    { key: 'hour', label: '時', pillar: pillars.hour, jijang: jijanggan?.hour },
+    { key: 'day', label: '日', pillar: pillars.day, jijang: jijanggan?.day },
+    { key: 'month', label: '月', pillar: pillars.month, jijang: jijanggan?.month },
+    { key: 'year', label: '年', pillar: pillars.year, jijang: jijanggan?.year },
   ];
+
+  const hasJijanggan = jijanggan && (jijanggan.hour?.length || jijanggan.day?.length || jijanggan.month?.length || jijanggan.year?.length);
 
   // 컬럼 애니메이션 variants
   const containerVariants = {
@@ -64,7 +93,7 @@ export function SajuTable({ pillars, name, age, className = '' }: SajuTableProps
           className="flex justify-center gap-1"
         >
           {/* 4기둥 */}
-          {columns.map(({ key, label, pillar }) => (
+          {columns.map(({ key, label, pillar, jijang }) => (
             <motion.div
               key={key}
               variants={columnVariants}
@@ -87,7 +116,7 @@ export function SajuTable({ pillars, name, age, className = '' }: SajuTableProps
               </div>
 
               {/* 지지 */}
-              <div className="flex h-14 w-full items-center justify-center border border-[#3a3a3a] bg-[#1f1f1f]">
+              <div className={`flex h-14 w-full items-center justify-center border-x border-t border-[#3a3a3a] bg-[#1f1f1f] ${!hasJijanggan ? 'border-b rounded-b-lg' : ''}`}>
                 <span
                   className="font-serif text-2xl font-bold text-[#d4af37]"
                   aria-label={`지지: ${pillar.branch}`}
@@ -96,6 +125,26 @@ export function SajuTable({ pillars, name, age, className = '' }: SajuTableProps
                   {pillar.branch}
                 </span>
               </div>
+
+              {/* 지장간 (선택) */}
+              {hasJijanggan && (
+                <div className="flex h-10 w-full items-center justify-center gap-0.5 rounded-b-lg border border-[#3a3a3a] bg-[#0f0f0f] px-1">
+                  {jijang && jijang.length > 0 ? (
+                    jijang.map((stem, idx) => (
+                      <span
+                        key={idx}
+                        className="font-serif text-xs font-medium"
+                        style={{ color: getStemColor(stem) }}
+                        title={`지장간: ${stem}`}
+                      >
+                        {stem}
+                      </span>
+                    ))
+                  ) : (
+                    <span className="text-xs text-gray-600">-</span>
+                  )}
+                </div>
+              )}
             </motion.div>
           ))}
 
@@ -115,9 +164,16 @@ export function SajuTable({ pillars, name, age, className = '' }: SajuTableProps
               </div>
 
               {/* 나이 */}
-              <div className="flex h-14 w-full items-center justify-center border border-[#d4af37]/30 bg-[#d4af37]/5">
+              <div className={`flex h-14 w-full items-center justify-center border-x border-t border-[#d4af37]/30 bg-[#d4af37]/5 ${!hasJijanggan ? 'border-b' : ''}`}>
                 <span className="text-lg font-bold text-[#d4af37]">{age ? `${age}세` : ''}</span>
               </div>
+
+              {/* 지장간 공간 맞춤 */}
+              {hasJijanggan && (
+                <div className="flex h-10 w-full items-center justify-center rounded-b-lg border border-[#d4af37]/30 bg-[#d4af37]/5">
+                  <span className="text-[10px] text-[#d4af37]/50">지장간</span>
+                </div>
+              )}
             </motion.div>
           )}
         </motion.div>
