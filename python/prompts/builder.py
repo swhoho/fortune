@@ -128,6 +128,10 @@ STEP_JSON_SCHEMA_EXAMPLES = {
     "currentLevel": 65,
     "potential": 90,
     "advice": "재능 개발을 위한 구체적 조언"
+  },
+  "study_style": {
+    "type": "시각형|청각형|체험형|독서형|토론형",
+    "description": "학습 스타일에 대한 상세 설명 (3-5문장, 십신 기반 분석)"
   }
 }
 ```''',
@@ -959,6 +963,16 @@ Please respond according to the JSON schema.""",
 - 잠재력 (0-100)
 - 개발을 위한 조언
 
+### 6. 학습 스타일 (study_style)
+- 유형: 시각형/청각형/체험형/독서형/토론형 중 선택
+- 십신 기반 학습 성향:
+  - 정인/편인(印星) 강함: 독서형, 이론 학습 선호
+  - 식신/상관(食傷) 강함: 체험형, 창의적 학습 선호
+  - 정관/편관(官星) 강함: 구조화된 학습, 체계적 접근 선호
+  - 비견/겁재(比劫) 강함: 토론형, 경쟁적 학습 선호
+  - 정재/편재(財星) 강함: 실용적 학습, 응용 중심 선호
+- 학습 스타일에 대한 상세 설명 (3-5문장)
+
 응답은 반드시 JSON 스키마에 맞게 작성하세요.""",
 
                 'en': """## Aptitude Analysis Expert Role
@@ -995,6 +1009,16 @@ Based on the previous analyses and the Ziping core principles above, please anal
 - Current utilization level (0-100)
 - Potential (0-100)
 - Advice for development
+
+### 6. Learning Style (study_style)
+- Type: Visual/Auditory/Kinesthetic/Reading/Discussion
+- Ten Gods based learning tendencies:
+  - Strong Resource Stars (印星): Reading type, prefers theoretical learning
+  - Strong Eating/Hurting (食傷): Kinesthetic type, prefers creative learning
+  - Strong Officer Stars (官星): Structured learning, systematic approach
+  - Strong Companion/Rob (比劫): Discussion type, competitive learning
+  - Strong Wealth Stars (財星): Practical learning, application-focused
+- Detailed description of learning style (3-5 sentences)
 
 Please respond according to the JSON schema.""",
 
@@ -1033,6 +1057,16 @@ Please respond according to the JSON schema.""",
 - 潜在力（0-100）
 - 開発のためのアドバイス
 
+### 6. 学習スタイル（study_style）
+- タイプ：視覚型/聴覚型/体験型/読書型/討論型
+- 十神に基づく学習傾向：
+  - 印星が強い：読書型、理論学習を好む
+  - 食傷が強い：体験型、創造的学習を好む
+  - 官星が強い：構造化された学習、体系的アプローチを好む
+  - 比劫が強い：討論型、競争的学習を好む
+  - 財星が強い：実践的学習、応用中心を好む
+- 学習スタイルの詳細説明（3-5文）
+
 必ずJSONスキーマに従って回答してください。""",
 
                 'zh-CN': """## 适性分析专家角色
@@ -1070,6 +1104,16 @@ Please respond according to the JSON schema.""",
 - 潜力（0-100）
 - 发展建议
 
+### 6. 学习风格（study_style）
+- 类型：视觉型/听觉型/体验型/阅读型/讨论型
+- 基于十神的学习倾向：
+  - 印星强：阅读型，偏好理论学习
+  - 食伤强：体验型，偏好创意学习
+  - 官星强：结构化学习，偏好系统方法
+  - 比劫强：讨论型，偏好竞争学习
+  - 财星强：实践学习，偏好应用导向
+- 学习风格详细说明（3-5句）
+
 请务必按照JSON格式回答。""",
 
                 'zh-TW': """## 適性分析專家角色
@@ -1106,6 +1150,16 @@ Please respond according to the JSON schema.""",
 - 當前發揮水平（0-100）
 - 潛力（0-100）
 - 發展建議
+
+### 6. 學習風格（study_style）
+- 類型：視覺型/聽覺型/體驗型/閱讀型/討論型
+- 基於十神的學習傾向：
+  - 印星強：閱讀型，偏好理論學習
+  - 食傷強：體驗型，偏好創意學習
+  - 官星強：結構化學習，偏好系統方法
+  - 比劫強：討論型，偏好競爭學習
+  - 財星強：實踐學習，偏好應用導向
+- 學習風格詳細說明（3-5句）
 
 請務必按照JSON格式回答。"""
             },
