@@ -22,6 +22,7 @@ from manseryeok.engine import ManseryeokEngine
 from manseryeok.constants import JIJANGGAN_TABLE
 from schemas.saju import CalculateRequest, Pillars, Pillar
 from visualization import SajuVisualizer
+from services.normalizers import normalize_response
 
 logger = logging.getLogger(__name__)
 
@@ -362,9 +363,10 @@ class ReportAnalysisService:
                     if not result or (isinstance(result, dict) and len(result) == 0):
                         raise ValueError("빈 응답")
 
-                    # 성공 - 인메모리 즉시 저장
-                    logger.info(f"[{job_id}] {step_name} 성공: {json.dumps(result, ensure_ascii=False)[:300]}")
-                    analysis[step_name] = result
+                    # 성공 - DB 저장 전 키 정규화
+                    normalized_result = normalize_response(step_name, result)
+                    logger.info(f"[{job_id}] {step_name} 성공 (정규화됨): {json.dumps(normalized_result, ensure_ascii=False)[:300]}")
+                    analysis[step_name] = normalized_result
                     job_store.update(job_id, analysis=analysis)
                     job_store.update_step_status(job_id, step_name, "completed")
 

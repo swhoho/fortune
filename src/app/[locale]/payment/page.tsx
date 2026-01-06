@@ -117,7 +117,9 @@ export default function PaymentPage({ params: { locale } }: { params: { locale: 
       }
 
       // 성공 페이지로 이동
-      router.push(`/${locale}/payment/success?paymentId=${paymentId}&credits=${verifyResult.credits}`);
+      router.push(
+        `/${locale}/payment/success?paymentId=${paymentId}&credits=${verifyResult.credits}`
+      );
     } catch (err) {
       console.error('Checkout error:', err);
       setError(err instanceof Error ? err.message : '결제 중 오류가 발생했습니다');
@@ -291,7 +293,9 @@ export default function PaymentPage({ params: { locale } }: { params: { locale: 
                         size="lg"
                         className="w-full bg-gradient-to-r from-[#d4af37] to-[#b08d2b] py-6 text-lg font-bold text-black hover:from-[#e5bd43] hover:to-[#c19a2e] disabled:opacity-50"
                       >
-                        {isLoading ? '결제 진행 중...' : `${PAYMENT_METHOD_LABELS[selectedMethod].ko}로 결제`}
+                        {isLoading
+                          ? '결제 진행 중...'
+                          : `${PAYMENT_METHOD_LABELS[selectedMethod].ko}로 결제`}
                       </Button>
                       <p className="mt-3 text-center text-xs text-gray-500">
                         PortOne 안전결제 • {selectedMethod === 'card' ? 'KG이니시스' : '카카오페이'}

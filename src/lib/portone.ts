@@ -74,9 +74,7 @@ export type PaymentMethod = 'card' | 'kakaopay';
  * 환경변수가 없을 경우 테스트용 기본값 사용
  */
 export const PORTONE_CONFIG = {
-  storeId:
-    process.env.NEXT_PUBLIC_PORTONE_STORE_ID ||
-    'store-3560d3c9-7670-47ce-8287-d72b9d8b64b5',
+  storeId: process.env.NEXT_PUBLIC_PORTONE_STORE_ID || 'store-3560d3c9-7670-47ce-8287-d72b9d8b64b5',
 };
 
 /**

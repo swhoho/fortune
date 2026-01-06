@@ -22,7 +22,10 @@ function getAuthErrorKey(message: string): string {
   const lowerMessage = message.toLowerCase();
 
   // 이미 가입된 이메일
-  if (lowerMessage.includes('user already registered') || lowerMessage.includes('already been registered')) {
+  if (
+    lowerMessage.includes('user already registered') ||
+    lowerMessage.includes('already been registered')
+  ) {
     return 'userAlreadyRegistered';
   }
 
@@ -33,7 +36,10 @@ function getAuthErrorKey(message: string): string {
 
   // 비밀번호 정책 오류 (영문자, 숫자 필요 등)
   if (lowerMessage.includes('password should contain')) {
-    if (lowerMessage.includes('abcdefghijklmnopqrstuvwxyz') && lowerMessage.includes('0123456789')) {
+    if (
+      lowerMessage.includes('abcdefghijklmnopqrstuvwxyz') &&
+      lowerMessage.includes('0123456789')
+    ) {
       return 'passwordRequiresLetter';
     }
     if (lowerMessage.includes('uppercase')) {
@@ -42,7 +48,11 @@ function getAuthErrorKey(message: string): string {
     if (lowerMessage.includes('lowercase')) {
       return 'passwordRequiresLowercase';
     }
-    if (lowerMessage.includes('0123456789') || lowerMessage.includes('digit') || lowerMessage.includes('number')) {
+    if (
+      lowerMessage.includes('0123456789') ||
+      lowerMessage.includes('digit') ||
+      lowerMessage.includes('number')
+    ) {
       return 'passwordRequiresNumber';
     }
     if (lowerMessage.includes('symbol') || lowerMessage.includes('special')) {
@@ -145,9 +155,7 @@ export default function SignUpPage() {
       <Card className="w-full max-w-md border-[#333] bg-[#1a1a1a]">
         <CardHeader className="text-center">
           <CardTitle className="text-2xl font-bold text-white">{t('title')}</CardTitle>
-          <CardDescription className="text-gray-400">
-            {t('description')}
-          </CardDescription>
+          <CardDescription className="text-gray-400">{t('description')}</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="space-y-4">

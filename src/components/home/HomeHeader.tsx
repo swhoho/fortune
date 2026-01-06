@@ -20,7 +20,11 @@ export function HomeHeader() {
   const { data: creditsData } = useCreditsBalance();
 
   /** 아바타 이니셜 (이름 > 이메일 첫글자) */
-  const initial = (user?.user_metadata?.name?.charAt(0) || user?.email?.charAt(0) || '?').toUpperCase();
+  const initial = (
+    user?.user_metadata?.name?.charAt(0) ||
+    user?.email?.charAt(0) ||
+    '?'
+  ).toUpperCase();
   /** 현재 크레딧 */
   const credits = creditsData?.current ?? 0;
 

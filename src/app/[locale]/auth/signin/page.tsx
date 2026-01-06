@@ -25,7 +25,10 @@ function getSignInErrorKey(message: string): string {
   if (lowerMessage.includes('email not confirmed')) {
     return 'emailNotConfirmed';
   }
-  if (lowerMessage.includes('invalid login credentials') || lowerMessage.includes('invalid credentials')) {
+  if (
+    lowerMessage.includes('invalid login credentials') ||
+    lowerMessage.includes('invalid credentials')
+  ) {
     return 'invalidCredentials';
   }
   if (lowerMessage.includes('rate limit') || lowerMessage.includes('too many requests')) {
@@ -88,9 +91,7 @@ function SignInForm() {
     <Card className="w-full max-w-md border-[#333] bg-[#1a1a1a]">
       <CardHeader className="text-center">
         <CardTitle className="text-2xl font-bold text-white">{t('title')}</CardTitle>
-        <CardDescription className="text-gray-400">
-          {t('description')}
-        </CardDescription>
+        <CardDescription className="text-gray-400">{t('description')}</CardDescription>
       </CardHeader>
       <CardContent>
         {message === 'signup_success' && (

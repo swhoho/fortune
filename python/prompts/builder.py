@@ -67,20 +67,20 @@ STEP_JSON_SCHEMA_EXAMPLES = {
     "stem": "癸",
     "element": "水",
     "yinYang": "陰",
-    "characteristics": ["..."]
+    "characteristics": ["특성1", "특성2", "특성3"]
   },
   "structure": {
     "type": "正官格",
-    "quality": "上",
-    "description": "..."
+    "quality": "上|中|下",
+    "description": "격국에 대한 상세 설명"
   },
   "usefulGod": {
     "primary": "火",
     "secondary": "木",
     "harmful": "金",
-    "reasoning": "..."
+    "reasoning": "용신 선정 이유"
   },
-  "summary": "..."
+  "summary": "전체 사주 요약"
 }
 ```''',
     'personality': '''
@@ -88,40 +88,66 @@ STEP_JSON_SCHEMA_EXAMPLES = {
 {
   "willpower": {
     "score": 75,
-    "description": "..."
+    "description": "의지력에 대한 상세 분석"
   },
-  "outerPersonality": "...",
-  "innerPersonality": "...",
+  "outerPersonality": "겉으로 보이는 성격에 대한 상세 분석 (3-5문장)",
+  "innerPersonality": "내면의 성격에 대한 상세 분석 (3-5문장)",
   "socialStyle": {
-    "type": "...",
-    "strengths": ["...", "...", "..."],
-    "weaknesses": ["...", "...", "..."]
+    "type": "협조형|독립형|주도형|분석형",
+    "strengths": ["강점1", "강점2", "강점3"],
+    "weaknesses": ["약점1", "약점2", "약점3"]
   }
 }
 ```''',
     'aptitude': '''
 ```json
 {
-  "keywords": ["...", "...", "..."],
-  "talents": ["...", "...", "..."],
-  "recommendedFields": ["...", "...", "..."],
-  "avoidFields": ["...", "..."]
+  "keywords": ["적성키워드1", "적성키워드2", "적성키워드3", "적성키워드4", "적성키워드5"],
+  "talents": [
+    {
+      "name": "재능명",
+      "basis": "근거(십신/오행)",
+      "level": 85,
+      "description": "재능에 대한 상세 설명 (3-5문장)"
+    }
+  ],
+  "recommendedFields": [
+    {
+      "name": "분야명",
+      "suitability": 90,
+      "reason": "추천 이유 (구체적인 직업 예시 포함)"
+    }
+  ],
+  "avoidFields": [
+    {
+      "name": "회피 분야명",
+      "reason": "회피해야 하는 이유"
+    }
+  ],
+  "talentUsage": {
+    "currentLevel": 65,
+    "potential": 90,
+    "advice": "재능 개발을 위한 구체적 조언"
+  }
 }
 ```''',
     'fortune': '''
 ```json
 {
   "wealth": {
-    "pattern": "...",
-    "strengths": ["...", "...", "..."],
-    "risks": ["...", "...", "..."],
-    "advice": "..."
+    "pattern": "안정형|투자형|변동형|축적형",
+    "wealthScore": 75,
+    "strengths": ["재물 강점1", "재물 강점2", "재물 강점3"],
+    "risks": ["재물 리스크1", "재물 리스크2"],
+    "advice": "재물운 향상을 위한 조언"
   },
   "love": {
-    "style": "...",
-    "idealPartner": ["...", "...", "..."],
-    "compatibilityPoints": ["...", "..."],
-    "warnings": ["...", "...", "..."]
+    "style": "적극형|수동형|이상주의형|현실주의형",
+    "loveScore": 70,
+    "idealPartner": ["이상형 특성1", "이상형 특성2", "이상형 특성3"],
+    "compatibilityPoints": ["궁합 포인트1", "궁합 포인트2"],
+    "warnings": ["연애 주의사항1", "연애 주의사항2"],
+    "loveAdvice": "연애/결혼에 대한 종합 조언"
   }
 }
 ```'''
