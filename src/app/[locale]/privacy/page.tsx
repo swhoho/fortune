@@ -245,7 +245,7 @@ export default function PrivacyPage() {
                   <li>성명: 박유민</li>
                   <li>직책: 대표</li>
                   <li>이메일: asolid@gmail.com</li>
-                  <li>전화: 070-2325-2325</li>
+                  <li>전화: 070-7954-2284</li>
                 </ul>
               </div>
             </section>

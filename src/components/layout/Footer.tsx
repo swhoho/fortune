@@ -15,7 +15,7 @@ const BUSINESS_INFO = {
   representative: '박유민',
   businessNumber: '761-23-01990',
   address: '경기도 용인시 수지구 신봉2로 154, 104동 2003호(신봉동, 힐스테이트 광교산)',
-  phone: '070-2325-2325',
+  phone: '070-7954-2284',
   email: 'asolid@gmail.com',
   // 통신판매업번호는 신고 후 추가 예정
   // sellerRegistration: '제 2026-용인수지-XXXX호',

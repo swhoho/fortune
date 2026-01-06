@@ -56,7 +56,6 @@ export default function RefundPage() {
                   <ul className="space-y-2 text-gray-300">
                     <li>• 크레딧 구매 후 콘텐츠 미이용</li>
                     <li>• 결제 오류로 인한 중복 결제</li>
-                    <li>• 시스템 오류로 서비스 제공 불가</li>
                   </ul>
                 </div>
 
@@ -149,8 +148,7 @@ export default function RefundPage() {
             <section className="rounded-lg border border-[#333] bg-[#1a1a1a] p-6">
               <h2 className="mb-3 text-lg font-semibold text-white">환불 문의</h2>
               <div className="space-y-2 text-gray-400">
-                <p>이메일: asolid@gmail.com</p>
-                <p>전화: 070-2325-2325</p>
+                <p>전화: 070-7954-2284</p>
                 <p className="text-xs">운영시간: 평일 10:00 ~ 18:00 (주말/공휴일 휴무)</p>
               </div>
             </section>
