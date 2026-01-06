@@ -11,10 +11,18 @@ import { motion } from 'framer-motion';
 import { ArrowLeft, Share2, Sparkles, Calendar, BookOpen, Loader2, Home } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
-import { MonthlyTimeline, LuckyDaysCalendar, YearlyAdviceCard } from '@/components/analysis/yearly';
+import {
+  MonthlyTimeline,
+  LuckyDaysCalendar,
+  YearlyAdviceCard,
+  FailedSectionCard,
+} from '@/components/analysis/yearly';
 import { useYearlyStore } from '@/stores/yearly-store';
 import { BRAND_COLORS } from '@/lib/constants/colors';
 import type { YearlyAnalysisResult } from '@/lib/ai/types';
+
+/** 재분석 가능한 단계 타입 */
+type ReanalyzableStep = 'yearly_advice' | 'key_dates' | 'classical_refs';
 
 export default function YearlyResultPage() {
   const params = useParams();
@@ -25,6 +33,49 @@ export default function YearlyResultPage() {
   const [loading, setLoading] = useState(!yearlyResult);
   const [error, setError] = useState<string | null>(null);
   const [result, setResult] = useState<YearlyAnalysisResult | null>(yearlyResult);
+  const [reanalyzingStep, setReanalyzingStep] = useState<ReanalyzableStep | null>(null);
+
+  /**
+   * 특정 섹션 재분석 핸들러
+   */
+  const handleReanalyze = async (stepType: ReanalyzableStep) => {
+    setReanalyzingStep(stepType);
+    try {
+      const response = await fetch(`/api/analysis/yearly/${analysisId}/reanalyze`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ stepType }),
+      });
+
+      if (!response.ok) {
+        throw new Error('재분석에 실패했습니다');
+      }
+
+      const data = await response.json();
+
+      // 결과 업데이트
+      if (data.success && data.data?.result && result) {
+        const updatedResult: YearlyAnalysisResult = { ...result };
+
+        // stepType에 따라 해당 필드 업데이트
+        if (stepType === 'yearly_advice' && data.data.result.yearlyAdvice) {
+          updatedResult.yearlyAdvice = data.data.result.yearlyAdvice;
+        } else if (stepType === 'key_dates' && data.data.result.keyDates) {
+          updatedResult.keyDates = data.data.result.keyDates;
+        } else if (stepType === 'classical_refs' && data.data.result.classicalReferences) {
+          updatedResult.classicalReferences = data.data.result.classicalReferences;
+        }
+
+        setResult(updatedResult);
+        setYearlyResult(updatedResult);
+      }
+    } catch (err) {
+      console.error('재분석 오류:', err);
+      setError(err instanceof Error ? err.message : '재분석 중 오류가 발생했습니다');
+    } finally {
+      setReanalyzingStep(null);
+    }
+  };
 
   // API에서 결과 가져오기
   useEffect(() => {
@@ -196,12 +247,20 @@ export default function YearlyResultPage() {
           )}
 
           {/* 분야별 조언 */}
-          {result.yearlyAdvice && (
+          {result.yearlyAdvice ? (
             <YearlyAdviceCard yearlyAdvice={result.yearlyAdvice} year={result.year} />
+          ) : (
+            <FailedSectionCard
+              title="운세 심층 분석"
+              description="분야별 상세 조언과 가이드"
+              onReanalyze={() => handleReanalyze('yearly_advice')}
+              isReanalyzing={reanalyzingStep === 'yearly_advice'}
+              icon={<Sparkles className="h-5 w-5" style={{ color: BRAND_COLORS.primary }} />}
+            />
           )}
 
           {/* 핵심 날짜 */}
-          {result.keyDates && result.keyDates.length > 0 && (
+          {result.keyDates && result.keyDates.length > 0 ? (
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
@@ -259,10 +318,18 @@ export default function YearlyResultPage() {
                 ))}
               </div>
             </motion.div>
+          ) : (
+            <FailedSectionCard
+              title="연중 핵심 날짜"
+              description={`${result.year}년 주목해야 할 중요한 날들`}
+              onReanalyze={() => handleReanalyze('key_dates')}
+              isReanalyzing={reanalyzingStep === 'key_dates'}
+              icon={<Calendar className="h-5 w-5" style={{ color: BRAND_COLORS.primary }} />}
+            />
           )}
 
           {/* 고전 인용 */}
-          {result.classicalReferences && result.classicalReferences.length > 0 && (
+          {result.classicalReferences && result.classicalReferences.length > 0 ? (
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
@@ -302,6 +369,14 @@ export default function YearlyResultPage() {
                 ))}
               </div>
             </motion.div>
+          ) : (
+            <FailedSectionCard
+              title="고전 참조"
+              description="자평진전, 궁통보감 등 고전 인용"
+              onReanalyze={() => handleReanalyze('classical_refs')}
+              isReanalyzing={reanalyzingStep === 'classical_refs'}
+              icon={<BookOpen className="h-5 w-5" style={{ color: BRAND_COLORS.primary }} />}
+            />
           )}
 
           {/* 액션 버튼 */}

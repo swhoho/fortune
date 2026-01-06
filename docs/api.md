@@ -135,6 +135,41 @@ AI 후속 질문 | **인증**: 필수 | **크레딧**: 10C
 }
 ```
 
+### POST /api/analysis/yearly/:id/reanalyze
+신년 분석 섹션 재분석 | **인증**: 필수 | **크레딧**: 0C (무료)
+
+실패한 섹션만 재분석합니다. 분석 실패는 서비스 책임이므로 무료로 제공됩니다.
+
+**Request Body**:
+```json
+{
+  "stepType": "yearly_advice"
+}
+```
+
+| stepType | 설명 |
+|----------|------|
+| `yearly_advice` | 분야별 조언 (사업/재물/건강/관계/자기개발) |
+| `key_dates` | 연중 핵심 날짜 (길일/흉일) |
+| `classical_refs` | 고전 인용 (자평진전, 궁통보감) |
+| `monthly_1_3` | 1~3월 월운 |
+| `monthly_4_6` | 4~6월 월운 |
+| `monthly_7_9` | 7~9월 월운 |
+| `monthly_10_12` | 10~12월 월운 |
+
+**Response**:
+```json
+{
+  "success": true,
+  "message": "재분석이 완료되었습니다",
+  "data": {
+    "analysisId": "uuid",
+    "stepType": "yearly_advice",
+    "result": { "yearlyAdvice": {...} }
+  }
+}
+```
+
 ---
 
 ## 사용자 API
@@ -287,6 +322,7 @@ v2.0에서 `analyses` 테이블 기반 API가 `profiles` + `profile_reports` 테
 | 리포트 생성 | 70C | `POST /api/profiles/:id/report` |
 | 섹션 재분석 | 5C | `POST /api/profiles/:id/report/reanalyze` |
 | 신년 분석 | 50C | `POST /api/analysis/yearly` |
+| 신년 섹션 재분석 | 0C | `POST /api/analysis/yearly/:id/reanalyze` |
 | AI 후속 질문 | 10C | `POST /api/profiles/:id/report/question` |
 
 ---

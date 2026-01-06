@@ -209,19 +209,39 @@ class YearlyAnalysisService:
             advice = await self._step_yearly_advice(job_id, request, result)
             if advice:
                 result["yearlyAdvice"] = advice.get("yearlyAdvice", {})
+            else:
+                result["yearlyAdvice"] = None
+                logger.warning(f"[{job_id}] yearlyAdvice 단계 실패 - null 설정")
 
             # 7. key_dates
             key_dates = await self._step_key_dates(job_id, request, result)
             if key_dates:
                 result["keyDates"] = key_dates.get("keyDates", [])
+            else:
+                result["keyDates"] = None
+                logger.warning(f"[{job_id}] keyDates 단계 실패 - null 설정")
 
             # 8. classical_refs
             refs = await self._step_classical_refs(job_id, request, result)
             if refs:
                 result["classicalReferences"] = refs.get("classicalReferences", [])
+            else:
+                result["classicalReferences"] = None
+                logger.warning(f"[{job_id}] classicalReferences 단계 실패 - null 설정")
 
             # quarterlyHighlights 빈 배열로 추가 (호환성)
             result["quarterlyHighlights"] = []
+
+            # 실패한 단계 목록 수집
+            failed_steps = []
+            if not result.get("yearlyAdvice"):
+                failed_steps.append("yearlyAdvice")
+            if not result.get("keyDates"):
+                failed_steps.append("keyDates")
+            if not result.get("classicalReferences"):
+                failed_steps.append("classicalReferences")
+            if len(result.get("monthlyFortunes", [])) < 12:
+                failed_steps.append("monthlyFortunes")
 
             # 9. 완료 - DB 최종 저장
             job_store.update_step_status(job_id, "complete", "completed")
@@ -230,7 +250,8 @@ class YearlyAnalysisService:
                 status=JobStatus.COMPLETED,
                 current_step=None,
                 progress_percent=100,
-                result=result
+                result=result,
+                failed_steps=failed_steps
             )
 
             # Supabase에 최종 결과 저장
@@ -704,6 +725,133 @@ class YearlyAnalysisService:
     def get_status(self, job_id: str) -> Optional[Dict[str, Any]]:
         """작업 상태 조회"""
         return job_store.get(job_id)
+
+    async def reanalyze_step(
+        self,
+        analysis_id: str,
+        step_type: str,
+        pillars: Dict[str, Any],
+        daewun: List[Dict[str, Any]],
+        target_year: int,
+        language: str = "ko",
+        existing_analysis: Dict[str, Any] = None
+    ) -> Dict[str, Any]:
+        """
+        특정 단계만 재분석 후 DB 업데이트 (무료)
+
+        Args:
+            analysis_id: yearly_analyses 테이블 ID
+            step_type: 재분석할 단계 (yearly_advice, key_dates, classical_refs, monthly_X_X)
+            pillars: 사주 정보
+            daewun: 대운 정보
+            target_year: 분석 대상 연도
+            language: 언어
+            existing_analysis: 기존 분석 결과
+
+        Returns:
+            재분석 결과
+        """
+        logger.info(f"[Reanalyze:{analysis_id}] {step_type} 재분석 시작")
+
+        try:
+            # 기존 분석 결과에서 필요한 정보 추출
+            overview_result = {
+                "yearlyTheme": existing_analysis.get("yearlyTheme", "") if existing_analysis else "",
+                "overallScore": existing_analysis.get("overallScore", 50) if existing_analysis else 50
+            }
+
+            result = None
+
+            # 단계별 재분석 실행
+            if step_type == "yearly_advice":
+                prompt = YearlyStepPrompts.build_yearly_advice(
+                    language=language,
+                    year=target_year,
+                    pillars=pillars,
+                    daewun=daewun,
+                    overview_result=overview_result
+                )
+                result = await self._call_gemini(prompt, "yearly_advice")
+
+            elif step_type == "key_dates":
+                prompt = YearlyStepPrompts.build_key_dates(
+                    language=language,
+                    year=target_year,
+                    pillars=pillars,
+                    monthly_fortunes=existing_analysis.get("monthlyFortunes", []) if existing_analysis else []
+                )
+                result = await self._call_gemini(prompt, "key_dates")
+
+            elif step_type == "classical_refs":
+                prompt = YearlyStepPrompts.build_classical_refs(
+                    language=language,
+                    year=target_year,
+                    pillars=pillars,
+                    overview_result=overview_result
+                )
+                result = await self._call_gemini(prompt, "classical_refs")
+
+            elif step_type.startswith("monthly_"):
+                # monthly_1_3, monthly_4_6, monthly_7_9, monthly_10_12
+                parts = step_type.split("_")
+                if len(parts) == 3:
+                    start_month = int(parts[1])
+                    end_month = int(parts[2])
+                    months = list(range(start_month, end_month + 1))
+
+                    prompt = YearlyStepPrompts.build_monthly(
+                        language=language,
+                        year=target_year,
+                        months=months,
+                        pillars=pillars,
+                        daewun=daewun,
+                        overview_result=overview_result
+                    )
+                    result = await self._call_gemini(prompt, step_type)
+
+            if not result:
+                raise ValueError(f"알 수 없는 단계 유형: {step_type}")
+
+            # 기존 분석 결과와 병합
+            updated_analysis = dict(existing_analysis) if existing_analysis else {}
+
+            if step_type == "yearly_advice":
+                updated_analysis["yearlyAdvice"] = result.get("yearlyAdvice", {})
+            elif step_type == "key_dates":
+                updated_analysis["keyDates"] = result.get("keyDates", [])
+            elif step_type == "classical_refs":
+                updated_analysis["classicalReferences"] = result.get("classicalReferences", [])
+            elif step_type.startswith("monthly_"):
+                # 월별 데이터 병합 (해당 월만 교체)
+                new_monthly = result.get("monthlyFortunes", [])
+                existing_monthly = updated_analysis.get("monthlyFortunes", [])
+
+                # 월 번호로 인덱싱하여 병합
+                monthly_dict = {m.get("month"): m for m in existing_monthly if m}
+                for m in new_monthly:
+                    if m:
+                        monthly_dict[m.get("month")] = m
+
+                # 정렬하여 저장
+                updated_analysis["monthlyFortunes"] = sorted(
+                    monthly_dict.values(),
+                    key=lambda x: x.get("month", 0)
+                )
+
+            # DB 업데이트
+            await self._update_db_analysis(analysis_id, updated_analysis, "completed")
+
+            logger.info(f"[Reanalyze:{analysis_id}] {step_type} 재분석 완료")
+
+            return {
+                "success": True,
+                "step_type": step_type,
+                "result": result
+            }
+
+        except Exception as e:
+            logger.error(f"[Reanalyze:{analysis_id}] {step_type} 재분석 실패: {e}")
+            raise
 
 
 # 싱글톤 인스턴스

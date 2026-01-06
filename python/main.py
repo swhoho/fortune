@@ -431,6 +431,48 @@ async def get_yearly_analysis_status(job_id: str) -> YearlyAnalysisStatusRespons
     )
 
 
+@app.post("/api/analysis/yearly/reanalyze")
+async def reanalyze_yearly_step(request: dict) -> dict:
+    """
+    신년 분석 특정 단계 재분석 (무료)
+
+    실패한 섹션만 재분석하여 기존 분석 결과에 병합합니다.
+
+    - **analysis_id**: yearly_analyses 테이블 ID
+    - **step_type**: 재분석할 단계 (yearly_advice, key_dates, classical_refs, monthly_X_X)
+    - **pillars**: 사주 정보
+    - **daewun**: 대운 정보
+    - **target_year**: 분석 대상 연도
+    - **language**: 언어 (기본값: ko)
+    - **existing_analysis**: 기존 분석 결과
+
+    Returns:
+        재분석 결과
+    """
+    from services.yearly_analysis import yearly_analysis_service
+
+    try:
+        result = await yearly_analysis_service.reanalyze_step(
+            analysis_id=request.get("analysis_id"),
+            step_type=request.get("step_type"),
+            pillars=request.get("pillars"),
+            daewun=request.get("daewun", []),
+            target_year=request.get("target_year"),
+            language=request.get("language", "ko"),
+            existing_analysis=request.get("existing_analysis")
+        )
+
+        return {
+            "success": True,
+            "data": result
+        }
+    except Exception as e:
+        raise HTTPException(
+            status_code=500,
+            detail=f"재분석 실패: {str(e)}"
+        )
+
+
 # ============================================
 # 리포트 분석 API (비동기 작업)
 # ============================================

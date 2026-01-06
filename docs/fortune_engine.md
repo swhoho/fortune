@@ -1272,6 +1272,36 @@ python/prompts/yearly_prompt.py
 - `/[locale]/analysis/yearly/processing` - 분석 처리 중
 - `/[locale]/analysis/yearly/result/[id]` - 결과 페이지
 
+### 8단계 파이프라인 실패 처리
+
+신년 분석은 8단계 파이프라인으로 진행됩니다:
+
+| 단계 | 이름 | 설명 |
+|------|------|------|
+| 1 | `yearly_overview` | 연간 테마/점수 생성 |
+| 2 | `monthly_1_3` | 1~3월 월운 분석 |
+| 3 | `monthly_4_6` | 4~6월 월운 분석 |
+| 4 | `monthly_7_9` | 7~9월 월운 분석 |
+| 5 | `monthly_10_12` | 10~12월 월운 분석 |
+| 6 | `yearly_advice` | 분야별 조언 (사업/재물/건강/관계/자기개발) |
+| 7 | `key_dates` | 연중 핵심 날짜 (길일/흉일) |
+| 8 | `classical_refs` | 고전 인용 (자평진전/궁통보감) |
+
+**실패 처리**:
+- 각 단계 실패 시 해당 필드에 `null` 설정
+- 전체 `status`는 `completed`로 유지 (부분 완료 허용)
+- `failed_steps` 배열에 실패한 단계 이름 기록
+
+**재분석 API**:
+- 엔드포인트: `POST /api/analysis/yearly/:id/reanalyze`
+- 크레딧: 0C (무료) - 분석 실패는 서비스 책임
+- 요청: `{ stepType: 'yearly_advice' | 'key_dates' | 'classical_refs' | 'monthly_X_X' }`
+
+**UI 처리**:
+- `FailedSectionCard` 컴포넌트로 실패 섹션 표시
+- 재분석 버튼 클릭 시 해당 단계만 재생성
+- 성공 시 결과 업데이트 및 UI 갱신
+
 ---
 
 ## 🔧 백엔드 리팩토링 (v2.1) - 완료
