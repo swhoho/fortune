@@ -319,24 +319,24 @@ export default function ProfileReportPage({ params }: PageProps) {
             {reportData.profile.name}님의 사주 리포트
           </h1>
 
-          <div className="flex items-center gap-1">
+          <div className="flex items-center gap-1 sm:gap-2">
             <Button
               variant="ghost"
               size="icon"
               onClick={handleShare}
               title="공유하기"
-              className="text-gray-400 hover:text-white"
+              className="h-10 w-10 text-gray-400 hover:text-white"
             >
-              <Share2 className="h-4 w-4" />
+              <Share2 className="h-5 w-5" />
             </Button>
             <Button
               variant="ghost"
               size="icon"
               onClick={handleDownloadPdf}
               title="PDF 다운로드"
-              className="text-gray-400 hover:text-white"
+              className="h-10 w-10 text-gray-400 hover:text-white"
             >
-              <Download className="h-4 w-4" />
+              <Download className="h-5 w-5" />
             </Button>
           </div>
         </div>
