@@ -197,11 +197,9 @@ export function MonthlyTimeline({ monthlyFortunes, year }: MonthlyTimelineProps)
               <button
                 onClick={() => selectMonth(fortune.month)}
                 className={`w-full cursor-pointer touch-manipulation rounded-xl border-2 p-3 text-left transition-all hover:shadow-md active:scale-95 ${
-                  isCurrentMonth
+                  isExpanded
                     ? 'border-[#d4af37] bg-[#d4af37]/10'
-                    : isExpanded
-                      ? 'border-[#444] bg-[#242424]'
-                      : 'border-[#333] bg-[#1a1a1a] hover:bg-[#242424]'
+                    : 'border-[#333] bg-[#1a1a1a] hover:bg-[#242424]'
                 }`}
               >
                 <div className="flex items-center justify-between">

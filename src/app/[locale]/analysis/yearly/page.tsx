@@ -9,7 +9,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { useTranslations } from 'next-intl';
-import { ArrowRight, Sparkles, Home, Eye, Loader2 } from 'lucide-react';
+import { Sparkles, Home, Eye, Loader2 } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 import { YearSelector } from '@/components/analysis/yearly';
@@ -105,23 +105,23 @@ export default function YearlyAnalysisPage() {
   // 버튼 텍스트 결정
   const getButtonText = () => {
     if (hasExistingCompleted) {
-      return t('button.viewExisting', { defaultValue: '기존 리포트 보기' });
+      return t('button.viewExisting');
     }
     if (hasExistingInProgress) {
-      return t('button.checkProgress', { defaultValue: '진행 중인 분석 확인' });
+      return t('button.checkProgress');
     }
-    return `${selectedYear}년 운세 분석 시작`;
+    return t('button.startAnalysis', { year: selectedYear });
   };
 
   // 버튼 아이콘 결정
   const getButtonIcon = () => {
     if (checkingExisting) {
-      return <Loader2 className="ml-2 h-5 w-5 animate-spin" />;
+      return <Loader2 className="mr-2 h-5 w-5 animate-spin" />;
     }
     if (hasExistingCompleted) {
-      return <Eye className="ml-2 h-5 w-5" />;
+      return <Eye className="mr-2 h-5 w-5" />;
     }
-    return <ArrowRight className="ml-2 h-5 w-5" />;
+    return <Sparkles className="mr-2 h-5 w-5" />;
   };
 
   return (
@@ -240,8 +240,8 @@ export default function YearlyAnalysisPage() {
               color: canStart ? '#000' : undefined,
             }}
           >
-            {getButtonText()}
             {getButtonIcon()}
+            {getButtonText()}
           </Button>
         </motion.div>
 

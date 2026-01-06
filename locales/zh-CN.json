@@ -427,6 +427,11 @@
     "subtitle": "查看月度运势和吉凶日",
     "selectYear": "选择分析年份",
     "selectYearDesc": "选择要查看月度运势的年份",
+    "button": {
+      "viewExisting": "查看现有分析",
+      "checkProgress": "查看进度",
+      "startAnalysis": "开始{year}年运势分析"
+    },
     "existingAnalysis": {
       "title": "使用现有分析",
       "subtitle": "基于之前的分析数据进行新年运势分析",

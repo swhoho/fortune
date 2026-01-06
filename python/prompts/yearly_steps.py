@@ -137,7 +137,7 @@ Respond ONLY with the JSON below. No other text.
     {{
       "month": {months[0]},
       "theme": "{months[0]}월 테마",
-      "score": 70,
+      "score": "(0-100 사이 정수)",
       "overview": "이 달의 운세 개요 (150-200자 서사체)",
       "luckyDays": [
         {{"date": "{year}-{months[0]:02d}-15", "dayOfWeek": "수요일", "reason": "길일 이유", "suitableFor": ["계약", "시작"]}}
@@ -156,7 +156,7 @@ Respond ONLY with the JSON below. No other text.
 - monthlyFortunes 배열에 {len(months)}개월({month_range}월) 데이터 필수
 - 각 월별 luckyDays 3-5개, unluckyDays 1-3개
 - overview는 서사체로 150-200자
-- score는 0-100 사이 정수
+- score: 사주 원국과 해당 월 세운(월운)의 상호작용을 분석하여 0-100 사이 정수로 배정
 - 날짜 형식: YYYY-MM-DD
 """
         elif language == 'en':
@@ -177,7 +177,7 @@ Respond ONLY with the JSON below. No other text.
     {{
       "month": {months[0]},
       "theme": "Theme for month {months[0]}",
-      "score": 70,
+      "score": "(integer 0-100)",
       "overview": "Monthly overview (150-200 characters)",
       "luckyDays": [
         {{"date": "{year}-{months[0]:02d}-15", "dayOfWeek": "Wednesday", "reason": "Reason", "suitableFor": ["contracts"]}}
@@ -195,6 +195,7 @@ Respond ONLY with the JSON below. No other text.
 **Requirements**:
 - Include {len(months)} months ({month_range}) in monthlyFortunes array
 - 3-5 luckyDays, 1-3 unluckyDays per month
+- score: Analyze the interaction between natal chart and monthly luck to assign 0-100
 """
         else:
             return cls.build_monthly('ko', year, months, pillars, daewun, overview_result)

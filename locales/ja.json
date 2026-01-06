@@ -427,6 +427,11 @@
     "subtitle": "月別の運勢と吉凶日をご確認ください",
     "selectYear": "分析する年を選択",
     "selectYearDesc": "月別運勢を確認する年を選んでください",
+    "button": {
+      "viewExisting": "既存の分析を見る",
+      "checkProgress": "進行状況を確認",
+      "startAnalysis": "{year}年運勢分析を開始"
+    },
     "existingAnalysis": {
       "title": "既存の分析を使用",
       "subtitle": "以前の分析データを基に新年運勢を分析します",

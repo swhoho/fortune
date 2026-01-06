@@ -427,6 +427,11 @@
     "subtitle": "Check monthly fortunes and auspicious days",
     "selectYear": "Select Year to Analyze",
     "selectYearDesc": "Choose the year for monthly fortune analysis",
+    "button": {
+      "viewExisting": "View Existing Analysis",
+      "checkProgress": "Check Progress",
+      "startAnalysis": "Start {year} Fortune Analysis"
+    },
     "existingAnalysis": {
       "title": "Use Existing Analysis",
       "subtitle": "Analyze new year fortune based on your previous analysis",
