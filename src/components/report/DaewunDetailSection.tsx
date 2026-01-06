@@ -251,9 +251,18 @@ export function DaewunDetailSection({
 
                 {/* 상세 요약 (summary) */}
                 <div className="mb-4">
-                  <p className="text-sm leading-relaxed text-gray-300">
-                    {item.summary || item.description}
-                  </p>
+                  {item.summary || item.description ? (
+                    <p className="text-sm leading-relaxed text-gray-300">
+                      {item.summary || item.description}
+                    </p>
+                  ) : (
+                    <div className="flex items-center gap-2 rounded-lg border border-[#333] bg-[#111] px-3 py-2">
+                      <div className="h-2 w-2 animate-pulse rounded-full bg-[#d4af37]" />
+                      <span className="text-sm text-gray-500">
+                        대운 상세 분석 대기 중... (새 리포트 생성 시 포함됩니다)
+                      </span>
+                    </div>
+                  )}
                 </div>
 
                 {/* 시기별 상세 분석 버튼 (유료 - 구현 예정) */}

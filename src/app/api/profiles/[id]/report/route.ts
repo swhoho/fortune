@@ -47,7 +47,7 @@ const generateReportSchema = z.object({
 
 /**
  * DB daewun 데이터를 클라이언트 ReportDaewunItem 형식으로 변환
- * 십신 정보 및 기본값 채우기
+ * 기본값 없음 - AI 분석 결과만 사용 (summary 없으면 빈 문자열)
  */
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function transformDaewun(daewunList: any[]) {
@@ -64,32 +64,11 @@ function transformDaewun(daewunList: any[]) {
     tenGodType: dw.tenGodType || '알수없음',
     favorablePercent: dw.favorablePercent ?? 50,
     unfavorablePercent: dw.unfavorablePercent ?? 50,
-    // 새 필드: 점수 근거 + 상세 요약
+    // AI 분석 결과 (기본값 없음 - 빈 문자열이면 프론트엔드에서 처리)
     scoreReasoning: dw.scoreReasoning || '',
-    summary: dw.summary || dw.description || getDefaultDaewunDescription(dw.tenGod, dw.age),
-    // 기존 호환용
-    description: dw.description || getDefaultDaewunDescription(dw.tenGod, dw.age),
+    summary: dw.summary || '',
+    description: dw.description || dw.summary || '',
   }));
-}
-
-/**
- * 십신별 기본 대운 설명 생성
- */
-function getDefaultDaewunDescription(tenGod: string | undefined, _age: number): string {
-  const descriptions: Record<string, string> = {
-    비견: '자립심과 경쟁심이 강해지는 시기, 동료와의 협력이 중요',
-    겁재: '도전과 모험의 시기, 투자와 경쟁에 주의 필요',
-    식신: '창의력과 표현력이 빛나는 시기, 재능 발휘의 기회',
-    상관: '예술적 감성이 풍부해지는 시기, 구설에 주의',
-    정재: '안정적인 수입과 저축의 시기, 근면성실이 빛을 발함',
-    편재: '투자와 사업 기회의 시기, 부수입 가능성',
-    정관: '승진과 명예의 시기, 책임감이 요구됨',
-    편관: '변화와 도전의 시기, 스트레스 관리 필요',
-    정인: '학업과 자기계발의 시기, 지식 습득에 유리',
-    편인: '특수 기술 습득의 시기, 영감과 창의적 사고',
-  };
-
-  return descriptions[tenGod || ''] || '운의 흐름을 파악하여 대비하는 시기';
 }
 
 /**

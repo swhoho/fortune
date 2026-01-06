@@ -56,6 +56,7 @@ class JobStore:
                 "personality": "pending",
                 "aptitude": "pending",
                 "fortune": "pending",
+                "daewun_analysis": "pending",
                 "scoring": "pending",
                 "visualization": "pending",
                 "saving": "pending",
@@ -128,12 +129,13 @@ STEP_PROGRESS = {
     "manseryeok": 10,
     "jijanggan": 15,
     "basic_analysis": 30,
-    "personality": 50,
-    "aptitude": 60,
-    "fortune": 70,
-    "scoring": 80,
-    "visualization": 90,
-    "saving": 95,
+    "personality": 45,
+    "aptitude": 55,
+    "fortune": 65,
+    "daewun_analysis": 75,
+    "scoring": 85,
+    "visualization": 92,
+    "saving": 97,
     "complete": 100,
 }
 
@@ -188,16 +190,19 @@ class ReportAnalysisService:
             # 4-6. 순차 분석 (Gemini) - 각 단계별 3회 재시도 + DB 중간 저장
             await self._step_sequential_analysis(job_id, request.report_id, request.language)
 
-            # 7. 점수 계산
+            # 7. 대운 분석 (Gemini) - 8개 대운 상세 분석
+            await self._step_daewun_analysis(job_id, request.report_id, request.language)
+
+            # 8. 점수 계산
             await self._step_scoring(job_id)
 
-            # 8. 시각화 생성
+            # 9. 시각화 생성
             await self._step_visualization(job_id)
 
-            # 9. DB 저장
+            # 10. DB 저장
             await self._step_saving(job_id, request.report_id)
 
-            # 10. 완료
+            # 11. 완료
             job_store.update_step_status(job_id, "complete", "completed")
             job_store.update(
                 job_id,
@@ -394,6 +399,108 @@ class ReportAnalysisService:
 
         if success_count == 0:
             raise Exception("모든 분석 실패 (personality, aptitude, fortune)")
+
+    async def _step_daewun_analysis(self, job_id: str, report_id: str, language: str):
+        """대운 분석 단계 - 8개 대운 각각에 대해 AI 상세 분석 생성"""
+        from prompts.daewun_analysis import build_daewun_analysis_prompt
+        from datetime import date
+
+        job_store.update(
+            job_id,
+            current_step="daewun_analysis",
+            progress_percent=STEP_PROGRESS["daewun_analysis"]
+        )
+        job_store.update_step_status(job_id, "daewun_analysis", "in_progress")
+
+        job = job_store.get(job_id)
+        pillars = job.get("pillars", {})
+        daewun = job.get("daewun", [])
+        analysis = job.get("analysis", {})
+
+        # 기본 분석에서 용신/기신 정보 추출
+        basic_analysis = analysis.get("basicAnalysis", {})
+        useful_god_data = basic_analysis.get("usefulGod", {})
+
+        day_pillar = pillars.get("day", {})
+        day_master = day_pillar.get("stem", "")
+        day_master_element = day_pillar.get("element", "")
+
+        # 용신/기신 추출
+        useful_god = useful_god_data.get("primary", "")
+        harmful_god = useful_god_data.get("harmful", "")
+
+        # 현재 나이 계산 (대략적)
+        birth_year = pillars.get("year", {}).get("yearNum", date.today().year - 30)
+        current_age = date.today().year - birth_year
+
+        max_retries = 3
+        success = False
+        last_error = None
+
+        for attempt in range(1, max_retries + 1):
+            try:
+                logger.info(f"[{job_id}] 대운 분석 시도 {attempt}/{max_retries}")
+
+                # 대운 분석 프롬프트 빌드
+                prompt = build_daewun_analysis_prompt(
+                    day_master=day_master,
+                    day_master_element=day_master_element,
+                    useful_god=useful_god,
+                    harmful_god=harmful_god,
+                    current_age=current_age,
+                    daewun_list=daewun,
+                    language=language
+                )
+
+                result = await self._call_gemini(prompt)
+
+                # 응답 검증
+                if not result or not isinstance(result, dict):
+                    raise ValueError("빈 응답 또는 잘못된 형식")
+
+                daewun_analysis = result.get("daewunAnalysis", [])
+                if not daewun_analysis:
+                    raise ValueError("daewunAnalysis 필드 없음")
+
+                # 대운 데이터에 AI 분석 결과 병합
+                for i, dw in enumerate(daewun):
+                    if i < len(daewun_analysis):
+                        ai_result = daewun_analysis[i]
+                        dw["scoreReasoning"] = ai_result.get("scoreReasoning", "")
+                        dw["summary"] = ai_result.get("summary", "")
+                        dw["favorablePercent"] = ai_result.get("favorablePercent", 50)
+                        dw["unfavorablePercent"] = ai_result.get("unfavorablePercent", 50)
+
+                        # 300자 미만이면 경고 로그
+                        summary = dw.get("summary", "")
+                        if summary and len(summary) < 300:
+                            logger.warning(f"[{job_id}] 대운 {i} summary 길이 부족: {len(summary)}자")
+
+                # 성공 - 인메모리 저장
+                job_store.update(job_id, daewun=daewun)
+                job_store.update_step_status(job_id, "daewun_analysis", "completed")
+
+                # Supabase 중간 저장
+                await self._update_db_status(
+                    report_id,
+                    status="in_progress",
+                    daewun=daewun,
+                    step_statuses=job_store.get(job_id).get("step_statuses"),
+                    progress_percent=STEP_PROGRESS["daewun_analysis"]
+                )
+
+                logger.info(f"[{job_id}] 대운 분석 완료: {len(daewun_analysis)}개 대운 분석됨")
+                success = True
+                break
+
+            except Exception as e:
+                last_error = str(e)
+                logger.warning(f"[{job_id}] 대운 분석 실패 ({attempt}/{max_retries}): {e}")
+
+        if not success:
+            logger.error(f"[{job_id}] 대운 분석 최종 실패 (3회 재시도 후): {last_error}")
+            job_store.update_step_status(job_id, "daewun_analysis", "failed")
+            # 대운 분석 실패해도 다음 단계로 진행 (기존 대운 데이터 유지)
 
     async def _step_scoring(self, job_id: str):
         """점수 계산 단계"""
