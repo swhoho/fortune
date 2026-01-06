@@ -26,13 +26,17 @@ export default function ResetPasswordPage() {
   // 세션 확인 (이메일 링크로 접근했는지)
   useEffect(() => {
     const checkSession = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
       setIsValidSession(!!session);
     };
     checkSession();
 
     // 인증 상태 변경 리스너
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((event) => {
       if (event === 'PASSWORD_RECOVERY') {
         setIsValidSession(true);
       }
@@ -100,7 +104,9 @@ export default function ResetPasswordPage() {
             <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-red-900/30">
               <AlertCircle className="h-8 w-8 text-red-400" />
             </div>
-            <CardTitle className="text-2xl font-bold text-white">링크가 유효하지 않습니다</CardTitle>
+            <CardTitle className="text-2xl font-bold text-white">
+              링크가 유효하지 않습니다
+            </CardTitle>
             <CardDescription className="text-gray-400">
               비밀번호 재설정 링크가 만료되었거나 이미 사용되었습니다
             </CardDescription>
@@ -131,7 +137,9 @@ export default function ResetPasswordPage() {
             <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-green-900/30">
               <CheckCircle className="h-8 w-8 text-green-400" />
             </div>
-            <CardTitle className="text-2xl font-bold text-white">비밀번호가 변경되었습니다</CardTitle>
+            <CardTitle className="text-2xl font-bold text-white">
+              비밀번호가 변경되었습니다
+            </CardTitle>
             <CardDescription className="text-gray-400">
               잠시 후 로그인 페이지로 이동합니다
             </CardDescription>

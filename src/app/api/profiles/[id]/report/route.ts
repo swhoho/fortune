@@ -153,8 +153,8 @@ function transformPersonality(personality: any) {
   const weaknesses = socialRaw.weaknesses || socialRaw.약점 || [];
   const socialStyle = {
     label: socialRaw.type || socialRaw.유형 || socialRaw.스타일 || '대인관계',
-    summary: Array.isArray(strengths) ? strengths.join(', ') : (strengths || ''),
-    description: Array.isArray(weaknesses) ? weaknesses.join(', ') : (weaknesses || ''),
+    summary: Array.isArray(strengths) ? strengths.join(', ') : strengths || '',
+    description: Array.isArray(weaknesses) ? weaknesses.join(', ') : weaknesses || '',
   };
 
   return {
@@ -233,8 +233,12 @@ function transformAptitude(aptitude: any, scores: any) {
       const firstTalent = talents[0];
       mainTalent = {
         label: '주 재능',
-        title: typeof firstTalent === 'string' ? firstTalent : (firstTalent.이름 || firstTalent.name || '재능 분석'),
-        content: typeof firstTalent === 'string' ? '' : (firstTalent.설명 || firstTalent.description || ''),
+        title:
+          typeof firstTalent === 'string'
+            ? firstTalent
+            : firstTalent.이름 || firstTalent.name || '재능 분석',
+        content:
+          typeof firstTalent === 'string' ? '' : firstTalent.설명 || firstTalent.description || '',
       };
     }
 
@@ -259,14 +263,18 @@ function transformAptitude(aptitude: any, scores: any) {
     // 추천 직종
     recommendedJobs = (aptitude.추천_분야 || []).map(
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      (field: any) => (typeof field === 'string' ? field : (field.이름 || field.분야 || field.name || ''))
+      (field: any) =>
+        typeof field === 'string' ? field : field.이름 || field.분야 || field.name || ''
     );
 
     // 회피 직종
-    avoidedFields = (aptitude.회피_분야 || []).map(
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      (field: any) => (typeof field === 'string' ? field : (field.이름 || field.분야 || field.name || ''))
-    ).filter(Boolean);
+    avoidedFields = (aptitude.회피_분야 || [])
+      .map(
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        (field: any) =>
+          typeof field === 'string' ? field : field.이름 || field.분야 || field.name || ''
+      )
+      .filter(Boolean);
   } else {
     // 영문 키 구조 (기존 호환 + talentName/currentLevel/potential 등 새 필드 지원)
     keywords = aptitude.keywords || aptitude.analysis_summary?.keywords || [];
@@ -284,8 +292,8 @@ function transformAptitude(aptitude: any, scores: any) {
     talentStatus = {
       label: '재능의 상태',
       title: talentUtil
-        // currentLevel/potential 우선 지원 (새 Gemini 응답)
-        ? `현재 ${talentUtil.currentLevel || talentUtil.current_level || 0}% → 잠재력 ${talentUtil.potential || talentUtil.potential_level || 0}%`
+        ? // currentLevel/potential 우선 지원 (새 Gemini 응답)
+          `현재 ${talentUtil.currentLevel || talentUtil.current_level || 0}% → 잠재력 ${talentUtil.potential || talentUtil.potential_level || 0}%`
         : '재능 활용 상태',
       content: talentUtil?.advice || '',
     };
@@ -301,15 +309,24 @@ function transformAptitude(aptitude: any, scores: any) {
     recommendedJobs = (aptitude.recommendedFields || aptitude.recommended_fields || []).map(
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       (field: any) =>
-        typeof field === 'string' ? field : field.fieldName || field.name || field.이름 || field.field || field.분야 || ''
+        typeof field === 'string'
+          ? field
+          : field.fieldName || field.name || field.이름 || field.field || field.분야 || ''
     );
 
     // avoidFields 우선 지원 (새 Gemini 응답) + 한글 키 폴백
     avoidedFields = (aptitude.avoidFields || aptitude.avoided_fields || [])
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      .map(
-        (field: any) =>
-          typeof field === 'string' ? field : field.fieldName || field.reason || field.name || field.이름 || field.field || field.분야 || ''
+      .map((field: any) =>
+        typeof field === 'string'
+          ? field
+          : field.fieldName ||
+            field.reason ||
+            field.name ||
+            field.이름 ||
+            field.field ||
+            field.분야 ||
+            ''
       )
       .filter(Boolean);
   }

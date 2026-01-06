@@ -26,10 +26,7 @@ interface UseErrorMessageReturn {
    * @param context 추가 컨텍스트 (선택)
    * @returns 번역된 에러 메시지
    */
-  getErrorMessage: (
-    code: ErrorCode | string,
-    context?: Record<string, string | number>
-  ) => string;
+  getErrorMessage: (code: ErrorCode | string, context?: Record<string, string | number>) => string;
 
   /**
    * ErrorResponse 객체를 번역된 메시지로 변환
