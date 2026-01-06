@@ -54,6 +54,89 @@ from .mulsangron import generate_event_prediction_template
 LocaleType = Literal['ko', 'en', 'ja', 'zh-CN', 'zh-TW']
 
 
+# ============================================
+# 단계별 JSON 스키마 예시 (영문 키 강제)
+# 모든 언어에서 동일한 영문 키 사용
+# ============================================
+
+STEP_JSON_SCHEMA_EXAMPLES = {
+    'basic': '''
+```json
+{
+  "dayMaster": {
+    "stem": "癸",
+    "element": "水",
+    "yinYang": "陰",
+    "characteristics": ["..."]
+  },
+  "structure": {
+    "type": "正官格",
+    "quality": "上",
+    "description": "..."
+  },
+  "usefulGod": {
+    "primary": "火",
+    "secondary": "木",
+    "harmful": "金",
+    "reasoning": "..."
+  },
+  "summary": "..."
+}
+```''',
+    'personality': '''
+```json
+{
+  "willpower": {
+    "score": 75,
+    "description": "..."
+  },
+  "outerPersonality": "...",
+  "innerPersonality": "...",
+  "socialStyle": {
+    "type": "...",
+    "strengths": ["...", "...", "..."],
+    "weaknesses": ["...", "...", "..."]
+  }
+}
+```''',
+    'aptitude': '''
+```json
+{
+  "keywords": ["...", "...", "..."],
+  "talents": ["...", "...", "..."],
+  "recommendedFields": ["...", "...", "..."],
+  "avoidFields": ["...", "..."]
+}
+```''',
+    'fortune': '''
+```json
+{
+  "wealth": {
+    "pattern": "...",
+    "strengths": ["...", "...", "..."],
+    "risks": ["...", "...", "..."],
+    "advice": "..."
+  },
+  "love": {
+    "style": "...",
+    "idealPartner": ["...", "...", "..."],
+    "compatibilityPoints": ["...", "..."],
+    "warnings": ["...", "...", "..."]
+  }
+}
+```'''
+}
+
+# 언어별 JSON 키 사용 안내 메시지
+JSON_KEY_NOTICE = {
+    'ko': '\n\n**중요**: 응답은 반드시 아래 JSON 형식으로 작성하세요. JSON 키는 반드시 영문을 사용하고, 값(내용)만 한국어로 작성하세요.',
+    'en': '\n\n**Important**: Respond in the JSON format below. Use English keys exactly as shown.',
+    'ja': '\n\n**重要**: 以下のJSON形式で回答してください。JSONキーは必ず英語を使用し、値（内容）のみ日本語で記述してください。',
+    'zh-CN': '\n\n**重要**: 请按以下JSON格式回答。JSON键必须使用英文，仅值（内容）用中文书写。',
+    'zh-TW': '\n\n**重要**: 請按以下JSON格式回答。JSON鍵必須使用英文，僅值（內容）用中文書寫。'
+}
+
+
 @dataclass
 class PromptBuildOptions:
     """프롬프트 빌드 옵션"""
@@ -1181,7 +1264,15 @@ Please respond according to the JSON schema.""",
         # 5개 언어 지원 - 지원되는 언어면 해당 언어, 아니면 ko로 폴백
         supported_langs = ('ko', 'en', 'ja', 'zh-CN', 'zh-TW')
         lang = language if language in supported_langs else 'ko'
-        return instructions.get(step, {}).get(lang, instructions.get(step, {}).get('ko', ''))
+
+        # 기본 지시사항
+        base_instruction = instructions.get(step, {}).get(lang, instructions.get(step, {}).get('ko', ''))
+
+        # JSON 스키마 예시 추가 (영문 키 강제)
+        json_notice = JSON_KEY_NOTICE.get(lang, JSON_KEY_NOTICE['ko'])
+        json_example = STEP_JSON_SCHEMA_EXAMPLES.get(step, '')
+
+        return base_instruction + json_notice + json_example
 
     @classmethod
     def _build_step_user_prompt(

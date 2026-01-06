@@ -108,12 +108,13 @@ OUTPUT_JSON_SCHEMA = {
 }
 
 
-def get_output_schema_description(language: Literal['ko', 'en', 'ja', 'zh']) -> str:
+def get_output_schema_description(language: Literal['ko', 'en', 'ja', 'zh-CN', 'zh-TW']) -> str:
     """언어별 출력 스키마 설명 문자열 반환"""
 
     descriptions = {
         'ko': """
 ## 출력 형식 (JSON)
+**중요**: JSON 키는 반드시 영문을 사용하고, 값(내용)만 한국어로 작성하세요.
 반드시 아래 형식으로 응답하세요:
 
 ```json
@@ -174,6 +175,7 @@ You must respond in the following format:
 """,
         'ja': """
 ## 出力形式 (JSON)
+**重要**: JSONキーは必ず英語を使用し、値（内容）のみ日本語で記述してください。
 必ず以下の形式で回答してください：
 
 ```json
@@ -202,8 +204,9 @@ You must respond in the following format:
 }
 ```
 """,
-        'zh': """
+        'zh-CN': """
 ## 输出格式 (JSON)
+**重要**: JSON键必须使用英文，仅值（内容）用中文书写。
 必须按以下格式回答：
 
 ```json
@@ -228,6 +231,37 @@ You must respond in the following format:
   ],
   "classical_references": [
     {"source": "子平真诠", "quote": "原文", "interpretation": "解读"}
+  ]
+}
+```
+""",
+        'zh-TW': """
+## 輸出格式 (JSON)
+**重要**: JSON鍵必須使用英文，僅值（內容）用中文書寫。
+必須按以下格式回答：
+
+```json
+{
+  "summary": "命盤一句話總結（50字以內）",
+  "personality": {
+    "title": "性格分析",
+    "content": "性格分析詳細內容（500字）",
+    "keywords": ["關鍵詞1", "關鍵詞2", "關鍵詞3"]
+  },
+  "wealth": {
+    "title": "財運",
+    "content": "詳細分析",
+    "score": 0-100,
+    "advice": "具體建議"
+  },
+  "love": { ... },
+  "career": { ... },
+  "health": { ... },
+  "yearly_flow": [
+    {"year": 2026, "theme": "主題", "score": 0-100, "advice": "建議"}
+  ],
+  "classical_references": [
+    {"source": "子平真詮", "quote": "原文", "interpretation": "解讀"}
   ]
 }
 ```
@@ -452,6 +486,7 @@ def get_yearly_output_schema_description(language: LocaleType, year: int) -> str
         'ko': f"""
 ## 출력 형식 (JSON) - {year}년 신년 운세
 
+**중요**: JSON 키는 반드시 영문을 사용하고, 값(내용)만 한국어로 작성하세요.
 반드시 아래 형식으로 응답하세요:
 
 ```json
@@ -602,6 +637,7 @@ You must respond in the following format:
         'ja': f"""
 ## 出力形式 (JSON) - {year}年 年間運勢
 
+**重要**: JSONキーは必ず英語を使用し、値（内容）のみ日本語で記述してください。
 必ず以下の形式で回答してください：
 
 ```json
@@ -655,6 +691,7 @@ You must respond in the following format:
         'zh-CN': f"""
 ## 输出格式 (JSON) - {year}年 年度运势
 
+**重要**: JSON键必须使用英文，仅值（内容）用中文书写。
 必须按以下格式回答：
 
 ```json
@@ -701,6 +738,7 @@ You must respond in the following format:
         'zh-TW': f"""
 ## 輸出格式 (JSON) - {year}年 年度運勢
 
+**重要**: JSON鍵必須使用英文，僅值（內容）用中文書寫。
 必須按以下格式回答：
 
 ```json
