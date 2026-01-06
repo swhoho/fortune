@@ -25,6 +25,7 @@ from schemas.yearly import (
 )
 from prompts.yearly_steps import YearlyStepPrompts
 from .gemini import get_gemini_service
+from .normalizers import normalize_all_keys
 
 logger = logging.getLogger(__name__)
 
@@ -623,9 +624,11 @@ class YearlyAnalysisService:
         return result
 
     async def _call_gemini(self, prompt: str, step: str) -> Dict[str, Any]:
-        """Gemini API 호출 (단계별 전용 메서드 사용)"""
+        """Gemini API 호출 (단계별 전용 메서드 사용, 결과 키 정규화)"""
         gemini = self._get_gemini()
-        return await gemini.generate_yearly_step(prompt, step)
+        result = await gemini.generate_yearly_step(prompt, step)
+        # DB 저장 전 camelCase 정규화
+        return normalize_all_keys(result)
 
     async def _update_db_analysis(
         self,

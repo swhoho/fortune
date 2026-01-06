@@ -20,6 +20,7 @@ import {
   createErrorResponse,
   getStatusCode,
 } from '@/lib/errors/codes';
+import { normalizeKeys } from '@/lib/utils/normalize-keys';
 
 /**
  * 재시도 시 단계 상태 생성
@@ -88,62 +89,53 @@ function transformDaewun(daewunList: any[]) {
 function transformPersonality(personality: any, calculatedWillpower?: number) {
   if (!personality) return null;
 
-  // 한글 래퍼 처리
-  const data = personality.성격분석 || personality;
+  // 1. 한글/snake_case 키를 camelCase로 정규화
+  const normalized = normalizeKeys(personality);
+  const data = normalized.outerPersonality ? normalized : normalized.성격분석 || normalized;
 
   // 의지력: 계산된 점수 우선 사용, 없으면 AI 응답 사용
-  const willpowerData = data.willpower || data.willpower_analysis || data.의지력 || {};
+  const willpowerData = data.willpower || {};
   const willpower = {
-    // 십신 기반 계산 점수 우선 (AI 점수는 폴백)
-    score: calculatedWillpower ?? willpowerData.score ?? willpowerData.점수 ?? 50,
-    description: willpowerData.description || willpowerData.설명 || '',
+    score: calculatedWillpower ?? willpowerData.score ?? 50,
+    description: willpowerData.description || '',
   };
 
-  // 겉성격: outerPersonality > outer_personality > 겉성격 (문자열 또는 객체)
-  const outerRaw = data.outerPersonality || data.outer_personality || data.겉성격;
+  // 겉성격 (정규화 후 camelCase만 조회)
+  const outerRaw = data.outerPersonality;
   let outerPersonality;
   if (typeof outerRaw === 'string') {
-    // 문자열인 경우 description으로 사용
-    outerPersonality = {
-      label: '외면',
-      summary: '',
-      description: outerRaw,
-    };
+    outerPersonality = { label: '외면', summary: '', description: outerRaw };
   } else if (outerRaw && typeof outerRaw === 'object') {
     outerPersonality = {
-      label: outerRaw.impression || outerRaw.인상 || outerRaw.유형 || '외면',
-      summary: outerRaw.basis || outerRaw.근거 || outerRaw.특성 || '',
-      description: outerRaw.social_persona || outerRaw.사회적_페르소나 || outerRaw.설명 || '',
+      label: outerRaw.impression || outerRaw.type || '외면',
+      summary: outerRaw.basis || outerRaw.traits || '',
+      description: outerRaw.socialPersona || outerRaw.description || '',
     };
   } else {
     outerPersonality = { label: '외면', summary: '', description: '' };
   }
 
-  // 속성격: innerPersonality > inner_personality > 속성격 (문자열 또는 객체)
-  const innerRaw = data.innerPersonality || data.inner_personality || data.속성격;
+  // 속성격 (정규화 후 camelCase만 조회)
+  const innerRaw = data.innerPersonality;
   let innerPersonality;
   if (typeof innerRaw === 'string') {
-    innerPersonality = {
-      label: '내면',
-      summary: '',
-      description: innerRaw,
-    };
+    innerPersonality = { label: '내면', summary: '', description: innerRaw };
   } else if (innerRaw && typeof innerRaw === 'object') {
     innerPersonality = {
-      label: innerRaw.true_nature || innerRaw.본성 || innerRaw.유형 || '내면',
-      summary: innerRaw.basis || innerRaw.근거 || innerRaw.특성 || '',
-      description: innerRaw.emotional_processing || innerRaw.감정_처리방식 || innerRaw.설명 || '',
+      label: innerRaw.trueNature || innerRaw.type || '내면',
+      summary: innerRaw.basis || innerRaw.traits || '',
+      description: innerRaw.emotionalProcessing || innerRaw.description || '',
     };
   } else {
     innerPersonality = { label: '내면', summary: '', description: '' };
   }
 
-  // 대인관계: socialStyle > interpersonal_style > 대인관계_스타일
-  const socialRaw = data.socialStyle || data.interpersonal_style || data.대인관계_스타일 || {};
-  const strengths = socialRaw.strengths || socialRaw.강점 || [];
-  const weaknesses = socialRaw.weaknesses || socialRaw.약점 || [];
+  // 대인관계 (정규화 후 camelCase만 조회)
+  const socialRaw = data.socialStyle || {};
+  const strengths = socialRaw.strengths || [];
+  const weaknesses = socialRaw.weaknesses || [];
   const socialStyle = {
-    label: socialRaw.type || socialRaw.유형 || socialRaw.스타일 || '대인관계',
+    label: socialRaw.type || socialRaw.style || '대인관계',
     summary: Array.isArray(strengths) ? strengths.join(', ') : strengths || '',
     description: Array.isArray(weaknesses) ? weaknesses.join(', ') : weaknesses || '',
   };

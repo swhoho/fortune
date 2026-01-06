@@ -13,6 +13,7 @@ from supabase import create_client, Client
 from schemas.analysis import SectionReanalyzeRequest
 from prompts.builder import PromptBuilder, PromptBuildOptions
 from .gemini import get_gemini_service
+from .normalizers import normalize_all_keys
 
 logger = logging.getLogger(__name__)
 
@@ -80,9 +81,12 @@ class ReanalyzeService:
                 section_type=request.section_type,
             )
 
-            # 3. 재분석 결과에 메타데이터 추가
+            # 3. DB 저장 전 키 정규화 (camelCase 통일)
+            normalized_result = normalize_all_keys(result)
+
+            # 4. 재분석 결과에 메타데이터 추가
             section_result = {
-                **result,
+                **normalized_result,
                 'reanalyzed': True,
                 'reanalyzedAt': datetime.utcnow().isoformat(),
             }

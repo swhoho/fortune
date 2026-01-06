@@ -1,6 +1,8 @@
 'use client';
 
 import { motion } from 'framer-motion';
+import { RefreshCw, AlertCircle } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 
 interface PersonalityCardProps {
   label: string;
@@ -9,11 +11,16 @@ interface PersonalityCardProps {
   variant?: 'default' | 'highlight';
   delay?: number;
   className?: string;
+  /** 빈 데이터일 때 재분석 버튼 클릭 핸들러 */
+  onReanalyze?: () => void;
+  /** 재분석 진행 중 */
+  isReanalyzing?: boolean;
 }
 
 /**
  * 성격 카드 컴포넌트
  * Task 13.2: 라벨 + 요약 + 설명 카드
+ * Phase 4: 빈 데이터 시 재분석 버튼 표시
  */
 export function PersonalityCard({
   label,
@@ -22,8 +29,45 @@ export function PersonalityCard({
   variant = 'default',
   delay = 0,
   className = '',
+  onReanalyze,
+  isReanalyzing = false,
 }: PersonalityCardProps) {
   const isHighlight = variant === 'highlight';
+  const isEmpty = !summary && !description;
+
+  // 빈 데이터일 때 재분석 UI 표시
+  if (isEmpty) {
+    return (
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, delay: 0.2 + delay }}
+        className={`relative overflow-hidden rounded-xl border border-[#333] bg-[#1a1a1a] p-5 ${className}`}
+      >
+        <div className="flex items-center justify-between">
+          <span className="inline-flex items-center rounded-md bg-[#242424] px-2.5 py-1 text-xs font-medium text-gray-400">
+            {label}
+          </span>
+          {onReanalyze && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={onReanalyze}
+              disabled={isReanalyzing}
+              className="h-8 text-[#d4af37] hover:bg-[#d4af37]/10 hover:text-[#e5c048]"
+            >
+              <RefreshCw className={`mr-1.5 h-3.5 w-3.5 ${isReanalyzing ? 'animate-spin' : ''}`} />
+              {isReanalyzing ? '분석 중...' : '재분석'}
+            </Button>
+          )}
+        </div>
+        <div className="mt-4 flex items-center gap-2 text-sm text-gray-500">
+          <AlertCircle className="h-4 w-4" />
+          <p>분석 데이터를 불러올 수 없습니다</p>
+        </div>
+      </motion.div>
+    );
+  }
 
   return (
     <motion.div

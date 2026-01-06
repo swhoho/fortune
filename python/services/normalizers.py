@@ -2,7 +2,8 @@
 Gemini 응답 정규화 모듈
 DB 저장 전 키 이름을 표준화하여 TypeScript와의 일관성 유지
 """
-from typing import Any, Dict
+import re
+from typing import Any, Dict, Union, List
 
 # ============================================
 # 키 매핑 정의
@@ -82,6 +83,91 @@ LOVE_KEY_MAPPING = {
     '연애_조언': 'loveAdvice',
     'love_advice': 'loveAdvice',
 }
+
+# ============================================
+# 전역 한글 키 → camelCase 매핑
+# ============================================
+
+KOREAN_KEY_MAPPING = {
+    # personality
+    '겉성격': 'outerPersonality',
+    '속성격': 'innerPersonality',
+    '대인관계_스타일': 'socialStyle',
+    '의지력': 'willpower',
+    '본성': 'trueNature',
+    '근거': 'basis',
+    '인상': 'impression',
+    '사회적_페르소나': 'socialPersona',
+    '감정_처리방식': 'emotionalProcessing',
+    '유형': 'type',
+    '강점': 'strengths',
+    '약점': 'weaknesses',
+    '설명': 'description',
+    '점수': 'score',
+    '특성': 'traits',
+    # aptitude
+    '핵심_키워드': 'keywords',
+    '타고난_재능': 'talents',
+    '추천_분야': 'recommendedFields',
+    '회피_분야': 'avoidFields',
+    '재능_활용_상태': 'talentUsage',
+    '현재_수준': 'currentLevel',
+    '잠재력': 'potential',
+    '조언': 'advice',
+    # fortune
+    '재물운': 'wealth',
+    '연애운': 'love',
+    '패턴_유형': 'pattern',
+    '재물_점수': 'wealthScore',
+    '연애_점수': 'loveScore',
+    '재물운_강점': 'strengths',
+    '재물운_리스크': 'risks',
+    '스타일_유형': 'style',
+    '이상형_특성': 'idealPartner',
+    '궁합_포인트': 'compatibilityPoints',
+    '연애_조언': 'loveAdvice',
+    # yearly
+    '상반기': 'firstHalf',
+    '하반기': 'secondHalf',
+    '월별_운세': 'monthlyFortune',
+    '주요_키워드': 'mainKeywords',
+    '총운': 'overallFortune',
+    '재물': 'wealth',
+    '연애': 'love',
+    '건강': 'health',
+    '직업': 'career',
+}
+
+
+def normalize_all_keys(obj: Any) -> Any:
+    """
+    모든 키를 camelCase로 정규화 (한글 + snake_case → camelCase)
+    DB 저장 전 호출하여 일관성 보장
+    """
+    if obj is None:
+        return obj
+
+    if isinstance(obj, list):
+        return [normalize_all_keys(item) for item in obj]
+
+    if not isinstance(obj, dict):
+        return obj
+
+    result = {}
+    for key, value in obj.items():
+        # 1. 한글 키 → 영문 camelCase
+        if key in KOREAN_KEY_MAPPING:
+            camel_key = KOREAN_KEY_MAPPING[key]
+        # 2. snake_case → camelCase
+        elif '_' in key and not key.startswith('_'):
+            camel_key = re.sub(r'_([a-z])', lambda m: m.group(1).upper(), key)
+        else:
+            camel_key = key
+
+        # 재귀 적용
+        result[camel_key] = normalize_all_keys(value)
+
+    return result
 
 
 # ============================================

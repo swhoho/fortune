@@ -5,17 +5,25 @@ import { WillpowerGauge } from './WillpowerGauge';
 import { PersonalityCard } from './PersonalityCard';
 import type { WillpowerData, PersonalityCardData } from '@/types/report';
 
+/** 재분석 핸들러 타입 */
+type ReanalyzeSection = 'outer' | 'inner' | 'social';
+
 interface PersonalitySectionProps {
   willpower: WillpowerData;
   outerPersonality: PersonalityCardData;
   innerPersonality: PersonalityCardData;
   socialStyle: PersonalityCardData;
   className?: string;
+  /** 섹션별 재분석 핸들러 (빈 데이터일 때 호출) */
+  onReanalyze?: (section: ReanalyzeSection) => void;
+  /** 재분석 진행 중인 섹션 */
+  reanalyzingSection?: ReanalyzeSection | null;
 }
 
 /**
  * 성격 분석 섹션 컴포넌트
  * Task 13.3: 의지력 + 겉성격/속성격/대인관계
+ * Phase 4: 빈 데이터 시 재분석 버튼 지원
  */
 export function PersonalitySection({
   willpower,
@@ -23,6 +31,8 @@ export function PersonalitySection({
   innerPersonality,
   socialStyle,
   className = '',
+  onReanalyze,
+  reanalyzingSection,
 }: PersonalitySectionProps) {
   return (
     <motion.section
@@ -54,6 +64,8 @@ export function PersonalitySection({
           description={outerPersonality.description}
           variant="highlight"
           delay={0}
+          onReanalyze={onReanalyze ? () => onReanalyze('outer') : undefined}
+          isReanalyzing={reanalyzingSection === 'outer'}
         />
 
         {/* 속성격 */}
@@ -62,6 +74,8 @@ export function PersonalitySection({
           summary={innerPersonality.summary}
           description={innerPersonality.description}
           delay={0.1}
+          onReanalyze={onReanalyze ? () => onReanalyze('inner') : undefined}
+          isReanalyzing={reanalyzingSection === 'inner'}
         />
 
         {/* 대인관계 */}
@@ -70,6 +84,8 @@ export function PersonalitySection({
           summary={socialStyle.summary}
           description={socialStyle.description}
           delay={0.2}
+          onReanalyze={onReanalyze ? () => onReanalyze('social') : undefined}
+          isReanalyzing={reanalyzingSection === 'social'}
         />
       </div>
     </motion.section>
