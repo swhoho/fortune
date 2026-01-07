@@ -8,6 +8,29 @@ import { getSupabaseAdmin } from '@/lib/supabase/client';
 import { AUTH_ERRORS, API_ERRORS, createErrorResponse, getStatusCode } from '@/lib/errors/codes';
 
 /**
+ * snake_case → camelCase 변환 (재귀)
+ */
+function snakeToCamel(str: string): string {
+  return str.replace(/_([a-z])/g, (_, letter) => letter.toUpperCase());
+}
+
+/**
+ * 객체 키를 snake_case → camelCase로 변환 (재귀)
+ */
+function normalizeKeys<T>(obj: T): T {
+  if (obj === null || obj === undefined) return obj;
+  if (Array.isArray(obj)) return obj.map(normalizeKeys) as T;
+  if (typeof obj !== 'object') return obj;
+
+  const result: Record<string, unknown> = {};
+  for (const [key, value] of Object.entries(obj as Record<string, unknown>)) {
+    const camelKey = snakeToCamel(key);
+    result[camelKey] = normalizeKeys(value);
+  }
+  return result as T;
+}
+
+/**
  * Python API URL 가져오기
  */
 function getPythonApiUrl(): string {
@@ -55,13 +78,15 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
     // v2.5: 개별 컬럼 우선, analysis 폴백 (롤백 안전성)
     if (analysis.status === 'completed') {
       // 개별 컬럼에서 분석 결과 조합 (없으면 analysis 폴백)
+      // yearlyAdvice는 snake_case 키일 수 있으므로 정규화 적용
+      const rawYearlyAdvice = analysis.yearly_advice ?? analysis.analysis?.yearlyAdvice;
       const analysisResult = {
         year: analysis.overview?.year ?? analysis.analysis?.year,
         summary: analysis.overview?.summary ?? analysis.analysis?.summary,
         yearlyTheme: analysis.overview?.yearlyTheme ?? analysis.analysis?.yearlyTheme,
         overallScore: analysis.overview?.overallScore ?? analysis.analysis?.overallScore,
         monthlyFortunes: analysis.monthly_fortunes ?? analysis.analysis?.monthlyFortunes,
-        yearlyAdvice: analysis.yearly_advice ?? analysis.analysis?.yearlyAdvice,
+        yearlyAdvice: rawYearlyAdvice ? normalizeKeys(rawYearlyAdvice) : null,
         keyDates: analysis.key_dates ?? analysis.analysis?.keyDates,
         classicalReferences: analysis.classical_refs ?? analysis.analysis?.classicalReferences,
         quarterlyHighlights: analysis.analysis?.quarterlyHighlights ?? [],
@@ -114,6 +139,14 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
               })
               .eq('id', analysisId);
 
+            // yearlyAdvice 키 정규화 적용
+            const normalizedResult = {
+              ...statusData.result,
+              yearlyAdvice: statusData.result.yearlyAdvice
+                ? normalizeKeys(statusData.result.yearlyAdvice)
+                : null,
+            };
+
             return NextResponse.json({
               success: true,
               status: 'completed',
@@ -125,7 +158,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
                 daewun: analysis.daewun,
                 currentDaewun: analysis.current_daewun,
                 gender: analysis.gender,
-                analysis: statusData.result,
+                analysis: normalizedResult,
                 language: analysis.language,
                 creditsUsed: analysis.credits_used,
                 createdAt: analysis.created_at,
