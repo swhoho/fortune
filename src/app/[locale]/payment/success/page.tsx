@@ -226,7 +226,7 @@ function PaymentSuccessContent() {
         transition={{ delay: 0.7 }}
         className="mt-6 text-sm text-gray-400"
       >
-        결제 관련 문의: support@mastersinsight.ai
+        결제 문의는 mypage → 고객센터로 연락 부탁드립니다
       </motion.p>
     </motion.div>
   );
