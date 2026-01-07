@@ -264,7 +264,7 @@ export function ChatArea({
 
           <div>
             <h4 className="font-medium text-white">{session?.title || '새 상담'}</h4>
-            <p className="text-xs text-gray-500">질문 {session?.questionCount || 0}/5</p>
+            <p className="text-xs text-gray-500">질문 {session?.questionCount || 0}/2</p>
           </div>
         </div>
 
@@ -410,7 +410,7 @@ export function ChatArea({
             }
             showSkipButton={awaitingClarification && !generatingMessage && !regeneratingId}
             questionCount={session?.questionCount || 0}
-            maxQuestions={5}
+            maxQuestions={2}
           />
         )}
       </div>

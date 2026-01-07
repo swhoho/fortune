@@ -120,7 +120,7 @@ export function SessionList({
                       <span
                         className={`text-xs ${isCompleted ? 'text-gray-500' : 'text-[#d4af37]'}`}
                       >
-                        {session.questionCount}/5
+                        {session.questionCount}/2
                       </span>
                     </div>
                   </div>

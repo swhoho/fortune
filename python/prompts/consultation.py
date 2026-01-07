@@ -288,10 +288,16 @@ def build_answer_prompt(
 3. 명리학적 근거를 바탕으로 구체적인 조언을 제공하세요
 4. 대운과 세운의 흐름을 고려하여 시기를 제안하세요
 5. 일간(日干)의 특성을 반영한 개인 맞춤 조언을 하세요
-6. 500-800자 내외로 상세하게 답변하세요
+6. **800-1200자** 내외로 충분히 상세하게 답변하세요
 7. 미신적 표현은 지양하고 건설적인 조언을 제공하세요
 8. 필요시 자평진전, 궁통보감 등 고전을 인용하세요
 9. 따뜻하고 전문적인 톤을 유지하세요
+10. **한자 용어 설명 (필수)**: 한자 용어를 사용할 때 반드시 일상적 비유로 먼저 설명하세요
+   - 천간 비유: 甲木(큰 나무), 乙木(풀/덩굴), 丙火(태양), 丁火(촛불), 戊土(산/대지), 己土(논밭), 庚金(바위/쇠), 辛金(보석/칼날), 壬水(바다/큰물), 癸水(이슬/샘물)
+   - 지지 비유: 寅卯(봄/나무기운), 巳午(여름/불기운), 申酉(가을/금속기운), 亥子(겨울/물기운), 辰戌丑未(환절기/흙기운)
+   - 예시: "촛불처럼 섬세하고 따뜻한 불 기운(丁火)", "가을 금속처럼 날카롭고 결단력 있는 기운(申金)"
+11. 사주 용어가 나올 때마다 그 의미를 풀어서 설명하세요. 독자가 사주를 전혀 모른다고 가정하세요.
+12. 오행의 상생상극 관계도 쉬운 비유로 설명하세요 (예: "물이 나무를 키우듯", "불이 금속을 녹이듯")
 
 답변만 작성해주세요 (JSON 형식 불필요).""",
 
@@ -315,10 +321,16 @@ Original Question: {question}
 3. Provide specific advice based on astrological principles
 4. Consider the flow of major cycles when suggesting timing
 5. Give personalized advice reflecting the Day Master's characteristics
-6. Respond in 500-800 characters with detail
+6. Respond in **800-1200 characters** with thorough detail
 7. Avoid superstitious expressions, provide constructive advice
 8. Reference classics like Ziping Zhenguan or Qiongtongbaokan when needed
 9. Maintain a warm and professional tone
+10. **Explain Chinese terms with metaphors (Required)**: Always explain Chinese astrological terms using everyday metaphors first
+   - Heavenly Stems: 甲(tall tree), 乙(grass/vine), 丙(sun), 丁(candle flame), 戊(mountain/earth), 己(farmland), 庚(rock/iron), 辛(gem/blade), 壬(ocean), 癸(dew/spring water)
+   - Earthly Branches: 寅卯(spring/wood energy), 巳午(summer/fire energy), 申酉(autumn/metal energy), 亥子(winter/water energy), 辰戌丑未(transitional/earth energy)
+   - Example: "gentle candle-like fire energy (丁火)", "sharp and decisive autumn metal energy (申金)"
+11. Explain the meaning of each Four Pillars term as if the reader knows nothing about Chinese astrology.
+12. Explain Five Elements relationships using simple metaphors (e.g., "water nourishes wood", "fire melts metal")
 
 Write only the answer (no JSON format needed).""",
 
@@ -342,10 +354,16 @@ Write only the answer (no JSON format needed).""",
 3. 命理学的根拠に基づいた具体的なアドバイスを提供してください
 4. 大運と歳運の流れを考慮して時期を提案してください
 5. 日干の特性を反映した個人向けアドバイスをしてください
-6. 500〜800文字程度で詳しく回答してください
+6. **800〜1200文字**程度で十分詳しく回答してください
 7. 迷信的な表現は避け、建設的なアドバイスを提供してください
 8. 必要に応じて子平真詮、窮通宝鑑などの古典を引用してください
 9. 温かくプロフェッショナルなトーンを維持してください
+10. **漢字用語の説明（必須）**: 漢字の専門用語を使う際は、必ず日常的なたとえで先に説明してください
+   - 天干のたとえ: 甲木(大きな木), 乙木(草/つる), 丙火(太陽), 丁火(ろうそくの炎), 戊土(山/大地), 己土(田畑), 庚金(岩/鉄), 辛金(宝石/刃), 壬水(海/大きな水), 癸水(露/湧き水)
+   - 地支のたとえ: 寅卯(春/木のエネルギー), 巳午(夏/火のエネルギー), 申酉(秋/金属のエネルギー), 亥子(冬/水のエネルギー), 辰戌丑未(季節の変わり目/土のエネルギー)
+   - 例: 「ろうそくの炎のように繊細で温かい火のエネルギー（丁火）」、「秋の金属のように鋭く決断力のあるエネルギー（申金）」
+11. 四柱推命の用語が出るたびに、読者が四柱推命を全く知らないと仮定して意味を説明してください。
+12. 五行の相生相剋関係も簡単なたとえで説明してください（例：「水が木を育てるように」、「火が金属を溶かすように」）
 
 回答のみを記述してください（JSON形式は不要です）。""",
 
@@ -369,10 +387,16 @@ Write only the answer (no JSON format needed).""",
 3. 根据命理学原理提供具体建议
 4. 考虑大运和流年的走势建议时机
 5. 根据日主特性提供个性化建议
-6. 回答500-800字左右，内容详细
+6. 回答**800-1200字**左右，内容充分详细
 7. 避免迷信表达，提供建设性建议
 8. 必要时引用子平真诠、穷通宝鉴等经典
 9. 保持温暖专业的语气
+10. **汉字术语解释（必须）**: 使用专业术语时，必须先用日常比喻解释
+   - 天干比喻: 甲木(大树), 乙木(花草/藤蔓), 丙火(太阳), 丁火(烛火), 戊土(高山/大地), 己土(田园), 庚金(岩石/钢铁), 辛金(珠宝/刀刃), 壬水(大海), 癸水(露珠/泉水)
+   - 地支比喻: 寅卯(春天/木能量), 巳午(夏天/火能量), 申酉(秋天/金能量), 亥子(冬天/水能量), 辰戌丑未(季节交替/土能量)
+   - 示例: "像烛火一样细腻温暖的火能量（丁火）"、"像秋天金属一样锐利果断的能量（申金）"
+11. 每次提到八字术语时，假设读者完全不了解八字，详细解释其含义。
+12. 用简单比喻解释五行相生相克关系（例如："水滋养木"、"火熔化金"）
 
 只写回答（无需JSON格式）。""",
 
@@ -396,10 +420,16 @@ Write only the answer (no JSON format needed).""",
 3. 根據命理學原理提供具體建議
 4. 考慮大運和流年的走勢建議時機
 5. 根據日主特性提供個性化建議
-6. 回答500-800字左右，內容詳細
+6. 回答**800-1200字**左右，內容充分詳細
 7. 避免迷信表達，提供建設性建議
 8. 必要時引用子平真詮、窮通寶鑑等經典
 9. 保持溫暖專業的語氣
+10. **漢字術語解釋（必須）**: 使用專業術語時，必須先用日常比喻解釋
+   - 天干比喻: 甲木(大樹), 乙木(花草/藤蔓), 丙火(太陽), 丁火(燭火), 戊土(高山/大地), 己土(田園), 庚金(岩石/鋼鐵), 辛金(珠寶/刀刃), 壬水(大海), 癸水(露珠/泉水)
+   - 地支比喻: 寅卯(春天/木能量), 巳午(夏天/火能量), 申酉(秋天/金能量), 亥子(冬天/水能量), 辰戌丑未(季節交替/土能量)
+   - 示例: 「像燭火一樣細膩溫暖的火能量（丁火）」、「像秋天金屬一樣銳利果斷的能量（申金）」
+11. 每次提到八字術語時，假設讀者完全不了解八字，詳細解釋其含義。
+12. 用簡單比喻解釋五行相生相剋關係（例如：「水滋養木」、「火熔化金」）
 
 只寫回答（無需JSON格式）。"""
     }
