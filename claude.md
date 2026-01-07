@@ -69,9 +69,11 @@ python/
 
 | 문서 | 설명 |
 |------|------|
-| `docs/todo_v2.md` | 작업 체크리스트 |
-| `docs/api.md` | API 명세 |
-| `docs/fortune_engine.md` | 사주 분석 엔진 |
+| `docs/api.md` | API 엔드포인트 명세 |
+| `docs/fortune_engine.md` | 만세력 엔진, 점수 시스템 |
+| `docs/report_analysis.md` | 프로필 리포트 분석 파이프라인 |
+| `docs/yearly_analysis.md` | 신년 분석 파이프라인 |
+| `docs/consultation.md` | AI 상담 시스템 |
 
 ## 핵심 기능
 
@@ -290,10 +292,16 @@ cd python && pytest  # Python
 
 ---
 
-**Version**: 1.32.0
-**Last Updated**: 2026-01-07 (상담 세션 크레딧 시스템)
+**Version**: 1.33.0
+**Last Updated**: 2026-01-07 (신년 분석 버그 수정 v2.7)
 
 ## Changelog
+
+### v1.33.0 (2026-01-07)
+- **신년 분석 버그 수정 (v2.7)**
+  - 재분석 API 응답 중첩 제거 (`result.result` → `result`)
+  - 프론트엔드 방어적 result 접근
+  - 만세력 422 에러 친절한 메시지 ("먼저 기본 분석을 완료해주세요")
 
 ### v1.32.0 (2026-01-07)
 - **상담 세션 크레딧 시스템**
