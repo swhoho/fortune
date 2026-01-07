@@ -34,6 +34,7 @@ export const DEFAULT_STEP_TIMEOUTS: Record<PipelineStep, number> = {
   personality: 300000, // 5분
   aptitude: 300000, // 5분
   fortune: 300000, // 5분
+  daewun_analysis: 300000, // 5분 (Gemini API 응답 대기)
   scoring: 60000, // 1분
   visualization: 300000, // 5분
   saving: 60000, // 1분
@@ -48,6 +49,7 @@ export const PIPELINE_STEPS: PipelineStep[] = [
   'personality',
   'aptitude',
   'fortune',
+  'daewun_analysis',
   'scoring',
   'visualization',
   'saving',
@@ -62,6 +64,7 @@ export const getInitialStepStatuses = (): Record<PipelineStep, StepStatus> => ({
   personality: 'pending',
   aptitude: 'pending',
   fortune: 'pending',
+  daewun_analysis: 'pending',
   scoring: 'pending',
   visualization: 'pending',
   saving: 'pending',

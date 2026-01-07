@@ -377,6 +377,7 @@ export type PipelineStep =
   | 'personality' // 성격 분석 (Gemini#2)
   | 'aptitude' // 적성 분석 (Gemini#3)
   | 'fortune' // 재물/연애 분석 (Gemini#4)
+  | 'daewun_analysis' // 대운 분석 (Gemini#5)
   | 'scoring' // 점수 계산 (TypeScript)
   | 'visualization' // 시각화 생성
   | 'saving' // 저장

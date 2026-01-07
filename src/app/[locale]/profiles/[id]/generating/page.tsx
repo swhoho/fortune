@@ -33,9 +33,10 @@ const STEP_TIMINGS: Record<PipelineStep, { start: number; end: number }> = {
   personality: { start: 20, end: 30 },
   aptitude: { start: 20, end: 30 }, // 병렬 실행
   fortune: { start: 20, end: 30 }, // 병렬 실행
-  scoring: { start: 30, end: 40 },
-  visualization: { start: 40, end: 50 },
-  saving: { start: 50, end: 58 },
+  daewun_analysis: { start: 30, end: 38 },
+  scoring: { start: 38, end: 45 },
+  visualization: { start: 45, end: 52 },
+  saving: { start: 52, end: 58 },
   complete: { start: 58, end: 60 },
 };
 

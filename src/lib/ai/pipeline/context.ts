@@ -24,13 +24,14 @@ const STEP_WEIGHTS: Record<PipelineStep, number> = {
   manseryeok: 5,
   jijanggan: 5,
   basic_analysis: 15,
-  personality: 15,
-  aptitude: 15,
-  fortune: 15,
-  scoring: 10,
-  visualization: 10,
+  personality: 12,
+  aptitude: 12,
+  fortune: 12,
+  daewun_analysis: 12,
+  scoring: 8,
+  visualization: 8,
   saving: 8,
-  complete: 2,
+  complete: 3,
 };
 
 /**

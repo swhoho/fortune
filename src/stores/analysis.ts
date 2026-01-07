@@ -48,6 +48,7 @@ const getInitialStepStatuses = (): Record<PipelineStep, StepStatus> => ({
   personality: 'pending',
   aptitude: 'pending',
   fortune: 'pending',
+  daewun_analysis: 'pending',
   scoring: 'pending',
   visualization: 'pending',
   saving: 'pending',
