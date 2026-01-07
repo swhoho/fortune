@@ -384,8 +384,8 @@ DAEWUN_ANALYSIS_SCHEMA = {
                     "index": {"type": "integer"},
                     "scoreReasoning": {"type": "string", "description": "점수 산정 근거 (200-300자)"},
                     "summary": {"type": "string", "description": "대운 기간 종합 분석 (300-500자)"},
-                    "favorablePercent": {"type": "integer", "description": "0-100 사이 유리한 비율"},
-                    "unfavorablePercent": {"type": "integer", "description": "0-100 사이 불리한 비율"}
+                    "favorablePercent": {"type": "integer", "description": "0-100 사이 순풍운 비율 (독립 계산)"},
+                    "unfavorablePercent": {"type": "integer", "description": "0-100 사이 역풍운 비율 (독립 계산, 합계 100% 불필요)"}
                 },
                 "required": ["scoreReasoning", "summary", "favorablePercent", "unfavorablePercent"]
             }

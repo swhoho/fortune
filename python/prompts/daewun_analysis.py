@@ -106,11 +106,12 @@ DAEWUN_ANALYSIS_PROMPT_KO = """## 대운 분석 전문가 역할
 
 ### 분석 원칙
 
-#### 1. 순풍운/역풍운 비율 (합계 100%)
-- 대운 천간/지지가 용신과 같은 오행이면 순풍 ↑
-- 대운 천간/지지가 기신과 같은 오행이면 역풍 ↑
+#### 1. 순풍운/역풍운 비율 (각각 독립 계산)
+- 순풍운 (0~100%): 대운 천간/지지가 용신과 같은 오행이면 순풍 ↑
+- 역풍운 (0~100%): 대운 천간/지지가 기신과 같은 오행이면 역풍 ↑
+- 두 값은 서로 독립적으로 계산 (합계가 100%가 아니어도 됨)
+- 예: 순풍 75%, 역풍 40% 같은 조합 가능
 - 원국과 합/충/형 관계 고려
-- 최소 15%, 최대 85%로 제한 (극단값 방지)
 
 #### 2. 점수 근거 (scoreReasoning) - 반드시 작성
 왜 이런 순풍/역풍 비율이 나왔는지 명리학적 근거를 설명합니다:
@@ -189,11 +190,12 @@ Analyze the favorable/unfavorable ratio, score reasoning, and detailed analysis 
 
 ### Analysis Principles
 
-#### 1. Favorable/Unfavorable Ratio (Total 100%)
-- If fortune period element matches Useful God → favorable ↑
-- If fortune period element matches Harmful God → unfavorable ↑
+#### 1. Favorable/Unfavorable Ratio (Independent Calculation)
+- Favorable (0~100%): If fortune period element matches Useful God → favorable ↑
+- Unfavorable (0~100%): If fortune period element matches Harmful God → unfavorable ↑
+- Two values are calculated independently (total does NOT need to be 100%)
+- Example: Favorable 75%, Unfavorable 40% is valid
 - Consider harmony/clash relationships with natal chart
-- Limit to min 15%, max 85% (prevent extreme values)
 
 #### 2. Score Reasoning (scoreReasoning) - Required
 Explain the metaphysical basis for the favorable/unfavorable ratio:

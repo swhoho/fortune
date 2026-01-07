@@ -297,14 +297,15 @@ def calculate_daewun_with_ten_god(
     # 기본 대운 계산
     basic_daewun = calculate_daewun(birth_dt, gender, count)
 
-    # 십신 정보 + favorablePercent 추가
+    # 십신 정보 + favorablePercent/unfavorablePercent 독립 계산
     result = []
     for dw in basic_daewun:
         ten_god = get_ten_god_relation(day_stem, dw["stem"])
         ten_god_type = get_ten_god_type(ten_god)
 
-        # favorablePercent 계산
+        # 순풍/역풍 독립 계산 (합계 100% 불필요)
         favorable = _calculate_favorable_percent(ten_god, dw["branch"])
+        unfavorable = _calculate_unfavorable_percent(ten_god, dw["branch"])
 
         result.append({
             "age": dw["age"],
@@ -316,7 +317,7 @@ def calculate_daewun_with_ten_god(
             "tenGod": ten_god,
             "tenGodType": ten_god_type,
             "favorablePercent": favorable,
-            "unfavorablePercent": 100 - favorable,
+            "unfavorablePercent": unfavorable,
         })
 
     return result
@@ -384,7 +385,7 @@ def _calculate_favorable_percent(ten_god: str, branch: str) -> int:
         branch: 대운 지지
 
     Returns:
-        순풍운 비율 (20~85 범위)
+        순풍운 비율 (0~100 범위)
     """
     # 기본 점수
     base = TEN_GOD_BASE_FAVORABLE.get(ten_god, 50)
@@ -392,6 +393,81 @@ def _calculate_favorable_percent(ten_god: str, branch: str) -> int:
     # 지지 보정
     modifier = BRANCH_FAVORABLE_MODIFIER.get(branch, 0)
 
-    # 최종 점수 (20~85 범위로 클램프)
+    # 최종 점수 (0~100 범위로 클램프)
     favorable = base + modifier
-    return max(20, min(85, favorable))
+    return max(0, min(100, favorable))
+
+
+# ============================================
+# 대운 역풍운 비율 계산 (unfavorablePercent) - 독립 계산
+# ============================================
+
+# 십신별 기본 역풍운 비율
+# 정통 명리학에서 십신의 흉한 측면 해석 기반
+TEN_GOD_BASE_UNFAVORABLE = {
+    # 관성 (나를 극함) - 압박, 스트레스
+    "편관": 70,  # 칠살, 압박, 스트레스
+    "정관": 20,  # 명예, 안정 (역풍 낮음)
+
+    # 비겁 (동류) - 경쟁, 손재
+    "겁재": 65,  # 재물 손실, 경쟁 심화
+    "비견": 45,  # 경쟁, 분쟁
+
+    # 식상 (내가 생함) - 소모, 충돌
+    "상관": 60,  # 관성 충돌, 구설수
+    "식신": 25,  # 복록 (역풍 낮음)
+
+    # 인성 (나를 생함) - 도식, 게으름
+    "편인": 50,  # 도식(倒食), 변덕
+    "정인": 30,  # 안정 (역풍 낮음)
+
+    # 재성 (내가 극함) - 변동, 손실
+    "편재": 40,  # 변동성, 투기 손실
+    "정재": 35,  # 안정적 (역풍 낮음)
+}
+
+# 지지별 역풍 보정값 (대운 지지의 부정적 영향)
+BRANCH_UNFAVORABLE_MODIFIER = {
+    # 사계절 중심 지지
+    "子": 0,   # 수기(水氣) 중심
+    "午": -2,  # 화기(火氣) 양명
+    "卯": -3,  # 목기(木氣) 생장
+    "酉": -1,  # 금기(金氣) 수렴
+
+    # 계절 전환 지지 (고지)
+    "丑": 3,   # 습토, 차가움, 정체
+    "辰": 0,   # 양토, 봄기운
+    "未": -2,  # 양토, 여름 열기
+    "戌": 2,   # 양토, 가을 수렴, 형살
+
+    # 생지
+    "寅": -5,  # 삼양(三陽) 시작, 활력
+    "巳": 0,   # 화기, 형살
+    "申": 1,   # 금기, 변화, 충돌
+    "亥": 2,   # 수기, 저장, 정체
+}
+
+
+def _calculate_unfavorable_percent(ten_god: str, branch: str) -> int:
+    """
+    대운의 역풍운 비율(unfavorablePercent) 독립 계산
+
+    계산 공식:
+    unfavorablePercent = 십신기본역풍점수 + 지지역풍보정값
+
+    Args:
+        ten_god: 대운 천간의 십신
+        branch: 대운 지지
+
+    Returns:
+        역풍운 비율 (0~100 범위)
+    """
+    # 기본 점수
+    base = TEN_GOD_BASE_UNFAVORABLE.get(ten_god, 50)
+
+    # 지지 보정
+    modifier = BRANCH_UNFAVORABLE_MODIFIER.get(branch, 0)
+
+    # 최종 점수 (0~100 범위로 클램프)
+    unfavorable = base + modifier
+    return max(0, min(100, unfavorable))

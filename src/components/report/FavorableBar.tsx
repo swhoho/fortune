@@ -20,10 +20,9 @@ export function FavorableBar({
   unfavorablePercent,
   compact = false,
 }: FavorableBarProps) {
-  // 비율 정규화 (합이 100이 아닐 경우 대비)
-  const total = favorablePercent + unfavorablePercent;
-  const normalizedFavorable = total > 0 ? (favorablePercent / total) * 100 : 50;
-  const normalizedUnfavorable = total > 0 ? (unfavorablePercent / total) * 100 : 50;
+  // 독립 계산: 각각 0~100% 범위로 클램프 (합계 100% 불필요)
+  const normalizedFavorable = Math.min(100, Math.max(0, favorablePercent));
+  const normalizedUnfavorable = Math.min(100, Math.max(0, unfavorablePercent));
 
   return (
     <div className={`w-full ${compact ? 'space-y-2' : 'space-y-3'}`}>
