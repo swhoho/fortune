@@ -181,7 +181,7 @@ return clamp(score, 0, 100);
 
 ```python
 self.model = genai.GenerativeModel(
-    model_name="gemini-3.0-preview",
+    model_name="gemini-2.0-flash",
     generation_config={
         "temperature": 0.7,
         "top_p": 0.95,
@@ -189,6 +189,28 @@ self.model = genai.GenerativeModel(
     }
 )
 ```
+
+### response_schema + 에러 피드백 (v2.7)
+
+JSON 응답 100% 강제 + 재시도 시 에러 피드백:
+
+```python
+# gemini.py - generate_with_schema()
+async def generate_with_schema(prompt, response_schema, previous_error=None):
+    if previous_error:
+        prompt += f"\n\n[이전 시도 실패]\n오류: {previous_error}"
+
+    return await self.model.generate_content_async(
+        prompt,
+        generation_config=GenerationConfig(
+            response_mime_type="application/json",
+            response_schema=response_schema,  # JSON 구조 강제
+        ),
+        safety_settings={...}  # 사주 콘텐츠 false positive 방지
+    )
+```
+
+**스키마 파일**: `python/schemas/gemini_schemas.py`
 
 ### 프롬프트 시스템
 

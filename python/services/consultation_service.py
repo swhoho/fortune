@@ -77,7 +77,11 @@ class ConsultationService:
                 history = self._get_session_history(supabase, request['session_id'], message_id)
 
                 # 3. AI 응답 생성 (clarification vs answer 분기)
-                ai_content, final_type = await self._call_gemini(request, report, history)
+                # v2.7: 에러 피드백 전달 (재시도 시 Gemini가 개선)
+                ai_content, final_type = await self._call_gemini(
+                    request, report, history,
+                    previous_error=last_error if attempt > 1 else None
+                )
 
                 # 4. DB 업데이트 (성공) - generating 상태인 경우만 업데이트
                 result = supabase.table('consultation_messages').update({
@@ -179,10 +183,17 @@ class ConsultationService:
         self,
         request: dict,
         report: dict,
-        history: List[dict]
+        history: List[dict],
+        previous_error: str = None
     ) -> Tuple[str, str]:
         """
         Gemini 호출 (clarification vs answer 분기)
+
+        Args:
+            request: 요청 데이터
+            report: 사주 리포트 데이터
+            history: 세션 히스토리
+            previous_error: 이전 시도 오류 (재시도 시 피드백)
 
         Returns:
             (ai_content, message_type)
@@ -250,6 +261,14 @@ class ConsultationService:
             language=language,
             today=datetime.now().strftime('%Y-%m-%d'),
         )
+
+        # v2.7: 에러 피드백 추가 (재시도 시)
+        if previous_error:
+            answer_prompt += f"""
+
+[이전 시도 실패 - 반드시 수정 필요]
+오류: {previous_error}
+위 오류를 해결하여 올바르게 응답하세요."""
 
         answer = await gemini.generate_text(answer_prompt)
         return answer, 'ai_answer'

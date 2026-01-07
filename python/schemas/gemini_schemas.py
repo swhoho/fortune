@@ -361,6 +361,30 @@ CLASSICAL_REFS_SCHEMA = {
     "required": ["classicalReferences"]
 }
 
+# ============================================
+# Daewun Analysis Schema (대운 분석)
+# ============================================
+DAEWUN_ANALYSIS_SCHEMA = {
+    "type": "object",
+    "properties": {
+        "daewunAnalysis": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "index": {"type": "integer"},
+                    "scoreReasoning": {"type": "string", "description": "점수 산정 근거 (200-300자)"},
+                    "summary": {"type": "string", "description": "대운 기간 종합 분석 (300-500자)"},
+                    "favorablePercent": {"type": "integer", "minimum": 0, "maximum": 100},
+                    "unfavorablePercent": {"type": "integer", "minimum": 0, "maximum": 100}
+                },
+                "required": ["scoreReasoning", "summary", "favorablePercent", "unfavorablePercent"]
+            }
+        }
+    },
+    "required": ["daewunAnalysis"]
+}
+
 # 단계별 스키마 매핑 확장
 GEMINI_SCHEMAS.update({
     "yearly_overview": YEARLY_OVERVIEW_SCHEMA,
@@ -371,6 +395,7 @@ GEMINI_SCHEMAS.update({
     "yearly_advice": YEARLY_ADVICE_SCHEMA,
     "key_dates": KEY_DATES_SCHEMA,
     "classical_refs": CLASSICAL_REFS_SCHEMA,
+    "daewun_analysis": DAEWUN_ANALYSIS_SCHEMA,
 })
 
 

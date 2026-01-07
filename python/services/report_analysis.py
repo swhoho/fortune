@@ -472,7 +472,12 @@ class ReportAnalysisService:
                     language=language
                 )
 
-                result = await self._call_gemini(prompt)
+                # v2.7: 에러 피드백 포함 Gemini 호출
+                result = await self._call_gemini(
+                    prompt,
+                    step_name="daewun_analysis",
+                    previous_error=last_error if attempt > 1 else None
+                )
 
                 # 응답 검증
                 if not result or not isinstance(result, dict):
