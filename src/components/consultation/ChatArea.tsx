@@ -74,16 +74,21 @@ export function ChatArea({
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [data?.messages]);
 
-  // clarification 상태 추적
+  // clarification 상태 추적 (generating 상태 고려)
   useEffect(() => {
     if (data?.messages) {
+      // generating 메시지가 있으면 상태 변경하지 않음 (응답 대기 중)
+      if (generatingMessage) {
+        return;
+      }
+
       const completedMessages = data.messages.filter(
         (m: ConsultationMessage) => m.status !== 'generating' && m.status !== 'failed'
       );
       const lastMessage = completedMessages[completedMessages.length - 1];
       setAwaitingClarification(lastMessage?.type === 'ai_clarification');
     }
-  }, [data?.messages]);
+  }, [data?.messages, generatingMessage]);
 
   // 폴링 로직: generating 상태 메시지가 있으면 주기적으로 refetch (타임아웃 포함)
   useEffect(() => {
@@ -125,13 +130,19 @@ export function ChatArea({
   }, [generatingMessage, isPolling, sessionId, profileId, invalidateSessions]);
 
   /**
-   * 메시지 전송
+   * 메시지 전송 (중복 방지 + 낙관적 업데이트)
    */
   const handleSendMessage = useCallback(
     async (content: string, skipClarification = false) => {
-      if (!sessionId) return;
+      // 중복 요청 방지
+      if (!sessionId || sendMessage.isPending) return;
 
       const messageType = awaitingClarification ? 'user_clarification' : 'user_question';
+
+      // 낙관적 상태 업데이트: clarification 응답 시 즉시 false로 설정
+      if (messageType === 'user_clarification') {
+        setAwaitingClarification(false);
+      }
 
       try {
         await sendMessage.mutateAsync({
@@ -141,13 +152,12 @@ export function ChatArea({
           messageType,
           skipClarification,
         });
-
-        // clarification 응답 후 상태 리셋
-        if (messageType === 'user_clarification') {
-          setAwaitingClarification(false);
-        }
       } catch (err) {
         console.error('[ChatArea] 메시지 전송 실패:', err);
+        // 실패 시 상태 복원
+        if (messageType === 'user_clarification') {
+          setAwaitingClarification(true);
+        }
       }
     },
     [sessionId, profileId, awaitingClarification, sendMessage]

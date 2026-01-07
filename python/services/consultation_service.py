@@ -49,10 +49,19 @@ class ConsultationService:
 
     async def _generate_response(self, request: dict):
         """
-        AI 응답 생성 (3회 재시도)
+        AI 응답 생성 (3회 재시도, 중복 요청 방지)
         """
         supabase = get_supabase_client()
         message_id = request['message_id']
+
+        # 처리 시작 전 상태 확인 (중복 요청 방지)
+        status_check = supabase.table('consultation_messages').select(
+            'status'
+        ).eq('id', message_id).single().execute()
+
+        if not status_check.data or status_check.data.get('status') != 'generating':
+            logger.warning(f"[Consultation:{message_id}] 이미 처리 중이거나 완료됨 - 스킵")
+            return
 
         success = False
         last_error = None
@@ -70,12 +79,17 @@ class ConsultationService:
                 # 3. AI 응답 생성 (clarification vs answer 분기)
                 ai_content, final_type = await self._call_gemini(request, report, history)
 
-                # 4. DB 업데이트 (성공)
-                supabase.table('consultation_messages').update({
+                # 4. DB 업데이트 (성공) - generating 상태인 경우만 업데이트
+                result = supabase.table('consultation_messages').update({
                     'content': ai_content,
                     'message_type': final_type,
                     'status': 'completed',
-                }).eq('id', message_id).execute()
+                }).eq('id', message_id).eq('status', 'generating').execute()
+
+                # 이미 처리된 경우 (중복 요청) 조기 종료
+                if not result.data:
+                    logger.warning(f"[Consultation:{message_id}] 이미 처리됨 (중복 요청)")
+                    return
 
                 # 5. 세션 업데이트 (최종 답변인 경우)
                 if final_type == 'ai_answer':
@@ -96,10 +110,11 @@ class ConsultationService:
 
         if not success:
             logger.error(f"[Consultation:{message_id}] 최종 실패: {last_error}")
+            # generating 상태인 경우만 실패로 업데이트 (중복 방지)
             supabase.table('consultation_messages').update({
                 'status': 'failed',
                 'error_message': last_error or 'AI 응답 생성에 실패했습니다',
-            }).eq('id', message_id).execute()
+            }).eq('id', message_id).eq('status', 'generating').execute()
 
     def _get_report_data(self, supabase: Client, report_id: str) -> dict:
         """리포트 데이터 조회"""

@@ -108,6 +108,79 @@ AI 후속 질문 | **인증**: 필수 | **크레딧**: 10C
 
 ---
 
+## Consultation API (1:1 상담)
+
+### POST /api/profiles/:id/consultation/sessions
+상담 세션 생성 | **인증**: 필수 | **크레딧**: 10C
+
+```json
+{ "title": "상담 제목 (선택)" }
+```
+→ `{ "success": true, "data": { "sessionId": "uuid", "creditsUsed": 10, "remainingCredits": 150 } }`
+
+**세션 정책**:
+- 세션당 **2라운드** 질문 가능
+- 1라운드 = 사용자 질문 → AI 추가질문(선택) → 사용자 답변(선택) → AI 최종 답변
+
+### GET /api/profiles/:id/consultation/sessions
+세션 목록 조회 | **인증**: 필수
+
+```json
+{
+  "sessions": [{
+    "id": "uuid",
+    "title": "상담 제목",
+    "status": "active",
+    "questionCount": 1,
+    "creditsUsed": 10,
+    "createdAt": "..."
+  }]
+}
+```
+
+### POST /api/profiles/:id/consultation/sessions/:sessionId/messages
+메시지 전송 | **인증**: 필수 | **크레딧**: 무료 (세션 생성 시 선차감)
+
+```json
+{
+  "content": "질문 내용",
+  "messageType": "user_question",
+  "skipClarification": false
+}
+```
+
+| messageType | 설명 |
+|-------------|------|
+| `user_question` | 새 질문 (라운드 시작) |
+| `user_clarification` | AI 추가질문에 대한 답변 |
+
+**중복 방지 (v1.32)**: 프론트엔드 Ref 세마포어 + 백엔드 OCC 패턴으로 중복 응답 방지
+
+### GET /api/profiles/:id/consultation/sessions/:sessionId/messages
+메시지 목록 조회 | **인증**: 필수
+
+```json
+{
+  "session": { "id": "uuid", "questionCount": 1, "maxQuestions": 2 },
+  "messages": [{
+    "id": "uuid",
+    "type": "user_question",
+    "content": "...",
+    "status": "completed",
+    "questionRound": 1
+  }]
+}
+```
+
+### PATCH /api/profiles/:id/consultation/sessions/:sessionId/messages
+실패한 AI 메시지 재생성 | **인증**: 필수 | **크레딧**: 무료
+
+```json
+{ "messageId": "uuid" }
+```
+
+---
+
 ## 분석 API
 
 ### POST /api/analysis/pipeline
@@ -324,6 +397,7 @@ v2.0에서 `analyses` 테이블 기반 API가 `profiles` + `profile_reports` 테
 | 신년 분석 | 50C | `POST /api/analysis/yearly` |
 | 신년 섹션 재분석 | 0C | `POST /api/analysis/yearly/:id/reanalyze` |
 | AI 후속 질문 | 10C | `POST /api/profiles/:id/report/question` |
+| **상담 세션** | **10C** | `POST /api/profiles/:id/consultation/sessions` |
 
 ---
 
@@ -384,4 +458,4 @@ if (!result.success) {
 
 ---
 
-**최종 수정**: 2026-01-05 (대운 십신 계산 필드 추가)
+**최종 수정**: 2026-01-07 (Consultation API 섹션 추가)

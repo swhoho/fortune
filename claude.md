@@ -91,6 +91,7 @@ python/
 | 궁합 분석 | 70C |
 | 섹션 재분석 | 5C |
 | AI 질문 | 10C |
+| 상담 세션 | 10C (2라운드) |
 
 ### 점수 계산 (v2.1)
 
@@ -289,10 +290,20 @@ cd python && pytest  # Python
 
 ---
 
-**Version**: 1.31.0
-**Last Updated**: 2026-01-05 (크레딧 가격 변경)
+**Version**: 1.32.0
+**Last Updated**: 2026-01-07 (상담 세션 크레딧 시스템)
 
 ## Changelog
+
+### v1.32.0 (2026-01-07)
+- **상담 세션 크레딧 시스템**
+  - 세션당 2라운드 제한 (기존 5라운드)
+  - 크레딧 확인 팝업 추가 (`CreditDeductionDialog`)
+  - `credit_transactions` insert 코드 제거
+- **상담 AI 중복 응답 버그 수정** (3계층 방어)
+  - `src/hooks/use-consultation.ts`: `isSubmittingRef` 패턴 추가
+  - `python/services/consultation_service.py`: OCC 패턴 (status 조건)
+  - `src/components/consultation/ChatArea.tsx`: 레이스 컨디션 해결
 
 ### v1.31.0 (2026-01-05)
 - **크레딧 가격 변경**

@@ -2,6 +2,7 @@
  * AI 상담(컨설팅) 관련 TanStack Query 훅
  */
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useRef } from 'react';
 import type {
   ConsultationSession,
   GetSessionsResponse,
@@ -108,10 +109,11 @@ export function useCreateSession() {
 }
 
 /**
- * 메시지 전송 훅
+ * 메시지 전송 훅 (중복 요청 방지 적용)
  */
 export function useSendMessage() {
   const queryClient = useQueryClient();
+  const isSubmittingRef = useRef(false);
 
   return useMutation<
     SendMessageResponse['data'],
@@ -125,27 +127,37 @@ export function useSendMessage() {
     }
   >({
     mutationFn: async ({ profileId, sessionId, content, messageType, skipClarification }) => {
-      const res = await fetch(
-        `/api/profiles/${profileId}/consultation/sessions/${sessionId}/messages`,
-        {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            content,
-            messageType,
-            skipClarification,
-          } as SendMessageRequest),
-        }
-      );
-
-      const json: SendMessageResponse = await res.json();
-
-      if (!res.ok) {
-        const error = json as { error?: string; code?: string };
-        throw new Error(error.error || '메시지 전송에 실패했습니다');
+      // 중복 요청 방지
+      if (isSubmittingRef.current) {
+        throw new Error('이미 요청 중입니다');
       }
+      isSubmittingRef.current = true;
 
-      return json.data!;
+      try {
+        const res = await fetch(
+          `/api/profiles/${profileId}/consultation/sessions/${sessionId}/messages`,
+          {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              content,
+              messageType,
+              skipClarification,
+            } as SendMessageRequest),
+          }
+        );
+
+        const json: SendMessageResponse = await res.json();
+
+        if (!res.ok) {
+          const error = json as { error?: string; code?: string };
+          throw new Error(error.error || '메시지 전송에 실패했습니다');
+        }
+
+        return json.data!;
+      } finally {
+        isSubmittingRef.current = false;
+      }
     },
     onSuccess: (data, variables) => {
       // 메시지 목록 갱신
