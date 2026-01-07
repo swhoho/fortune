@@ -26,10 +26,10 @@ interface YearlyAdviceCardProps {
   year: number;
 }
 
-/** 6개 섹션 정보 */
+/** 6개 섹션 정보 (camelCase 키 - DB 저장 형식과 일치) */
 const SECTIONS = [
   {
-    key: 'nature_and_soul' as const,
+    key: 'natureAndSoul' as const,
     label: '본연의 성정',
     description: '일간 심리학적 접근',
     icon: Brain,
@@ -37,7 +37,7 @@ const SECTIONS = [
     bgGlow: 'rgba(139, 92, 246, 0.15)',
   },
   {
-    key: 'wealth_and_success' as const,
+    key: 'wealthAndSuccess' as const,
     label: '재물과 비즈니스',
     description: '재성/식상 분석',
     icon: Coins,
@@ -45,7 +45,7 @@ const SECTIONS = [
     bgGlow: 'rgba(212, 175, 55, 0.15)',
   },
   {
-    key: 'career_and_honor' as const,
+    key: 'careerAndHonor' as const,
     label: '직업과 명예',
     description: '관성 분석',
     icon: Briefcase,
@@ -53,7 +53,7 @@ const SECTIONS = [
     bgGlow: 'rgba(59, 130, 246, 0.15)',
   },
   {
-    key: 'document_and_wisdom' as const,
+    key: 'documentAndWisdom' as const,
     label: '문서와 학업',
     description: '인성 분석',
     icon: FileText,
@@ -61,7 +61,7 @@ const SECTIONS = [
     bgGlow: 'rgba(16, 185, 129, 0.15)',
   },
   {
-    key: 'relationship_and_love' as const,
+    key: 'relationshipAndLove' as const,
     label: '인연과 관계',
     description: '연애/귀인운',
     icon: Heart,
@@ -69,7 +69,7 @@ const SECTIONS = [
     bgGlow: 'rgba(236, 72, 153, 0.15)',
   },
   {
-    key: 'health_and_movement' as const,
+    key: 'healthAndMovement' as const,
     label: '건강과 이동',
     description: '건강/역마운',
     icon: Activity,
@@ -79,11 +79,11 @@ const SECTIONS = [
 ] as const;
 
 type SectionKey = (typeof SECTIONS)[number]['key'];
-type HalfPeriod = 'first_half' | 'second_half';
+type HalfPeriod = 'firstHalf' | 'secondHalf';
 
 export function YearlyAdviceCard({ yearlyAdvice, year }: YearlyAdviceCardProps) {
-  const [selectedSection, setSelectedSection] = useState<SectionKey>('nature_and_soul'); // 기본으로 열림
-  const [selectedHalf, setSelectedHalf] = useState<HalfPeriod>('first_half');
+  const [selectedSection, setSelectedSection] = useState<SectionKey>('natureAndSoul'); // 기본으로 열림
+  const [selectedHalf, setSelectedHalf] = useState<HalfPeriod>('firstHalf');
 
   /** 섹션 데이터 가져오기 */
   const getSectionData = (key: SectionKey): SectionContent | undefined => {
@@ -207,9 +207,9 @@ export function YearlyAdviceCard({ yearlyAdvice, year }: YearlyAdviceCardProps) 
               {/* 상반기/하반기 탭 */}
               <div className="mb-4 flex gap-2">
                 <button
-                  onClick={() => setSelectedHalf('first_half')}
+                  onClick={() => setSelectedHalf('firstHalf')}
                   className={`flex-1 rounded-lg px-4 py-2.5 text-sm font-medium transition-all ${
-                    selectedHalf === 'first_half'
+                    selectedHalf === 'firstHalf'
                       ? 'bg-[#d4af37] text-[#0a0a0a]'
                       : 'bg-[#242424] text-gray-400 hover:bg-[#333] hover:text-white'
                   }`}
@@ -217,9 +217,9 @@ export function YearlyAdviceCard({ yearlyAdvice, year }: YearlyAdviceCardProps) 
                   상반기 (1~6월)
                 </button>
                 <button
-                  onClick={() => setSelectedHalf('second_half')}
+                  onClick={() => setSelectedHalf('secondHalf')}
                   className={`flex-1 rounded-lg px-4 py-2.5 text-sm font-medium transition-all ${
-                    selectedHalf === 'second_half'
+                    selectedHalf === 'secondHalf'
                       ? 'bg-[#d4af37] text-[#0a0a0a]'
                       : 'bg-[#242424] text-gray-400 hover:bg-[#333] hover:text-white'
                   }`}
@@ -232,9 +232,9 @@ export function YearlyAdviceCard({ yearlyAdvice, year }: YearlyAdviceCardProps) 
               <AnimatePresence mode="wait">
                 <motion.div
                   key={selectedHalf}
-                  initial={{ opacity: 0, x: selectedHalf === 'first_half' ? -10 : 10 }}
+                  initial={{ opacity: 0, x: selectedHalf === 'firstHalf' ? -10 : 10 }}
                   animate={{ opacity: 1, x: 0 }}
-                  exit={{ opacity: 0, x: selectedHalf === 'first_half' ? 10 : -10 }}
+                  exit={{ opacity: 0, x: selectedHalf === 'firstHalf' ? 10 : -10 }}
                   transition={{ duration: 0.2 }}
                   className="rounded-xl bg-[#1a1a1a] p-5"
                 >
