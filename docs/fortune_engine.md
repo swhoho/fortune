@@ -132,32 +132,40 @@ Response:
 
 > **참고**: TypeScript 버전(`src/lib/score/`)은 레거시. Python 버전이 실제 점수 계산 담당.
 
-### 점수 계산 공식 (v3.0)
+### 점수 계산 공식 (v4.0)
+
+3가지 Phase 적용으로 전통 명리학 정확도 향상:
 
 ```python
 # 상수
 BASE_SCORE = 50
-SENSITIVITY = 1.5  # 편차 증폭 계수
 
-# 1. 십신 추출 (가중치 적용)
+# Phase 1: 십신 추출 (지장간 월률분야 비율 적용)
 ten_god_counts = _extract_ten_god_counts(pillars, jijanggan)
-# - 천간: 가중치 1.0
-# - 지장간 정기: 가중치 1.0
-# - 지장간 여기/중기: 가중치 0 (v3.0에서 노이즈 제거)
+# - 천간/지지: 가중치 1.0
+# - 지장간: 寅申巳亥=[7/30, 7/30, 16/30], 卯酉子=[10/30, 0, 20/30]...
 
-# 2. 원시 점수 계산
-raw_score = 50
-for god, modifier in modifiers.items():
-    count = ten_god_counts.get(god, 0)
-    raw_score += modifier * count
+# Phase 2: 12운성 보너스 계산
+wunseong_bonus = calculate_wunseong_bonus(pillars)
+# - 건록/제왕: +0.6, 장생: +0.3, 묘/절/사: -0.4
 
-# 3. 편차 증폭 (50점 기준)
-delta = raw_score - BASE_SCORE
-amplified_delta = delta * SENSITIVITY
-final_score = BASE_SCORE + amplified_delta
+# Phase 3: 지지 상호작용 배수
+interaction_modifier = calculate_interaction_modifier(pillars)
+# - 충: 1.4, 형: 1.5, 원진: 0.8, 파/해: 0.5
 
+# 점수 공식
+raw_score = 50 + Σ(modifier × count) + wunseong_bonus × 5
+delta = raw_score - 50
+final_score = 50 + delta × interaction_modifier
 return max(0, min(100, int(round(final_score))))
 ```
+
+**Phase별 효과**:
+| Phase | 요소 | 효과 |
+|-------|------|------|
+| 1 | 지장간 월률분야 | 십신 카운트 정밀화 (여기/중기/정기 비율) |
+| 2 | 12운성 가중치 | 건록/제왕 +3점, 묘/절/사 -2점 |
+| 3 | 지지 상호작용 | 충/형 시 편차 증폭 (1.04~1.08배) |
 
 **modifier 범위**:
 | 카테고리 | 범위 |
@@ -167,12 +175,14 @@ return max(0, min(100, int(round(final_score))))
 | 적성 (APTITUDE) | max ±20 |
 | 연애 (LOVE) | max ±30 |
 
-**예시 (편차 증폭)**:
-| rawScore | delta | amplifiedDelta | finalScore |
-|----------|-------|----------------|------------|
-| 60 | +10 | +15 | 65 |
-| 70 | +20 | +30 | 80 |
-| 40 | -10 | -15 | 35 |
+**12운성 가중치**:
+| 운성 | 가중치 | 운성 | 가중치 |
+|------|--------|------|--------|
+| 건록/제왕 | +0.6 | 관대 | +0.4 |
+| 장생 | +0.3 | 양 | +0.2 |
+| 목욕 | +0.1 | 태 | 0 |
+| 쇠 | -0.1 | 병 | -0.2 |
+| 묘/절/사 | -0.4 | | |
 
 ### 십신(十神) 정의
 
@@ -422,6 +432,7 @@ src/lib/
 
 | 날짜 | 버전 | 변경 내용 |
 |------|------|----------|
+| 2026-01-07 | v4.0 | 점수 시스템 고도화 (지장간 월률분야 비율, 12운성 가중치, 지지 상호작용 배수, SENSITIVITY 제거) |
 | 2026-01-07 | v3.0 | 점수 분포 극단화 (SENSITIVITY=1.5 편차 증폭, modifier ×1.8, 지장간 여기/중기 가중치 0) |
 | 2026-01-07 | v2.5 | response_schema 미지원 필드 제거 (minimum, maximum, minItems, enum → description) |
 | 2026-01-07 | v2.4 | Normalize→Validate 파이프라인, Pydantic 스키마 검증, 재분석 API (0C) |
@@ -434,4 +445,4 @@ src/lib/
 
 ---
 
-**최종 수정**: 2026-01-07 (v3.0)
+**최종 수정**: 2026-01-07 (v4.0)

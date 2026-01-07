@@ -557,12 +557,16 @@ function transformWealth(wealth: any, scores: any) {
 
   let content = '';
   let patternTitle = '';
-  let wealthScore = wealth.score;
+  // calculator.py에서 계산된 점수 우선 사용
+  let wealthScore = scores?.wealthScore ?? wealth.score ?? 50;
 
   if (isKoreanKeys) {
     // 한글 키 구조 (Gemini 한글 응답)
     patternTitle = wealth.패턴_유형 || '';
-    wealthScore = wealth.재물_점수 || wealthScore;
+    // Gemini 점수는 폴백으로만 사용
+    if (!scores?.wealthScore) {
+      wealthScore = wealth.재물_점수 || wealthScore;
+    }
 
     if (wealth.패턴_상세_설명) {
       content += `${wealth.패턴_상세_설명}\n\n`;
@@ -697,12 +701,16 @@ function transformRomance(love: any, scores: any) {
   let datingContent = '';
   let spouseContent = '';
   let styleTitle = '';
-  let romanceScore = love.score;
+  // calculator.py에서 계산된 점수 우선 사용
+  let romanceScore = scores?.loveScore ?? love.score ?? 50;
 
   if (isKoreanKeys) {
     // 한글 키 구조 (Gemini 한글 응답)
     styleTitle = love.스타일_유형 || '';
-    romanceScore = love.궁합_점수 || romanceScore;
+    // Gemini 점수는 폴백으로만 사용
+    if (!scores?.loveScore) {
+      romanceScore = love.궁합_점수 || romanceScore;
+    }
 
     if (love.스타일_유형) {
       datingContent += `**연애 스타일**: ${love.스타일_유형}\n\n`;

@@ -95,13 +95,13 @@ python/
 | AI 질문 | 10C |
 | 상담 세션 | 10C (2라운드) |
 
-### 점수 계산 (v3.0)
+### 점수 계산 (v4.0)
 
-- 공식: `50 + (rawScore - 50) × SENSITIVITY` → clamp(0, 100)
-- SENSITIVITY: 1.5 (편차 증폭 계수)
+- **Phase 1**: 지장간 월률분야 비율 (寅申巳亥=[7/30, 7/30, 16/30]...)
+- **Phase 2**: 12운성 가중치 (건록/제왕=+0.6, 묘/절/사=-0.4)
+- **Phase 3**: 지지 상호작용 배수 (충=1.4, 형=1.5, 원진=0.8)
+- 공식: `50 + Σ(modifier×count) + wunseong×5 → ×interaction → clamp(0,100)`
 - Modifier 범위: 성격/적성 ±20, 업무/연애 ±30
-- 지장간 가중치: 여기/중기 0, 정기 1.0 (노이즈 제거)
-- 목표 분포: 특성별 명확한 차이, 극단값 허용
 
 ### 오행 색상
 
@@ -294,10 +294,19 @@ cd python && pytest  # Python
 
 ---
 
-**Version**: 1.35.0
-**Last Updated**: 2026-01-07 (점수 분포 극단화 v3.0)
+**Version**: 1.36.0
+**Last Updated**: 2026-01-07 (점수 시스템 v4.0)
 
 ## Changelog
+
+### v1.36.0 (2026-01-07)
+- **점수 시스템 고도화 (v4.0)**
+  - `python/scoring/calculator.py`: 3 Phase 점수 계산 적용
+  - Phase 1: 지장간 월률분야 비율 (HIDDEN_STEMS_RATIO)
+  - Phase 2: 12운성 가중치 (WUNSEONG_WEIGHTS, JIBYEON_12WUNSEONG)
+  - Phase 3: 지지 상호작용 배수 (충=1.4, 형=1.5, 원진=0.8)
+  - SENSITIVITY 제거 (Phase 1/2/3으로 대체)
+  - 레퍼런스: 사주분석마스터 v7.0/v8.0, 궁통보감, 자평진전
 
 ### v1.35.0 (2026-01-07)
 - **점수 분포 극단화 (v3.0)**

@@ -87,7 +87,7 @@ STEP_JSON_SCHEMA_EXAMPLES = {
 ```json
 {
   "willpower": {
-    "score": 75,
+    "score": "(십신 기반 0-100)",
     "description": "의지력에 대한 상세 분석"
   },
   "outerPersonality": "겉으로 보이는 성격에 대한 상세 분석 (3-5문장)",
@@ -107,14 +107,14 @@ STEP_JSON_SCHEMA_EXAMPLES = {
     {
       "name": "재능명",
       "basis": "근거(십신/오행)",
-      "level": 85,
+      "level": "(십신 강약 기반 0-100)",
       "description": "재능에 대한 상세 설명 (3-5문장)"
     }
   ],
   "recommendedFields": [
     {
       "name": "분야명",
-      "suitability": 90,
+      "suitability": "(격국/용신 적합도 0-100)",
       "reason": "추천 이유 (구체적인 직업 예시 포함)"
     }
   ],
@@ -125,8 +125,8 @@ STEP_JSON_SCHEMA_EXAMPLES = {
     }
   ],
   "talentUsage": {
-    "currentLevel": 65,
-    "potential": 90,
+    "currentLevel": "(현재 대운 반영 0-100)",
+    "potential": "(원국 십신 분포 0-100)",
     "advice": "재능 개발을 위한 구체적 조언"
   },
   "study_style": {
@@ -140,14 +140,12 @@ STEP_JSON_SCHEMA_EXAMPLES = {
 {
   "wealth": {
     "pattern": "안정형|투자형|변동형|축적형",
-    "wealthScore": 75,
     "strengths": ["재물 강점1", "재물 강점2", "재물 강점3"],
     "risks": ["재물 리스크1", "재물 리스크2"],
     "advice": "재물운 향상을 위한 조언"
   },
   "love": {
     "style": "적극형|수동형|이상주의형|현실주의형",
-    "loveScore": 70,
     "idealPartner": ["이상형 특성1", "이상형 특성2", "이상형 특성3"],
     "compatibilityPoints": ["궁합 포인트1", "궁합 포인트2"],
     "warnings": ["연애 주의사항1", "연애 주의사항2"],
@@ -1206,6 +1204,39 @@ Please respond according to the JSON schema.""",
 - 잠재력 (0-100)
 - 개발을 위한 조언
 
+### 점수 산출 객관적 기준 (필수)
+
+**talents[].level (재능 수준)**:
+- 90-100: 해당 십신 3개+ & 건록/제왕 상태
+- 70-89: 해당 십신 2개+ & 통근
+- 50-69: 해당 십신 1-2개 (기본)
+- 30-49: 해당 십신 없거나 충/형 손상
+- 0-29: 기신에 해당하며 극을 받음
+
+**talentUsage.currentLevel (현재 발휘 수준)**:
+- 기준점 50에서 시작
+- 현재 대운이 용신운: +15~25
+- 현재 대운이 기신운: -15~25
+- 12운성 건록/제왕: +10, 묘/절/사: -10
+- 격국 품질 上: +10, 下: -10
+
+**talentUsage.potential (잠재력)**:
+- 격국 품질: 上(80+), 中(60-79), 下(40-59)
+- 용신/희신 강도에 따라 ±15
+- 십신 다양성/균형: +5~15
+
+**recommendedFields[].suitability (분야 적합도)**:
+- 해당 분야 핵심 십신이 3개+: 85-100
+- 해당 분야 핵심 십신이 2개: 70-84
+- 해당 분야 핵심 십신이 1개: 55-69
+- 해당 분야 핵심 십신이 없음: 40-54
+- 분야별 핵심 십신 예시:
+  - IT/연구: 정인, 편인
+  - 영업/사업: 편재, 식신
+  - 예술/창작: 상관, 식신, 편인
+  - 경영/관리: 정관, 정재
+  - 교육/상담: 정인, 식신
+
 ### 6. 학습 스타일 (study_style)
 - 유형: 시각형/청각형/체험형/독서형/토론형 중 선택
 - 십신 기반 학습 성향:
@@ -1264,6 +1295,39 @@ Based on the previous analyses and the Ziping core principles above, please anal
 - Current utilization level (0-100)
 - Potential (0-100)
 - Advice for development
+
+### Objective Scoring Criteria (Required)
+
+**talents[].level (Talent Level)**:
+- 90-100: 3+ relevant Ten Gods & Prosperity/Imperial state
+- 70-89: 2+ relevant Ten Gods & Rooted
+- 50-69: 1-2 relevant Ten Gods (baseline)
+- 30-49: No relevant Ten Gods or damaged by Clash/Punishment
+- 0-29: Harmful God receiving Control
+
+**talentUsage.currentLevel (Current Utilization)**:
+- Start from baseline 50
+- Current Luck Cycle is Useful God: +15~25
+- Current Luck Cycle is Harmful God: -15~25
+- 12 States Prosperity/Imperial: +10, Tomb/Termination/Death: -10
+- Structure Quality Upper: +10, Lower: -10
+
+**talentUsage.potential (Potential)**:
+- Structure Quality: Upper(80+), Middle(60-79), Lower(40-59)
+- ±15 based on Useful/Favorable God strength
+- Ten Gods diversity/balance: +5~15
+
+**recommendedFields[].suitability (Field Suitability)**:
+- 3+ core Ten Gods for field: 85-100
+- 2 core Ten Gods: 70-84
+- 1 core Ten God: 55-69
+- No core Ten Gods: 40-54
+- Core Ten Gods by field:
+  - IT/Research: Direct/Indirect Resource
+  - Sales/Business: Indirect Wealth, Eating God
+  - Arts/Creative: Hurting Officer, Eating God, Indirect Resource
+  - Management: Direct Officer, Direct Wealth
+  - Education/Counseling: Direct Resource, Eating God
 
 ### 6. Learning Style (study_style)
 - Type: Visual/Auditory/Kinesthetic/Reading/Discussion
@@ -1324,6 +1388,33 @@ Please respond according to the JSON schema.""",
 - 潜在力（0-100）
 - 開発のためのアドバイス
 
+### 客観的スコア基準（必須）
+
+**talents[].level（才能レベル）**:
+- 90-100: 関連十神3個以上 & 建禄/帝旺状態
+- 70-89: 関連十神2個以上 & 通根
+- 50-69: 関連十神1-2個（基準）
+- 30-49: 関連十神なしまたは沖/刑で損傷
+- 0-29: 忌神で剋を受ける
+
+**talentUsage.currentLevel（現在発揮レベル）**:
+- 基準点50から開始
+- 現在大運が用神運: +15~25
+- 現在大運が忌神運: -15~25
+- 十二運星 建禄/帝旺: +10, 墓/絶/死: -10
+- 格局品質 上: +10, 下: -10
+
+**talentUsage.potential（潜在力）**:
+- 格局品質: 上(80+), 中(60-79), 下(40-59)
+- 用神/喜神の強さにより±15
+- 十神多様性/バランス: +5~15
+
+**recommendedFields[].suitability（分野適合度）**:
+- 該当分野の核心十神3個以上: 85-100
+- 該当分野の核心十神2個: 70-84
+- 該当分野の核心十神1個: 55-69
+- 該当分野の核心十神なし: 40-54
+
 ### 6. 学習スタイル（study_style）
 - タイプ：視覚型/聴覚型/体験型/読書型/討論型
 - 十神に基づく学習傾向：
@@ -1383,6 +1474,33 @@ Please respond according to the JSON schema.""",
 - 潜力（0-100）
 - 发展建议
 
+### 客观评分标准（必须）
+
+**talents[].level（才能水平）**:
+- 90-100: 相关十神3个以上 & 建禄/帝旺状态
+- 70-89: 相关十神2个以上 & 通根
+- 50-69: 相关十神1-2个（基准）
+- 30-49: 无相关十神或被冲/刑损伤
+- 0-29: 忌神且受克
+
+**talentUsage.currentLevel（当前发挥水平）**:
+- 从基准点50开始
+- 当前大运为用神运: +15~25
+- 当前大运为忌神运: -15~25
+- 十二运星 建禄/帝旺: +10, 墓/绝/死: -10
+- 格局品质 上: +10, 下: -10
+
+**talentUsage.potential（潜力）**:
+- 格局品质: 上(80+), 中(60-79), 下(40-59)
+- 根据用神/喜神强度±15
+- 十神多样性/平衡: +5~15
+
+**recommendedFields[].suitability（领域适合度）**:
+- 该领域核心十神3个以上: 85-100
+- 该领域核心十神2个: 70-84
+- 该领域核心十神1个: 55-69
+- 该领域无核心十神: 40-54
+
 ### 6. 学习风格（study_style）
 - 类型：视觉型/听觉型/体验型/阅读型/讨论型
 - 基于十神的学习倾向：
@@ -1441,6 +1559,33 @@ Please respond according to the JSON schema.""",
 - 當前發揮水平（0-100）
 - 潛力（0-100）
 - 發展建議
+
+### 客觀評分標準（必須）
+
+**talents[].level（才能水平）**:
+- 90-100: 相關十神3個以上 & 建祿/帝旺狀態
+- 70-89: 相關十神2個以上 & 通根
+- 50-69: 相關十神1-2個（基準）
+- 30-49: 無相關十神或被沖/刑損傷
+- 0-29: 忌神且受剋
+
+**talentUsage.currentLevel（當前發揮水平）**:
+- 從基準點50開始
+- 當前大運為用神運: +15~25
+- 當前大運為忌神運: -15~25
+- 十二運星 建祿/帝旺: +10, 墓/絕/死: -10
+- 格局品質 上: +10, 下: -10
+
+**talentUsage.potential（潛力）**:
+- 格局品質: 上(80+), 中(60-79), 下(40-59)
+- 根據用神/喜神強度±15
+- 十神多樣性/平衡: +5~15
+
+**recommendedFields[].suitability（領域適合度）**:
+- 該領域核心十神3個以上: 85-100
+- 該領域核心十神2個: 70-84
+- 該領域核心十神1個: 55-69
+- 該領域無核心十神: 40-54
 
 ### 6. 學習風格（study_style）
 - 類型：視覺型/聽覺型/體驗型/閱讀型/討論型
