@@ -314,6 +314,7 @@ const analysisResult = {
 
 | 날짜 | 버전 | 변경 내용 |
 |------|------|----------|
+| 2026-01-07 | v2.8 | response_schema 미지원 필드 제거 (minimum, maximum, minItems, enum → description) |
 | 2026-01-07 | v2.7 | 재분석 API 응답 중첩 제거, 만세력 422 에러 친절한 메시지 |
 | 2026-01-07 | v2.6 | DB 컬럼 분리 (듀얼 라이트 + 폴백 읽기) |
 | 2026-01-07 | v2.5 | 키 camelCase 정규화, summary 300-500자 확장, normalize_yearly_advice() 추가 |
@@ -321,4 +322,4 @@ const analysisResult = {
 
 ---
 
-**최종 수정**: 2026-01-07 (v2.7)
+**최종 수정**: 2026-01-07 (v2.8)

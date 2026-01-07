@@ -212,6 +212,29 @@ async def generate_with_schema(prompt, response_schema, previous_error=None):
 
 **스키마 파일**: `python/schemas/gemini_schemas.py`
 
+### response_schema 제약사항 (v2.8)
+
+**중요**: Gemini response_schema는 표준 JSON Schema가 아님!
+
+| 지원 O | 지원 X |
+|--------|--------|
+| `type` | `minimum`, `maximum` |
+| `description` | `minItems`, `maxItems` |
+| `properties` | `enum` |
+| `items` | `pattern` |
+| `required` | `format` |
+| `nullable` | |
+
+**해결책**: 미지원 필드를 `description`으로 대체
+
+```python
+# Before (오류 발생)
+"score": {"type": "integer", "minimum": 0, "maximum": 100}
+
+# After (정상 동작)
+"score": {"type": "integer", "description": "0-100 사이 점수"}
+```
+
 ### 프롬프트 시스템
 
 **파일**: `python/prompts/builder.py`
@@ -374,6 +397,7 @@ src/lib/
 
 | 날짜 | 버전 | 변경 내용 |
 |------|------|----------|
+| 2026-01-07 | v2.5 | response_schema 미지원 필드 제거 (minimum, maximum, minItems, enum → description) |
 | 2026-01-07 | v2.4 | Normalize→Validate 파이프라인, Pydantic 스키마 검증, 재분석 API (0C) |
 | 2026-01-07 | v2.3 | 리포트 UI 확장 (지장간/기본분석/레이더차트/섹션별 extended 데이터) |
 | 2026-01-07 | v2.2 | 문서 4개 분리 (report/yearly/consultation) |
@@ -384,4 +408,4 @@ src/lib/
 
 ---
 
-**최종 수정**: 2026-01-07 (v2.4)
+**최종 수정**: 2026-01-07 (v2.5)

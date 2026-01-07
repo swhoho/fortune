@@ -294,6 +294,7 @@ PersonalitySection → socialStyleDetail (type/strengths/weaknesses)
 
 | 날짜 | 버전 | 변경 내용 |
 |------|------|----------|
+| 2026-01-07 | v2.8 | response_schema 미지원 필드 제거 (minimum, maximum → description) |
 | 2026-01-07 | v2.7 | response_schema 100% JSON 강제, 에러 피드백 재시도 |
 | 2026-01-07 | v2.5 | DB 컬럼 분리 (듀얼 라이트 + 폴백 읽기) |
 | 2026-01-07 | v2.4 | Normalize→Validate 파이프라인, Pydantic 스키마, 재분석 API |
@@ -302,4 +303,4 @@ PersonalitySection → socialStyleDetail (type/strengths/weaknesses)
 
 ---
 
-**최종 수정**: 2026-01-07 (v2.7)
+**최종 수정**: 2026-01-07 (v2.8)
