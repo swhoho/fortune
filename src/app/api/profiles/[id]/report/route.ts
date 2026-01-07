@@ -479,29 +479,60 @@ function transformAptitude(aptitude: any, scores: any) {
   ];
 
   // Task 25: 확장 데이터 추출
+  // 타입 정의 (Gemini 응답 - 한/영 키 혼용)
+  type TalentRaw =
+    | string
+    | {
+        talentName?: string;
+        name?: string;
+        이름?: string;
+        basis?: string;
+        근거?: string;
+        십신?: string;
+        level?: number;
+        점수?: number;
+        수준?: number;
+        description?: string;
+        설명?: string;
+      };
+  type FieldRaw =
+    | string
+    | {
+        fieldName?: string;
+        name?: string;
+        분야?: string;
+        이름?: string;
+        reason?: string;
+        사유?: string;
+        이유?: string;
+        suitability?: number;
+        적합도?: number;
+        점수?: number;
+        description?: string;
+        설명?: string;
+      };
+
   // 재능 상세 (basis, level 포함)
   const talentsRaw = isKoreanKeys ? aptitude.타고난_재능 || [] : aptitude.talents || [];
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const talentsExtended = talentsRaw
-    .map((t: any) => ({
+  const talentsExtended = (talentsRaw as TalentRaw[])
+    .map((t) => ({
       name: typeof t === 'string' ? t : t.talentName || t.name || t.이름 || '',
-      basis: t.basis || t.근거 || t.십신 || undefined,
-      level: t.level || t.점수 || t.수준 || undefined,
-      description: t.description || t.설명 || undefined,
+      basis: typeof t === 'string' ? undefined : t.basis || t.근거 || t.십신 || undefined,
+      level: typeof t === 'string' ? undefined : t.level || t.점수 || t.수준 || undefined,
+      description: typeof t === 'string' ? undefined : t.description || t.설명 || undefined,
     }))
-    .filter((t: { name: string }) => t.name);
+    .filter((t) => t.name);
 
   // 피해야 할 분야 (사유 포함)
   const avoidRaw = isKoreanKeys
     ? aptitude.회피_분야 || []
     : aptitude.avoidFields || aptitude.avoided_fields || [];
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const avoidFieldsExtended = avoidRaw
-    .map((f: any) => ({
+  const avoidFieldsExtended = (avoidRaw as FieldRaw[])
+    .map((f) => ({
       name: typeof f === 'string' ? f : f.fieldName || f.name || f.분야 || f.이름 || '',
       reason: typeof f === 'string' ? '' : f.reason || f.사유 || f.이유 || '',
     }))
-    .filter((f: { name: string }) => f.name);
+    .filter((f) => f.name);
 
   // 재능 활용 상태 상세
   const talentUtilRaw = isKoreanKeys
@@ -519,14 +550,14 @@ function transformAptitude(aptitude: any, scores: any) {
   const recRaw = isKoreanKeys
     ? aptitude.추천_분야 || []
     : aptitude.recommendedFields || aptitude.recommended_fields || [];
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const recommendedFieldsExtended = recRaw
-    .map((f: any) => ({
+  const recommendedFieldsExtended = (recRaw as FieldRaw[])
+    .map((f) => ({
       name: typeof f === 'string' ? f : f.fieldName || f.name || f.분야 || f.이름 || '',
-      suitability: f.suitability || f.적합도 || f.점수 || undefined,
-      description: f.description || f.설명 || undefined,
+      suitability:
+        typeof f === 'string' ? undefined : f.suitability || f.적합도 || f.점수 || undefined,
+      description: typeof f === 'string' ? undefined : f.description || f.설명 || undefined,
     }))
-    .filter((f: { name: string }) => f.name);
+    .filter((f) => f.name);
 
   return {
     keywords,
