@@ -100,7 +100,10 @@
         "monthPlaceholder": "Month (MM)",
         "dayPlaceholder": "Day (DD)",
         "hourPlaceholder": "Hour (HH)",
-        "minutePlaceholder": "Min (MM)"
+        "hourPlaceholder12": "Hour (1-12)",
+        "minutePlaceholder": "Min (MM)",
+        "am": "AM",
+        "pm": "PM"
       },
       "validation": {
         "invalidYear": "Please enter a valid year (after 1900)",

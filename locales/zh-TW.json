@@ -100,7 +100,10 @@
         "monthPlaceholder": "月 (MM)",
         "dayPlaceholder": "日 (DD)",
         "hourPlaceholder": "時 (HH)",
-        "minutePlaceholder": "分 (MM)"
+        "hourPlaceholder12": "時 (1-12)",
+        "minutePlaceholder": "分 (MM)",
+        "am": "上午",
+        "pm": "下午"
       },
       "validation": {
         "invalidYear": "請輸入正確的年份（1900年以後）",

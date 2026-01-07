@@ -274,7 +274,7 @@ export function ProfileForm({
               onChange={() => setFormData({ ...formData, period: 'AM' })}
               className="h-4 w-4 accent-[#d4af37]"
             />
-            <span className="text-gray-300">{t('form.am', { defaultValue: '오전 (AM)' })}</span>
+            <span className="text-gray-300">{t('form.am')}</span>
           </label>
           <label className="flex cursor-pointer items-center gap-2">
             <input
@@ -284,7 +284,7 @@ export function ProfileForm({
               onChange={() => setFormData({ ...formData, period: 'PM' })}
               className="h-4 w-4 accent-[#d4af37]"
             />
-            <span className="text-gray-300">{t('form.pm', { defaultValue: '오후 (PM)' })}</span>
+            <span className="text-gray-300">{t('form.pm')}</span>
           </label>
         </div>
 
@@ -292,7 +292,7 @@ export function ProfileForm({
         <div className="grid grid-cols-2 gap-2">
           <Input
             type="number"
-            placeholder={t('form.hourPlaceholder12', { defaultValue: '시 (1-12)' })}
+            placeholder={t('form.hourPlaceholder12')}
             value={formData.hour}
             onChange={(e) => setFormData({ ...formData, hour: e.target.value })}
             className={`border-[#333] bg-[#2a2a2a] text-white placeholder:text-gray-500 focus:border-[#d4af37] ${errors.hour ? 'border-red-500' : ''}`}

@@ -100,7 +100,10 @@
         "monthPlaceholder": "月 (MM)",
         "dayPlaceholder": "日 (DD)",
         "hourPlaceholder": "時 (HH)",
-        "minutePlaceholder": "分 (MM)"
+        "hourPlaceholder12": "時 (1-12)",
+        "minutePlaceholder": "分 (MM)",
+        "am": "午前",
+        "pm": "午後"
       },
       "validation": {
         "invalidYear": "正しい年を入力してください（1900年以降）",

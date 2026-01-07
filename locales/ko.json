@@ -100,7 +100,10 @@
         "monthPlaceholder": "월 (MM)",
         "dayPlaceholder": "일 (DD)",
         "hourPlaceholder": "시 (HH)",
-        "minutePlaceholder": "분 (MM)"
+        "hourPlaceholder12": "시 (1-12)",
+        "minutePlaceholder": "분 (MM)",
+        "am": "오전 (AM)",
+        "pm": "오후 (PM)"
       },
       "validation": {
         "invalidYear": "올바른 연도를 입력해주세요 (1900년 이후)",
@@ -762,7 +765,10 @@
       "monthPlaceholder": "월",
       "dayPlaceholder": "일",
       "hourPlaceholder": "시",
-      "minutePlaceholder": "분"
+      "hourPlaceholder12": "시 (1-12)",
+      "minutePlaceholder": "분",
+      "am": "오전 (AM)",
+      "pm": "오후 (PM)"
     },
     "validation": {
       "nameRequired": "이름을 입력해주세요",
