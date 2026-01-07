@@ -239,6 +239,52 @@ POST /api/analysis/report/{report_id}/reanalyze/{step_type}
 
 ---
 
+## 한자 용어 설명 규칙 (v2.9)
+
+Gemini 프롬프트에 한자 용어 설명 가이드라인 포함:
+
+**적용 단계**: basic, personality, aptitude, fortune (4개 단계)
+**적용 언어**: ko, en, ja, zh-CN, zh-TW (5개 언어)
+
+### 핵심 규칙
+
+1. **천간 설명**: 일상적 비유 + 한글 음독
+   - 예: "촛불처럼 섬세하고 따뜻한 불 기운(丁火, 정화)..."
+
+2. **지지 설명**: 계절 + 오행
+   - 예: "가을(申月, 금속 기운이 강한 시기)에 태어나..."
+
+3. **오행 설명**: 한글 + 한자
+   - 예: "나무(木) 에너지가..."
+
+### 천간 비유 참고
+
+| 천간 | 한글 | 비유 |
+|------|------|------|
+| 甲 | 갑 | 큰 나무, 소나무 |
+| 乙 | 을 | 풀, 덩굴 |
+| 丙 | 병 | 태양 |
+| 丁 | 정 | 촛불 |
+| 戊 | 무 | 산, 대지 |
+| 己 | 기 | 논밭 |
+| 庚 | 경 | 바위, 쇠 |
+| 辛 | 신 | 보석 |
+| 壬 | 임 | 바다 |
+| 癸 | 계 | 이슬 |
+
+### 지지 계절 참고
+
+| 지지 | 계절 | 오행 |
+|------|------|------|
+| 寅卯辰 | 봄 | 나무 |
+| 巳午未 | 여름 | 불 |
+| 申酉戌 | 가을 | 금속 |
+| 亥子丑 | 겨울 | 물 |
+
+**소스**: `python/prompts/builder.py` (`_get_step_instructions`)
+
+---
+
 ## JSON 정규화
 
 Gemini 응답의 키를 TypeScript 호환 camelCase로 변환:
@@ -294,6 +340,7 @@ PersonalitySection → socialStyleDetail (type/strengths/weaknesses)
 
 | 날짜 | 버전 | 변경 내용 |
 |------|------|----------|
+| 2026-01-07 | v2.9 | 한자 용어 설명 규칙 추가 (일상적 비유 + 음독 방식) |
 | 2026-01-07 | v2.8 | response_schema 미지원 필드 제거 (minimum, maximum → description) |
 | 2026-01-07 | v2.7 | response_schema 100% JSON 강제, 에러 피드백 재시도 |
 | 2026-01-07 | v2.5 | DB 컬럼 분리 (듀얼 라이트 + 폴백 읽기) |
@@ -303,4 +350,4 @@ PersonalitySection → socialStyleDetail (type/strengths/weaknesses)
 
 ---
 
-**최종 수정**: 2026-01-07 (v2.8)
+**최종 수정**: 2026-01-07 (v2.9)

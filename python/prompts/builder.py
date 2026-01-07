@@ -732,6 +732,18 @@ class PromptBuilder:
 - 기신 (해로운 오행)
 - 용신 선정 이유
 
+### 한자 용어 설명 규칙 (필수)
+한자 용어가 등장할 때 반드시 **일상적 비유 + 한글 음독**과 함께 설명하세요.
+
+**예시**:
+- "촛불처럼 섬세하고 따뜻한 불 기운(丁火, 정화)이..."
+- "가을(申月, 금속 기운이 강한 시기)에 태어나..."
+- "큰 나무처럼 곧고 우직한 나무(木) 에너지가..."
+
+**천간 비유**: 甲(갑)-큰나무, 乙(을)-풀/덩굴, 丙(병)-태양, 丁(정)-촛불, 戊(무)-산, 己(기)-논밭, 庚(경)-바위, 辛(신)-보석, 壬(임)-바다, 癸(계)-이슬
+**지지 계절**: 寅卯辰-봄(나무), 巳午未-여름(불), 申酉戌-가을(금속), 亥子丑-겨울(물)
+**오행**: 木(목, 나무), 火(화, 불), 土(토, 흙), 金(금, 쇠), 水(수, 물)
+
 응답은 반드시 JSON 스키마에 맞게 작성하세요.""",
                 'en': """## Basic Analysis Expert Role
 
@@ -753,6 +765,18 @@ Please analyze the following items accurately:
 - Helpful God (supportive element)
 - Harmful God (detrimental element)
 - Reasoning for selection
+
+### Chinese Character Explanation Rules (Required)
+When Chinese characters appear, always explain with **everyday metaphors + romanization**.
+
+**Examples**:
+- "Candle-like gentle fire energy (丁火, Ding Fire)..."
+- "Born in autumn (申月, strong Metal season)..."
+- "Tree-like steady Wood (木) energy..."
+
+**Stem metaphors**: 甲(Jia)-Large tree, 乙(Yi)-Grass/vine, 丙(Bing)-Sun, 丁(Ding)-Candle, 戊(Wu)-Mountain, 己(Ji)-Garden, 庚(Geng)-Rock, 辛(Xin)-Jewel, 壬(Ren)-Ocean, 癸(Gui)-Dewdrop
+**Branch seasons**: 寅卯辰-Spring(Wood), 巳午未-Summer(Fire), 申酉戌-Autumn(Metal), 亥子丑-Winter(Water)
+**Five Elements**: 木(Wood), 火(Fire), 土(Earth), 金(Metal), 水(Water)
 
 Please respond according to the JSON schema."""
             },
@@ -789,6 +813,18 @@ Please respond according to the JSON schema."""
 - 강점: 대인관계에서의 장점 3가지
 - 약점: 주의해야 할 패턴 3가지
 
+### 한자 용어 설명 규칙 (필수)
+한자 용어가 등장할 때 반드시 **일상적 비유 + 한글 음독**과 함께 설명하세요.
+
+**예시**:
+- "촛불처럼 섬세하고 따뜻한 불 기운(丁火, 정화)이..."
+- "가을(申月, 금속 기운이 강한 시기)에 태어나..."
+- "큰 나무처럼 곧고 우직한 나무(木) 에너지가..."
+
+**천간 비유**: 甲(갑)-큰나무, 乙(을)-풀/덩굴, 丙(병)-태양, 丁(정)-촛불, 戊(무)-산, 己(기)-논밭, 庚(경)-바위, 辛(신)-보석, 壬(임)-바다, 癸(계)-이슬
+**지지 계절**: 寅卯辰-봄(나무), 巳午未-여름(불), 申酉戌-가을(금속), 亥子丑-겨울(물)
+**오행**: 木(목, 나무), 火(화, 불), 土(토, 흙), 金(금, 쇠), 水(수, 물)
+
 응답은 반드시 JSON 스키마에 맞게 작성하세요.""",
 
                 'en': """## Personality Analysis Expert Role
@@ -822,6 +858,18 @@ Based on the previous basic analysis and the Ten Gods (十神) interpretation gu
 - Relationship type: Leader/Cooperator/Observer
 - Strengths: 3 advantages in relationships
 - Weaknesses: 3 patterns to be aware of
+
+### Chinese Character Explanation Rules (Required)
+When Chinese characters appear, always explain with **everyday metaphors + romanization**.
+
+**Examples**:
+- "Candle-like gentle fire energy (丁火, Ding Fire)..."
+- "Born in autumn (申月, strong Metal season)..."
+- "Tree-like steady Wood (木) energy..."
+
+**Stem metaphors**: 甲(Jia)-Large tree, 乙(Yi)-Grass/vine, 丙(Bing)-Sun, 丁(Ding)-Candle, 戊(Wu)-Mountain, 己(Ji)-Garden, 庚(Geng)-Rock, 辛(Xin)-Jewel, 壬(Ren)-Ocean, 癸(Gui)-Dewdrop
+**Branch seasons**: 寅卯辰-Spring(Wood), 巳午未-Summer(Fire), 申酉戌-Autumn(Metal), 亥子丑-Winter(Water)
+**Five Elements**: 木(Wood), 火(Fire), 土(Earth), 金(Metal), 水(Water)
 
 Please respond according to the JSON schema.""",
 
@@ -857,6 +905,18 @@ Please respond according to the JSON schema.""",
 - 強み：対人関係での長所3つ
 - 弱み：注意すべきパターン3つ
 
+### 漢字用語説明規則（必須）
+漢字用語が登場する時は必ず**日常的な比喩 + 読み方**と一緒に説明してください。
+
+**例**:
+- 「ろうそくのように繊細で温かい火の気(丁火、ていか)が...」
+- 「秋(申月、金属の気が強い時期)に生まれ...」
+- 「大木のようにまっすぐな木(木)のエネルギーが...」
+
+**天干の比喩**: 甲(こう)-大木, 乙(おつ)-草/蔓, 丙(へい)-太陽, 丁(てい)-ろうそく, 戊(ぼ)-山, 己(き)-田畑, 庚(こう)-岩, 辛(しん)-宝石, 壬(じん)-海, 癸(き)-露
+**地支の季節**: 寅卯辰-春(木), 巳午未-夏(火), 申酉戌-秋(金), 亥子丑-冬(水)
+**五行**: 木(もく), 火(か), 土(ど), 金(きん), 水(すい)
+
 必ずJSONスキーマに従って回答してください。""",
 
                 'zh-CN': """## 性格分析专家角色
@@ -891,6 +951,18 @@ Please respond according to the JSON schema.""",
 - 优势：人际关系中的3个长处
 - 劣势：需要注意的3个模式
 
+### 汉字术语说明规则（必须）
+当出现汉字术语时，必须使用**日常比喻 + 读音**一起说明。
+
+**示例**:
+- 「如烛光般细腻温暖的火能量(丁火)...」
+- 「出生于秋季(申月，金气旺盛的时期)...」
+- 「如大树般挺拔的木(木)能量...」
+
+**天干比喻**: 甲-大树, 乙-草/藤蔓, 丙-太阳, 丁-烛火, 戊-山, 己-田园, 庚-岩石, 辛-宝石, 壬-大海, 癸-露水
+**地支季节**: 寅卯辰-春(木), 巳午未-夏(火), 申酉戌-秋(金), 亥子丑-冬(水)
+**五行**: 木(木), 火(火), 土(土), 金(金), 水(水)
+
 请务必按照JSON格式回答。""",
 
                 'zh-TW': """## 性格分析專家角色
@@ -924,6 +996,18 @@ Please respond according to the JSON schema.""",
 - 關係類型：主導型/協作型/旁觀型
 - 優勢：人際關係中的3個長處
 - 劣勢：需要注意的3個模式
+
+### 漢字術語說明規則（必須）
+當出現漢字術語時，必須使用**日常比喻 + 讀音**一起說明。
+
+**示例**:
+- 「如燭光般細膩溫暖的火能量(丁火)...」
+- 「出生於秋季(申月，金氣旺盛的時期)...」
+- 「如大樹般挺拔的木(木)能量...」
+
+**天干比喻**: 甲-大樹, 乙-草/藤蔓, 丙-太陽, 丁-燭火, 戊-山, 己-田園, 庚-岩石, 辛-寶石, 壬-大海, 癸-露水
+**地支季節**: 寅卯辰-春(木), 巳午未-夏(火), 申酉戌-秋(金), 亥子丑-冬(水)
+**五行**: 木(木), 火(火), 土(土), 金(金), 水(水)
 
 請務必按照JSON格式回答。"""
             },
@@ -973,6 +1057,18 @@ Please respond according to the JSON schema.""",
   - 정재/편재(財星) 강함: 실용적 학습, 응용 중심 선호
 - 학습 스타일에 대한 상세 설명 (3-5문장)
 
+### 한자 용어 설명 규칙 (필수)
+한자 용어가 등장할 때 반드시 **일상적 비유 + 한글 음독**과 함께 설명하세요.
+
+**예시**:
+- "촛불처럼 섬세하고 따뜻한 불 기운(丁火, 정화)이..."
+- "가을(申月, 금속 기운이 강한 시기)에 태어나..."
+- "큰 나무처럼 곧고 우직한 나무(木) 에너지가..."
+
+**천간 비유**: 甲(갑)-큰나무, 乙(을)-풀/덩굴, 丙(병)-태양, 丁(정)-촛불, 戊(무)-산, 己(기)-논밭, 庚(경)-바위, 辛(신)-보석, 壬(임)-바다, 癸(계)-이슬
+**지지 계절**: 寅卯辰-봄(나무), 巳午未-여름(불), 申酉戌-가을(금속), 亥子丑-겨울(물)
+**오행**: 木(목, 나무), 火(화, 불), 土(토, 흙), 金(금, 쇠), 水(수, 물)
+
 응답은 반드시 JSON 스키마에 맞게 작성하세요.""",
 
                 'en': """## Aptitude Analysis Expert Role
@@ -1019,6 +1115,18 @@ Based on the previous analyses and the Ziping core principles above, please anal
   - Strong Companion/Rob (比劫): Discussion type, competitive learning
   - Strong Wealth Stars (財星): Practical learning, application-focused
 - Detailed description of learning style (3-5 sentences)
+
+### Chinese Character Explanation Rules (Required)
+When Chinese characters appear, always explain with **everyday metaphors + romanization**.
+
+**Examples**:
+- "Candle-like gentle fire energy (丁火, Ding Fire)..."
+- "Born in autumn (申月, strong Metal season)..."
+- "Tree-like steady Wood (木) energy..."
+
+**Stem metaphors**: 甲(Jia)-Large tree, 乙(Yi)-Grass/vine, 丙(Bing)-Sun, 丁(Ding)-Candle, 戊(Wu)-Mountain, 己(Ji)-Garden, 庚(Geng)-Rock, 辛(Xin)-Jewel, 壬(Ren)-Ocean, 癸(Gui)-Dewdrop
+**Branch seasons**: 寅卯辰-Spring(Wood), 巳午未-Summer(Fire), 申酉戌-Autumn(Metal), 亥子丑-Winter(Water)
+**Five Elements**: 木(Wood), 火(Fire), 土(Earth), 金(Metal), 水(Water)
 
 Please respond according to the JSON schema.""",
 
@@ -1067,6 +1175,18 @@ Please respond according to the JSON schema.""",
   - 財星が強い：実践的学習、応用中心を好む
 - 学習スタイルの詳細説明（3-5文）
 
+### 漢字用語説明規則（必須）
+漢字用語が登場する時は必ず**日常的な比喩 + 読み方**と一緒に説明してください。
+
+**例**:
+- 「ろうそくのように繊細で温かい火の気(丁火、ていか)が...」
+- 「秋(申月、金属の気が強い時期)に生まれ...」
+- 「大木のようにまっすぐな木(木)のエネルギーが...」
+
+**天干の比喩**: 甲(こう)-大木, 乙(おつ)-草/蔓, 丙(へい)-太陽, 丁(てい)-ろうそく, 戊(ぼ)-山, 己(き)-田畑, 庚(こう)-岩, 辛(しん)-宝石, 壬(じん)-海, 癸(き)-露
+**地支の季節**: 寅卯辰-春(木), 巳午未-夏(火), 申酉戌-秋(金), 亥子丑-冬(水)
+**五行**: 木(もく), 火(か), 土(ど), 金(きん), 水(すい)
+
 必ずJSONスキーマに従って回答してください。""",
 
                 'zh-CN': """## 适性分析专家角色
@@ -1113,6 +1233,18 @@ Please respond according to the JSON schema.""",
   - 比劫强：讨论型，偏好竞争学习
   - 财星强：实践学习，偏好应用导向
 - 学习风格详细说明（3-5句）
+
+### 汉字术语说明规则（必须）
+当出现汉字术语时，必须使用**日常比喻 + 读音**一起说明。
+
+**示例**:
+- 「如烛光般细腻温暖的火能量(丁火)...」
+- 「出生于秋季(申月，金气旺盛的时期)...」
+- 「如大树般挺拔的木(木)能量...」
+
+**天干比喻**: 甲-大树, 乙-草/藤蔓, 丙-太阳, 丁-烛火, 戊-山, 己-田园, 庚-岩石, 辛-宝石, 壬-大海, 癸-露水
+**地支季节**: 寅卯辰-春(木), 巳午未-夏(火), 申酉戌-秋(金), 亥子丑-冬(水)
+**五行**: 木(木), 火(火), 土(土), 金(金), 水(水)
 
 请务必按照JSON格式回答。""",
 
@@ -1161,6 +1293,18 @@ Please respond according to the JSON schema.""",
   - 財星強：實踐學習，偏好應用導向
 - 學習風格詳細說明（3-5句）
 
+### 漢字術語說明規則（必須）
+當出現漢字術語時，必須使用**日常比喻 + 讀音**一起說明。
+
+**示例**:
+- 「如燭光般細膩溫暖的火能量(丁火)...」
+- 「出生於秋季(申月，金氣旺盛的時期)...」
+- 「如大樹般挺拔的木(木)能量...」
+
+**天干比喻**: 甲-大樹, 乙-草/藤蔓, 丙-太陽, 丁-燭火, 戊-山, 己-田園, 庚-岩石, 辛-寶石, 壬-大海, 癸-露水
+**地支季節**: 寅卯辰-春(木), 巳午未-夏(火), 申酉戌-秋(金), 亥子丑-冬(水)
+**五行**: 木(木), 火(火), 土(土), 金(金), 水(水)
+
 請務必按照JSON格式回答。"""
             },
             'fortune': {
@@ -1197,6 +1341,18 @@ Please respond according to the JSON schema.""",
 
 **중요**: 부정적 내용은 완곡하게 표현하세요. '이혼' 대신 '결혼 생활의 도전', '파산' 대신 '재정적 어려움'으로 순화.
 
+### 한자 용어 설명 규칙 (필수)
+한자 용어가 등장할 때 반드시 **일상적 비유 + 한글 음독**과 함께 설명하세요.
+
+**예시**:
+- "촛불처럼 섬세하고 따뜻한 불 기운(丁火, 정화)이..."
+- "가을(申月, 금속 기운이 강한 시기)에 태어나..."
+- "큰 나무처럼 곧고 우직한 나무(木) 에너지가..."
+
+**천간 비유**: 甲(갑)-큰나무, 乙(을)-풀/덩굴, 丙(병)-태양, 丁(정)-촛불, 戊(무)-산, 己(기)-논밭, 庚(경)-바위, 辛(신)-보석, 壬(임)-바다, 癸(계)-이슬
+**지지 계절**: 寅卯辰-봄(나무), 巳午未-여름(불), 申酉戌-가을(금속), 亥子丑-겨울(물)
+**오행**: 木(목, 나무), 火(화, 불), 土(토, 흙), 金(금, 쇠), 水(수, 물)
+
 응답은 반드시 JSON 스키마에 맞게 작성하세요.""",
 
                 'en': """## Wealth & Love Analysis Expert Role
@@ -1231,6 +1387,18 @@ Based on the Ziping and Qiongtong principles above, please analyze:
 - Love advice
 
 **Important**: Express negative content gently. Use 'marriage challenges' instead of 'divorce', 'financial difficulties' instead of 'bankruptcy'.
+
+### Chinese Character Explanation Rules (Required)
+When Chinese characters appear, always explain with **everyday metaphors + romanization**.
+
+**Examples**:
+- "Candle-like gentle fire energy (丁火, Ding Fire)..."
+- "Born in autumn (申月, strong Metal season)..."
+- "Tree-like steady Wood (木) energy..."
+
+**Stem metaphors**: 甲(Jia)-Large tree, 乙(Yi)-Grass/vine, 丙(Bing)-Sun, 丁(Ding)-Candle, 戊(Wu)-Mountain, 己(Ji)-Garden, 庚(Geng)-Rock, 辛(Xin)-Jewel, 壬(Ren)-Ocean, 癸(Gui)-Dewdrop
+**Branch seasons**: 寅卯辰-Spring(Wood), 巳午未-Summer(Fire), 申酉戌-Autumn(Metal), 亥子丑-Winter(Water)
+**Five Elements**: 木(Wood), 火(Fire), 土(Earth), 金(Metal), 水(Water)
 
 Please respond according to the JSON schema.""",
 
@@ -1267,6 +1435,18 @@ Please respond according to the JSON schema.""",
 
 **重要**：ネガティブな内容は婉曲に表現してください。「離婚」→「結婚生活の課題」、「破産」→「財政的困難」。
 
+### 漢字用語説明規則（必須）
+漢字用語が登場する時は必ず**日常的な比喩 + 読み方**と一緒に説明してください。
+
+**例**:
+- 「ろうそくのように繊細で温かい火の気(丁火、ていか)が...」
+- 「秋(申月、金属の気が強い時期)に生まれ...」
+- 「大木のようにまっすぐな木(木)のエネルギーが...」
+
+**天干の比喩**: 甲(こう)-大木, 乙(おつ)-草/蔓, 丙(へい)-太陽, 丁(てい)-ろうそく, 戊(ぼ)-山, 己(き)-田畑, 庚(こう)-岩, 辛(しん)-宝石, 壬(じん)-海, 癸(き)-露
+**地支の季節**: 寅卯辰-春(木), 巳午未-夏(火), 申酉戌-秋(金), 亥子丑-冬(水)
+**五行**: 木(もく), 火(か), 土(ど), 金(きん), 水(すい)
+
 必ずJSONスキーマに従って回答してください。""",
 
                 'zh-CN': """## 财运/恋爱运分析专家角色
@@ -1302,6 +1482,18 @@ Please respond according to the JSON schema.""",
 
 **重要**：负面内容请委婉表达。用"婚姻挑战"替代"离婚"，用"财务困难"替代"破产"。
 
+### 汉字术语说明规则（必须）
+当出现汉字术语时，必须使用**日常比喻 + 读音**一起说明。
+
+**示例**:
+- 「如烛光般细腻温暖的火能量(丁火)...」
+- 「出生于秋季(申月，金气旺盛的时期)...」
+- 「如大树般挺拔的木(木)能量...」
+
+**天干比喻**: 甲-大树, 乙-草/藤蔓, 丙-太阳, 丁-烛火, 戊-山, 己-田园, 庚-岩石, 辛-宝石, 壬-大海, 癸-露水
+**地支季节**: 寅卯辰-春(木), 巳午未-夏(火), 申酉戌-秋(金), 亥子丑-冬(水)
+**五行**: 木(木), 火(火), 土(土), 金(金), 水(水)
+
 请务必按照JSON格式回答。""",
 
                 'zh-TW': """## 財運/戀愛運分析專家角色
@@ -1336,6 +1528,18 @@ Please respond according to the JSON schema.""",
 - 戀愛建議
 
 **重要**：負面內容請委婉表達。用「婚姻挑戰」替代「離婚」，用「財務困難」替代「破產」。
+
+### 漢字術語說明規則（必須）
+當出現漢字術語時，必須使用**日常比喻 + 讀音**一起說明。
+
+**示例**:
+- 「如燭光般細膩溫暖的火能量(丁火)...」
+- 「出生於秋季(申月，金氣旺盛的時期)...」
+- 「如大樹般挺拔的木(木)能量...」
+
+**天干比喻**: 甲-大樹, 乙-草/藤蔓, 丙-太陽, 丁-燭火, 戊-山, 己-田園, 庚-岩石, 辛-寶石, 壬-大海, 癸-露水
+**地支季節**: 寅卯辰-春(木), 巳午未-夏(火), 申酉戌-秋(金), 亥子丑-冬(水)
+**五行**: 木(木), 火(火), 土(土), 金(金), 水(水)
 
 請務必按照JSON格式回答。"""
             }
