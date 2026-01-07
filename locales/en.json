@@ -461,6 +461,11 @@
         "buildPrompt": "Preparing analysis",
         "aiAnalysis": "AI fortune analysis",
         "saveResult": "Saving results"
+      },
+      "error": {
+        "title": "An error occurred during analysis",
+        "goToSajuAnalysis": "Start Saju Analysis",
+        "sajuRequiredDesc": "Basic saju analysis is required before new year fortune analysis."
       }
     },
     "result": {

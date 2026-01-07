@@ -461,6 +461,11 @@
         "buildPrompt": "准备分析",
         "aiAnalysis": "AI运势分析中",
         "saveResult": "保存结果"
+      },
+      "error": {
+        "title": "分析过程中发生错误",
+        "goToSajuAnalysis": "开始八字分析",
+        "sajuRequiredDesc": "新年运势分析需要先完成基本八字分析。"
       }
     },
     "result": {

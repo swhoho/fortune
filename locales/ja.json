@@ -461,6 +461,11 @@
         "buildPrompt": "分析準備",
         "aiAnalysis": "AI運勢分析中",
         "saveResult": "結果保存"
+      },
+      "error": {
+        "title": "分析中にエラーが発生しました",
+        "goToSajuAnalysis": "四柱分析を開始",
+        "sajuRequiredDesc": "新年運勢分析には、基本四柱分析が必要です。"
       }
     },
     "result": {

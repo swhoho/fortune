@@ -9,11 +9,21 @@ import { Suspense, useEffect, useState, useCallback, useRef } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Loader2, CheckCircle2, Circle, AlertCircle } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 
 import { Button } from '@/components/ui/button';
 import { useYearlyStore, type YearlyLoadingStep } from '@/stores/yearly-store';
 import { useOnboardingStore } from '@/stores/onboarding';
 import { BRAND_COLORS, FORTUNE_TIPS } from '@/lib/constants/colors';
+
+/** SAJU_REQUIRED 에러 메시지 패턴 (다국어 대응) */
+const SAJU_REQUIRED_PATTERNS = [
+  '기본 사주 분석 이후에 이용할 수 있는 서비스입니다',
+  'Basic saju analysis is required',
+  '基本四柱分析を先に完了してください',
+  '基本四柱分析后才能使用此服务',
+  '基本四柱分析後才能使用此服務',
+];
 
 /** 한자 천간 (회전 애니메이션용) */
 const HANJA_CHARS = ['甲', '乙', '丙', '丁', '戊', '己', '庚', '辛', '壬', '癸'];
@@ -55,6 +65,8 @@ const MAX_POLL_COUNT = 100;
 function YearlyProcessingContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const t = useTranslations('yearly.processing');
+  const tCommon = useTranslations('common');
 
   // URL 파라미터에서 데이터 읽기 (store hydration 문제 방지)
   const urlYear = searchParams.get('year');
@@ -373,6 +385,29 @@ function YearlyProcessingContent() {
     router.push('/analysis/yearly');
   };
 
+  /** SAJU_REQUIRED 에러 여부 확인 */
+  const isSajuRequired = error && SAJU_REQUIRED_PATTERNS.some((pattern) => error.includes(pattern));
+
+  /** 사주 분석 페이지로 이동 (프로필 리포트) */
+  const handleGoToSajuAnalysis = () => {
+    // 폴링 정리 및 세션 초기화
+    if (pollingIntervalRef.current) {
+      clearInterval(pollingIntervalRef.current);
+    }
+    resetYearly();
+    setError(null);
+    setIsStarted(false);
+    hasStartedRef.current = false;
+    isRequestingRef.current = false;
+
+    // profileId가 있으면 해당 프로필의 generating 페이지로, 없으면 프로필 목록으로
+    if (selectedProfileId) {
+      router.push(`/profiles/${selectedProfileId}/generating`);
+    } else {
+      router.push('/profiles');
+    }
+  };
+
   // 에러 화면
   if (error) {
     return (
@@ -380,27 +415,42 @@ function YearlyProcessingContent() {
         <motion.div
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
-          className="text-center"
+          className="flex flex-col items-center text-center"
         >
-          <AlertCircle className="mx-auto mb-4 h-16 w-16 text-red-400" />
-          <h2 className="mb-2 text-xl font-semibold text-white">분석 중 오류가 발생했습니다</h2>
-          <p className="mb-6 text-gray-400">{error}</p>
-          <div className="flex gap-3">
-            <Button
-              variant="outline"
-              onClick={handleBack}
-              className="border-[#333] bg-[#1a1a1a] text-white hover:bg-[#242424]"
-            >
-              돌아가기
-            </Button>
-            <Button
-              onClick={handleRetry}
-              style={{ backgroundColor: BRAND_COLORS.primary }}
-              className="text-black hover:opacity-90"
-            >
-              다시 시도
-            </Button>
-          </div>
+          <AlertCircle className="mb-4 h-16 w-16 text-red-400" />
+          <h2 className="mb-2 text-xl font-semibold text-white">{t('error.title')}</h2>
+          {isSajuRequired ? (
+            <>
+              <p className="mb-6 max-w-sm text-gray-400">{t('error.sajuRequiredDesc')}</p>
+              <Button
+                onClick={handleGoToSajuAnalysis}
+                style={{ backgroundColor: BRAND_COLORS.primary }}
+                className="min-w-[200px] text-black hover:opacity-90"
+              >
+                {t('error.goToSajuAnalysis')}
+              </Button>
+            </>
+          ) : (
+            <>
+              <p className="mb-6 text-gray-400">{error}</p>
+              <div className="flex flex-col items-center gap-3">
+                <Button
+                  onClick={handleRetry}
+                  style={{ backgroundColor: BRAND_COLORS.primary }}
+                  className="min-w-[200px] text-black hover:opacity-90"
+                >
+                  {tCommon('retry')}
+                </Button>
+                <Button
+                  variant="outline"
+                  onClick={handleBack}
+                  className="min-w-[200px] border-[#333] bg-[#1a1a1a] text-white hover:bg-[#242424]"
+                >
+                  {tCommon('back')}
+                </Button>
+              </div>
+            </>
+          )}
         </motion.div>
       </div>
     );
