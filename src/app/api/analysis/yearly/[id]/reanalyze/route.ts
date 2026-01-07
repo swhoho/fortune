@@ -123,14 +123,15 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
       success: pythonResult.success,
     });
 
-    // 5. 성공 응답
+    // 5. 성공 응답 (Python 응답 중첩 풀기)
+    const resultData = pythonResult.data?.result || pythonResult.data;
     return NextResponse.json({
       success: true,
       message: '재분석이 완료되었습니다',
       data: {
         analysisId,
         stepType,
-        result: pythonResult.data,
+        result: resultData,
       },
     });
   } catch (error) {

@@ -53,17 +53,19 @@ export default function YearlyResultPage() {
 
       const data = await response.json();
 
-      // 결과 업데이트
+      // 결과 업데이트 (방어적 접근: 중첩된 result 처리)
       if (data.success && data.data?.result && result) {
         const updatedResult: YearlyAnalysisResult = { ...result };
+        // Python 응답이 중첩된 경우 처리 (result.result 또는 result)
+        const resultData = data.data.result?.result || data.data.result || {};
 
         // stepType에 따라 해당 필드 업데이트
-        if (stepType === 'yearly_advice' && data.data.result.yearlyAdvice) {
-          updatedResult.yearlyAdvice = data.data.result.yearlyAdvice;
-        } else if (stepType === 'key_dates' && data.data.result.keyDates) {
-          updatedResult.keyDates = data.data.result.keyDates;
-        } else if (stepType === 'classical_refs' && data.data.result.classicalReferences) {
-          updatedResult.classicalReferences = data.data.result.classicalReferences;
+        if (stepType === 'yearly_advice' && resultData.yearlyAdvice) {
+          updatedResult.yearlyAdvice = resultData.yearlyAdvice;
+        } else if (stepType === 'key_dates' && resultData.keyDates) {
+          updatedResult.keyDates = resultData.keyDates;
+        } else if (stepType === 'classical_refs' && resultData.classicalReferences) {
+          updatedResult.classicalReferences = resultData.classicalReferences;
         }
 
         setResult(updatedResult);
