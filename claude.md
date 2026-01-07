@@ -95,11 +95,13 @@ python/
 | AI 질문 | 10C |
 | 상담 세션 | 10C (2라운드) |
 
-### 점수 계산 (v2.1)
+### 점수 계산 (v3.0)
 
-- 공식: `50 + Σ(modifier × tenGodCount)` → clamp(0, 100)
-- Modifier 범위: max ±11 (v2.0 ±15에서 축소)
-- 목표 분포: 10~90점 골고루 분포, 0점/100점 극단값 회피
+- 공식: `50 + (rawScore - 50) × SENSITIVITY` → clamp(0, 100)
+- SENSITIVITY: 1.5 (편차 증폭 계수)
+- Modifier 범위: 성격/적성 ±20, 업무/연애 ±30
+- 지장간 가중치: 여기/중기 0, 정기 1.0 (노이즈 제거)
+- 목표 분포: 특성별 명확한 차이, 극단값 허용
 
 ### 오행 색상
 
@@ -292,10 +294,17 @@ cd python && pytest  # Python
 
 ---
 
-**Version**: 1.34.0
-**Last Updated**: 2026-01-07 (Gemini response_schema 호환성 수정)
+**Version**: 1.35.0
+**Last Updated**: 2026-01-07 (점수 분포 극단화 v3.0)
 
 ## Changelog
+
+### v1.35.0 (2026-01-07)
+- **점수 분포 극단화 (v3.0)**
+  - `calculator.ts`: SENSITIVITY=1.5 편차 증폭 로직 추가
+  - `trait-modifiers.ts`: modifier ×1.8 확대 (성격/적성 ±20, 업무/연애 ±30)
+  - `constants.ts`: 지장간 가중치 [0, 0, 1.0] (여기/중기 노이즈 제거)
+  - 목표: 50점 근처 수렴 방지, 특성별 명확한 차이
 
 ### v1.34.0 (2026-01-07)
 - **Gemini response_schema 호환성 수정**

@@ -100,9 +100,10 @@ export const JIJANGGAN_TABLE: Record<EarthlyBranch, HeavenlyStem[]> = {
 
 /**
  * 지장간 가중치 (인덱스별)
- * 여기: 0.3, 중기: 0.3, 정기: 1.0
+ * v3.0: 정기만 반영 (여기/중기 노이즈 제거로 점수 분포 극단화)
+ * 여기: 0, 중기: 0, 정기: 1.0
  */
-export const JIJANGGAN_WEIGHTS = [0.3, 0.3, 1.0];
+export const JIJANGGAN_WEIGHTS = [0, 0, 1.0];
 
 /**
  * 천간 가중치 (연/월/시주 천간)

@@ -79,28 +79,45 @@ const MIN_SCORE = 0;
 const MAX_SCORE = 100;
 
 /**
- * 특성 점수 계산
+ * 편차 증폭 계수 (v3.0)
+ * 50점 기준으로 편차를 1.5배 증폭하여 점수 분포 극단화
+ */
+const SENSITIVITY = 1.5;
+
+/**
+ * 특성 점수 계산 (v3.0: 편차 증폭 적용)
  *
  * @param tenGodCounts - 십신별 개수 (가중치 포함)
  * @param modifiers - 특성별 십신 영향 매핑
  * @returns 0-100 범위의 점수
  *
+ * @description
+ * 1. 기본 점수(50) + 십신별 modifier 합산 → rawScore
+ * 2. 50점 기준 편차(delta) 계산
+ * 3. 편차를 SENSITIVITY(1.5)배 증폭
+ * 4. 최종 점수 = 50 + amplifiedDelta
+ *
  * @example
- * const counts = { 비견: 2, 겁재: 1, ... };
- * const modifiers = { 비견: 15, 겁재: 12, ... };
- * calculateTraitScore(counts, modifiers); // 79
+ * rawScore=60 → delta=10 → amplified=15 → finalScore=65
+ * rawScore=40 → delta=-10 → amplified=-15 → finalScore=35
  */
 export function calculateTraitScore(tenGodCounts: TenGodCounts, modifiers: TraitModifier): number {
-  let score = BASE_SCORE;
+  // 1. 원시 점수 계산
+  let rawScore = BASE_SCORE;
 
   for (const tenGod of Object.keys(tenGodCounts) as TenGod[]) {
     const count = tenGodCounts[tenGod];
     const modifier = modifiers[tenGod] ?? 0;
-    score += modifier * count;
+    rawScore += modifier * count;
   }
 
-  // 0-100 범위로 클램프 후 반올림
-  return Math.round(Math.max(MIN_SCORE, Math.min(MAX_SCORE, score)));
+  // 2. 50점 기준 편차 증폭
+  const delta = rawScore - BASE_SCORE;
+  const amplifiedDelta = delta * SENSITIVITY;
+  const finalScore = BASE_SCORE + amplifiedDelta;
+
+  // 3. 0-100 범위로 클램프 후 반올림
+  return Math.round(Math.max(MIN_SCORE, Math.min(MAX_SCORE, finalScore)));
 }
 
 /**

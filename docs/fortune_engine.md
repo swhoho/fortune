@@ -130,24 +130,47 @@ Response:
 
 **파일**: `src/lib/score/`
 
-### 점수 계산 공식 (v2.1)
+### 점수 계산 공식 (v3.0)
 
 ```typescript
+// 상수
+const BASE_SCORE = 50;
+const SENSITIVITY = 1.5;  // 편차 증폭 계수
+
 // 1. 십신 추출 (가중치 적용)
 const tenGodCounts = extractTenGods(pillars, jijanggan);
 // - 천간: 가중치 1.0
 // - 지장간 정기: 가중치 1.0
-// - 지장간 여기/중기: 가중치 0.3
+// - 지장간 여기/중기: 가중치 0 (v3.0에서 노이즈 제거)
 
-// 2. 특성 점수 계산
-let score = 50;  // 기본점수
+// 2. 원시 점수 계산
+let rawScore = 50;
 for (tenGod in counts) {
-  score += TRAIT_MODIFIERS[trait][tenGod] * counts[tenGod];
+  rawScore += TRAIT_MODIFIERS[trait][tenGod] * counts[tenGod];
 }
-return clamp(score, 0, 100);
+
+// 3. 편차 증폭 (50점 기준)
+const delta = rawScore - BASE_SCORE;
+const amplifiedDelta = delta * SENSITIVITY;
+const finalScore = BASE_SCORE + amplifiedDelta;
+
+return Math.round(clamp(finalScore, 0, 100));
 ```
 
-**modifier 범위**: max ±11
+**modifier 범위**:
+| 카테고리 | 범위 |
+|---------|------|
+| 성격 (PERSONALITY) | max ±20 |
+| 업무 (WORK) | max ±30 |
+| 적성 (APTITUDE) | max ±20 |
+| 연애 (LOVE) | max ±30 |
+
+**예시 (편차 증폭)**:
+| rawScore | delta | amplifiedDelta | finalScore |
+|----------|-------|----------------|------------|
+| 60 | +10 | +15 | 65 |
+| 70 | +20 | +30 | 80 |
+| 40 | -10 | -15 | 35 |
 
 ### 십신(十神) 정의
 
@@ -397,6 +420,7 @@ src/lib/
 
 | 날짜 | 버전 | 변경 내용 |
 |------|------|----------|
+| 2026-01-07 | v3.0 | 점수 분포 극단화 (SENSITIVITY=1.5 편차 증폭, modifier ×1.8, 지장간 여기/중기 가중치 0) |
 | 2026-01-07 | v2.5 | response_schema 미지원 필드 제거 (minimum, maximum, minItems, enum → description) |
 | 2026-01-07 | v2.4 | Normalize→Validate 파이프라인, Pydantic 스키마 검증, 재분석 API (0C) |
 | 2026-01-07 | v2.3 | 리포트 UI 확장 (지장간/기본분석/레이더차트/섹션별 extended 데이터) |
@@ -408,4 +432,4 @@ src/lib/
 
 ---
 
-**최종 수정**: 2026-01-07 (v2.5)
+**최종 수정**: 2026-01-07 (v3.0)
