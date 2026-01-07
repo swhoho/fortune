@@ -206,18 +206,37 @@ normalized = normalize_all_keys(normalize_response('yearly_advice', raw_response
 
 ---
 
-## 재시도 전략
+## 재시도 전략 (v2.9)
 
-각 단계 **3회 재시도** (리포트 분석과 동일):
+각 단계 **3회 재시도** + **에러/응답 피드백** (report_analysis 패턴):
 
 ```python
+last_error = None
+last_response = None
+
 for attempt in range(1, max_retries + 1):
     try:
-        result = await self._call_gemini(prompt, step_name)
-        # DB 중간 저장
+        result = await self._call_gemini(
+            prompt, step_name,
+            previous_error=last_error if attempt > 1 else None,
+            previous_response=last_response if attempt > 1 else None
+        )
+        last_response = result  # 다음 시도 피드백용
+        # 검증 + DB 중간 저장
         break
     except Exception as e:
+        last_error = str(e)
         logger.warning(f"실패 ({attempt}/{max_retries}): {e}")
+```
+
+**Gemini 피드백 프롬프트** (v2.9):
+```
+[이전 시도 실패 - 반드시 수정 필요]
+이전 응답:
+{ ... (JSON) ... }
+
+오류: 누락된 섹션: ['natureAndSoul', ...]
+위 응답의 오류를 수정하여 올바른 JSON으로 응답하세요.
 ```
 
 **실패 시**:
@@ -314,6 +333,7 @@ const analysisResult = {
 
 | 날짜 | 버전 | 변경 내용 |
 |------|------|----------|
+| 2026-01-07 | v2.9 | 검증 키 camelCase 통일, reanalyze_step() 3회 재시도 + 이전 응답 피드백 |
 | 2026-01-07 | v2.8 | response_schema 미지원 필드 제거 (minimum, maximum, minItems, enum → description) |
 | 2026-01-07 | v2.7 | 재분석 API 응답 중첩 제거, 만세력 422 에러 친절한 메시지 |
 | 2026-01-07 | v2.6 | DB 컬럼 분리 (듀얼 라이트 + 폴백 읽기) |
@@ -322,4 +342,4 @@ const analysisResult = {
 
 ---
 
-**최종 수정**: 2026-01-07 (v2.8)
+**최종 수정**: 2026-01-07 (v2.9)

@@ -96,32 +96,39 @@ class GeminiService:
         prompt: str,
         response_schema: Dict[str, Any],
         previous_error: Optional[str] = None,
+        previous_response: Optional[Dict[str, Any]] = None,
         timeout: int = 120
     ) -> Dict[str, Any]:
         """
-        response_schema를 사용한 JSON 응답 생성 (v2.7)
+        response_schema를 사용한 JSON 응답 생성 (v2.9)
 
         JSON 형식을 100% 강제하여 파싱 실패를 방지합니다.
         이전 오류가 있으면 프롬프트에 피드백으로 추가합니다.
+        v2.9: 이전 응답도 함께 전송하여 Gemini가 정확히 수정할 수 있도록 함.
 
         Args:
             prompt: 분석 프롬프트
             response_schema: Gemini response_schema (JSON Schema 형식)
             previous_error: 이전 시도의 오류 메시지 (재시도 시)
+            previous_response: 이전 시도의 응답 (재시도 시)
             timeout: 타임아웃 (초)
 
         Returns:
             파싱된 JSON 딕셔너리
         """
         try:
-            # 이전 오류가 있으면 프롬프트에 피드백 추가
+            # 이전 오류가 있으면 프롬프트에 피드백 추가 (v2.9: 이전 응답도 포함)
             final_prompt = prompt
             if previous_error:
+                prev_resp_str = json.dumps(previous_response, ensure_ascii=False, indent=2) if previous_response else "없음"
                 final_prompt = f"""{prompt}
 
 [이전 시도 실패 - 반드시 수정 필요]
+이전 응답:
+{prev_resp_str}
+
 오류: {previous_error}
-위 오류를 해결하여 올바른 JSON 형식으로 응답하세요.
+위 응답의 오류를 수정하여 올바른 JSON 형식으로 응답하세요.
 모든 필드를 빠짐없이 포함하고, 타입을 정확히 맞추세요."""
 
             # response_schema로 JSON 형식 강제 + safety_settings (사주 분석 false positive 방지)

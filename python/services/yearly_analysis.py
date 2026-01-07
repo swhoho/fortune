@@ -443,6 +443,7 @@ class YearlyAnalysisService:
         analysis_id = getattr(request, 'analysis_id', None)
         success = False
         last_error = None
+        last_response = None  # v2.9: 이전 응답 저장
         result = None
 
         for attempt in range(1, max_retries + 1):
@@ -464,21 +465,23 @@ class YearlyAnalysisService:
                     overview_result=overview_result
                 )
 
-                # v2.7: 에러 피드백 포함 Gemini 호출
+                # v2.9: 에러 + 이전 응답 피드백 포함 Gemini 호출
                 result = await self._call_gemini(
                     prompt, step_name,
-                    previous_error=last_error if attempt > 1 else None
+                    previous_error=last_error if attempt > 1 else None,
+                    previous_response=last_response if attempt > 1 else None
                 )
+                last_response = result  # 응답 저장 (다음 시도 피드백용)
 
                 # 빈 응답 검증
                 advice = result.get("yearlyAdvice", {})
                 if not result or not advice:
                     raise ValueError("yearlyAdvice 필드 누락")
 
-                # 6개 섹션 확인
+                # 6개 섹션 확인 (camelCase - 정규화 후 키와 일치)
                 required_sections = [
-                    "nature_and_soul", "wealth_and_success", "career_and_honor",
-                    "document_and_wisdom", "relationship_and_love", "health_and_movement"
+                    "natureAndSoul", "wealthAndSuccess", "careerAndHonor",
+                    "documentAndWisdom", "relationshipAndLove", "healthAndMovement"
                 ]
                 missing = [s for s in required_sections if s not in advice]
                 if missing:
@@ -664,15 +667,17 @@ class YearlyAnalysisService:
         self,
         prompt: str,
         step: str,
-        previous_error: str = None
+        previous_error: str = None,
+        previous_response: Dict[str, Any] = None
     ) -> Dict[str, Any]:
         """
-        Gemini API 호출 (v2.7 - response_schema 지원)
+        Gemini API 호출 (v2.9 - response_schema 지원 + 이전 응답 피드백)
 
         Args:
             prompt: 프롬프트
             step: 단계명 (response_schema 적용용)
             previous_error: 이전 시도 오류 (재시도 시 피드백)
+            previous_response: 이전 시도 응답 (재시도 시 Gemini가 수정할 수 있도록)
 
         Returns:
             파싱된 JSON 응답 (camelCase 정규화)
@@ -683,11 +688,12 @@ class YearlyAnalysisService:
         schema = get_gemini_schema(step)
 
         if schema:
-            # 스키마 기반 생성 (JSON 100% 강제 + 에러 피드백)
+            # 스키마 기반 생성 (JSON 100% 강제 + 에러/응답 피드백)
             result = await gemini.generate_with_schema(
                 prompt,
                 response_schema=schema,
-                previous_error=previous_error
+                previous_error=previous_error,
+                previous_response=previous_response
             )
         else:
             # 기존 방식 (fallback)
@@ -794,7 +800,7 @@ class YearlyAnalysisService:
         existing_analysis: Dict[str, Any] = None
     ) -> Dict[str, Any]:
         """
-        특정 단계만 재분석 후 DB 업데이트 (무료)
+        특정 단계만 재분석 후 DB 업데이트 (무료, v2.9: 3회 재시도 + 에러 피드백)
 
         Args:
             analysis_id: yearly_analyses 테이블 ID
@@ -810,105 +816,141 @@ class YearlyAnalysisService:
         """
         logger.info(f"[Reanalyze:{analysis_id}] {step_type} 재분석 시작")
 
-        try:
-            # 기존 분석 결과에서 필요한 정보 추출
-            overview_result = {
-                "yearlyTheme": existing_analysis.get("yearlyTheme", "") if existing_analysis else "",
-                "overallScore": existing_analysis.get("overallScore", 50) if existing_analysis else 50
-            }
+        # 기존 분석 결과에서 필요한 정보 추출
+        overview_result = {
+            "yearlyTheme": existing_analysis.get("yearlyTheme", "") if existing_analysis else "",
+            "overallScore": existing_analysis.get("overallScore", 50) if existing_analysis else 50
+        }
 
-            result = None
-
-            # 단계별 재분석 실행
-            if step_type == "yearly_advice":
-                prompt = YearlyStepPrompts.build_yearly_advice(
+        # 프롬프트 생성
+        prompt = None
+        if step_type == "yearly_advice":
+            prompt = YearlyStepPrompts.build_yearly_advice(
+                language=language,
+                year=target_year,
+                pillars=pillars,
+                daewun=daewun,
+                overview_result=overview_result
+            )
+        elif step_type == "key_dates":
+            prompt = YearlyStepPrompts.build_key_dates(
+                language=language,
+                year=target_year,
+                pillars=pillars,
+                monthly_fortunes=existing_analysis.get("monthlyFortunes", []) if existing_analysis else []
+            )
+        elif step_type == "classical_refs":
+            prompt = YearlyStepPrompts.build_classical_refs(
+                language=language,
+                year=target_year,
+                pillars=pillars,
+                overview_result=overview_result
+            )
+        elif step_type.startswith("monthly_"):
+            parts = step_type.split("_")
+            if len(parts) == 3:
+                start_month = int(parts[1])
+                end_month = int(parts[2])
+                months = list(range(start_month, end_month + 1))
+                prompt = YearlyStepPrompts.build_monthly(
                     language=language,
                     year=target_year,
+                    months=months,
                     pillars=pillars,
                     daewun=daewun,
                     overview_result=overview_result
                 )
-                result = await self._call_gemini(prompt, "yearly_advice")
 
-            elif step_type == "key_dates":
-                prompt = YearlyStepPrompts.build_key_dates(
-                    language=language,
-                    year=target_year,
-                    pillars=pillars,
-                    monthly_fortunes=existing_analysis.get("monthlyFortunes", []) if existing_analysis else []
+        if not prompt:
+            raise ValueError(f"알 수 없는 단계 유형: {step_type}")
+
+        # v2.9: 3회 재시도 + 에러/응답 피드백 (report_analysis 패턴 적용)
+        max_retries = 3
+        last_error = None
+        last_response = None
+        result = None
+
+        for attempt in range(1, max_retries + 1):
+            try:
+                logger.info(f"[Reanalyze:{analysis_id}] {step_type} 시도 {attempt}/{max_retries}")
+
+                result = await self._call_gemini(
+                    prompt, step_type,
+                    previous_error=last_error if attempt > 1 else None,
+                    previous_response=last_response if attempt > 1 else None
                 )
-                result = await self._call_gemini(prompt, "key_dates")
+                last_response = result  # 응답 저장 (다음 시도 피드백용)
 
-            elif step_type == "classical_refs":
-                prompt = YearlyStepPrompts.build_classical_refs(
-                    language=language,
-                    year=target_year,
-                    pillars=pillars,
-                    overview_result=overview_result
-                )
-                result = await self._call_gemini(prompt, "classical_refs")
+                # 검증 (step_type별)
+                if step_type == "yearly_advice":
+                    advice = result.get("yearlyAdvice", {})
+                    if not advice:
+                        raise ValueError("yearlyAdvice 필드 누락")
+                    required_sections = [
+                        "natureAndSoul", "wealthAndSuccess", "careerAndHonor",
+                        "documentAndWisdom", "relationshipAndLove", "healthAndMovement"
+                    ]
+                    missing = [s for s in required_sections if s not in advice]
+                    if missing:
+                        raise ValueError(f"누락된 섹션: {missing}")
 
-            elif step_type.startswith("monthly_"):
-                # monthly_1_3, monthly_4_6, monthly_7_9, monthly_10_12
-                parts = step_type.split("_")
-                if len(parts) == 3:
-                    start_month = int(parts[1])
-                    end_month = int(parts[2])
-                    months = list(range(start_month, end_month + 1))
+                elif step_type == "key_dates":
+                    key_dates = result.get("keyDates", [])
+                    if not key_dates or len(key_dates) < 3:
+                        raise ValueError(f"keyDates 부족 (최소 3개 필요, 현재: {len(key_dates)})")
 
-                    prompt = YearlyStepPrompts.build_monthly(
-                        language=language,
-                        year=target_year,
-                        months=months,
-                        pillars=pillars,
-                        daewun=daewun,
-                        overview_result=overview_result
-                    )
-                    result = await self._call_gemini(prompt, step_type)
+                elif step_type == "classical_refs":
+                    refs = result.get("classicalReferences", [])
+                    if not refs or len(refs) < 2:
+                        raise ValueError(f"classicalReferences 부족 (최소 2개 필요, 현재: {len(refs)})")
 
-            if not result:
-                raise ValueError(f"알 수 없는 단계 유형: {step_type}")
+                # 검증 성공
+                logger.info(f"[Reanalyze:{analysis_id}] {step_type} 시도 {attempt} 성공")
+                break
 
-            # 기존 분석 결과와 병합
-            updated_analysis = dict(existing_analysis) if existing_analysis else {}
+            except Exception as e:
+                last_error = str(e)
+                logger.warning(f"[Reanalyze:{analysis_id}] {step_type} 실패 ({attempt}/{max_retries}): {e}")
 
-            if step_type == "yearly_advice":
-                updated_analysis["yearlyAdvice"] = result.get("yearlyAdvice", {})
-            elif step_type == "key_dates":
-                updated_analysis["keyDates"] = result.get("keyDates", [])
-            elif step_type == "classical_refs":
-                updated_analysis["classicalReferences"] = result.get("classicalReferences", [])
-            elif step_type.startswith("monthly_"):
-                # 월별 데이터 병합 (해당 월만 교체)
-                new_monthly = result.get("monthlyFortunes", [])
-                existing_monthly = updated_analysis.get("monthlyFortunes", [])
+        if not result:
+            raise ValueError(f"{step_type} 재분석 최종 실패: {last_error}")
 
-                # 월 번호로 인덱싱하여 병합
-                monthly_dict = {m.get("month"): m for m in existing_monthly if m}
-                for m in new_monthly:
-                    if m:
-                        monthly_dict[m.get("month")] = m
+        # 기존 분석 결과와 병합
+        updated_analysis = dict(existing_analysis) if existing_analysis else {}
 
-                # 정렬하여 저장
-                updated_analysis["monthlyFortunes"] = sorted(
-                    monthly_dict.values(),
-                    key=lambda x: x.get("month", 0)
-                )
+        if step_type == "yearly_advice":
+            updated_analysis["yearlyAdvice"] = result.get("yearlyAdvice", {})
+        elif step_type == "key_dates":
+            updated_analysis["keyDates"] = result.get("keyDates", [])
+        elif step_type == "classical_refs":
+            updated_analysis["classicalReferences"] = result.get("classicalReferences", [])
+        elif step_type.startswith("monthly_"):
+            # 월별 데이터 병합 (해당 월만 교체)
+            new_monthly = result.get("monthlyFortunes", [])
+            existing_monthly = updated_analysis.get("monthlyFortunes", [])
 
-            # DB 업데이트
-            await self._update_db_analysis(analysis_id, updated_analysis, "completed")
+            # 월 번호로 인덱싱하여 병합
+            monthly_dict = {m.get("month"): m for m in existing_monthly if m}
+            for m in new_monthly:
+                if m:
+                    monthly_dict[m.get("month")] = m
 
-            logger.info(f"[Reanalyze:{analysis_id}] {step_type} 재분석 완료")
+            # 정렬하여 저장
+            updated_analysis["monthlyFortunes"] = sorted(
+                monthly_dict.values(),
+                key=lambda x: x.get("month", 0)
+            )
 
-            return {
-                "success": True,
-                "step_type": step_type,
-                "result": result
-            }
+        # DB 업데이트
+        await self._update_db_analysis(analysis_id, updated_analysis, "completed")
 
-        except Exception as e:
-            logger.error(f"[Reanalyze:{analysis_id}] {step_type} 재분석 실패: {e}")
-            raise
+        logger.info(f"[Reanalyze:{analysis_id}] {step_type} 재분석 완료")
+
+        return {
+            "success": True,
+            "step_type": step_type,
+            "result": result
+        }
 
 
 # 싱글톤 인스턴스
