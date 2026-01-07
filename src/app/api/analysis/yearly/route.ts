@@ -248,13 +248,13 @@ export async function POST(request: NextRequest) {
             }),
           });
 
-          // 422 에러: 사주 정보가 없거나 잘못된 경우
+          // 422 에러: 사주 분석이 안 된 경우
           if (manseryeokRes.status === 422) {
-            console.error('[API] 만세력 422 에러 - 사주 정보 없음');
+            console.error('[API] 만세력 422 에러 - 사주 분석 필요');
             return NextResponse.json(
               {
                 success: false,
-                error: '프로필에 유효한 생년월일 정보가 없습니다. 먼저 기본 분석을 완료해주세요.',
+                error: '기본 사주 분석 이후에 이용할 수 있는 서비스입니다.',
                 errorCode: 'SAJU_REQUIRED',
               },
               { status: 400 }

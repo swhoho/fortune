@@ -127,17 +127,17 @@ GET /api/analysis/yearly/{job_id}
 
 ### 만세력 422 에러
 
-프로필에 사주 정보가 없는 경우:
+기본 사주 분석이 완료되지 않은 프로필로 신년 분석 시도 시:
 
 ```json
 {
   "success": false,
-  "error": "프로필에 유효한 생년월일 정보가 없습니다. 먼저 기본 분석을 완료해주세요.",
+  "error": "기본 사주 분석 이후에 이용할 수 있는 서비스입니다.",
   "errorCode": "SAJU_REQUIRED"
 }
 ```
 
-**HTTP Status**: 400 (클라이언트 에러로 변환)
+**HTTP Status**: 400
 
 ---
 
