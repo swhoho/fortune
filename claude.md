@@ -12,7 +12,7 @@
 | State | Zustand + TanStack Query |
 | Database | Supabase (PostgreSQL) |
 | Auth | Supabase Auth |
-| AI | Gemini 3.0 Pro |
+| AI | Gemini 2.0 Flash |
 | Payment | Stripe |
 | Live Chat | Crisp |
 | i18n | next-intl (ko, en, ja, zh-CN, zh-TW) |
@@ -292,10 +292,17 @@ cd python && pytest  # Python
 
 ---
 
-**Version**: 1.33.0
-**Last Updated**: 2026-01-07 (신년 분석 버그 수정 v2.7)
+**Version**: 1.34.0
+**Last Updated**: 2026-01-07 (Gemini response_schema 호환성 수정)
 
 ## Changelog
+
+### v1.34.0 (2026-01-07)
+- **Gemini response_schema 호환성 수정**
+  - 미지원 필드 제거: `minimum`, `maximum`, `minItems`, `enum`
+  - `description`으로 대체하여 범위/조건 명시
+  - 영향 스키마: personality, aptitude, fortune, yearly, monthly, daewun
+- **AI 모델**: Gemini 3.0 Pro → Gemini 2.0 Flash
 
 ### v1.33.0 (2026-01-07)
 - **신년 분석 버그 수정 (v2.7)**
