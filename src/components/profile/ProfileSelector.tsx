@@ -199,20 +199,14 @@ export function ProfileSelector({
                           : t('form.female', { defaultValue: '여성' })}
                       </span>
                     </div>
-                    <div className="mt-1 flex items-center gap-2 text-sm text-gray-400">
-                      <Calendar className="h-3.5 w-3.5" />
-                      <span>
-                        {formatDate(profile.birthDate)} (
-                        {t('detail.age', { age, defaultValue: `${age}세` })})
+                    <div className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-gray-400">
+                      <span className="flex items-center gap-1">
+                        <Calendar className="h-3.5 w-3.5 shrink-0" />
+                        {formatDate(profile.birthDate)}
                       </span>
-                      <span className="text-gray-600">·</span>
+                      <span>({t('detail.age', { age, defaultValue: `만 ${age}세` })})</span>
                       <span>{getCalendarLabel(profile.calendarType)}</span>
-                      {profile.birthTime && (
-                        <>
-                          <span className="text-gray-600">·</span>
-                          <span>{profile.birthTime}</span>
-                        </>
-                      )}
+                      {profile.birthTime && <span>{profile.birthTime}</span>}
                     </div>
                   </div>
 

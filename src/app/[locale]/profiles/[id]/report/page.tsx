@@ -14,7 +14,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowLeft, Share2, Download, Loader2, Sparkles, Home } from 'lucide-react';
+import { ArrowLeft, Share2, Loader2, Sparkles, Home } from 'lucide-react';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { Link, useRouter } from '@/i18n/routing';
@@ -197,11 +197,6 @@ export default function ProfileReportPage({ params }: PageProps) {
     } else {
       await navigator.clipboard.writeText(window.location.href);
     }
-  };
-
-  // PDF 다운로드 핸들러
-  const handleDownloadPdf = () => {
-    // TODO: PDF 생성 및 다운로드 구현
   };
 
   /** 폴링 인터벌 참조 (타임아웃 시 정리용) */
@@ -421,15 +416,6 @@ export default function ProfileReportPage({ params }: PageProps) {
               className="h-10 w-10 text-gray-400 hover:text-white"
             >
               <Share2 className="h-5 w-5" />
-            </Button>
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={handleDownloadPdf}
-              title="PDF 다운로드"
-              className="h-10 w-10 text-gray-400 hover:text-white"
-            >
-              <Download className="h-5 w-5" />
             </Button>
           </div>
         </div>

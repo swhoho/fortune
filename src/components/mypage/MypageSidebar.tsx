@@ -6,6 +6,7 @@
  */
 import { motion } from 'framer-motion';
 import Link from 'next/link';
+import { Crisp } from 'crisp-sdk-web';
 import { cn } from '@/lib/utils';
 import type { UserProfile } from '@/hooks/use-user';
 
@@ -263,6 +264,38 @@ export function MypageSidebar({ profile, activeTab, onTabChange }: MypageSidebar
             </Link>
           </motion.li>
 
+          {/* 고객센터 버튼 */}
+          <motion.li
+            initial={{ opacity: 0, x: -10 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 0.37 }}
+          >
+            <button
+              onClick={() => {
+                Crisp.chat.open();
+              }}
+              className="group flex w-full items-center gap-3 rounded-xl px-4 py-3 text-left text-gray-400 transition-all hover:bg-[#242424] hover:text-white"
+            >
+              <span className="text-gray-500 transition-colors group-hover:text-gray-300">
+                <svg
+                  className="h-5 w-5"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  strokeWidth={1.5}
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M8.625 9.75a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0H8.25m4.125 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0H12m4.125 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0h-.375m-13.5 3.01c0 1.6 1.123 2.994 2.707 3.227 1.087.16 2.185.283 3.293.369V21l4.184-4.183a1.14 1.14 0 01.778-.332 48.294 48.294 0 005.83-.498c1.585-.233 2.708-1.626 2.708-3.228V6.741c0-1.602-1.123-2.995-2.707-3.228A48.394 48.394 0 0012 3c-2.392 0-4.744.175-7.043.513C3.373 3.746 2.25 5.14 2.25 6.741v6.018z"
+                  />
+                </svg>
+              </span>
+              <span className="font-medium">고객센터</span>
+              <span className="ml-auto text-xs text-gray-500">채팅 상담</span>
+            </button>
+          </motion.li>
+
           {/* 로그아웃 버튼 */}
           <motion.li
             initial={{ opacity: 0, x: -10 }}
@@ -297,6 +330,20 @@ export function MypageSidebar({ profile, activeTab, onTabChange }: MypageSidebar
             </button>
           </motion.li>
         </ul>
+
+        {/* 안내 텍스트 - 중앙 정렬, 모바일 친화적 */}
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.5 }}
+          className="mt-4 px-4 py-3 text-center"
+        >
+          <p className="text-xs leading-relaxed text-gray-500">
+            우측 하단 고객센터 메신저를 통해
+            <br />
+            연락해보세요
+          </p>
+        </motion.div>
       </motion.nav>
     </aside>
   );

@@ -32,6 +32,7 @@ interface FormState {
   day: string;
   hour: string;
   minute: string;
+  period: 'AM' | 'PM';
   calendarType: CalendarType;
   gender: Gender | '';
 }
@@ -52,13 +53,24 @@ export function ProfileForm({
     if (initialData) {
       const dateParts = initialData.birthDate.split('-');
       const timeParts = initialData.birthTime?.split(':') || ['', ''];
+
+      // 24시간 → 12시간 변환
+      let hour12 = '';
+      let period: 'AM' | 'PM' = 'AM';
+      if (timeParts[0]) {
+        const hour24 = parseInt(timeParts[0]);
+        period = hour24 >= 12 ? 'PM' : 'AM';
+        hour12 = String(hour24 === 0 ? 12 : hour24 > 12 ? hour24 - 12 : hour24 === 12 ? 12 : hour24);
+      }
+
       return {
         name: initialData.name,
         year: dateParts[0] ?? '',
         month: dateParts[1] ?? '',
         day: dateParts[2] ?? '',
-        hour: timeParts[0] ?? '',
+        hour: hour12,
         minute: timeParts[1] ?? '',
+        period,
         calendarType: initialData.calendarType,
         gender: initialData.gender,
       };
@@ -70,6 +82,7 @@ export function ProfileForm({
       day: '',
       hour: '',
       minute: '',
+      period: 'AM',
       calendarType: 'solar',
       gender: '',
     };
@@ -109,7 +122,16 @@ export function ProfileForm({
       setErrors(newErrors);
       return false;
     }
-    const birthTime = `${formData.hour.padStart(2, '0')}:${(formData.minute || '00').padStart(2, '0')}`;
+
+    // 12시간 → 24시간 변환
+    const hour12 = parseInt(formData.hour);
+    let hour24: number;
+    if (formData.period === 'AM') {
+      hour24 = hour12 === 12 ? 0 : hour12;
+    } else {
+      hour24 = hour12 === 12 ? 12 : hour12 + 12;
+    }
+    const birthTime = `${String(hour24).padStart(2, '0')}:${(formData.minute || '00').padStart(2, '0')}`;
 
     const dataToValidate = {
       name: formData.name.trim(),
@@ -158,8 +180,15 @@ export function ProfileForm({
     // 생년월일 포맷팅
     const birthDate = `${formData.year}-${formData.month.padStart(2, '0')}-${formData.day.padStart(2, '0')}`;
 
-    // 출생시간 포맷팅 (필수)
-    const birthTime = `${formData.hour.padStart(2, '0')}:${(formData.minute || '00').padStart(2, '0')}`;
+    // 출생시간 포맷팅 (12시간 → 24시간 변환)
+    const hour12 = parseInt(formData.hour);
+    let hour24: number;
+    if (formData.period === 'AM') {
+      hour24 = hour12 === 12 ? 0 : hour12;
+    } else {
+      hour24 = hour12 === 12 ? 12 : hour12 + 12;
+    }
+    const birthTime = `${String(hour24).padStart(2, '0')}:${(formData.minute || '00').padStart(2, '0')}`;
 
     const profileData: CreateProfileInput = {
       name: formData.name.trim(),
@@ -234,15 +263,41 @@ export function ProfileForm({
       {/* 출생 시간 */}
       <div className="space-y-2">
         <Label className="text-gray-300">{t('form.birthTime')} *</Label>
+
+        {/* 오전/오후 선택 */}
+        <div className="flex gap-4">
+          <label className="flex cursor-pointer items-center gap-2">
+            <input
+              type="radio"
+              name="period"
+              checked={formData.period === 'AM'}
+              onChange={() => setFormData({ ...formData, period: 'AM' })}
+              className="h-4 w-4 accent-[#d4af37]"
+            />
+            <span className="text-gray-300">{t('form.am', { defaultValue: '오전 (AM)' })}</span>
+          </label>
+          <label className="flex cursor-pointer items-center gap-2">
+            <input
+              type="radio"
+              name="period"
+              checked={formData.period === 'PM'}
+              onChange={() => setFormData({ ...formData, period: 'PM' })}
+              className="h-4 w-4 accent-[#d4af37]"
+            />
+            <span className="text-gray-300">{t('form.pm', { defaultValue: '오후 (PM)' })}</span>
+          </label>
+        </div>
+
+        {/* 시간/분 입력 */}
         <div className="grid grid-cols-2 gap-2">
           <Input
             type="number"
-            placeholder={t('form.hourPlaceholder')}
+            placeholder={t('form.hourPlaceholder12', { defaultValue: '시 (1-12)' })}
             value={formData.hour}
             onChange={(e) => setFormData({ ...formData, hour: e.target.value })}
             className={`border-[#333] bg-[#2a2a2a] text-white placeholder:text-gray-500 focus:border-[#d4af37] ${errors.hour ? 'border-red-500' : ''}`}
-            min={0}
-            max={23}
+            min={1}
+            max={12}
           />
           <Input
             type="number"
