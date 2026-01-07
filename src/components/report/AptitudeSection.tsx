@@ -15,8 +15,8 @@ export interface AptitudeSectionData {
   keywords: string[];
   /** 주 재능 */
   mainTalent: ContentCardData;
-  /** 재능의 상태 */
-  talentStatus: ContentCardData;
+  /** 재능의 상태 (deprecated: 재능 활용도와 중복, 삭제됨) */
+  talentStatus?: ContentCardData;
   /** 진로선택 */
   careerChoice: ContentCardData;
   /** 추천직종 */
@@ -45,7 +45,7 @@ interface AptitudeSectionProps {
  * 섹션 구조 (fortune5~7.PNG 참조):
  * 1. 적성키워드 - KeywordBadge 그리드
  * 2. 주 재능 - ContentCard
- * 3. 재능의 상태 - ContentCard
+ * 3. 재능 활용 상태 - 현재 수준 vs 잠재력 (extended.talentUsage)
  * 4. 진로선택 - ContentCard
  * 5. 추천직종 - KeywordBadge 리스트
  * 6. 업무스타일 - ContentCard
@@ -56,7 +56,6 @@ export function AptitudeSection({ data, className = '' }: AptitudeSectionProps) 
   const {
     keywords,
     mainTalent,
-    talentStatus,
     careerChoice,
     recommendedJobs,
     workStyle,
@@ -178,15 +177,7 @@ export function AptitudeSection({ data, className = '' }: AptitudeSectionProps) 
         </motion.div>
       )}
 
-      {/* 3. 재능의 상태 */}
-      <ContentCard
-        label={talentStatus.label}
-        title={talentStatus.title}
-        content={talentStatus.content}
-        delay={0.3}
-      />
-
-      {/* 3-1. Task 25: 재능 활용 상태 (현재 vs 잠재력) */}
+      {/* 3. 재능 활용 상태 (현재 vs 잠재력) - 재능의 상태 ContentCard와 중복되어 통합 */}
       {hasTalentUsage && (
         <motion.div
           initial={{ opacity: 0, y: 20 }}

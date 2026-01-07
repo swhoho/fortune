@@ -680,6 +680,56 @@
     "consultation": {
       "title": "AI 상담",
       "description": "분석된 사주와 대운을 기반으로 전문가 AI에게 상담을 받아보세요."
+    },
+    "basicAnalysis": {
+      "title": "기본 분석",
+      "summary": "사주 요약",
+      "dayMaster": "일간 특성",
+      "structure": "격국",
+      "usefulGod": "용신/기신",
+      "primary": "용신",
+      "secondary": "희신",
+      "harmful": "기신",
+      "reasoning": "용신 선정 근거"
+    },
+    "jijanggan": {
+      "title": "지장간",
+      "tooltip": "지지 속에 숨어있는 천간의 기운"
+    },
+    "detailedScores": {
+      "title": "세부 점수 분석",
+      "loveRadar": "연애 역량",
+      "loveRadarDesc": "연애에 필요한 10가지 역량",
+      "workRadar": "업무 역량",
+      "workRadarDesc": "업무 처리에 필요한 5가지 역량",
+      "otherScores": "기타 점수",
+      "loveLabels": {
+        "humor": "유머",
+        "emotion": "감성",
+        "finance": "재테크",
+        "adventure": "모험심",
+        "sincerity": "성실도",
+        "selfEsteem": "자존감",
+        "sociability": "사교력",
+        "consideration": "배려심",
+        "expressiveness": "표현력",
+        "trustworthiness": "신뢰성"
+      },
+      "workLabels": {
+        "drive": "추진력",
+        "planning": "기획력",
+        "execution": "실행력",
+        "completion": "완성력",
+        "management": "관리력"
+      },
+      "wealthLabels": {
+        "growth": "성장성",
+        "stability": "안정성"
+      },
+      "aptitudeLabels": {
+        "artistry": "예술성",
+        "business": "사업감각"
+      }
     }
   },
   "profile": {

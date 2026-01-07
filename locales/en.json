@@ -680,6 +680,56 @@
     "consultation": {
       "title": "AI Consultation",
       "description": "Get professional AI guidance based on your analyzed destiny and fortune periods."
+    },
+    "basicAnalysis": {
+      "title": "Basic Analysis",
+      "summary": "Destiny Summary",
+      "dayMaster": "Day Master",
+      "structure": "Structure",
+      "usefulGod": "Useful/Harmful Gods",
+      "primary": "Useful God",
+      "secondary": "Supportive",
+      "harmful": "Harmful God",
+      "reasoning": "Selection Basis"
+    },
+    "jijanggan": {
+      "title": "Hidden Stems",
+      "tooltip": "Hidden celestial energies within the earthly branches"
+    },
+    "detailedScores": {
+      "title": "Detailed Score Analysis",
+      "loveRadar": "Romance Capability",
+      "loveRadarDesc": "10 key aspects of romance capability",
+      "workRadar": "Work Capability",
+      "workRadarDesc": "5 key aspects of work performance",
+      "otherScores": "Other Scores",
+      "loveLabels": {
+        "humor": "Humor",
+        "emotion": "Emotion",
+        "finance": "Finance",
+        "adventure": "Adventure",
+        "sincerity": "Sincerity",
+        "selfEsteem": "Self-esteem",
+        "sociability": "Sociability",
+        "consideration": "Consideration",
+        "expressiveness": "Expression",
+        "trustworthiness": "Trustworthiness"
+      },
+      "workLabels": {
+        "drive": "Drive",
+        "planning": "Planning",
+        "execution": "Execution",
+        "completion": "Completion",
+        "management": "Management"
+      },
+      "wealthLabels": {
+        "growth": "Growth",
+        "stability": "Stability"
+      },
+      "aptitudeLabels": {
+        "artistry": "Artistry",
+        "business": "Business"
+      }
     }
   },
   "profile": {

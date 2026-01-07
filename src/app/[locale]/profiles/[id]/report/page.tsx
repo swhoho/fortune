@@ -53,6 +53,8 @@ interface PageProps {
 
 /** 리포트 전체 데이터 */
 interface ReportData {
+  reportId?: string;
+  failedSteps?: string[];
   profile: ReportProfileInfo;
   pillars: PillarsHanja;
   daewun: ReportDaewunItem[];
@@ -65,6 +67,9 @@ interface ReportData {
   romance: RomanceSectionData | null;
   detailedScores?: DetailedScoresData | null;
 }
+
+/** 성격 재분석 섹션 타입 */
+type PersonalityReanalyzeSection = 'outer' | 'inner' | 'social';
 
 /**
  * 프로필 리포트 페이지 컴포넌트
@@ -82,6 +87,10 @@ export default function ProfileReportPage({ params }: PageProps) {
   const [activeTab, setActiveTab] = useState<ReportTabType>('saju');
   // 대운 탭 미확인 표시 (처음 방문 시에만 보여줌)
   const [showDaewunIndicator, setShowDaewunIndicator] = useState(true);
+  // 성격 재분석 상태
+  const [reanalyzingSection, setReanalyzingSection] = useState<PersonalityReanalyzeSection | null>(
+    null
+  );
 
   // URL의 tab 파라미터 감지
   useEffect(() => {
@@ -196,6 +205,63 @@ export default function ProfileReportPage({ params }: PageProps) {
   const handleDownloadPdf = () => {
     // TODO: PDF 생성 및 다운로드 구현
   };
+
+  /**
+   * 성격 섹션 재분석 핸들러
+   * 기존 재분석 API 사용 (5C 크레딧 필요)
+   */
+  const handleReanalyze = useCallback(
+    async (_section: PersonalityReanalyzeSection) => {
+      if (!id) {
+        console.warn('[handleReanalyze] 프로필 ID가 없습니다');
+        return;
+      }
+
+      setReanalyzingSection(_section);
+      try {
+        // 기존 재분석 API 호출 (personality 섹션 전체 재분석)
+        const response = await fetch(`/api/profiles/${id}/report/reanalyze`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ sectionType: 'personality' }),
+        });
+
+        if (!response.ok) {
+          const errorData = await response.json().catch(() => ({}));
+          console.error('[handleReanalyze] 재분석 실패:', errorData);
+          // TODO: 에러 토스트 표시
+          return;
+        }
+
+        const result = await response.json();
+        if (result.success && result.data?.pollUrl) {
+          // 폴링 시작 - 완료될 때까지 대기 후 새로고침
+          const pollInterval = setInterval(async () => {
+            const pollResponse = await fetch(result.data.pollUrl);
+            const pollData = await pollResponse.json();
+            if (pollData.data?.status === 'completed') {
+              clearInterval(pollInterval);
+              await fetchReportData();
+              setReanalyzingSection(null);
+            } else if (pollData.data?.status === 'failed') {
+              clearInterval(pollInterval);
+              console.error('[handleReanalyze] 재분석 실패');
+              setReanalyzingSection(null);
+            }
+          }, 2000);
+
+          // 최대 60초 후 타임아웃
+          setTimeout(() => {
+            setReanalyzingSection(null);
+          }, 60000);
+        }
+      } catch (err) {
+        console.error('[handleReanalyze] 재분석 요청 오류:', err);
+        setReanalyzingSection(null);
+      }
+    },
+    [id, fetchReportData]
+  );
 
   // 로딩 상태
   if (isLoading || !id) {
@@ -380,12 +446,16 @@ export default function ProfileReportPage({ params }: PageProps) {
               </section>
 
               {/* Task 25: 기본 분석 (용신/기신/격국/일간) */}
-              {reportData.basicAnalysis && (
-                <BasicAnalysisSection data={reportData.basicAnalysis} />
-              )}
+              {reportData.basicAnalysis && <BasicAnalysisSection data={reportData.basicAnalysis} />}
 
               {/* 성격 분석 */}
-              {reportData.personality && <PersonalitySection {...reportData.personality} />}
+              {reportData.personality && (
+                <PersonalitySection
+                  {...reportData.personality}
+                  onReanalyze={handleReanalyze}
+                  reanalyzingSection={reanalyzingSection}
+                />
+              )}
 
               {/* 사주 특성 */}
               {reportData.characteristics && (

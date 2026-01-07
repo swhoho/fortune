@@ -11,27 +11,27 @@ interface BasicAnalysisSectionProps {
 
 /** 오행별 색상 매핑 */
 const ELEMENT_COLORS: Record<string, string> = {
-  '木': '#4ade80',
-  '火': '#ef4444',
-  '土': '#f59e0b',
-  '金': '#e5e7eb',
-  '水': '#3b82f6',
+  木: '#4ade80',
+  火: '#ef4444',
+  土: '#f59e0b',
+  金: '#e5e7eb',
+  水: '#3b82f6',
 };
 
 /** 오행별 배경 색상 매핑 */
 const ELEMENT_BG_COLORS: Record<string, string> = {
-  '木': 'rgba(74, 222, 128, 0.15)',
-  '火': 'rgba(239, 68, 68, 0.15)',
-  '土': 'rgba(245, 158, 11, 0.15)',
-  '金': 'rgba(229, 231, 235, 0.15)',
-  '水': 'rgba(59, 130, 246, 0.15)',
+  木: 'rgba(74, 222, 128, 0.15)',
+  火: 'rgba(239, 68, 68, 0.15)',
+  土: 'rgba(245, 158, 11, 0.15)',
+  金: 'rgba(229, 231, 235, 0.15)',
+  水: 'rgba(59, 130, 246, 0.15)',
 };
 
 /** 격국 품질별 색상 */
 const QUALITY_COLORS: Record<string, string> = {
-  '上': '#22c55e',
-  '中': '#d4af37',
-  '下': '#f97316',
+  上: '#22c55e',
+  中: '#d4af37',
+  下: '#f97316',
 };
 
 /**
@@ -77,7 +77,11 @@ export function BasicAnalysisSection({ data, className = '' }: BasicAnalysisSect
             className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-[#d4af37] to-[#b8962e]"
           >
             <svg className="h-4 w-4 text-[#1a1a1a]" fill="currentColor" viewBox="0 0 20 20">
-              <path fillRule="evenodd" d="M11.3 1.046A1 1 0 0112 2v5h4a1 1 0 01.82 1.573l-7 10A1 1 0 018 18v-5H4a1 1 0 01-.82-1.573l7-10a1 1 0 011.12-.38z" clipRule="evenodd" />
+              <path
+                fillRule="evenodd"
+                d="M11.3 1.046A1 1 0 0112 2v5h4a1 1 0 01.82 1.573l-7 10A1 1 0 018 18v-5H4a1 1 0 01-.82-1.573l7-10a1 1 0 011.12-.38z"
+                clipRule="evenodd"
+              />
             </svg>
           </motion.div>
           <h2 className="font-serif text-xl font-bold text-white">{t('title')}</h2>
@@ -130,7 +134,10 @@ export function BasicAnalysisSection({ data, className = '' }: BasicAnalysisSect
               {dayMaster.stem}
             </div>
             <div>
-              <p className="text-lg font-semibold text-white">{dayMaster.stem}{dayMaster.element}</p>
+              <p className="text-lg font-semibold text-white">
+                {dayMaster.stem}
+                {dayMaster.element}
+              </p>
               <p className="text-xs text-gray-500">일간 (Day Master)</p>
             </div>
           </div>
@@ -174,11 +181,7 @@ export function BasicAnalysisSection({ data, className = '' }: BasicAnalysisSect
 
           {/* 격국 설명 */}
           {structure.description && (
-            <p className="text-xs leading-relaxed text-gray-400">
-              {structure.description.length > 100
-                ? `${structure.description.slice(0, 100)}...`
-                : structure.description}
-            </p>
+            <p className="text-xs leading-relaxed text-gray-400">{structure.description}</p>
           )}
         </motion.div>
       </div>

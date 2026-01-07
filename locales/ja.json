@@ -680,6 +680,48 @@
     "consultation": {
       "title": "AI相談",
       "description": "分析された四柱推命と大運に基づいて、AIの専門家にご相談ください。"
+    },
+    "basicAnalysis": {
+      "title": "基本分析",
+      "summary": "四柱要約",
+      "dayMaster": "日干特性",
+      "structure": "格局",
+      "usefulGod": "用神/忌神",
+      "primary": "用神",
+      "secondary": "喜神",
+      "harmful": "忌神",
+      "reasoning": "用神選定の根拠"
+    },
+    "jijanggan": {
+      "title": "蔵干",
+      "tooltip": "地支に隠れている天干の気運"
+    },
+    "detailedScores": {
+      "title": "詳細スコア分析",
+      "loveRadar": "恋愛能力",
+      "loveRadarDesc": "恋愛に必要な10の能力",
+      "workRadar": "業務能力",
+      "workRadarDesc": "業務処理に必要な5つの能力",
+      "otherScores": "その他のスコア",
+      "loveLabels": {
+        "humor": "ユーモア",
+        "emotion": "感性",
+        "finance": "財テク",
+        "adventure": "冒険心",
+        "sincerity": "誠実さ",
+        "selfEsteem": "自尊感",
+        "sociability": "社交力",
+        "consideration": "配慮",
+        "expressiveness": "表現力",
+        "trustworthiness": "信頼性"
+      },
+      "workLabels": {
+        "drive": "推進力",
+        "creativity": "創造力",
+        "leadership": "リーダーシップ",
+        "collaboration": "協力",
+        "problemSolving": "問題解決"
+      }
     }
   },
   "pipeline": {

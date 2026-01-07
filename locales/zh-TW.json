@@ -680,6 +680,48 @@
     "consultation": {
       "title": "AI諮詢",
       "description": "根據分析的八字和大運，接受AI專家的諮詢。"
+    },
+    "basicAnalysis": {
+      "title": "基本分析",
+      "summary": "八字摘要",
+      "dayMaster": "日干特性",
+      "structure": "格局",
+      "usefulGod": "用神/忌神",
+      "primary": "用神",
+      "secondary": "喜神",
+      "harmful": "忌神",
+      "reasoning": "用神選定依據"
+    },
+    "jijanggan": {
+      "title": "藏干",
+      "tooltip": "隱藏在地支中的天干氣運"
+    },
+    "detailedScores": {
+      "title": "詳細分數分析",
+      "loveRadar": "戀愛能力",
+      "loveRadarDesc": "戀愛所需的10種能力",
+      "workRadar": "工作能力",
+      "workRadarDesc": "工作處理所需的5種能力",
+      "otherScores": "其他分數",
+      "loveLabels": {
+        "humor": "幽默感",
+        "emotion": "感性",
+        "finance": "理財",
+        "adventure": "冒險心",
+        "sincerity": "誠實度",
+        "selfEsteem": "自尊感",
+        "sociability": "社交力",
+        "consideration": "體貼心",
+        "expressiveness": "表達力",
+        "trustworthiness": "可信度"
+      },
+      "workLabels": {
+        "drive": "推動力",
+        "creativity": "創造力",
+        "leadership": "領導力",
+        "collaboration": "協作力",
+        "problemSolving": "問題解決"
+      }
     }
   },
   "pipeline": {
