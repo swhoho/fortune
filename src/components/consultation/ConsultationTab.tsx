@@ -13,6 +13,7 @@ import { ChatArea } from './ChatArea';
 import { useConsultationSessions, useCreateSession } from '@/hooks/use-consultation';
 import { useCreditsCheck } from '@/hooks/use-credits';
 import { InsufficientCreditsDialog } from '@/components/credits/InsufficientCreditsDialog';
+import { CreditDeductionDialog } from '@/components/credits/CreditDeductionDialog';
 import { SERVICE_CREDITS } from '@/lib/stripe';
 
 interface ConsultationTabProps {
@@ -34,8 +35,11 @@ export function ConsultationTab({ profileId }: ConsultationTabProps) {
   // 크레딧 부족 다이얼로그
   const [showCreditsDialog, setShowCreditsDialog] = useState(false);
 
+  // 크레딧 차감 확인 다이얼로그
+  const [showDeductionDialog, setShowDeductionDialog] = useState(false);
+
   // 크레딧 확인
-  const { data: creditsCheck } = useCreditsCheck(SERVICE_CREDITS.question);
+  const { data: creditsCheck, refetch: refetchCredits } = useCreditsCheck(SERVICE_CREDITS.question);
 
   // 첫 로드 시 가장 최근 active 세션 선택
   useEffect(() => {
@@ -47,20 +51,32 @@ export function ConsultationTab({ profileId }: ConsultationTabProps) {
   }, [sessions, activeSessionId]);
 
   /**
-   * 새 세션 생성
+   * 새 세션 생성 버튼 클릭
    */
-  const handleCreateSession = async () => {
-    // 크레딧 확인
+  const handleCreateSession = () => {
+    // 크레딧 부족 시 충전 안내
     if (!creditsCheck?.sufficient) {
       setShowCreditsDialog(true);
       return;
     }
+
+    // 크레딧 충분 시 확인 팝업
+    setShowDeductionDialog(true);
+  };
+
+  /**
+   * 크레딧 차감 확인 후 세션 생성
+   */
+  const handleConfirmCreateSession = async () => {
+    setShowDeductionDialog(false);
 
     try {
       const result = await createSession.mutateAsync({ profileId });
       if (result?.sessionId) {
         setActiveSessionId(result.sessionId);
         setIsMobileMenuOpen(false);
+        // 크레딧 잔액 갱신
+        refetchCredits();
       }
     } catch (error) {
       // 크레딧 부족 에러 처리
@@ -105,7 +121,7 @@ export function ConsultationTab({ profileId }: ConsultationTabProps) {
             <Sparkles className="h-5 w-5" />
             {createSession.isPending ? '세션 생성 중...' : '상담 시작하기 (10C)'}
           </button>
-          <p className="mt-3 text-sm text-gray-500">세션당 최대 5개 질문 가능</p>
+          <p className="mt-3 text-sm text-gray-500">세션당 2라운드 질문 가능</p>
         </motion.div>
 
         <InsufficientCreditsDialog
@@ -113,6 +129,14 @@ export function ConsultationTab({ profileId }: ConsultationTabProps) {
           onOpenChange={setShowCreditsDialog}
           required={SERVICE_CREDITS.question}
           current={creditsCheck?.current || 0}
+        />
+
+        <CreditDeductionDialog
+          open={showDeductionDialog}
+          onOpenChange={setShowDeductionDialog}
+          required={SERVICE_CREDITS.question}
+          current={creditsCheck?.current || 0}
+          onConfirm={handleConfirmCreateSession}
         />
       </>
     );
@@ -184,6 +208,14 @@ export function ConsultationTab({ profileId }: ConsultationTabProps) {
         onOpenChange={setShowCreditsDialog}
         required={SERVICE_CREDITS.question}
         current={creditsCheck?.current || 0}
+      />
+
+      <CreditDeductionDialog
+        open={showDeductionDialog}
+        onOpenChange={setShowDeductionDialog}
+        required={SERVICE_CREDITS.question}
+        current={creditsCheck?.current || 0}
+        onConfirm={handleConfirmCreateSession}
       />
     </>
   );

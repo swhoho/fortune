@@ -255,15 +255,6 @@ export async function POST(request: NextRequest, context: RouteContext) {
       );
     }
 
-    // 8. 크레딧 트랜잭션 로그
-    await supabase.from('credit_transactions').insert({
-      user_id: user.id,
-      amount: -creditsRequired,
-      type: 'consultation_session',
-      description: `상담 세션 생성: ${sessionTitle}`,
-      reference_id: newSession.id,
-    });
-
     const response: CreateSessionResponse = {
       success: true,
       data: {

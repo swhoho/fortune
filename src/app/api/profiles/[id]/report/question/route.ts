@@ -224,16 +224,7 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
       // (나중에 수동으로 재시도 가능)
     }
 
-    // 10. 크레딧 사용 로그 기록
-    await supabase.from('credit_transactions').insert({
-      user_id: userId,
-      amount: -SERVICE_CREDITS.question,
-      type: 'question',
-      description: `후속 질문 (프로필: ${profileId})`,
-      reference_id: savedQuestion.id,
-    });
-
-    // 11. 즉시 응답 (폴링 URL 제공)
+    // 10. 즉시 응답 (폴링 URL 제공)
     return NextResponse.json({
       success: true,
       data: {

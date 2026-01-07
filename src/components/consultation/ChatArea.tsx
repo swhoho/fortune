@@ -241,7 +241,7 @@ export function ChatArea({
 
   const session = data?.session;
   const messages = data?.messages || [];
-  const canAskMore = (session?.questionCount || 0) < 5;
+  const canAskMore = (session?.questionCount || 0) < 2;
   const isCompleted = session?.status === 'completed';
 
   // generating/failed 상태가 아닌 메시지만 표시 (generating은 로딩 UI로, failed는 에러 UI로)
@@ -382,7 +382,7 @@ export function ChatArea({
         {isCompleted ? (
           // 세션 완료 상태
           <div className="flex flex-col items-center gap-3 py-2">
-            <p className="text-sm text-gray-400">이 세션의 질문 한도(5개)에 도달했습니다.</p>
+            <p className="text-sm text-gray-400">이 세션의 질문 한도(2라운드)에 도달했습니다.</p>
             <button
               onClick={onCreateSession}
               disabled={isCreatingSession}

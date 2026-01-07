@@ -32,7 +32,7 @@ export function ChatInput({
   placeholder = '질문을 입력하세요...',
   showSkipButton = false,
   questionCount = 0,
-  maxQuestions = 5,
+  maxQuestions = 2,
 }: ChatInputProps) {
   const [content, setContent] = useState('');
   const textareaRef = useRef<HTMLTextAreaElement>(null);
