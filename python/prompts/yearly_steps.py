@@ -62,14 +62,14 @@ You've internalized Ziping Zhengquan, Qiongtong Baojian, and Ditian Sui.""",
 ```json
 {{
   "year": {year},
-  "summary": "{year}년 운세 총평 (100자 이내)",
+  "summary": "{year}년 운세 총평. 300-500자로 상세히 작성. 올해의 특징, 주요 기회와 도전, 주의할 점을 서사체로 풍부하게 설명.",
   "yearlyTheme": "올해의 주제 (예: 도약의 해, 안정의 해)",
   "overallScore": 75
 }}
 ```
 
 **주의사항**:
-- summary는 반드시 100자 이내로 작성
+- summary는 300-500자로 상세히 작성 (서사체, 올해의 특징/기회/도전 포함)
 - overallScore는 0-100 사이 정수
 - yearlyTheme은 간결하게 (10자 이내)
 """
@@ -87,11 +87,16 @@ Respond ONLY with the JSON below. No other text.
 ```json
 {{
   "year": {year},
-  "summary": "Fortune summary for {year} (under 100 characters)",
+  "summary": "Fortune summary for {year}. Write 300-500 characters in narrative style. Include the year's characteristics, key opportunities, challenges, and points to watch.",
   "yearlyTheme": "Theme of the year (e.g., Year of Growth)",
   "overallScore": 75
 }}
 ```
+
+**Requirements**:
+- summary: Write 300-500 characters in narrative style (include characteristics, opportunities, challenges)
+- overallScore: Integer between 0-100
+- yearlyTheme: Keep it concise (under 20 characters)
 """
         else:
             # ja, zh-CN, zh-TW - 기본 한국어 구조 유지

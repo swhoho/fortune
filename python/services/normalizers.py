@@ -200,6 +200,48 @@ KOREAN_KEY_MAPPING = {
     '연애': 'love',
     '건강': 'health',
     '직업': 'career',
+    # yearly_advice 섹션 키
+    '본연의_성정': 'natureAndSoul',
+    '재물과_성공': 'wealthAndSuccess',
+    '직업과_명예': 'careerAndHonor',
+    '문서와_지혜': 'documentAndWisdom',
+    '인연과_사랑': 'relationshipAndLove',
+    '건강과_이동': 'healthAndMovement',
+}
+
+# Yearly Advice 섹션 키 매핑 (모든 변형 처리)
+YEARLY_ADVICE_SECTION_MAPPING = {
+    # snake_case → camelCase
+    'nature_and_soul': 'natureAndSoul',
+    'wealth_and_success': 'wealthAndSuccess',
+    'career_and_honor': 'careerAndHonor',
+    'document_and_wisdom': 'documentAndWisdom',
+    'relationship_and_love': 'relationshipAndLove',
+    'health_and_movement': 'healthAndMovement',
+    # 한글 키
+    '본연의_성정': 'natureAndSoul',
+    '재물과_성공': 'wealthAndSuccess',
+    '직업과_명예': 'careerAndHonor',
+    '문서와_지혜': 'documentAndWisdom',
+    '인연과_사랑': 'relationshipAndLove',
+    '건강과_이동': 'healthAndMovement',
+    # camelCase (이미 정규화된 경우)
+    'natureAndSoul': 'natureAndSoul',
+    'wealthAndSuccess': 'wealthAndSuccess',
+    'careerAndHonor': 'careerAndHonor',
+    'documentAndWisdom': 'documentAndWisdom',
+    'relationshipAndLove': 'relationshipAndLove',
+    'healthAndMovement': 'healthAndMovement',
+}
+
+# Half 키 매핑
+HALF_PERIOD_MAPPING = {
+    'first_half': 'firstHalf',
+    'second_half': 'secondHalf',
+    '상반기': 'firstHalf',
+    '하반기': 'secondHalf',
+    'firstHalf': 'firstHalf',
+    'secondHalf': 'secondHalf',
 }
 
 
@@ -390,6 +432,75 @@ def normalize_basic(raw: Dict[str, Any]) -> Dict[str, Any]:
     return result
 
 
+def normalize_yearly_advice(raw: Dict[str, Any]) -> Dict[str, Any]:
+    """
+    yearly_advice 응답 정규화 (방어적 처리)
+    - 6개 섹션 키 명시적 매핑 (snake_case/한글 → camelCase)
+    - 각 섹션에 firstHalf, secondHalf 기본값 보장
+    - 누락된 섹션은 빈 문자열로 초기화
+    """
+    if raw is None:
+        return raw
+
+    # 기본 섹션 구조
+    REQUIRED_SECTIONS = [
+        'natureAndSoul',
+        'wealthAndSuccess',
+        'careerAndHonor',
+        'documentAndWisdom',
+        'relationshipAndLove',
+        'healthAndMovement',
+    ]
+
+    result = {}
+
+    # 기존 섹션 정규화
+    for key, value in raw.items():
+        # 섹션 키 정규화
+        normalized_key = YEARLY_ADVICE_SECTION_MAPPING.get(key, key)
+
+        if normalized_key in REQUIRED_SECTIONS:
+            if isinstance(value, dict):
+                # Half 키 정규화
+                section_data = {}
+                for half_key, half_value in value.items():
+                    normalized_half = HALF_PERIOD_MAPPING.get(half_key, half_key)
+                    section_data[normalized_half] = half_value if half_value else ''
+
+                # firstHalf, secondHalf 기본값 보장
+                if 'firstHalf' not in section_data:
+                    section_data['firstHalf'] = ''
+                if 'secondHalf' not in section_data:
+                    section_data['secondHalf'] = ''
+
+                result[normalized_key] = section_data
+            elif isinstance(value, str):
+                # 단일 문자열인 경우 → firstHalf로 변환
+                result[normalized_key] = {
+                    'firstHalf': value,
+                    'secondHalf': ''
+                }
+            else:
+                # 기타 → 빈 기본값
+                result[normalized_key] = {
+                    'firstHalf': '',
+                    'secondHalf': ''
+                }
+        else:
+            # 섹션이 아닌 키는 그대로 유지
+            result[normalized_key] = value
+
+    # 누락된 섹션 기본값 추가
+    for section in REQUIRED_SECTIONS:
+        if section not in result:
+            result[section] = {
+                'firstHalf': '',
+                'secondHalf': ''
+            }
+
+    return result
+
+
 def normalize_response(step_name: str, raw_response: Dict[str, Any]) -> Dict[str, Any]:
     """단계별 응답 정규화 라우터"""
     normalizers = {
@@ -398,6 +509,7 @@ def normalize_response(step_name: str, raw_response: Dict[str, Any]) -> Dict[str
         'personality': normalize_personality,
         'aptitude': normalize_aptitude,
         'fortune': normalize_fortune,
+        'yearly_advice': normalize_yearly_advice,
     }
 
     normalizer = normalizers.get(step_name)
