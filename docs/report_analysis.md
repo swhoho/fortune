@@ -340,6 +340,7 @@ PersonalitySection → socialStyleDetail (type/strengths/weaknesses)
 
 | 날짜 | 버전 | 변경 내용 |
 |------|------|----------|
+| 2026-01-07 | v3.0 | 사주 요약(summary) 500자+ 상세화, Python 점수 계산 SENSITIVITY=1.5 적용, CharacteristicsSection 삭제 |
 | 2026-01-07 | v2.9 | 한자 용어 설명 규칙 추가 (일상적 비유 + 음독 방식) |
 | 2026-01-07 | v2.8 | response_schema 미지원 필드 제거 (minimum, maximum → description) |
 | 2026-01-07 | v2.7 | response_schema 100% JSON 강제, 에러 피드백 재시도 |
@@ -350,4 +351,4 @@ PersonalitySection → socialStyleDetail (type/strengths/weaknesses)
 
 ---
 
-**최종 수정**: 2026-01-07 (v2.9)
+**최종 수정**: 2026-01-07 (v3.0)

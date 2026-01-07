@@ -158,7 +158,10 @@ FORTUNE_SCHEMA = {
 BASIC_ANALYSIS_SCHEMA = {
     "type": "object",
     "properties": {
-        "summary": {"type": "string"},
+        "summary": {
+            "type": "string",
+            "description": "500자 이상의 상세한 사주 요약. 일간의 의미와 특성을 일상적 비유로 설명하고, 격국과 용신이 왜 필요한지 초보자도 이해할 수 있게 작성"
+        },
         "dayMaster": {
             "type": "object",
             "properties": {

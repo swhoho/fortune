@@ -162,55 +162,6 @@ function transformPersonality(personality: any, calculatedWillpower?: number) {
 }
 
 /**
- * DB basicAnalysis 데이터를 클라이언트 CharacteristicsSectionData 형식으로 변환
- * NOTE: DB에서 basicAnalysis.basic_analysis 중첩 구조로 저장될 수 있음
- */
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function transformCharacteristics(basicAnalysis: any) {
-  if (!basicAnalysis) return null;
-
-  // 중첩 구조 처리: basicAnalysis.basic_analysis가 있으면 사용
-  const data = basicAnalysis.basic_analysis || basicAnalysis;
-
-  const paragraphs: string[] = [];
-
-  // 격국 설명은 BasicAnalysisSection에서만 표시 (중복 방지)
-  // structure.description 제거됨
-
-  // 일간 특성 (snake_case 또는 camelCase 지원)
-  const dayMaster = data.day_master || data.dayMaster;
-  if (dayMaster?.characteristics) {
-    // characteristics가 배열이면 join, 문자열이면 그대로
-    const chars = Array.isArray(dayMaster.characteristics)
-      ? dayMaster.characteristics.join(', ')
-      : dayMaster.characteristics;
-    if (chars) paragraphs.push(chars);
-  }
-
-  // 용신 분석 (snake_case 또는 camelCase 지원)
-  const usefulGod = data.yongshin_analysis || data.usefulGod;
-  if (usefulGod?.reason || usefulGod?.reasoning) {
-    paragraphs.push(usefulGod.reason || usefulGod.reasoning);
-  }
-
-  // paragraphs가 비어있으면 null 반환 (빈 카드 방지)
-  if (paragraphs.length === 0) {
-    return null;
-  }
-
-  const structureType = data.structure?.type || '';
-
-  return {
-    title: structureType || '사주 특성',
-    subtitle:
-      dayMaster?.gan || dayMaster?.stem
-        ? `${dayMaster.gan || dayMaster.stem}(${dayMaster.element || ''}) 일간`
-        : '',
-    paragraphs,
-  };
-}
-
-/**
  * DB basicAnalysis 데이터를 클라이언트 BasicAnalysisData 형식으로 변환
  * Task 25: 용신/기신/격국/일간 특성 표시용
  */
@@ -998,9 +949,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
         report.personality || report.analysis?.personality,
         report.scores?.willpower
       ),
-      characteristics: transformCharacteristics(
-        report.basic_analysis || report.analysis?.basicAnalysis
-      ),
+      // NOTE: characteristics 삭제됨 (BasicAnalysisSection과 중복)
       aptitude: transformAptitude(report.aptitude || report.analysis?.aptitude, report.scores),
       // fortune 데이터: 개별 컬럼 우선, analysis 폴백
       wealth: transformWealth(

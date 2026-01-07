@@ -24,7 +24,6 @@ import {
   DaewunHorizontalScroll,
   DaewunDetailSection,
   PersonalitySection,
-  CharacteristicsSection,
   AptitudeSection,
   WealthSection,
   RomanceSection,
@@ -37,7 +36,6 @@ import type { ReportTabType } from '@/components/report/ReportNavigation';
 import type {
   ReportProfileInfo,
   PersonalitySectionData,
-  CharacteristicsSectionData,
   AptitudeSectionData,
   ReportDaewunItem,
   BasicAnalysisData,
@@ -62,7 +60,6 @@ interface ReportData {
   jijanggan?: JijangganData | null;
   basicAnalysis?: BasicAnalysisData | null;
   personality: PersonalitySectionData | null;
-  characteristics: CharacteristicsSectionData | null;
   aptitude: AptitudeSectionData | null;
   wealth: WealthSectionData | null;
   romance: RomanceSectionData | null;
@@ -477,11 +474,6 @@ export default function ProfileReportPage({ params }: PageProps) {
                   onReanalyze={handleReanalyze}
                   reanalyzingSection={reanalyzingSection}
                 />
-              )}
-
-              {/* 사주 특성 */}
-              {reportData.characteristics && (
-                <CharacteristicsSection {...reportData.characteristics} />
               )}
 
               {/* 적성과 직업 */}

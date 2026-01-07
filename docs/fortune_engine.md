@@ -128,33 +128,35 @@ Response:
 
 ## 🧮 점수 시스템
 
-**파일**: `src/lib/score/`
+**파일**: `python/scoring/calculator.py` (실제 사용)
+
+> **참고**: TypeScript 버전(`src/lib/score/`)은 레거시. Python 버전이 실제 점수 계산 담당.
 
 ### 점수 계산 공식 (v3.0)
 
-```typescript
-// 상수
-const BASE_SCORE = 50;
-const SENSITIVITY = 1.5;  // 편차 증폭 계수
+```python
+# 상수
+BASE_SCORE = 50
+SENSITIVITY = 1.5  # 편차 증폭 계수
 
-// 1. 십신 추출 (가중치 적용)
-const tenGodCounts = extractTenGods(pillars, jijanggan);
-// - 천간: 가중치 1.0
-// - 지장간 정기: 가중치 1.0
-// - 지장간 여기/중기: 가중치 0 (v3.0에서 노이즈 제거)
+# 1. 십신 추출 (가중치 적용)
+ten_god_counts = _extract_ten_god_counts(pillars, jijanggan)
+# - 천간: 가중치 1.0
+# - 지장간 정기: 가중치 1.0
+# - 지장간 여기/중기: 가중치 0 (v3.0에서 노이즈 제거)
 
-// 2. 원시 점수 계산
-let rawScore = 50;
-for (tenGod in counts) {
-  rawScore += TRAIT_MODIFIERS[trait][tenGod] * counts[tenGod];
-}
+# 2. 원시 점수 계산
+raw_score = 50
+for god, modifier in modifiers.items():
+    count = ten_god_counts.get(god, 0)
+    raw_score += modifier * count
 
-// 3. 편차 증폭 (50점 기준)
-const delta = rawScore - BASE_SCORE;
-const amplifiedDelta = delta * SENSITIVITY;
-const finalScore = BASE_SCORE + amplifiedDelta;
+# 3. 편차 증폭 (50점 기준)
+delta = raw_score - BASE_SCORE
+amplified_delta = delta * SENSITIVITY
+final_score = BASE_SCORE + amplified_delta
 
-return Math.round(clamp(finalScore, 0, 100));
+return max(0, min(100, int(round(final_score))))
 ```
 
 **modifier 범위**:
