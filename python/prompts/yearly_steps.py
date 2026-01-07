@@ -72,6 +72,22 @@ You've internalized Ziping Zhengquan, Qiongtong Baojian, and Ditian Sui.""",
 - summary는 300-500자로 상세히 작성 (서사체, 올해의 특징/기회/도전 포함)
 - overallScore는 0-100 사이 정수
 - yearlyTheme은 간결하게 (10자 이내)
+
+**overallScore 객관적 산정 기준** (중요):
+아래 요소를 합산하여 점수를 계산하세요:
+
+| 요소 | 점수 영향 |
+|------|----------|
+| 세운(歲運) 천간이 용신(用神) 오행 | +25점 |
+| 세운 천간이 기신(忌神) 오행 | -25점 |
+| 세운 지지가 일지(日支)와 삼합/육합 | +20점 |
+| 세운 지지가 일지와 충(冲) | -30점 |
+| 세운 지지가 월지(月支)와 형(刑) | -20점 |
+| 대운(大運) 천간이 용신 오행 | +15점 |
+| 대운 천간이 기신 오행 | -15점 |
+
+기본 점수 50점에서 시작하여 위 요소들을 합산 후 0-100 범위로 조정하세요.
+예: 50 + (+25) + (-30) = 45점
 """
         elif language == 'en':
             return f"""{persona}
@@ -97,6 +113,22 @@ Respond ONLY with the JSON below. No other text.
 - summary: Write 300-500 characters in narrative style (include characteristics, opportunities, challenges)
 - overallScore: Integer between 0-100
 - yearlyTheme: Keep it concise (under 20 characters)
+
+**Objective overallScore Calculation** (Important):
+Calculate score by summing the following factors:
+
+| Factor | Score Impact |
+|--------|-------------|
+| Annual Stem matches Useful God (用神) element | +25 |
+| Annual Stem matches Harmful God (忌神) element | -25 |
+| Annual Branch forms triple/six harmony with Day Branch | +20 |
+| Annual Branch clashes (冲) with Day Branch | -30 |
+| Annual Branch punishes (刑) Month Branch | -20 |
+| Luck Cycle Stem matches Useful God element | +15 |
+| Luck Cycle Stem matches Harmful God element | -15 |
+
+Start from base score 50, sum factors, then clamp to 0-100 range.
+Example: 50 + (+25) + (-30) = 45
 """
         else:
             # ja, zh-CN, zh-TW - 기본 한국어 구조 유지
@@ -163,11 +195,23 @@ Respond ONLY with the JSON below. No other text.
 - overview는 서사체로 150-200자
 - 날짜 형식: YYYY-MM-DD
 
-**점수(score) 산정 규칙** (중요):
-- 용신(用神)이 득령(得令)하거나 생조(生助)받는 달: 높은 점수
-- 기신(忌神)이 왕성하거나 충극(冲剋)이 발생하는 달: 낮은 점수
-- 월지(月支)와 일간(日干)의 생극제화(生剋制化) 관계를 면밀히 분석
-- 월별 점수를 최대한 다양하게 배정 (최고-최저 간격 50점 이상 권장)
+**월별 점수(score) 객관적 산정 기준** (중요):
+기본 점수 50점에서 시작하여 아래 요소들을 합산하세요:
+
+| 요소 | 점수 영향 |
+|------|----------|
+| 월지(月支)가 용신(用神) 오행 | +25점 |
+| 월지가 기신(忌神) 오행 | -25점 |
+| 월지가 일지(日支)와 삼합/육합 | +20점 |
+| 월지가 일지와 충(冲) | -30점 |
+| 월지가 원국 지지와 형(刑) | -15점 |
+| 월지가 원국 지지와 파(破)/해(害) | -10점 |
+| 월간(月干)이 일간(日干) 생조 | +15점 |
+| 월간이 일간 극제 | -15점 |
+| 대운 지지와 월지가 삼합/방합 | +20점 |
+
+계산 후 0-100 범위로 조정하세요.
+**필수**: 월별 점수를 다양하게 배정 (최고-최저 간격 50점 이상 권장)
 """
         elif language == 'en':
             return f"""{persona}
@@ -206,11 +250,23 @@ Respond ONLY with the JSON below. No other text.
 - Include {len(months)} months ({month_range}) in monthlyFortunes array
 - 3-5 luckyDays, 1-3 unluckyDays per month
 
-**Score Assignment Rules** (Important):
-- Months when Useful God (用神) gains power: HIGH score
-- Months when Harmful God (忌神) is strong or clashes occur: LOW score
-- Analyze the relationship between Monthly Branch and Day Master
-- Vary scores as much as possible across months (50+ point gap recommended)
+**Objective Monthly Score Calculation** (Important):
+Start from base score 50, then sum the following factors:
+
+| Factor | Score Impact |
+|--------|-------------|
+| Monthly Branch is Useful God (用神) element | +25 |
+| Monthly Branch is Harmful God (忌神) element | -25 |
+| Monthly Branch forms triple/six harmony with Day Branch | +20 |
+| Monthly Branch clashes (冲) with Day Branch | -30 |
+| Monthly Branch punishes (刑) natal branches | -15 |
+| Monthly Branch harms (害/破) natal branches | -10 |
+| Monthly Stem supports Day Master | +15 |
+| Monthly Stem suppresses Day Master | -15 |
+| Luck Cycle Branch forms triple/directional combo with Monthly Branch | +20 |
+
+Clamp final score to 0-100 range.
+**Required**: Vary scores across months (50+ point gap between highest and lowest)
 """
         else:
             return cls.build_monthly('ko', year, months, pillars, daewun, overview_result)
