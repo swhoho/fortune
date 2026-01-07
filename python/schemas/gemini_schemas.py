@@ -2,8 +2,13 @@
 Gemini response_schema 정의
 Pydantic 스키마와 동기화된 JSON Schema 형식
 
-v1.0 (2026-01-07):
-- response_schema 지원 (JSON 형식 100% 강제)
+v1.1 (2026-01-07):
+- Gemini 미지원 필드 제거 (minimum, maximum, minItems, enum)
+- description으로 범위/조건 명시
+
+주의: Gemini response_schema는 표준 JSON Schema 아님!
+지원 필드: type, description, properties, items, required, nullable
+미지원: minimum, maximum, minItems, maxItems, enum, pattern, format
 """
 
 # ============================================
@@ -23,7 +28,7 @@ PERSONALITY_SCHEMA = {
         "willpower": {
             "type": "object",
             "properties": {
-                "score": {"type": "integer", "minimum": 0, "maximum": 100},
+                "score": {"type": "integer", "description": "0-100 사이 점수"},
                 "description": {"type": "string"}
             },
             "required": ["score", "description"]
@@ -59,7 +64,7 @@ APTITUDE_SCHEMA = {
                 "properties": {
                     "name": {"type": "string"},
                     "basis": {"type": "string"},
-                    "level": {"type": "integer", "minimum": 0, "maximum": 100},
+                    "level": {"type": "integer", "description": "0-100 사이 점수"},
                     "description": {"type": "string"}
                 },
                 "required": ["name", "level", "description"]
@@ -71,7 +76,7 @@ APTITUDE_SCHEMA = {
                 "type": "object",
                 "properties": {
                     "name": {"type": "string"},
-                    "suitability": {"type": "integer", "minimum": 0, "maximum": 100},
+                    "suitability": {"type": "integer", "description": "0-100 사이 적합도"},
                     "description": {"type": "string"}
                 },
                 "required": ["name", "suitability", "description"]
@@ -91,8 +96,8 @@ APTITUDE_SCHEMA = {
         "talentUsage": {
             "type": "object",
             "properties": {
-                "currentLevel": {"type": "integer", "minimum": 0, "maximum": 100},
-                "potential": {"type": "integer", "minimum": 0, "maximum": 100},
+                "currentLevel": {"type": "integer", "description": "0-100 사이 현재 수준"},
+                "potential": {"type": "integer", "description": "0-100 사이 잠재력"},
                 "advice": {"type": "string"}
             },
             "required": ["currentLevel", "potential", "advice"]
@@ -119,7 +124,7 @@ FORTUNE_SCHEMA = {
             "type": "object",
             "properties": {
                 "pattern": {"type": "string"},
-                "wealthScore": {"type": "integer", "minimum": 0, "maximum": 100},
+                "wealthScore": {"type": "integer", "description": "0-100 사이 점수"},
                 "strengths": {"type": "array", "items": {"type": "string"}},
                 "risks": {"type": "array", "items": {"type": "string"}},
                 "advice": {"type": "string"},
@@ -132,7 +137,7 @@ FORTUNE_SCHEMA = {
             "type": "object",
             "properties": {
                 "style": {"type": "string"},
-                "loveScore": {"type": "integer", "minimum": 0, "maximum": 100},
+                "loveScore": {"type": "integer", "description": "0-100 사이 점수"},
                 "idealPartner": {"type": "array", "items": {"type": "string"}},
                 "compatibilityPoints": {"type": "array", "items": {"type": "string"}},
                 "warnings": {"type": "array", "items": {"type": "string"}},
@@ -209,7 +214,7 @@ YEARLY_OVERVIEW_SCHEMA = {
         "year": {"type": "integer"},
         "summary": {"type": "string", "description": "300-500자 연간 요약"},
         "yearlyTheme": {"type": "string"},
-        "overallScore": {"type": "integer", "minimum": 0, "maximum": 100}
+        "overallScore": {"type": "integer", "description": "0-100 사이 점수"}
     },
     "required": ["year", "summary", "yearlyTheme", "overallScore"]
 }
@@ -219,12 +224,13 @@ MONTHLY_FORTUNES_SCHEMA = {
     "properties": {
         "monthlyFortunes": {
             "type": "array",
+            "description": "3개월 운세 배열",
             "items": {
                 "type": "object",
                 "properties": {
-                    "month": {"type": "integer", "minimum": 1, "maximum": 12},
+                    "month": {"type": "integer", "description": "1-12 사이 월"},
                     "theme": {"type": "string"},
-                    "score": {"type": "integer", "minimum": 0, "maximum": 100},
+                    "score": {"type": "integer", "description": "0-100 사이 점수"},
                     "overview": {"type": "string"},
                     "luckyDays": {
                         "type": "array",
@@ -325,17 +331,17 @@ KEY_DATES_SCHEMA = {
     "properties": {
         "keyDates": {
             "type": "array",
+            "description": "최소 5개 이상의 주요 일자",
             "items": {
                 "type": "object",
                 "properties": {
                     "date": {"type": "string"},
-                    "type": {"type": "string", "enum": ["lucky", "unlucky"]},
+                    "type": {"type": "string", "description": "lucky 또는 unlucky"},
                     "description": {"type": "string"},
                     "category": {"type": "string"}
                 },
                 "required": ["date", "type", "description"]
-            },
-            "minItems": 5
+            }
         }
     },
     "required": ["keyDates"]
@@ -346,6 +352,7 @@ CLASSICAL_REFS_SCHEMA = {
     "properties": {
         "classicalReferences": {
             "type": "array",
+            "description": "최소 2개 이상의 고전 인용",
             "items": {
                 "type": "object",
                 "properties": {
@@ -354,8 +361,7 @@ CLASSICAL_REFS_SCHEMA = {
                     "interpretation": {"type": "string"}
                 },
                 "required": ["source", "quote", "interpretation"]
-            },
-            "minItems": 2
+            }
         }
     },
     "required": ["classicalReferences"]
@@ -375,8 +381,8 @@ DAEWUN_ANALYSIS_SCHEMA = {
                     "index": {"type": "integer"},
                     "scoreReasoning": {"type": "string", "description": "점수 산정 근거 (200-300자)"},
                     "summary": {"type": "string", "description": "대운 기간 종합 분석 (300-500자)"},
-                    "favorablePercent": {"type": "integer", "minimum": 0, "maximum": 100},
-                    "unfavorablePercent": {"type": "integer", "minimum": 0, "maximum": 100}
+                    "favorablePercent": {"type": "integer", "description": "0-100 사이 유리한 비율"},
+                    "unfavorablePercent": {"type": "integer", "description": "0-100 사이 불리한 비율"}
                 },
                 "required": ["scoreReasoning", "summary", "favorablePercent", "unfavorablePercent"]
             }
