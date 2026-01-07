@@ -52,7 +52,28 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
     }
 
     // 3. 이미 완료된 경우 바로 반환
-    if (analysis.status === 'completed' && analysis.analysis) {
+    // v2.5: 개별 컬럼 우선, analysis 폴백 (롤백 안전성)
+    if (analysis.status === 'completed') {
+      // 개별 컬럼에서 분석 결과 조합 (없으면 analysis 폴백)
+      const analysisResult = {
+        year: analysis.overview?.year ?? analysis.analysis?.year,
+        summary: analysis.overview?.summary ?? analysis.analysis?.summary,
+        yearlyTheme: analysis.overview?.yearlyTheme ?? analysis.analysis?.yearlyTheme,
+        overallScore: analysis.overview?.overallScore ?? analysis.analysis?.overallScore,
+        monthlyFortunes: analysis.monthly_fortunes ?? analysis.analysis?.monthlyFortunes,
+        yearlyAdvice: analysis.yearly_advice ?? analysis.analysis?.yearlyAdvice,
+        keyDates: analysis.key_dates ?? analysis.analysis?.keyDates,
+        classicalReferences: analysis.classical_refs ?? analysis.analysis?.classicalReferences,
+        quarterlyHighlights: analysis.analysis?.quarterlyHighlights ?? [],
+      };
+
+      // 최소한의 데이터가 있는지 확인
+      if (!analysisResult.year && !analysis.analysis) {
+        return NextResponse.json(createErrorResponse(API_ERRORS.NOT_FOUND), {
+          status: getStatusCode(API_ERRORS.NOT_FOUND),
+        });
+      }
+
       return NextResponse.json({
         success: true,
         status: 'completed',
@@ -64,7 +85,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
           daewun: analysis.daewun,
           currentDaewun: analysis.current_daewun,
           gender: analysis.gender,
-          analysis: analysis.analysis,
+          analysis: analysisResult,
           language: analysis.language,
           creditsUsed: analysis.credits_used,
           createdAt: analysis.created_at,

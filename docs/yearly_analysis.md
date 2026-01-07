@@ -243,12 +243,43 @@ CREATE TABLE yearly_analyses (
   user_id UUID REFERENCES auth.users,
   profile_id UUID REFERENCES profiles,
   target_year INT,
-  analysis JSONB,
+  analysis JSONB,           -- 전체 분석 (롤백용, 레거시)
+  -- v2.5: 개별 섹션 컬럼
+  overview JSONB,           -- year, summary, yearlyTheme, overallScore
+  monthly_fortunes JSONB,   -- 12개월 운세 배열
+  yearly_advice JSONB,      -- 6섹션 연간 조언
+  key_dates JSONB,          -- 핵심 길흉일
+  classical_refs JSONB,     -- 고전 인용
   status TEXT,  -- pending, in_progress, completed, failed
   error TEXT,
   created_at TIMESTAMPTZ,
   updated_at TIMESTAMPTZ
 );
+```
+
+**듀얼 라이트 패턴 (v2.5)**:
+```python
+# Python 저장 시 analysis + 개별 컬럼 동시 저장
+update_data = {
+    "analysis": analysis,
+    "overview": {
+        "year": analysis.get("year"),
+        "summary": analysis.get("summary"),
+        ...
+    },
+    "monthly_fortunes": analysis.get("monthlyFortunes"),
+    ...
+}
+```
+
+**읽기 우선순위 (v2.5)**:
+```typescript
+// 개별 컬럼 우선, analysis 폴백
+const analysisResult = {
+  year: analysis.overview?.year ?? analysis.analysis?.year,
+  monthlyFortunes: analysis.monthly_fortunes ?? analysis.analysis?.monthlyFortunes,
+  ...
+};
 ```
 
 ---
@@ -265,9 +296,10 @@ CREATE TABLE yearly_analyses (
 
 | 날짜 | 버전 | 변경 내용 |
 |------|------|----------|
+| 2026-01-07 | v2.6 | DB 컬럼 분리 (듀얼 라이트 + 폴백 읽기) |
 | 2026-01-07 | v2.5 | 키 camelCase 정규화, summary 300-500자 확장, normalize_yearly_advice() 추가 |
 | 2026-01-06 | v2.0 | 8단계 파이프라인, 재분석 기능 |
 
 ---
 
-**최종 수정**: 2026-01-07 (v2.5)
+**최종 수정**: 2026-01-07 (v2.6)

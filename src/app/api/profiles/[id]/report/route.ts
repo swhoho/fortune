@@ -177,21 +177,35 @@ function transformCharacteristics(basicAnalysis: any) {
   // 격국 설명은 BasicAnalysisSection에서만 표시 (중복 방지)
   // structure.description 제거됨
 
-  // 일간 특성
-  if (data.day_master?.characteristics) {
-    paragraphs.push(data.day_master.characteristics);
+  // 일간 특성 (snake_case 또는 camelCase 지원)
+  const dayMaster = data.day_master || data.dayMaster;
+  if (dayMaster?.characteristics) {
+    // characteristics가 배열이면 join, 문자열이면 그대로
+    const chars = Array.isArray(dayMaster.characteristics)
+      ? dayMaster.characteristics.join(', ')
+      : dayMaster.characteristics;
+    if (chars) paragraphs.push(chars);
   }
 
-  // 용신 분석
-  if (data.yongshin_analysis?.reason) {
-    paragraphs.push(data.yongshin_analysis.reason);
+  // 용신 분석 (snake_case 또는 camelCase 지원)
+  const usefulGod = data.yongshin_analysis || data.usefulGod;
+  if (usefulGod?.reason || usefulGod?.reasoning) {
+    paragraphs.push(usefulGod.reason || usefulGod.reasoning);
   }
+
+  // paragraphs가 비어있으면 null 반환 (빈 카드 방지)
+  if (paragraphs.length === 0) {
+    return null;
+  }
+
+  const structureType = data.structure?.type || '';
 
   return {
-    title: data.structure?.type || '사주 특성',
-    subtitle: data.day_master?.gan
-      ? `${data.day_master.gan}(${data.day_master.element || ''}) 일간`
-      : '',
+    title: structureType || '사주 특성',
+    subtitle:
+      dayMaster?.gan || dayMaster?.stem
+        ? `${dayMaster.gan || dayMaster.stem}(${dayMaster.element || ''}) 일간`
+        : '',
     paragraphs,
   };
 }
@@ -446,11 +460,12 @@ function transformAptitude(aptitude: any, scores: any) {
     content: avoidedFields.length > 0 ? `피해야 할 분야: ${avoidedFields.join(', ')}` : '',
   };
 
-  // 학업스타일
+  // 학업스타일 (snake_case, camelCase, 한글 키 모두 지원)
+  const studyStyleRaw = aptitude.study_style || aptitude.studyStyle || aptitude.학습_스타일;
   const studyStyle = {
     label: '학업스타일',
     title: '나의 학습 방식',
-    content: aptitude.study_style?.description || aptitude.학습_스타일?.설명 || '',
+    content: studyStyleRaw?.description || studyStyleRaw?.설명 || '',
   };
 
   // 일자리 능력 그래프 (scores.work에서 생성)
@@ -942,20 +957,33 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
       daewun: transformDaewun(report.daewun || []),
       jijanggan: report.jijanggan,
       // Task 25: 기본 분석 (용신/기신/격국/일간)
-      basicAnalysis: transformBasicAnalysis(report.analysis?.basicAnalysis),
-      // 분석 결과 (analysis JSONB에서 추출 및 클라이언트 형식 변환)
-      // 한글 키(성격분석) 또는 영문 키(personality) 지원
+      // v2.5: 개별 컬럼 우선, analysis 폴백 (롤백 안전성)
+      basicAnalysis: transformBasicAnalysis(
+        report.basic_analysis || report.analysis?.basicAnalysis
+      ),
+      // 분석 결과: 개별 컬럼 우선, analysis JSONB 폴백
       // willpower 점수는 십신 기반 계산 값 사용 (scores.willpower)
-      personality: transformPersonality(report.analysis?.personality, report.scores?.willpower),
-      characteristics: transformCharacteristics(report.analysis?.basicAnalysis),
-      aptitude: transformAptitude(report.analysis?.aptitude, report.scores),
-      // fortune 데이터: 한글 키(재물운, 연애운) 또는 영문 키(wealth, love) 지원
+      personality: transformPersonality(
+        report.personality || report.analysis?.personality,
+        report.scores?.willpower
+      ),
+      characteristics: transformCharacteristics(
+        report.basic_analysis || report.analysis?.basicAnalysis
+      ),
+      aptitude: transformAptitude(report.aptitude || report.analysis?.aptitude, report.scores),
+      // fortune 데이터: 개별 컬럼 우선, analysis 폴백
       wealth: transformWealth(
-        report.analysis?.fortune?.재물운 || report.analysis?.fortune?.wealth,
+        report.fortune?.재물운 ||
+          report.fortune?.wealth ||
+          report.analysis?.fortune?.재물운 ||
+          report.analysis?.fortune?.wealth,
         report.scores
       ),
       romance: transformRomance(
-        report.analysis?.fortune?.연애운 || report.analysis?.fortune?.love,
+        report.fortune?.연애운 ||
+          report.fortune?.love ||
+          report.analysis?.fortune?.연애운 ||
+          report.analysis?.fortune?.love,
         report.scores
       ),
       // 점수 및 시각화

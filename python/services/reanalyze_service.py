@@ -135,8 +135,10 @@ class ReanalyzeService:
                 request.section_type: section_result,
             }
 
+            # v2.5: 개별 컬럼 + 기존 analysis 동시 저장
             supabase.table('profile_reports').update({
                 'analysis': updated_analysis,
+                request.section_type: section_result,  # 개별 컬럼 (personality/aptitude/fortune)
                 'updated_at': datetime.utcnow().isoformat(),
             }).eq('id', request.report_id).execute()
 

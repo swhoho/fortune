@@ -662,10 +662,22 @@ class YearlyAnalysisService:
             logger.warning("Supabase 설정이 없어 DB 업데이트 스킵")
             return
 
+        # v2.5: 개별 컬럼 + 기존 analysis 동시 저장
         update_data = {
             "analysis": analysis,
             "status": status,
             "updated_at": datetime.utcnow().isoformat(),
+            # 개별 섹션 컬럼
+            "overview": {
+                "year": analysis.get("year"),
+                "summary": analysis.get("summary"),
+                "yearlyTheme": analysis.get("yearlyTheme"),
+                "overallScore": analysis.get("overallScore"),
+            } if analysis.get("year") else None,
+            "monthly_fortunes": analysis.get("monthlyFortunes"),
+            "yearly_advice": analysis.get("yearlyAdvice"),
+            "key_dates": analysis.get("keyDates"),
+            "classical_refs": analysis.get("classicalReferences"),
         }
 
         try:

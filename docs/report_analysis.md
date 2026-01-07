@@ -147,10 +147,12 @@ for attempt in range(1, max_retries + 1):
 각 Gemini 단계 성공 시 Supabase `profile_reports` 테이블 업데이트:
 
 ```python
+# v2.5: 개별 컬럼 + analysis 동시 저장 (듀얼 라이트)
 await self._update_db_status(
     report_id,
     status="in_progress",
     analysis=analysis,
+    **{step_name: validated_result},  # 개별 컬럼
     step_statuses=step_statuses,
     progress_percent=45
 )
@@ -160,11 +162,24 @@ await self._update_db_status(
 - 서버 재시작 시 마지막 저장 시점부터 재개 가능
 - `retry_from_step` 파라미터로 특정 단계부터 재시도
 
-**DB 컬럼**:
+**DB 컬럼 (v2.5)**:
 | 컬럼 | 타입 | 설명 |
 |------|------|------|
-| `analysis` | JSONB | 전체 분석 결과 |
+| `analysis` | JSONB | 전체 분석 결과 (롤백용, 레거시) |
+| `basic_analysis` | JSONB | 일간/격국/용신 (v2.5) |
+| `personality` | JSONB | 성격 분석 (v2.5) |
+| `aptitude` | JSONB | 적성 분석 (v2.5) |
+| `fortune` | JSONB | 재물/연애 분석 (v2.5) |
 | `failed_steps` | TEXT[] | 실패한 단계 목록 (재분석 UI용) |
+
+**읽기 우선순위 (v2.5)**:
+```typescript
+// 개별 컬럼 우선, analysis 폴백 (롤백 안전성)
+personality: transformPersonality(
+  report.personality || report.analysis?.personality,
+  report.scores?.willpower
+)
+```
 
 ---
 
@@ -255,10 +270,11 @@ PersonalitySection → socialStyleDetail (type/strengths/weaknesses)
 
 | 날짜 | 버전 | 변경 내용 |
 |------|------|----------|
+| 2026-01-07 | v2.5 | DB 컬럼 분리 (듀얼 라이트 + 폴백 읽기) |
 | 2026-01-07 | v2.4 | Normalize→Validate 파이프라인, Pydantic 스키마, 재분석 API |
 | 2026-01-07 | v2.3 | 확장 데이터 UI (extended props) |
 | 2026-01-06 | v2.0 | Job Store 패턴, 비동기 파이프라인 |
 
 ---
 
-**최종 수정**: 2026-01-07 (v2.4)
+**최종 수정**: 2026-01-07 (v2.5)

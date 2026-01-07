@@ -376,14 +376,16 @@ class ReportAnalysisService:
                     job_store.update_step_status(job_id, step_name, "completed")
 
                     # Supabase 중간 저장 (크래시 복구용)
+                    # v2.5: 개별 컬럼 + 기존 analysis 동시 저장
                     await self._update_db_status(
                         report_id,
                         status="in_progress",
                         analysis=analysis,
+                        **{step_name: validated_result},  # 개별 컬럼
                         step_statuses=job_store.get(job_id).get("step_statuses"),
                         progress_percent=STEP_PROGRESS[step_name]
                     )
-                    logger.info(f"[{job_id}] {step_name} DB 중간 저장 완료")
+                    logger.info(f"[{job_id}] {step_name} DB 중간 저장 완료 (컬럼: {step_name})")
 
                     success = True
                     break
@@ -594,13 +596,20 @@ class ReportAnalysisService:
         ]
 
         # Supabase에 결과 저장
+        # v2.5: 개별 컬럼 + 기존 analysis 동시 저장
+        analysis = job.get("analysis") or {}
         await self._update_db_status(
             report_id,
             status="completed",
             pillars=job.get("pillars"),
             daewun=job.get("daewun"),
             jijanggan=job.get("jijanggan"),
-            analysis=job.get("analysis"),
+            analysis=analysis,
+            # 개별 섹션 컬럼
+            basic_analysis=analysis.get("basicAnalysis"),
+            personality=analysis.get("personality"),
+            aptitude=analysis.get("aptitude"),
+            fortune=analysis.get("fortune"),
             scores=job.get("scores"),
             visualization_url=job.get("visualization_url"),
             step_statuses=step_statuses,
@@ -672,6 +681,16 @@ class ReportAnalysisService:
             update_data["step_statuses"] = kwargs["step_statuses"]
         if "failed_steps" in kwargs:
             update_data["failed_steps"] = kwargs["failed_steps"]
+
+        # 개별 섹션 컬럼 (v2.5 - DB 컬럼 분리)
+        if "basic_analysis" in kwargs:
+            update_data["basic_analysis"] = kwargs["basic_analysis"]
+        if "personality" in kwargs:
+            update_data["personality"] = kwargs["personality"]
+        if "aptitude" in kwargs:
+            update_data["aptitude"] = kwargs["aptitude"]
+        if "fortune" in kwargs:
+            update_data["fortune"] = kwargs["fortune"]
 
         try:
             async with httpx.AsyncClient() as client:
@@ -756,9 +775,11 @@ class ReportAnalysisService:
                 updated_analysis[step_type] = validated
 
                 # DB 업데이트
+                # v2.5: 개별 컬럼 + 기존 analysis 동시 저장
                 await self._update_db_status(
                     report_id,
                     analysis=updated_analysis,
+                    **{step_type: validated},  # 개별 컬럼
                     failed_steps=[]  # 재분석 성공 시 failed_steps 클리어
                 )
 
