@@ -26,6 +26,7 @@ from schemas.yearly import (
 from prompts.yearly_steps import YearlyStepPrompts
 from .gemini import get_gemini_service
 from .normalizers import normalize_all_keys
+from schemas.gemini_schemas import get_gemini_schema
 
 logger = logging.getLogger(__name__)
 
@@ -310,8 +311,11 @@ class YearlyAnalysisService:
                     daewun=request.daewun
                 )
 
-                # Gemini 호출
-                result = await self._call_gemini(prompt, step_name)
+                # v2.7: 에러 피드백 포함 Gemini 호출
+                result = await self._call_gemini(
+                    prompt, step_name,
+                    previous_error=last_error if attempt > 1 else None
+                )
 
                 # 빈 응답 검증
                 if not result or not result.get("year"):
@@ -382,8 +386,11 @@ class YearlyAnalysisService:
                     overview_result=overview_result
                 )
 
-                # Gemini 호출
-                result = await self._call_gemini(prompt, step_name)
+                # v2.7: 에러 피드백 포함 Gemini 호출
+                result = await self._call_gemini(
+                    prompt, step_name,
+                    previous_error=last_error if attempt > 1 else None
+                )
 
                 # 빈 응답 검증
                 monthly_data = result.get("monthlyFortunes", [])
@@ -457,8 +464,11 @@ class YearlyAnalysisService:
                     overview_result=overview_result
                 )
 
-                # Gemini 호출
-                result = await self._call_gemini(prompt, step_name)
+                # v2.7: 에러 피드백 포함 Gemini 호출
+                result = await self._call_gemini(
+                    prompt, step_name,
+                    previous_error=last_error if attempt > 1 else None
+                )
 
                 # 빈 응답 검증
                 advice = result.get("yearlyAdvice", {})
@@ -532,8 +542,11 @@ class YearlyAnalysisService:
                     monthly_fortunes=previous_result.get("monthlyFortunes", [])
                 )
 
-                # Gemini 호출
-                result = await self._call_gemini(prompt, step_name)
+                # v2.7: 에러 피드백 포함 Gemini 호출
+                result = await self._call_gemini(
+                    prompt, step_name,
+                    previous_error=last_error if attempt > 1 else None
+                )
 
                 # 빈 응답 검증
                 key_dates = result.get("keyDates", [])
@@ -608,8 +621,11 @@ class YearlyAnalysisService:
                     overview_result=overview_result
                 )
 
-                # Gemini 호출
-                result = await self._call_gemini(prompt, step_name)
+                # v2.7: 에러 피드백 포함 Gemini 호출
+                result = await self._call_gemini(
+                    prompt, step_name,
+                    previous_error=last_error if attempt > 1 else None
+                )
 
                 # 빈 응답 검증
                 refs = result.get("classicalReferences", [])
@@ -644,10 +660,39 @@ class YearlyAnalysisService:
 
         return result
 
-    async def _call_gemini(self, prompt: str, step: str) -> Dict[str, Any]:
-        """Gemini API 호출 (단계별 전용 메서드 사용, 결과 키 정규화)"""
+    async def _call_gemini(
+        self,
+        prompt: str,
+        step: str,
+        previous_error: str = None
+    ) -> Dict[str, Any]:
+        """
+        Gemini API 호출 (v2.7 - response_schema 지원)
+
+        Args:
+            prompt: 프롬프트
+            step: 단계명 (response_schema 적용용)
+            previous_error: 이전 시도 오류 (재시도 시 피드백)
+
+        Returns:
+            파싱된 JSON 응답 (camelCase 정규화)
+        """
         gemini = self._get_gemini()
-        result = await gemini.generate_yearly_step(prompt, step)
+
+        # response_schema가 있는 단계면 스키마 기반 생성 사용
+        schema = get_gemini_schema(step)
+
+        if schema:
+            # 스키마 기반 생성 (JSON 100% 강제 + 에러 피드백)
+            result = await gemini.generate_with_schema(
+                prompt,
+                response_schema=schema,
+                previous_error=previous_error
+            )
+        else:
+            # 기존 방식 (fallback)
+            result = await gemini.generate_yearly_step(prompt, step)
+
         # DB 저장 전 camelCase 정규화
         return normalize_all_keys(result)
 

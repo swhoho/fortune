@@ -1,14 +1,19 @@
 """
 Gemini AI 서비스
 Google Generative AI를 사용한 사주 분석
+
+v2.7 (2026-01-07):
+- response_schema 지원 추가 (JSON 형식 100% 강제)
+- 에러 피드백 재시도 지원
 """
 import os
 import json
 import re
 import logging
-from typing import Any, Dict, Optional
+from typing import Any, Dict, Optional, List
 
 import google.generativeai as genai
+from google.generativeai.types import GenerationConfig, HarmCategory, HarmBlockThreshold
 
 logger = logging.getLogger(__name__)
 
@@ -84,6 +89,83 @@ class GeminiService:
 
         except Exception as e:
             logger.error(f"Gemini 리포트 분석 실패: {e}")
+            raise
+
+    async def generate_with_schema(
+        self,
+        prompt: str,
+        response_schema: Dict[str, Any],
+        previous_error: Optional[str] = None,
+        timeout: int = 120
+    ) -> Dict[str, Any]:
+        """
+        response_schema를 사용한 JSON 응답 생성 (v2.7)
+
+        JSON 형식을 100% 강제하여 파싱 실패를 방지합니다.
+        이전 오류가 있으면 프롬프트에 피드백으로 추가합니다.
+
+        Args:
+            prompt: 분석 프롬프트
+            response_schema: Gemini response_schema (JSON Schema 형식)
+            previous_error: 이전 시도의 오류 메시지 (재시도 시)
+            timeout: 타임아웃 (초)
+
+        Returns:
+            파싱된 JSON 딕셔너리
+        """
+        try:
+            # 이전 오류가 있으면 프롬프트에 피드백 추가
+            final_prompt = prompt
+            if previous_error:
+                final_prompt = f"""{prompt}
+
+[이전 시도 실패 - 반드시 수정 필요]
+오류: {previous_error}
+위 오류를 해결하여 올바른 JSON 형식으로 응답하세요.
+모든 필드를 빠짐없이 포함하고, 타입을 정확히 맞추세요."""
+
+            # response_schema로 JSON 형식 강제 + safety_settings (사주 분석 false positive 방지)
+            response = await self.model.generate_content_async(
+                final_prompt,
+                generation_config=GenerationConfig(
+                    response_mime_type="application/json",
+                    response_schema=response_schema,
+                    temperature=0.7,
+                    top_p=0.95,
+                    max_output_tokens=8192,
+                ),
+                safety_settings={
+                    HarmCategory.HARM_CATEGORY_HARASSMENT: HarmBlockThreshold.BLOCK_NONE,
+                    HarmCategory.HARM_CATEGORY_HATE_SPEECH: HarmBlockThreshold.BLOCK_NONE,
+                    HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT: HarmBlockThreshold.BLOCK_NONE,
+                    HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT: HarmBlockThreshold.BLOCK_NONE,
+                }
+            )
+
+            # Safety block 체크
+            if not response.parts:
+                if hasattr(response, 'prompt_feedback') and response.prompt_feedback:
+                    raise ValueError(f"Gemini Safety Block: {response.prompt_feedback}")
+                raise ValueError("Gemini가 빈 응답을 반환했습니다")
+
+            response_text = response.text
+            if not response_text or not response_text.strip():
+                raise ValueError("빈 응답")
+
+            # JSON 문자열 정리 (Markdown 코드블록 제거)
+            text = response_text.strip()
+            if text.startswith("```json"):
+                text = text[7:]
+            if text.startswith("```"):
+                text = text[3:]
+            if text.endswith("```"):
+                text = text[:-3]
+            text = text.strip()
+
+            return json.loads(text)
+
+        except Exception as e:
+            logger.error(f"Schema 기반 생성 실패: {e}")
             raise
 
     async def generate_yearly_step(

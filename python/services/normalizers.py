@@ -292,40 +292,50 @@ def _normalize_dict(data: Dict, mapping: Dict[str, str]) -> Dict:
 
 
 def normalize_personality(raw: Dict[str, Any]) -> Dict[str, Any]:
-    """personality 응답 정규화 (하위 호환성 + 기본값 처리)"""
+    """
+    personality 응답 정규화 (v2.7 - Pydantic 호환)
+
+    outerPersonality, innerPersonality는 문자열 타입 유지
+    딕셔너리로 받은 경우 문자열로 추출 (response_schema 실패 시 안전장치)
+    """
     if raw is None:
         return raw
 
     result = _normalize_dict(raw, PERSONALITY_KEY_MAPPING)
 
-    # outerPersonality: 문자열 → 객체 변환 (하위 호환성)
+    # v2.7: outerPersonality - 문자열 유지, 딕셔너리 → 문자열 추출
     if 'outerPersonality' in result:
-        if isinstance(result['outerPersonality'], str):
-            # 기존 문자열 형식 → 객체로 변환
-            result['outerPersonality'] = {
-                'impression': '',
-                'basis': '',
-                'socialPersona': result['outerPersonality']
-            }
-        elif isinstance(result['outerPersonality'], dict):
-            result['outerPersonality'] = _normalize_dict(
-                result['outerPersonality'], OUTER_PERSONALITY_MAPPING
+        if isinstance(result['outerPersonality'], dict):
+            # 딕셔너리인 경우 → 문자열 추출 (Pydantic 호환)
+            outer_dict = result['outerPersonality']
+            result['outerPersonality'] = (
+                outer_dict.get('socialPersona') or
+                outer_dict.get('description') or
+                outer_dict.get('impression') or
+                str(outer_dict)  # 최종 fallback
             )
+        elif not isinstance(result['outerPersonality'], str):
+            result['outerPersonality'] = str(result['outerPersonality'])
 
-    # innerPersonality: 문자열 → 객체 변환 (하위 호환성)
+    # v2.7: innerPersonality - 문자열 유지, 딕셔너리 → 문자열 추출
     if 'innerPersonality' in result:
-        if isinstance(result['innerPersonality'], str):
-            result['innerPersonality'] = {
-                'trueNature': '',
-                'basis': '',
-                'emotionalProcessing': result['innerPersonality']
-            }
-        elif isinstance(result['innerPersonality'], dict):
-            result['innerPersonality'] = _normalize_dict(
-                result['innerPersonality'], INNER_PERSONALITY_MAPPING
+        if isinstance(result['innerPersonality'], dict):
+            # 딕셔너리인 경우 → 문자열 추출 (Pydantic 호환)
+            inner_dict = result['innerPersonality']
+            result['innerPersonality'] = (
+                inner_dict.get('emotionalProcessing') or
+                inner_dict.get('trueNature') or
+                inner_dict.get('description') or
+                str(inner_dict)  # 최종 fallback
             )
+        elif not isinstance(result['innerPersonality'], str):
+            result['innerPersonality'] = str(result['innerPersonality'])
 
     # 기본값 보장
+    if 'outerPersonality' not in result:
+        result['outerPersonality'] = ''
+    if 'innerPersonality' not in result:
+        result['innerPersonality'] = ''
     if 'willpower' not in result:
         result['willpower'] = {'score': 50, 'description': ''}
     if 'socialStyle' not in result:

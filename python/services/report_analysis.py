@@ -24,6 +24,7 @@ from schemas.saju import CalculateRequest, Pillars, Pillar
 from visualization import SajuVisualizer
 from services.normalizers import normalize_response, normalize_all_keys
 from schemas.report_steps import validate_step_response, STEP_SCHEMAS
+from schemas.gemini_schemas import get_gemini_schema
 
 logger = logging.getLogger(__name__)
 
@@ -320,7 +321,8 @@ class ReportAnalysisService:
         jijanggan = job.get("jijanggan", {})
 
         prompt = await self._build_step_prompt("basic", language, pillars, daewun, jijanggan)
-        result = await self._call_gemini(prompt)
+        # v2.7: response_schema 적용
+        result = await self._call_gemini(prompt, step_name="basic")
 
         # analysis에 저장
         analysis = job.get("analysis") or {}
@@ -358,7 +360,13 @@ class ReportAnalysisService:
                     prompt = await self._build_step_prompt(
                         step_name, language, pillars, daewun, jijanggan, analysis
                     )
-                    result = await self._call_gemini(prompt)
+
+                    # v2.7: step_name + 이전 오류 피드백 전달
+                    result = await self._call_gemini(
+                        prompt,
+                        step_name=step_name,
+                        previous_error=last_error if attempt > 1 else None
+                    )
 
                     # 응답 검증
                     if not result or (isinstance(result, dict) and len(result) == 0):
@@ -643,11 +651,38 @@ class ReportAnalysisService:
 
         return f"{result.system_prompt}\n\n{result.user_prompt}"
 
-    async def _call_gemini(self, prompt: str) -> Dict[str, Any]:
-        """Gemini API 호출"""
+    async def _call_gemini(
+        self,
+        prompt: str,
+        step_name: str = None,
+        previous_error: str = None
+    ) -> Dict[str, Any]:
+        """
+        Gemini API 호출 (v2.7 - response_schema 지원)
+
+        Args:
+            prompt: 프롬프트
+            step_name: 단계명 (response_schema 적용용)
+            previous_error: 이전 시도 오류 (재시도 시 피드백)
+
+        Returns:
+            파싱된 JSON 응답
+        """
         gemini = self._get_gemini()
-        # generate_content 사용 (yearly_analysis와 다른 형식)
-        return await gemini.generate_report_analysis(prompt)
+
+        # response_schema가 있는 단계면 스키마 기반 생성 사용
+        schema = get_gemini_schema(step_name) if step_name else None
+
+        if schema:
+            # 스키마 기반 생성 (JSON 100% 강제 + 에러 피드백)
+            return await gemini.generate_with_schema(
+                prompt,
+                response_schema=schema,
+                previous_error=previous_error
+            )
+        else:
+            # 기존 방식 (fallback)
+            return await gemini.generate_report_analysis(prompt)
 
     async def _update_db_status(self, report_id: str, **kwargs):
         """Supabase DB 상태 업데이트"""
@@ -761,7 +796,13 @@ class ReportAnalysisService:
                 prompt = await self._build_step_prompt(
                     step_type, language, pillars, daewun, jijanggan, previous_results
                 )
-                result = await self._call_gemini(prompt)
+
+                # v2.7: step_name + 이전 오류 피드백 전달
+                result = await self._call_gemini(
+                    prompt,
+                    step_name=step_type,
+                    previous_error=last_error if attempt > 1 else None
+                )
 
                 if not result:
                     raise ValueError("빈 응답")

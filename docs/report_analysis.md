@@ -102,9 +102,33 @@ class JobStore:
 
 ---
 
+## response_schema + 에러 피드백 재시도 (v2.7)
+
+JSON 응답 100% 강제 + 에러 피드백으로 3회 재시도 성공률 향상:
+
+```python
+# Gemini API 호출 (response_schema 적용)
+result = await gemini.generate_with_schema(
+    prompt,
+    response_schema=get_gemini_schema(step_name),
+    previous_error=last_error if attempt > 1 else None  # 에러 피드백
+)
+```
+
+**핵심 기능**:
+1. `response_mime_type="application/json"` - JSON 형식 강제
+2. `response_schema` - 필드 타입/구조 강제
+3. 재시도 시 이전 오류 프롬프트에 포함 → Gemini가 개선
+
+**스키마 파일**:
+- `python/schemas/gemini_schemas.py` - Gemini response_schema
+- `python/schemas/report_steps.py` - Pydantic 검증
+
+---
+
 ## Normalize → Validate 파이프라인 (v2.4)
 
-Gemini 응답의 키 불일치 문제를 해결하는 2단계 파이프라인:
+response_schema 실패 시 안전장치로 2단계 후처리:
 
 ```python
 # 1. Normalize: 한글/snake_case → camelCase
@@ -270,6 +294,7 @@ PersonalitySection → socialStyleDetail (type/strengths/weaknesses)
 
 | 날짜 | 버전 | 변경 내용 |
 |------|------|----------|
+| 2026-01-07 | v2.7 | response_schema 100% JSON 강제, 에러 피드백 재시도 |
 | 2026-01-07 | v2.5 | DB 컬럼 분리 (듀얼 라이트 + 폴백 읽기) |
 | 2026-01-07 | v2.4 | Normalize→Validate 파이프라인, Pydantic 스키마, 재분석 API |
 | 2026-01-07 | v2.3 | 확장 데이터 UI (extended props) |
@@ -277,4 +302,4 @@ PersonalitySection → socialStyleDetail (type/strengths/weaknesses)
 
 ---
 
-**최종 수정**: 2026-01-07 (v2.5)
+**최종 수정**: 2026-01-07 (v2.7)
