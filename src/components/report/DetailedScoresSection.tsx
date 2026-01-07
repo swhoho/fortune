@@ -111,7 +111,10 @@ export function DetailedScoresSection({ data, className = '' }: DetailedScoresSe
           </div>
           <div className="h-[280px] sm:h-[320px]">
             <ResponsiveContainer width="100%" height="100%">
-              <RadarChart data={loveRadarData} margin={{ top: 20, right: 30, bottom: 20, left: 30 }}>
+              <RadarChart
+                data={loveRadarData}
+                margin={{ top: 20, right: 30, bottom: 20, left: 30 }}
+              >
                 <PolarGrid stroke="#333" />
                 <PolarAngleAxis
                   dataKey="subject"
@@ -159,7 +162,10 @@ export function DetailedScoresSection({ data, className = '' }: DetailedScoresSe
           </div>
           <div className="h-[280px] sm:h-[320px]">
             <ResponsiveContainer width="100%" height="100%">
-              <RadarChart data={workRadarData} margin={{ top: 20, right: 30, bottom: 20, left: 30 }}>
+              <RadarChart
+                data={workRadarData}
+                margin={{ top: 20, right: 30, bottom: 20, left: 30 }}
+              >
                 <PolarGrid stroke="#333" />
                 <PolarAngleAxis
                   dataKey="subject"

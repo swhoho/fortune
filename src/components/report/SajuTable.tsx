@@ -6,19 +6,24 @@ import type { JijangganData } from '@/types/report';
 
 /** 오행별 색상 매핑 */
 const STEM_ELEMENT_MAP: Record<string, string> = {
-  '甲': '木', '乙': '木',
-  '丙': '火', '丁': '火',
-  '戊': '土', '己': '土',
-  '庚': '金', '辛': '金',
-  '壬': '水', '癸': '水',
+  甲: '木',
+  乙: '木',
+  丙: '火',
+  丁: '火',
+  戊: '土',
+  己: '土',
+  庚: '金',
+  辛: '金',
+  壬: '水',
+  癸: '水',
 };
 
 const ELEMENT_COLORS: Record<string, string> = {
-  '木': '#4ade80',
-  '火': '#ef4444',
-  '土': '#f59e0b',
-  '金': '#e5e7eb',
-  '水': '#3b82f6',
+  木: '#4ade80',
+  火: '#ef4444',
+  土: '#f59e0b',
+  金: '#e5e7eb',
+  水: '#3b82f6',
 };
 
 interface SajuTableProps {
@@ -49,7 +54,12 @@ export function SajuTable({ pillars, jijanggan, name, age, className = '' }: Saj
     { key: 'year', label: '年', pillar: pillars.year, jijang: jijanggan?.year },
   ];
 
-  const hasJijanggan = jijanggan && (jijanggan.hour?.length || jijanggan.day?.length || jijanggan.month?.length || jijanggan.year?.length);
+  const hasJijanggan =
+    jijanggan &&
+    (jijanggan.hour?.length ||
+      jijanggan.day?.length ||
+      jijanggan.month?.length ||
+      jijanggan.year?.length);
 
   // 컬럼 애니메이션 variants
   const containerVariants = {
@@ -116,7 +126,9 @@ export function SajuTable({ pillars, jijanggan, name, age, className = '' }: Saj
               </div>
 
               {/* 지지 */}
-              <div className={`flex h-14 w-full items-center justify-center border-x border-t border-[#3a3a3a] bg-[#1f1f1f] ${!hasJijanggan ? 'border-b rounded-b-lg' : ''}`}>
+              <div
+                className={`flex h-14 w-full items-center justify-center border-x border-t border-[#3a3a3a] bg-[#1f1f1f] ${!hasJijanggan ? 'rounded-b-lg border-b' : ''}`}
+              >
                 <span
                   className="font-serif text-2xl font-bold text-[#d4af37]"
                   aria-label={`지지: ${pillar.branch}`}
@@ -164,7 +176,9 @@ export function SajuTable({ pillars, jijanggan, name, age, className = '' }: Saj
               </div>
 
               {/* 나이 */}
-              <div className={`flex h-14 w-full items-center justify-center border-x border-t border-[#d4af37]/30 bg-[#d4af37]/5 ${!hasJijanggan ? 'border-b' : ''}`}>
+              <div
+                className={`flex h-14 w-full items-center justify-center border-x border-t border-[#d4af37]/30 bg-[#d4af37]/5 ${!hasJijanggan ? 'border-b' : ''}`}
+              >
                 <span className="text-lg font-bold text-[#d4af37]">{age ? `${age}세` : ''}</span>
               </div>
 

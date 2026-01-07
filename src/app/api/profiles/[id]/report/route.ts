@@ -141,8 +141,8 @@ function transformPersonality(personality: any, calculatedWillpower?: number) {
   };
 
   // Task 25: 확장 데이터 (대인관계 상세)
-  const strengthsArray = Array.isArray(strengths) ? strengths : (strengths ? [strengths] : []);
-  const weaknessesArray = Array.isArray(weaknesses) ? weaknesses : (weaknesses ? [weaknesses] : []);
+  const strengthsArray = Array.isArray(strengths) ? strengths : strengths ? [strengths] : [];
+  const weaknessesArray = Array.isArray(weaknesses) ? weaknesses : weaknesses ? [weaknesses] : [];
   const socialStyleType = socialRaw.type || socialRaw.style || undefined;
 
   return {
@@ -174,10 +174,8 @@ function transformCharacteristics(basicAnalysis: any) {
 
   const paragraphs: string[] = [];
 
-  // 격국 설명
-  if (data.structure?.description) {
-    paragraphs.push(data.structure.description);
-  }
+  // 격국 설명은 BasicAnalysisSection에서만 표시 (중복 방지)
+  // structure.description 제거됨
 
   // 일간 특성
   if (data.day_master?.characteristics) {
@@ -467,34 +465,38 @@ function transformAptitude(aptitude: any, scores: any) {
 
   // Task 25: 확장 데이터 추출
   // 재능 상세 (basis, level 포함)
-  const talentsRaw = isKoreanKeys
-    ? aptitude.타고난_재능 || []
-    : aptitude.talents || [];
+  const talentsRaw = isKoreanKeys ? aptitude.타고난_재능 || [] : aptitude.talents || [];
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const talentsExtended = talentsRaw.map((t: any) => ({
-    name: typeof t === 'string' ? t : t.talentName || t.name || t.이름 || '',
-    basis: t.basis || t.근거 || t.십신 || undefined,
-    level: t.level || t.점수 || t.수준 || undefined,
-    description: t.description || t.설명 || undefined,
-  })).filter((t: { name: string }) => t.name);
+  const talentsExtended = talentsRaw
+    .map((t: any) => ({
+      name: typeof t === 'string' ? t : t.talentName || t.name || t.이름 || '',
+      basis: t.basis || t.근거 || t.십신 || undefined,
+      level: t.level || t.점수 || t.수준 || undefined,
+      description: t.description || t.설명 || undefined,
+    }))
+    .filter((t: { name: string }) => t.name);
 
   // 피해야 할 분야 (사유 포함)
   const avoidRaw = isKoreanKeys
     ? aptitude.회피_분야 || []
     : aptitude.avoidFields || aptitude.avoided_fields || [];
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const avoidFieldsExtended = avoidRaw.map((f: any) => ({
-    name: typeof f === 'string' ? f : f.fieldName || f.name || f.분야 || f.이름 || '',
-    reason: typeof f === 'string' ? '' : f.reason || f.사유 || f.이유 || '',
-  })).filter((f: { name: string }) => f.name);
+  const avoidFieldsExtended = avoidRaw
+    .map((f: any) => ({
+      name: typeof f === 'string' ? f : f.fieldName || f.name || f.분야 || f.이름 || '',
+      reason: typeof f === 'string' ? '' : f.reason || f.사유 || f.이유 || '',
+    }))
+    .filter((f: { name: string }) => f.name);
 
   // 재능 활용 상태 상세
   const talentUtilRaw = isKoreanKeys
     ? aptitude.재능_활용_상태 || {}
     : aptitude.talentUsage || aptitude.talentUsageStatus || aptitude.talent_utilization || {};
   const talentUsageExtended = {
-    currentLevel: talentUtilRaw.currentLevel || talentUtilRaw.current_level || talentUtilRaw.현재_수준 || 0,
-    potential: talentUtilRaw.potential || talentUtilRaw.potential_level || talentUtilRaw.잠재력 || 0,
+    currentLevel:
+      talentUtilRaw.currentLevel || talentUtilRaw.current_level || talentUtilRaw.현재_수준 || 0,
+    potential:
+      talentUtilRaw.potential || talentUtilRaw.potential_level || talentUtilRaw.잠재력 || 0,
     advice: talentUtilRaw.advice || talentUtilRaw.조언 || '',
   };
 
@@ -503,11 +505,13 @@ function transformAptitude(aptitude: any, scores: any) {
     ? aptitude.추천_분야 || []
     : aptitude.recommendedFields || aptitude.recommended_fields || [];
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const recommendedFieldsExtended = recRaw.map((f: any) => ({
-    name: typeof f === 'string' ? f : f.fieldName || f.name || f.분야 || f.이름 || '',
-    suitability: f.suitability || f.적합도 || f.점수 || undefined,
-    description: f.description || f.설명 || undefined,
-  })).filter((f: { name: string }) => f.name);
+  const recommendedFieldsExtended = recRaw
+    .map((f: any) => ({
+      name: typeof f === 'string' ? f : f.fieldName || f.name || f.분야 || f.이름 || '',
+      suitability: f.suitability || f.적합도 || f.점수 || undefined,
+      description: f.description || f.설명 || undefined,
+    }))
+    .filter((f: { name: string }) => f.name);
 
   return {
     keywords,
@@ -522,9 +526,10 @@ function transformAptitude(aptitude: any, scores: any) {
     extended: {
       talents: talentsExtended,
       avoidFields: avoidFieldsExtended,
-      talentUsage: talentUsageExtended.currentLevel || talentUsageExtended.potential
-        ? talentUsageExtended
-        : undefined,
+      talentUsage:
+        talentUsageExtended.currentLevel || talentUsageExtended.potential
+          ? talentUsageExtended
+          : undefined,
       recommendedFields: recommendedFieldsExtended,
     },
   };
@@ -627,15 +632,9 @@ function transformWealth(wealth: any, scores: any) {
 
   // Task 25: 확장 데이터 추출
   const pattern = isKoreanKeys ? wealth.패턴_유형 : wealth.pattern || undefined;
-  const strengths = isKoreanKeys
-    ? wealth.재물운_강점 || []
-    : wealth.strengths || [];
-  const risks = isKoreanKeys
-    ? wealth.재물운_리스크 || []
-    : wealth.risks || [];
-  const advice = isKoreanKeys
-    ? wealth.조언 || ''
-    : wealth.advice || '';
+  const strengths = isKoreanKeys ? wealth.재물운_강점 || [] : wealth.strengths || [];
+  const risks = isKoreanKeys ? wealth.재물운_리스크 || [] : wealth.risks || [];
+  const advice = isKoreanKeys ? wealth.조언 || '' : wealth.advice || '';
 
   return {
     wealthFortune,
@@ -817,9 +816,7 @@ function transformRomance(love: any, scores: any) {
   }
 
   // 주의사항
-  const warnings = isKoreanKeys
-    ? love.주의사항 || []
-    : love.warnings || [];
+  const warnings = isKoreanKeys ? love.주의사항 || [] : love.warnings || [];
 
   // 궁합 포인트
   const compatibilityPoints = isKoreanKeys
@@ -827,9 +824,7 @@ function transformRomance(love: any, scores: any) {
     : love.compatibilityPoints || [];
 
   // 연애 조언
-  const loveAdvice = isKoreanKeys
-    ? love.연애_조언 || ''
-    : love.advice || love.loveAdvice || '';
+  const loveAdvice = isKoreanKeys ? love.연애_조언 || '' : love.advice || love.loveAdvice || '';
 
   return {
     datingPsychology,
@@ -930,6 +925,10 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
     };
 
     const reportData = {
+      // 리포트 ID (재분석 API용)
+      reportId: report.id,
+      // 실패한 단계 목록 (재분석 UI용)
+      failedSteps: report.failed_steps || [],
       // 프로필 정보
       profile: {
         name: profileInfo?.name || '이름 없음',

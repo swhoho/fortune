@@ -270,30 +270,32 @@ export interface KeyDate {
 
 /**
  * 섹션 콘텐츠 (상반기/하반기 구분)
+ * 키 이름은 camelCase로 통일 (DB 저장 형식과 일치)
  */
 export interface SectionContent {
   /** 상반기(1~6월) 분석 (400~700자 서사체) */
-  first_half: string;
+  firstHalf: string;
   /** 하반기(7~12월) 분석 (400~700자 서사체) */
-  second_half: string;
+  secondHalf: string;
 }
 
 /**
  * 6개 섹션 연간 조언 (v2.0)
+ * 키 이름은 camelCase로 통일 (DB 저장 형식과 일치)
  */
 export interface YearlyAdvice {
   /** SECTION 1: 본연의 성정과 신년의 기류 (일간 심리학적 접근) */
-  nature_and_soul: SectionContent;
+  natureAndSoul: SectionContent;
   /** SECTION 2: 재물과 비즈니스의 조류 (재성/식상 분석) */
-  wealth_and_success: SectionContent;
+  wealthAndSuccess: SectionContent;
   /** SECTION 3: 직업적 성취와 명예의 궤적 (관성 분석) */
-  career_and_honor: SectionContent;
+  careerAndHonor: SectionContent;
   /** SECTION 4: 문서의 인연과 학업의 결실 (인성 분석) */
-  document_and_wisdom: SectionContent;
+  documentAndWisdom: SectionContent;
   /** SECTION 5: 인연의 파동과 사회적 관계 (연애/귀인운) */
-  relationship_and_love: SectionContent;
+  relationshipAndLove: SectionContent;
   /** SECTION 6: 신체의 조화와 환경의 변화 (건강/역마) */
-  health_and_movement: SectionContent;
+  healthAndMovement: SectionContent;
 }
 
 // 레거시 지원용 타입 (기존 데이터 호환)

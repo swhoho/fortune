@@ -46,8 +46,38 @@ class ReanalyzeService:
         Args:
             request: 재분석 요청
         """
-        # 백그라운드에서 재분석 실행
-        asyncio.create_task(self._run_reanalysis(request))
+        logger.info(f"[Reanalyze:{request.reanalysis_id}] 백그라운드 작업 시작 요청")
+        # 백그라운드에서 재분석 실행 (예외 처리 포함)
+        task = asyncio.create_task(self._safe_run_reanalysis(request))
+        # 태스크 예외 로깅
+        task.add_done_callback(self._task_done_callback)
+
+    def _task_done_callback(self, task: asyncio.Task):
+        """백그라운드 태스크 완료 콜백"""
+        try:
+            exc = task.exception()
+            if exc:
+                logger.error(f"[Reanalyze] 백그라운드 태스크 예외: {exc}")
+        except asyncio.CancelledError:
+            logger.warning("[Reanalyze] 백그라운드 태스크 취소됨")
+
+    async def _safe_run_reanalysis(self, request: SectionReanalyzeRequest):
+        """
+        안전한 재분석 실행 (최상위 예외 처리)
+        """
+        try:
+            await self._run_reanalysis(request)
+        except Exception as e:
+            logger.error(f"[Reanalyze:{request.reanalysis_id}] 최상위 예외 발생: {e}")
+            # DB 업데이트 시도
+            try:
+                supabase = get_supabase_client()
+                supabase.table('reanalysis_logs').update({
+                    'status': 'failed',
+                    'error_message': f"최상위 예외: {str(e)}",
+                }).eq('id', request.reanalysis_id).execute()
+            except Exception as db_error:
+                logger.error(f"[Reanalyze:{request.reanalysis_id}] DB 업데이트 실패: {db_error}")
 
     async def _run_reanalysis(self, request: SectionReanalyzeRequest):
         """

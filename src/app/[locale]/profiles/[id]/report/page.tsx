@@ -11,10 +11,11 @@
  * 3. 상담 탭: AI 상담 (채팅 형태)
  */
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowLeft, Share2, Download, Loader2, Sparkles, Home } from 'lucide-react';
+import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { Link, useRouter } from '@/i18n/routing';
 import {
@@ -206,6 +207,10 @@ export default function ProfileReportPage({ params }: PageProps) {
     // TODO: PDF 생성 및 다운로드 구현
   };
 
+  /** 폴링 인터벌 참조 (타임아웃 시 정리용) */
+  const pollIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  const pollTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
   /**
    * 성격 섹션 재분석 핸들러
    * 기존 재분석 API 사용 (5C 크레딧 필요)
@@ -216,6 +221,10 @@ export default function ProfileReportPage({ params }: PageProps) {
         console.warn('[handleReanalyze] 프로필 ID가 없습니다');
         return;
       }
+
+      // 기존 폴링/타임아웃 정리
+      if (pollIntervalRef.current) clearInterval(pollIntervalRef.current);
+      if (pollTimeoutRef.current) clearTimeout(pollTimeoutRef.current);
 
       setReanalyzingSection(_section);
       try {
@@ -229,34 +238,47 @@ export default function ProfileReportPage({ params }: PageProps) {
         if (!response.ok) {
           const errorData = await response.json().catch(() => ({}));
           console.error('[handleReanalyze] 재분석 실패:', errorData);
-          // TODO: 에러 토스트 표시
+          toast.error('재분석 요청에 실패했습니다. 잠시 후 다시 시도해주세요.');
+          setReanalyzingSection(null);
           return;
         }
 
         const result = await response.json();
         if (result.success && result.data?.pollUrl) {
           // 폴링 시작 - 완료될 때까지 대기 후 새로고침
-          const pollInterval = setInterval(async () => {
-            const pollResponse = await fetch(result.data.pollUrl);
-            const pollData = await pollResponse.json();
-            if (pollData.data?.status === 'completed') {
-              clearInterval(pollInterval);
-              await fetchReportData();
-              setReanalyzingSection(null);
-            } else if (pollData.data?.status === 'failed') {
-              clearInterval(pollInterval);
-              console.error('[handleReanalyze] 재분석 실패');
-              setReanalyzingSection(null);
+          pollIntervalRef.current = setInterval(async () => {
+            try {
+              const pollResponse = await fetch(result.data.pollUrl);
+              const pollData = await pollResponse.json();
+              if (pollData.data?.status === 'completed') {
+                if (pollIntervalRef.current) clearInterval(pollIntervalRef.current);
+                if (pollTimeoutRef.current) clearTimeout(pollTimeoutRef.current);
+                await fetchReportData();
+                setReanalyzingSection(null);
+                toast.success('재분석이 완료되었습니다.');
+              } else if (pollData.data?.status === 'failed') {
+                if (pollIntervalRef.current) clearInterval(pollIntervalRef.current);
+                if (pollTimeoutRef.current) clearTimeout(pollTimeoutRef.current);
+                const errorMsg = pollData.data?.errorMessage || '알 수 없는 오류';
+                console.error('[handleReanalyze] 재분석 실패:', errorMsg);
+                toast.error(`재분석에 실패했습니다: ${errorMsg}`);
+                setReanalyzingSection(null);
+              }
+            } catch (pollErr) {
+              console.error('[handleReanalyze] 폴링 오류:', pollErr);
             }
           }, 2000);
 
-          // 최대 60초 후 타임아웃
-          setTimeout(() => {
+          // 최대 90초 후 타임아웃
+          pollTimeoutRef.current = setTimeout(() => {
+            if (pollIntervalRef.current) clearInterval(pollIntervalRef.current);
             setReanalyzingSection(null);
-          }, 60000);
+            toast.error('재분석 시간이 초과되었습니다. 다시 시도해주세요.');
+          }, 90000);
         }
       } catch (err) {
         console.error('[handleReanalyze] 재분석 요청 오류:', err);
+        toast.error('재분석 요청 중 오류가 발생했습니다.');
         setReanalyzingSection(null);
       }
     },

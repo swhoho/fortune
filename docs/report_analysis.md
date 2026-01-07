@@ -110,19 +110,11 @@ Gemini 응답의 키 불일치 문제를 해결하는 2단계 파이프라인:
 # 1. Normalize: 한글/snake_case → camelCase
 normalized = normalize_all_keys(normalize_response(step_name, raw_response))
 
-# 2. Validate: Pydantic 스키마 검증 + default 값
+# 2. Validate: Pydantic 스키마 검증
 validated = validate_step_response(step_name, normalized, raise_on_error=True)
 ```
 
 **스키마 파일**: `python/schemas/report_steps.py`
-
-```python
-class PersonalitySchema(BaseModel):
-    outerPersonality: str = Field(default="")
-    innerPersonality: str = Field(default="")
-    willpower: WillpowerSchema = Field(default_factory=WillpowerSchema)
-    socialStyle: SocialStyleSchema = Field(default_factory=SocialStyleSchema)
-```
 
 ---
 
@@ -140,14 +132,11 @@ for attempt in range(1, max_retries + 1):
         return validated
     except Exception as e:
         logger.warning(f"실패 ({attempt}/{max_retries}): {e}")
-
-# 3회 실패 시 → Pydantic default 값으로 fallback (null 방지)
-return validate_step_response(step_name, {})  # 기본값 반환
 ```
 
 **실패 처리**:
-- Gemini 검증 실패 → 3회 재시도 후 default 값 적용
-- `failed_steps` 배열에 실패 단계 기록 (재분석 UI용)
+- 3회 재시도 실패 시 → `failed_steps` 배열에 기록
+- 실패 섹션은 재분석 버튼으로 재시도 가능 (무료)
 - 만세력/기본분석 실패 → 전체 중단
 - 최소 1개 분석 성공 시 → `completed` 상태로 완료
 
