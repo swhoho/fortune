@@ -717,10 +717,10 @@
       },
       "workLabels": {
         "drive": "推進力",
-        "creativity": "創造力",
-        "leadership": "リーダーシップ",
-        "collaboration": "協力",
-        "problemSolving": "問題解決"
+        "planning": "企画力",
+        "execution": "実行力",
+        "completion": "完成力",
+        "management": "管理力"
       }
     }
   },

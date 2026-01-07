@@ -717,10 +717,10 @@
       },
       "workLabels": {
         "drive": "推动力",
-        "creativity": "创造力",
-        "leadership": "领导力",
-        "collaboration": "协作力",
-        "problemSolving": "问题解决"
+        "planning": "企划力",
+        "execution": "执行力",
+        "completion": "完成力",
+        "management": "管理力"
       }
     }
   },
