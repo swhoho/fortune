@@ -154,6 +154,10 @@ FORTUNE_SCHEMA = {
 
 # ============================================
 # Basic Analysis Schema (Step 1)
+# v1.2 (2026-01-08): 실생활 조언 필드 추가
+# - dayMaster.description: 일간 성격/행동 패턴 설명
+# - structure.typeChinese, practicalAdvice: 격국 한자 + 실생활 조언
+# - usefulGod.practicalApplication: 용신 활용법
 # ============================================
 BASIC_ANALYSIS_SCHEMA = {
     "type": "object",
@@ -165,31 +169,65 @@ BASIC_ANALYSIS_SCHEMA = {
         "dayMaster": {
             "type": "object",
             "properties": {
-                "stem": {"type": "string"},
-                "element": {"type": "string"},
-                "yinYang": {"type": "string"},
-                "characteristics": {"type": "array", "items": {"type": "string"}}
+                "stem": {"type": "string", "description": "천간 한자 (甲~癸)"},
+                "element": {"type": "string", "description": "오행 한자 (木火土金水)"},
+                "yinYang": {"type": "string", "description": "음양 (陰/陽)"},
+                "characteristics": {
+                    "type": "array",
+                    "items": {"type": "string"},
+                    "description": "행동 특성 키워드 4-5개 (예: 리더십 강함, 숨김없는 표현)"
+                },
+                "description": {
+                    "type": "string",
+                    "description": "일간의 실제 성격과 행동 패턴 2-3문장. 대인관계 특징, 강점과 약점 포함"
+                }
             },
-            "required": ["stem", "element", "yinYang", "characteristics"]
+            "required": ["stem", "element", "yinYang", "characteristics", "description"]
         },
         "structure": {
             "type": "object",
             "properties": {
-                "type": {"type": "string"},
-                "quality": {"type": "string"},
-                "description": {"type": "string"}
+                "type": {"type": "string", "description": "격국명 한글 (예: 상관격)"},
+                "typeChinese": {"type": "string", "description": "격국 한자 (예: 傷官格)"},
+                "quality": {"type": "string", "description": "품질 (上/中/下)"},
+                "description": {"type": "string", "description": "격국 형성 원리와 삶의 방식"},
+                "practicalAdvice": {
+                    "type": "object",
+                    "description": "격국별 실생활 조언",
+                    "properties": {
+                        "lifeStrategy": {
+                            "type": "string",
+                            "description": "인생 전략 2-3문장. 이 격국이 성공하려면 어떤 방향으로 나아가야 하는지"
+                        },
+                        "careerTips": {
+                            "type": "array",
+                            "items": {"type": "string"},
+                            "description": "추천 직업 3-4개 (예: 크리에이터, 변호사)"
+                        },
+                        "pitfallsToAvoid": {
+                            "type": "array",
+                            "items": {"type": "string"},
+                            "description": "주의사항 2-3개. 빠지기 쉬운 함정"
+                        }
+                    },
+                    "required": ["lifeStrategy", "careerTips", "pitfallsToAvoid"]
+                }
             },
-            "required": ["type", "quality", "description"]
+            "required": ["type", "typeChinese", "quality", "description", "practicalAdvice"]
         },
         "usefulGod": {
             "type": "object",
             "properties": {
-                "primary": {"type": "string"},
-                "secondary": {"type": "string"},
-                "harmful": {"type": "string"},
-                "reasoning": {"type": "string"}
+                "primary": {"type": "string", "description": "용신 오행 한자 (木火土金水)"},
+                "secondary": {"type": "string", "description": "희신 오행 한자 (없으면 빈 문자열)"},
+                "harmful": {"type": "string", "description": "기신 오행 한자"},
+                "reasoning": {"type": "string", "description": "용신 선정 근거"},
+                "practicalApplication": {
+                    "type": "string",
+                    "description": "실생활 활용법 3-4문장. 유리한 업종, 좋은 방위(동서남북), 도움 되는 색상, 추천 활동, 기신 관련 피해야 할 것"
+                }
             },
-            "required": ["primary", "harmful", "reasoning"]
+            "required": ["primary", "harmful", "reasoning", "practicalApplication"]
         }
     },
     "required": ["summary", "dayMaster", "structure", "usefulGod"]

@@ -155,6 +155,11 @@ export function BasicAnalysisSection({ data, className = '' }: BasicAnalysisSect
               ))}
             </div>
           )}
+
+          {/* 일간 성격 설명 (신규) */}
+          {dayMaster.description && (
+            <p className="mt-3 text-xs leading-relaxed text-gray-400">{dayMaster.description}</p>
+          )}
         </motion.div>
 
         {/* 격국 */}
@@ -174,14 +179,69 @@ export function BasicAnalysisSection({ data, className = '' }: BasicAnalysisSect
             </span>
           </div>
 
-          {/* 격국명 */}
+          {/* 격국명 + 한자 */}
           <div className="mb-3">
-            <p className="text-lg font-semibold text-white">{structure.type}</p>
+            <p className="text-lg font-semibold text-white">
+              {structure.type}
+              {structure.typeChinese && (
+                <span className="ml-1 text-sm text-gray-500">({structure.typeChinese})</span>
+              )}
+            </p>
           </div>
 
           {/* 격국 설명 */}
           {structure.description && (
             <p className="text-xs leading-relaxed text-gray-400">{structure.description}</p>
+          )}
+
+          {/* 실생활 조언 (신규) */}
+          {structure.practicalAdvice && (
+            <div className="mt-4 space-y-3">
+              {/* 인생 전략 */}
+              {structure.practicalAdvice.lifeStrategy && (
+                <div className="rounded-lg bg-[#0f0f0f] p-3">
+                  <p className="mb-1.5 text-xs font-medium text-[#d4af37]">{t('lifeStrategy')}</p>
+                  <p className="text-xs leading-relaxed text-gray-300">
+                    {structure.practicalAdvice.lifeStrategy}
+                  </p>
+                </div>
+              )}
+
+              {/* 추천 직업 */}
+              {structure.practicalAdvice.careerTips &&
+                structure.practicalAdvice.careerTips.length > 0 && (
+                  <div>
+                    <p className="mb-1.5 text-xs font-medium text-gray-500">{t('careerTips')}</p>
+                    <div className="flex flex-wrap gap-1.5">
+                      {structure.practicalAdvice.careerTips.map((tip, idx) => (
+                        <span
+                          key={idx}
+                          className="rounded-full bg-[#d4af37]/10 px-2.5 py-1 text-xs text-[#d4af37]"
+                        >
+                          {tip}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+              {/* 주의사항 */}
+              {structure.practicalAdvice.pitfallsToAvoid &&
+                structure.practicalAdvice.pitfallsToAvoid.length > 0 && (
+                  <div>
+                    <p className="mb-1.5 text-xs font-medium text-gray-500">
+                      {t('pitfallsToAvoid')}
+                    </p>
+                    <div className="space-y-1">
+                      {structure.practicalAdvice.pitfallsToAvoid.map((item, idx) => (
+                        <p key={idx} className="text-xs text-red-400/80">
+                          • {item}
+                        </p>
+                      ))}
+                    </div>
+                  </div>
+                )}
+            </div>
           )}
         </motion.div>
       </div>
@@ -240,6 +300,16 @@ export function BasicAnalysisSection({ data, className = '' }: BasicAnalysisSect
           <div className="rounded-lg bg-[#0f0f0f] p-4">
             <p className="mb-2 text-xs font-medium text-gray-500">{t('reasoning')}</p>
             <p className="text-sm leading-relaxed text-gray-300">{usefulGod.reasoning}</p>
+          </div>
+        )}
+
+        {/* 실생활 활용법 (신규) */}
+        {usefulGod.practicalApplication && (
+          <div className="mt-4 rounded-lg border border-[#d4af37]/20 bg-[#d4af37]/5 p-4">
+            <p className="mb-2 text-xs font-medium text-[#d4af37]">{t('practicalApplication')}</p>
+            <p className="text-sm leading-relaxed text-gray-300">
+              {usefulGod.practicalApplication}
+            </p>
           </div>
         )}
       </motion.div>

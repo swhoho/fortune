@@ -698,7 +698,11 @@
       "primary": "Useful God",
       "secondary": "Supportive",
       "harmful": "Harmful God",
-      "reasoning": "Selection Basis"
+      "reasoning": "Selection Basis",
+      "lifeStrategy": "Life Strategy",
+      "careerTips": "Recommended Careers",
+      "pitfallsToAvoid": "Pitfalls to Avoid",
+      "practicalApplication": "Practical Application"
     },
     "jijanggan": {
       "title": "Hidden Stems",

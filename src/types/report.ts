@@ -18,16 +18,32 @@ export interface DayMasterData {
   yinYang: string;
   /** 특성 키워드 */
   characteristics: string[];
+  /** 일간 성격/행동 패턴 설명 (2-3문장) */
+  description?: string;
+}
+
+/** 격국 실생활 조언 */
+export interface StructurePracticalAdvice {
+  /** 인생 전략 (2-3문장) */
+  lifeStrategy?: string;
+  /** 추천 직업 (3-4개) */
+  careerTips?: string[];
+  /** 주의사항 (2-3개) */
+  pitfallsToAvoid?: string[];
 }
 
 /** 격국 정보 */
 export interface StructureData {
   /** 격국명 (정재격, 편재격, ...) */
   type: string;
+  /** 격국 한자 (正財格, 偏財格, ...) */
+  typeChinese?: string;
   /** 품질 (上, 中, 下) */
   quality: string;
   /** 격국 설명 */
   description: string;
+  /** 실생활 조언 */
+  practicalAdvice?: StructurePracticalAdvice;
 }
 
 /** 용신/기신 정보 */
@@ -35,11 +51,13 @@ export interface UsefulGodData {
   /** 용신 (丙, 丁 등) */
   primary: string;
   /** 희신/보조 오행 (火, 土 등) */
-  secondary: string;
+  secondary?: string;
   /** 기신 (水, 金 등) */
   harmful: string;
   /** 용신 선정 근거 */
   reasoning: string;
+  /** 실생활 활용법 (방위, 색상, 업종 등) */
+  practicalApplication?: string;
 }
 
 /** 기본 분석 섹션 데이터 */

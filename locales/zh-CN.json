@@ -698,7 +698,11 @@
       "primary": "用神",
       "secondary": "喜神",
       "harmful": "忌神",
-      "reasoning": "用神选定依据"
+      "reasoning": "用神选定依据",
+      "lifeStrategy": "人生策略",
+      "careerTips": "推荐职业",
+      "pitfallsToAvoid": "注意事项",
+      "practicalApplication": "实际应用方法"
     },
     "jijanggan": {
       "title": "藏干",

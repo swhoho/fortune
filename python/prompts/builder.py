@@ -714,21 +714,70 @@ class PromptBuilder:
 당신은 사주명리학의 기본 분석 전문가입니다.
 다음 항목들을 정확하게 분석해주세요:
 
-### 1. 일간(日干) 분석
+### 1. 일간(日干) 분석 - dayMaster
 - 일간의 오행과 음양
 - 일간의 기본 특성
 - 일간의 강약 판단 (신강/신약)
 
-### 2. 격국(格局) 분석
+**characteristics** (키워드 4-5개 필수):
+단순한 형용사보다 행동 특성을 나타내는 구체적 키워드로 작성하세요.
+- 나쁜 예: ["밝음", "열정적", "솔직함"]
+- 좋은 예: ["리더십 강함", "숨김없는 표현", "빠른 판단력", "열정적 시작", "끈기 부족"]
+
+**description** (2-3문장 필수):
+일간의 실제 성격과 행동 패턴을 구체적으로 설명하세요.
+- 어떤 상황에서 어떻게 행동하는지
+- 대인관계에서의 특징
+- 강점과 약점
+
+예시 (丙火):
+"태양처럼 밝고 따뜻한 기운으로 주변 사람들에게 활력을 줍니다.
+리더십이 강하고 솔직해서 숨김이 없지만, 때로는 너무 직설적이어서
+상대방의 감정을 배려하지 못할 수 있습니다. 열정적으로 시작하지만
+끈기가 부족해 마무리가 약한 편입니다."
+
+### 2. 격국(格局) 분석 - structure
 - 격국의 종류 판별 (정관격, 편관격, 정인격 등)
-- 격국의 품질 (상/중/하)
+- 격국의 품질 (上/中/下)
 - 격국의 특징 설명
 
-### 3. 용신(用神) 분석
+**type**: 격국명 한글 (예: 상관격)
+**typeChinese**: 격국 한자 (예: 傷官格)
+
+**practicalAdvice** (실생활 조언 필수):
+{
+  "lifeStrategy": "이 격국이 성공하려면 어떤 방향으로 나아가야 하는지 (2-3문장)",
+  "careerTips": ["추천 직업 3-4개"],
+  "pitfallsToAvoid": ["빠지기 쉬운 함정/주의사항 2-3개"]
+}
+
+예시 (상관격):
+{
+  "lifeStrategy": "창의력과 표현력이 강점입니다. 기존 틀을 따르기보다 새로운 방식을 개척하세요. 다만 권위에 대한 반항심을 조절하고, 실력으로 인정받는 것이 중요합니다.",
+  "careerTips": ["크리에이터", "변호사", "예술가", "프리랜서 전문가"],
+  "pitfallsToAvoid": ["상사/권위자와의 불필요한 충돌", "말로 상처를 주는 경향", "끈기 부족으로 전문성 확보 실패"]
+}
+
+### 3. 용신(用神)/기신(忌神) 분석 - usefulGod
 - 용신 (가장 필요한 오행)
 - 희신 (도움이 되는 오행)
 - 기신 (해로운 오행)
 - 용신 선정 이유
+
+**practicalApplication** (실생활 활용법 필수, 3-4문장):
+용신을 실생활에서 어떻게 활용하는지 구체적으로 설명하세요:
+- 유리한 업종/직업
+- 좋은 방위 (동/서/남/북)
+- 도움이 되는 색상
+- 추천 활동
+- 기신 관련 피해야 할 것
+
+예시 (용신 水, 기신 火):
+"물(水) 관련 업종인 IT, 물류, 음료업이 유리합니다.
+북쪽 방향이 길하니 사무실이나 집의 북쪽에 자리하면 좋습니다.
+검정색, 파란색 계열의 옷이나 소품이 도움됩니다.
+수영, 명상, 독서 등 차분한 활동이 에너지 균형에 좋습니다.
+반면 불(火) 관련 과도한 열정, 충동적 결정, 여름철 과로는 피하세요."
 
 ### 4. 사주 요약 (summary) 작성 규칙 [중요!]
 **500자 이상** 상세하게 작성하며, 사주 초보자도 이해할 수 있게 설명하세요.
@@ -764,21 +813,70 @@ class PromptBuilder:
 You are a BaZi basic analysis expert.
 Please analyze the following items accurately:
 
-### 1. Day Master Analysis
+### 1. Day Master Analysis - dayMaster
 - Five elements and Yin/Yang of Day Master
 - Basic characteristics
 - Strength determination (strong/weak)
 
-### 2. Structure (格局) Analysis
+**characteristics** (4-5 keywords required):
+Use specific behavioral traits rather than simple adjectives.
+- Bad example: ["bright", "passionate", "honest"]
+- Good example: ["strong leadership", "direct expression", "quick decisions", "enthusiastic starter", "lacks persistence"]
+
+**description** (2-3 sentences required):
+Describe the Day Master's actual personality and behavior patterns:
+- How they act in different situations
+- Relationship characteristics
+- Strengths and weaknesses
+
+Example (Bing Fire 丙火):
+"Radiates warmth and vitality like the sun, energizing those around them.
+Strong leadership with honest, direct communication, but sometimes too blunt,
+potentially hurting others' feelings. Starts projects with passion but may
+struggle with follow-through."
+
+### 2. Structure (格局) Analysis - structure
 - Structure type (Direct Officer, Indirect Officer, Direct Resource, etc.)
 - Structure quality (high/medium/low)
 - Structure characteristics
 
-### 3. Useful God (用神) Analysis
+**type**: Structure name in local language (e.g., Hurting Officer)
+**typeChinese**: Chinese characters (e.g., 傷官格)
+
+**practicalAdvice** (practical advice required):
+{
+  "lifeStrategy": "How to succeed with this structure (2-3 sentences)",
+  "careerTips": ["3-4 recommended careers"],
+  "pitfallsToAvoid": ["2-3 common pitfalls/warnings"]
+}
+
+Example (Hurting Officer 傷官格):
+{
+  "lifeStrategy": "Your creativity and expression are your strengths. Pioneer new paths rather than following conventions. Control rebelliousness toward authority and earn recognition through proven skills.",
+  "careerTips": ["Content Creator", "Lawyer", "Artist", "Freelance Consultant"],
+  "pitfallsToAvoid": ["Unnecessary conflicts with superiors", "Hurting others with sharp words", "Lacking persistence to build expertise"]
+}
+
+### 3. Useful God (用神) / Harmful God Analysis - usefulGod
 - Useful God (most needed element)
 - Helpful God (supportive element)
 - Harmful God (detrimental element)
 - Reasoning for selection
+
+**practicalApplication** (practical tips required, 3-4 sentences):
+Explain how to apply the Useful God in daily life:
+- Favorable industries/careers
+- Auspicious directions (East/West/South/North)
+- Helpful colors
+- Recommended activities
+- Things to avoid (related to Harmful God)
+
+Example (Useful God: Water, Harmful God: Fire):
+"Water-related industries like IT, logistics, and beverages are favorable.
+North direction is auspicious - position your desk or home facing north.
+Black and blue colors in clothing and accessories bring luck.
+Swimming, meditation, and reading help balance energy.
+Avoid Fire-related excess passion, impulsive decisions, and summer overwork."
 
 ### 4. Summary Writing Rules [IMPORTANT!]
 Write **at least 500 characters** in detail, explaining so that beginners can understand.

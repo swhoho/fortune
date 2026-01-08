@@ -698,7 +698,11 @@
       "primary": "용신",
       "secondary": "희신",
       "harmful": "기신",
-      "reasoning": "용신 선정 근거"
+      "reasoning": "용신 선정 근거",
+      "lifeStrategy": "인생 전략",
+      "careerTips": "추천 직업",
+      "pitfallsToAvoid": "주의사항",
+      "practicalApplication": "실생활 활용법"
     },
     "jijanggan": {
       "title": "지장간",
