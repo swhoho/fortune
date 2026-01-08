@@ -5,6 +5,7 @@
  */
 import { motion } from 'framer-motion';
 import { Plus, MessageCircle, CheckCircle2, Loader2 } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import type { ConsultationSession } from '@/types/consultation';
 
 interface SessionListProps {
@@ -30,6 +31,8 @@ export function SessionList({
   isLoading = false,
   isCreating = false,
 }: SessionListProps) {
+  const t = useTranslations('consultation');
+
   /**
    * 날짜 포맷
    */
@@ -42,9 +45,9 @@ export function SessionList({
     if (diffDays === 0) {
       return date.toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' });
     } else if (diffDays === 1) {
-      return '어제';
+      return t('yesterday');
     } else if (diffDays < 7) {
-      return `${diffDays}일 전`;
+      return t('daysAgo', { days: diffDays });
     } else {
       return date.toLocaleDateString('ko-KR', { month: 'short', day: 'numeric' });
     }
@@ -54,14 +57,14 @@ export function SessionList({
     <div className="flex h-full flex-col">
       {/* 헤더 */}
       <div className="flex items-center justify-between border-b border-[#333] px-4 py-3">
-        <h3 className="font-medium text-white">상담 내역</h3>
+        <h3 className="font-medium text-white">{t('history')}</h3>
         <button
           onClick={onCreateSession}
           disabled={isCreating}
           className="flex items-center gap-1.5 rounded-md bg-[#d4af37] px-3 py-1.5 text-sm font-medium text-white transition-colors hover:bg-[#c19a2e] disabled:opacity-50"
         >
           {isCreating ? <Loader2 className="h-4 w-4 animate-spin" /> : <Plus className="h-4 w-4" />}
-          <span>새 상담</span>
+          <span>{t('newSession')}</span>
         </button>
       </div>
 
@@ -78,7 +81,7 @@ export function SessionList({
           // 빈 상태
           <div className="flex flex-col items-center justify-center py-12 text-center">
             <MessageCircle className="mb-3 h-10 w-10 text-gray-600" />
-            <p className="text-sm text-gray-500">아직 상담 내역이 없습니다</p>
+            <p className="text-sm text-gray-500">{t('empty')}</p>
           </div>
         ) : (
           // 세션 목록
@@ -105,7 +108,7 @@ export function SessionList({
                             isActive ? 'text-white' : 'text-gray-300'
                           }`}
                         >
-                          {session.title || '새 상담'}
+                          {session.title || t('newSession')}
                         </p>
                         {isCompleted && (
                           <CheckCircle2 className="h-3.5 w-3.5 flex-shrink-0 text-green-500" />

@@ -181,6 +181,21 @@
       "exampleTitle": "예시 질문",
       "skipButton": "건너뛰기",
       "nextButton": "결제 페이지로"
+    },
+    "processing": {
+      "error": "분석 중 오류가 발생했습니다",
+      "analyzing": "당신의 사주를 분석하고 있습니다...",
+      "completed": "완료"
+    },
+    "tabs": {
+      "summary": "총운",
+      "personality": "성격",
+      "wealth": "재물",
+      "love": "사랑",
+      "career": "직장",
+      "health": "건강",
+      "overallFortune": "종합 운세",
+      "classicalInterpretation": "고전 해석"
     }
   },
   "focusArea": {
@@ -267,10 +282,14 @@
     },
     "sidebar": {
       "analysis": "분석 기록",
+      "credits": "크레딧 기록",
       "questions": "질문 기록",
       "notifications": "알림 설정",
       "settings": "프로필 설정",
-      "profiles": "프로필 관리"
+      "profiles": "프로필 관리",
+      "customerService": "고객센터",
+      "chatSupport": "채팅 상담",
+      "contactHint": "우측 하단 고객센터 메신저를 통해\n연락해보세요"
     },
     "analysisHistory": {
       "title": "분석 기록",
@@ -826,6 +845,30 @@
       "subtitle": "분석할 프로필을 먼저 등록해주세요",
       "addButton": "프로필 등록하기"
     }
+  },
+  "consultation": {
+    "history": "상담 내역",
+    "newSession": "새 상담",
+    "yesterday": "어제",
+    "daysAgo": "{days}일 전",
+    "empty": "아직 상담 내역이 없습니다",
+    "noSession": "세션을 선택하거나 새 상담을 시작하세요",
+    "loadError": "메시지를 불러올 수 없습니다",
+    "askAnything": "무엇이든 물어보세요",
+    "askAnythingDesc": "분석된 사주와 대운을 바탕으로\n진로, 연애, 재물, 건강 등 궁금한 것을 상담해드립니다.",
+    "question": "질문",
+    "generating": "답변 생성 중...",
+    "timeout": "응답 시간 초과",
+    "timeoutMessage": "응답 생성 시간이 초과되었습니다. 다시 시도해주세요.",
+    "failed": "응답 생성 실패",
+    "failedDefault": "AI 응답 생성에 실패했습니다",
+    "regenerating": "재생성 중...",
+    "regenerate": "다시 생성하기",
+    "complete": "완료",
+    "roundLimit": "이 세션의 질문 한도(2라운드)에 도달했습니다.",
+    "newSessionCost": "새 상담 시작 (10C)",
+    "inputPlaceholder": "질문을 입력하세요... (최대 500자)",
+    "clarificationPlaceholder": "추가 정보를 입력해주세요..."
   },
   "pipeline": {
     "steps": {

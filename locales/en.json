@@ -779,7 +779,10 @@
       "monthPlaceholder": "Month",
       "dayPlaceholder": "Day",
       "hourPlaceholder": "Hour",
-      "minutePlaceholder": "Min"
+      "hourPlaceholder12": "Hour (1-12)",
+      "minutePlaceholder": "Min",
+      "am": "AM",
+      "pm": "PM"
     },
     "validation": {
       "nameRequired": "Please enter a name",

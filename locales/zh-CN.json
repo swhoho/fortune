@@ -837,7 +837,10 @@
       "monthPlaceholder": "月",
       "dayPlaceholder": "日",
       "hourPlaceholder": "时",
-      "minutePlaceholder": "分"
+      "hourPlaceholder12": "时 (1-12)",
+      "minutePlaceholder": "分",
+      "am": "上午",
+      "pm": "下午"
     },
     "validation": {
       "nameRequired": "请输入姓名",

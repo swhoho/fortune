@@ -6,6 +6,7 @@
 import { useRef, useEffect, useState, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import { Menu, Loader2, AlertCircle, Sparkles, RefreshCw } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import { ChatMessage } from './ChatMessage';
 import { ChatInput } from './ChatInput';
 import {
@@ -40,6 +41,8 @@ export function ChatArea({
   onCreateSession,
   isCreatingSession = false,
 }: ChatAreaProps) {
+  const t = useTranslations('consultation');
+
   // 메시지 조회
   const { data, isLoading, error, refetch } = useConsultationMessages(profileId, sessionId);
   const sendMessage = useSendMessage();
@@ -108,7 +111,7 @@ export function ChatArea({
       // 타임아웃 체크 (2분 = 60회)
       if (pollAttemptsRef.current >= MAX_POLL_ATTEMPTS) {
         clearInterval(pollInterval);
-        setTimeoutError('응답 생성 시간이 초과되었습니다. 다시 시도해주세요.');
+        setTimeoutError(t('timeoutMessage'));
         setIsPolling(false);
         return;
       }
@@ -215,7 +218,7 @@ export function ChatArea({
     return (
       <div className="flex h-full flex-col items-center justify-center p-6 text-center">
         <Sparkles className="mb-4 h-12 w-12 text-[#d4af37]/50" />
-        <p className="text-gray-400">세션을 선택하거나 새 상담을 시작하세요</p>
+        <p className="text-gray-400">{t('noSession')}</p>
       </div>
     );
   }
@@ -234,7 +237,7 @@ export function ChatArea({
     return (
       <div className="flex h-full flex-col items-center justify-center p-6 text-center">
         <AlertCircle className="mb-4 h-12 w-12 text-red-400" />
-        <p className="text-gray-400">메시지를 불러올 수 없습니다</p>
+        <p className="text-gray-400">{t('loadError')}</p>
       </div>
     );
   }
@@ -263,14 +266,14 @@ export function ChatArea({
           </button>
 
           <div>
-            <h4 className="font-medium text-white">{session?.title || '새 상담'}</h4>
-            <p className="text-xs text-gray-500">질문 {session?.questionCount || 0}/2</p>
+            <h4 className="font-medium text-white">{session?.title || t('newSession')}</h4>
+            <p className="text-xs text-gray-500">{t('question')} {session?.questionCount || 0}/2</p>
           </div>
         </div>
 
         {isCompleted && (
           <span className="rounded-full bg-green-500/20 px-2.5 py-1 text-xs font-medium text-green-400">
-            완료
+            {t('complete')}
           </span>
         )}
       </div>
@@ -287,11 +290,9 @@ export function ChatArea({
             <div className="mb-4 rounded-full bg-[#d4af37]/10 p-4">
               <Sparkles className="h-8 w-8 text-[#d4af37]" />
             </div>
-            <h4 className="mb-2 font-medium text-white">무엇이든 물어보세요</h4>
-            <p className="max-w-sm text-sm text-gray-400">
-              분석된 사주와 대운을 바탕으로
-              <br />
-              진로, 연애, 재물, 건강 등 궁금한 것을 상담해드립니다.
+            <h4 className="mb-2 font-medium text-white">{t('askAnything')}</h4>
+            <p className="max-w-sm whitespace-pre-line text-sm text-gray-400">
+              {t('askAnythingDesc')}
             </p>
           </motion.div>
         ) : (
@@ -313,7 +314,7 @@ export function ChatArea({
                 className="flex items-center gap-2 text-gray-400"
               >
                 <Loader2 className="h-4 w-4 animate-spin" />
-                <span className="text-sm">답변 생성 중...</span>
+                <span className="text-sm">{t('generating')}</span>
               </motion.div>
             )}
 
@@ -327,7 +328,7 @@ export function ChatArea({
                 <div className="flex items-start gap-3">
                   <AlertCircle className="mt-0.5 h-5 w-5 flex-shrink-0 text-yellow-400" />
                   <div className="flex-1">
-                    <p className="text-sm font-medium text-yellow-400">응답 시간 초과</p>
+                    <p className="text-sm font-medium text-yellow-400">{t('timeout')}</p>
                     <p className="mt-1 text-xs text-gray-400">{timeoutError}</p>
                   </div>
                 </div>
@@ -344,9 +345,9 @@ export function ChatArea({
                 <div className="flex items-start gap-3">
                   <AlertCircle className="mt-0.5 h-5 w-5 flex-shrink-0 text-red-400" />
                   <div className="flex-1">
-                    <p className="text-sm font-medium text-red-400">응답 생성 실패</p>
+                    <p className="text-sm font-medium text-red-400">{t('failed')}</p>
                     <p className="mt-1 text-xs text-gray-400">
-                      {failedMessage.errorMessage || 'AI 응답 생성에 실패했습니다'}
+                      {failedMessage.errorMessage || t('failedDefault')}
                     </p>
                     <div className="mt-3 flex gap-2">
                       <button
@@ -357,12 +358,12 @@ export function ChatArea({
                         {regeneratingId === failedMessage.id ? (
                           <>
                             <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                            재생성 중...
+                            {t('regenerating')}
                           </>
                         ) : (
                           <>
                             <RefreshCw className="h-3.5 w-3.5" />
-                            다시 생성하기
+                            {t('regenerate')}
                           </>
                         )}
                       </button>
@@ -382,7 +383,7 @@ export function ChatArea({
         {isCompleted ? (
           // 세션 완료 상태
           <div className="flex flex-col items-center gap-3 py-2">
-            <p className="text-sm text-gray-400">이 세션의 질문 한도(2라운드)에 도달했습니다.</p>
+            <p className="text-sm text-gray-400">{t('roundLimit')}</p>
             <button
               onClick={onCreateSession}
               disabled={isCreatingSession}
@@ -393,7 +394,7 @@ export function ChatArea({
               ) : (
                 <Sparkles className="h-4 w-4" />
               )}
-              새 상담 시작 (10C)
+              {t('newSessionCost')}
             </button>
           </div>
         ) : (
@@ -403,10 +404,10 @@ export function ChatArea({
             disabled={!canAskMore || !!generatingMessage || !!failedMessage || !!regeneratingId}
             placeholder={
               generatingMessage || regeneratingId
-                ? '답변 생성 중...'
+                ? t('generating')
                 : awaitingClarification
-                  ? '추가 정보를 입력해주세요...'
-                  : '질문을 입력하세요... (최대 500자)'
+                  ? t('clarificationPlaceholder')
+                  : t('inputPlaceholder')
             }
             showSkipButton={awaitingClarification && !generatingMessage && !regeneratingId}
             questionCount={session?.questionCount || 0}

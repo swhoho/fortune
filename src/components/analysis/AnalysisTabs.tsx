@@ -6,6 +6,7 @@
  */
 
 import { motion } from 'framer-motion';
+import { useTranslations } from 'next-intl';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { AnalysisSection } from './AnalysisSection';
 import { BRAND_COLORS } from '@/lib/constants/colors';
@@ -15,17 +16,17 @@ type TabId = 'summary' | 'personality' | 'wealth' | 'love' | 'career' | 'health'
 
 interface TabConfig {
   id: TabId;
-  label: string;
+  labelKey: string;
   emoji: string;
 }
 
 const TABS: TabConfig[] = [
-  { id: 'summary', label: '총운', emoji: '🔮' },
-  { id: 'personality', label: '성격', emoji: '🧠' },
-  { id: 'wealth', label: '재물', emoji: '💰' },
-  { id: 'love', label: '사랑', emoji: '❤️' },
-  { id: 'career', label: '직장', emoji: '💼' },
-  { id: 'health', label: '건강', emoji: '🏥' },
+  { id: 'summary', labelKey: 'summary', emoji: '🔮' },
+  { id: 'personality', labelKey: 'personality', emoji: '🧠' },
+  { id: 'wealth', labelKey: 'wealth', emoji: '💰' },
+  { id: 'love', labelKey: 'love', emoji: '❤️' },
+  { id: 'career', labelKey: 'career', emoji: '💼' },
+  { id: 'health', labelKey: 'health', emoji: '🏥' },
 ];
 
 interface AnalysisTabsProps {
@@ -34,6 +35,8 @@ interface AnalysisTabsProps {
 }
 
 export function AnalysisTabs({ result }: AnalysisTabsProps) {
+  const t = useTranslations('analysis.tabs');
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -52,7 +55,7 @@ export function AnalysisTabs({ result }: AnalysisTabsProps) {
                 className="flex-shrink-0 rounded-none border-b-2 border-transparent px-4 py-3 text-sm font-medium text-gray-500 transition-colors hover:text-gray-900 data-[state=active]:border-[#d4af37] data-[state=active]:text-[#d4af37]"
               >
                 <span className="mr-1.5">{tab.emoji}</span>
-                {tab.label}
+                {t(tab.labelKey)}
               </TabsTrigger>
             ))}
           </TabsList>
@@ -62,11 +65,11 @@ export function AnalysisTabs({ result }: AnalysisTabsProps) {
         <div className="p-6">
           {/* 총운 */}
           <TabsContent value="summary" className="mt-0">
-            <AnalysisSection title="종합 운세" content={result.summary} />
+            <AnalysisSection title={t('overallFortune')} content={result.summary} />
             {/* 고전 인용 */}
             {result.classical_references && result.classical_references.length > 0 && (
               <div className="mt-6 space-y-4">
-                <h4 className="font-serif text-lg font-semibold text-gray-900">고전 해석</h4>
+                <h4 className="font-serif text-lg font-semibold text-gray-900">{t('classicalInterpretation')}</h4>
                 {result.classical_references.map((ref, index) => (
                   <div key={index} className="rounded-lg border border-gray-200 bg-gray-50 p-4">
                     <p className="text-xs font-medium text-gray-500">{ref.source}</p>

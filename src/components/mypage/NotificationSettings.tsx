@@ -5,6 +5,7 @@
  * PRD Task 17.3 - 이메일 알림 On/Off, 신년 사주 리마인더
  */
 import { motion } from 'framer-motion';
+import { useTranslations } from 'next-intl';
 import { Switch } from '@/components/ui/switch';
 import { useUserProfile, useUpdateProfile } from '@/hooks/use-user';
 import { toast } from 'sonner';
@@ -12,16 +13,16 @@ import { toast } from 'sonner';
 /** 알림 설정 항목 */
 interface NotificationItem {
   id: 'emailNotificationsEnabled' | 'yearlyReminderEnabled';
-  title: string;
-  description: string;
+  titleKey: 'emailNotifications' | 'yearlyReminder';
+  descriptionKey: 'emailNotificationsDescription' | 'yearlyReminderDescription';
   icon: React.ReactNode;
 }
 
 const NOTIFICATION_ITEMS: NotificationItem[] = [
   {
     id: 'emailNotificationsEnabled',
-    title: '이메일 알림',
-    description: '서비스 업데이트, 이벤트 소식을 이메일로 받아보세요',
+    titleKey: 'emailNotifications',
+    descriptionKey: 'emailNotificationsDescription',
     icon: (
       <svg
         className="h-6 w-6"
@@ -40,8 +41,8 @@ const NOTIFICATION_ITEMS: NotificationItem[] = [
   },
   {
     id: 'yearlyReminderEnabled',
-    title: '신년 사주 리마인더',
-    description: '매년 새해가 되면 신년 사주 분석을 알려드려요',
+    titleKey: 'yearlyReminder',
+    descriptionKey: 'yearlyReminderDescription',
     icon: (
       <svg
         className="h-6 w-6"
@@ -83,6 +84,7 @@ function LoadingSkeleton() {
 }
 
 export function NotificationSettings() {
+  const t = useTranslations('mypage.notificationSettings');
   const { data: profile, isLoading } = useUserProfile();
   const updateProfile = useUpdateProfile();
 
@@ -92,9 +94,9 @@ export function NotificationSettings() {
   ) => {
     try {
       await updateProfile.mutateAsync({ [id]: newValue });
-      toast.success('알림 설정이 변경되었습니다');
+      toast.success(t('success'));
     } catch {
-      toast.error('설정 변경에 실패했습니다');
+      toast.error(t('error'));
     }
   };
 
@@ -106,8 +108,8 @@ export function NotificationSettings() {
           animate={{ opacity: 1, y: 0 }}
           className="mb-6"
         >
-          <h2 className="font-serif text-xl font-bold text-white">알림 설정</h2>
-          <p className="mt-1 text-sm text-gray-400">이메일 알림 및 리마인더를 관리하세요</p>
+          <h2 className="font-serif text-xl font-bold text-white">{t('title')}</h2>
+          <p className="mt-1 text-sm text-gray-400">{t('subtitle')}</p>
         </motion.div>
         <LoadingSkeleton />
       </div>
@@ -118,8 +120,8 @@ export function NotificationSettings() {
     <div>
       {/* 헤더 */}
       <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="mb-6">
-        <h2 className="font-serif text-xl font-bold text-white">알림 설정</h2>
-        <p className="mt-1 text-sm text-gray-400">이메일 알림 및 리마인더를 관리하세요</p>
+        <h2 className="font-serif text-xl font-bold text-white">{t('title')}</h2>
+        <p className="mt-1 text-sm text-gray-400">{t('subtitle')}</p>
       </motion.div>
 
       {/* 알림 설정 목록 */}
@@ -143,8 +145,8 @@ export function NotificationSettings() {
                 </div>
                 {/* 텍스트 */}
                 <div>
-                  <h3 className="font-medium text-white">{item.title}</h3>
-                  <p className="text-sm text-gray-400">{item.description}</p>
+                  <h3 className="font-medium text-white">{t(item.titleKey)}</h3>
+                  <p className="text-sm text-gray-400">{t(item.descriptionKey)}</p>
                 </div>
               </div>
               {/* 토글 */}
@@ -182,10 +184,9 @@ export function NotificationSettings() {
             </svg>
           </div>
           <div>
-            <h4 className="font-medium text-white">알림 수신 동의</h4>
+            <h4 className="font-medium text-white">{t('infoTitle')}</h4>
             <p className="mt-1 text-sm text-gray-400">
-              이메일 알림은 언제든 해제할 수 있으며, 중요한 서비스 공지는 알림 설정과 관계없이
-              발송될 수 있습니다.
+              {t('infoDescription')}
             </p>
           </div>
         </div>

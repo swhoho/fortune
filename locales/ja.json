@@ -837,7 +837,10 @@
       "monthPlaceholder": "月",
       "dayPlaceholder": "日",
       "hourPlaceholder": "時",
-      "minutePlaceholder": "分"
+      "hourPlaceholder12": "時 (1-12)",
+      "minutePlaceholder": "分",
+      "am": "午前",
+      "pm": "午後"
     },
     "validation": {
       "nameRequired": "名前を入力してください",

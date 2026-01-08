@@ -7,6 +7,7 @@
 import { motion } from 'framer-motion';
 import Link from 'next/link';
 import { Crisp } from 'crisp-sdk-web';
+import { useTranslations } from 'next-intl';
 import { cn } from '@/lib/utils';
 import type { UserProfile } from '@/hooks/use-user';
 
@@ -16,7 +17,7 @@ export type MypageTab = 'analysis' | 'credits' | 'questions' | 'notifications' |
 /** 탭 메뉴 아이템 */
 interface TabMenuItem {
   id: MypageTab;
-  label: string;
+  labelKey: string;
   icon: React.ReactNode;
 }
 
@@ -24,7 +25,7 @@ interface TabMenuItem {
 const TAB_MENU: TabMenuItem[] = [
   {
     id: 'analysis',
-    label: '분석 기록',
+    labelKey: 'analysis',
     icon: (
       <svg
         className="h-5 w-5"
@@ -43,7 +44,7 @@ const TAB_MENU: TabMenuItem[] = [
   },
   {
     id: 'credits',
-    label: '크레딧 기록',
+    labelKey: 'credits',
     icon: (
       <svg
         className="h-5 w-5"
@@ -62,7 +63,7 @@ const TAB_MENU: TabMenuItem[] = [
   },
   {
     id: 'questions',
-    label: '질문 기록',
+    labelKey: 'questions',
     icon: (
       <svg
         className="h-5 w-5"
@@ -81,7 +82,7 @@ const TAB_MENU: TabMenuItem[] = [
   },
   {
     id: 'notifications',
-    label: '알림 설정',
+    labelKey: 'notifications',
     icon: (
       <svg
         className="h-5 w-5"
@@ -100,7 +101,7 @@ const TAB_MENU: TabMenuItem[] = [
   },
   {
     id: 'settings',
-    label: '프로필 설정',
+    labelKey: 'settings',
     icon: (
       <svg
         className="h-5 w-5"
@@ -127,6 +128,9 @@ interface MypageSidebarProps {
 }
 
 export function MypageSidebar({ profile, activeTab, onTabChange }: MypageSidebarProps) {
+  const t = useTranslations('mypage');
+  const tNav = useTranslations('nav');
+
   return (
     <aside className="w-full shrink-0 md:w-64">
       {/* 프로필 카드 - 다크 테마 */}
@@ -146,7 +150,7 @@ export function MypageSidebar({ profile, activeTab, onTabChange }: MypageSidebar
           </div>
           <div className="min-w-0 flex-1">
             <p className="truncate font-serif text-lg font-semibold text-white">
-              {profile?.name || '사용자'}
+              {profile?.name || t('profile.user')}
             </p>
             <p className="truncate text-sm text-gray-400">{profile?.email}</p>
           </div>
@@ -154,7 +158,7 @@ export function MypageSidebar({ profile, activeTab, onTabChange }: MypageSidebar
 
         {/* 크레딧 표시 */}
         <div className="relative flex items-center justify-between rounded-xl bg-[#242424] px-4 py-3">
-          <span className="text-sm text-gray-400">보유 크레딧</span>
+          <span className="text-sm text-gray-400">{t('profile.credits')}</span>
           <div className="flex items-baseline gap-1">
             <span className="font-serif text-2xl font-bold text-[#d4af37]">
               {profile?.credits || 0}
@@ -177,7 +181,7 @@ export function MypageSidebar({ profile, activeTab, onTabChange }: MypageSidebar
           >
             <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
           </svg>
-          크레딧 충전
+          {t('profile.chargeCredits')}
         </Link>
       </motion.div>
 
@@ -214,7 +218,7 @@ export function MypageSidebar({ profile, activeTab, onTabChange }: MypageSidebar
                 >
                   {item.icon}
                 </span>
-                <span className="font-medium">{item.label}</span>
+                <span className="font-medium">{t(`sidebar.${item.labelKey}`)}</span>
                 {activeTab === item.id && (
                   <motion.div
                     layoutId="activeTab"
@@ -251,7 +255,7 @@ export function MypageSidebar({ profile, activeTab, onTabChange }: MypageSidebar
                   />
                 </svg>
               </span>
-              <span className="font-medium">프로필 관리</span>
+              <span className="font-medium">{t('sidebar.profiles')}</span>
               <svg
                 className="ml-auto h-4 w-4 text-gray-500"
                 fill="none"
@@ -291,8 +295,8 @@ export function MypageSidebar({ profile, activeTab, onTabChange }: MypageSidebar
                   />
                 </svg>
               </span>
-              <span className="font-medium">고객센터</span>
-              <span className="ml-auto text-xs text-gray-500">채팅 상담</span>
+              <span className="font-medium">{t('sidebar.customerService')}</span>
+              <span className="ml-auto text-xs text-gray-500">{t('sidebar.chatSupport')}</span>
             </button>
           </motion.li>
 
@@ -326,7 +330,7 @@ export function MypageSidebar({ profile, activeTab, onTabChange }: MypageSidebar
                   />
                 </svg>
               </span>
-              <span className="font-medium">로그아웃</span>
+              <span className="font-medium">{tNav('logout')}</span>
             </button>
           </motion.li>
         </ul>
@@ -338,10 +342,8 @@ export function MypageSidebar({ profile, activeTab, onTabChange }: MypageSidebar
           transition={{ delay: 0.5 }}
           className="mt-4 px-4 py-3 text-center"
         >
-          <p className="text-xs leading-relaxed text-gray-500">
-            우측 하단 고객센터 메신저를 통해
-            <br />
-            연락해보세요
+          <p className="whitespace-pre-line text-xs leading-relaxed text-gray-500">
+            {t('sidebar.contactHint')}
           </p>
         </motion.div>
       </motion.nav>

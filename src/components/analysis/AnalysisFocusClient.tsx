@@ -7,38 +7,27 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { useRouter } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import { Button } from '@/components/ui/button';
 import { useOnboardingStore } from '@/stores/onboarding-store';
-import { FocusArea, FocusAreaLabel } from '@/types/saju';
+import { FocusArea } from '@/types/saju';
 
-/** 분석 영역별 상세 정보 */
-const focusAreaDetails: Record<FocusArea, { icon: string; description: string }> = {
-  wealth: {
-    icon: '💰',
-    description: '재물운과 사업운을 집중 분석합니다',
-  },
-  love: {
-    icon: '❤️',
-    description: '연애운과 관계운을 분석합니다',
-  },
-  career: {
-    icon: '💼',
-    description: '직장운과 승진운을 분석합니다',
-  },
-  health: {
-    icon: '🏥',
-    description: '건강운과 수명을 분석합니다',
-  },
-  overall: {
-    icon: '🌟',
-    description: '모든 분야를 종합적으로 분석합니다',
-  },
+/** 분석 영역별 아이콘 */
+const focusAreaIcons: Record<FocusArea, string> = {
+  wealth: '💰',
+  love: '❤️',
+  career: '💼',
+  health: '🏥',
+  overall: '🌟',
 };
 
 export function AnalysisFocusClient() {
   const router = useRouter();
   const { setFocusArea, setStep } = useOnboardingStore();
   const [selected, setSelected] = useState<FocusArea | null>(null);
+  const t = useTranslations('analysis');
+  const tFocusArea = useTranslations('focusArea');
+  const tFocusAreaDesc = useTranslations('focusAreaDescription');
 
   const handleSelect = (area: FocusArea) => {
     setSelected(area);
@@ -51,10 +40,7 @@ export function AnalysisFocusClient() {
     router.push('/analysis/question');
   };
 
-  const focusAreas = Object.entries(focusAreaDetails) as [
-    FocusArea,
-    { icon: string; description: string },
-  ][];
+  const focusAreas: FocusArea[] = ['wealth', 'love', 'career', 'health', 'overall'];
 
   return (
     <div className="flex min-h-screen flex-col items-center justify-center px-6 py-24">
@@ -63,7 +49,7 @@ export function AnalysisFocusClient() {
         <div className="mx-auto max-w-md">
           <div className="flex items-center justify-between text-sm text-gray-500">
             <span>Step 1/3</span>
-            <span>분석 영역 선택</span>
+            <span>{t('focus.title')}</span>
           </div>
           <div className="mt-2 h-2 w-full overflow-hidden rounded-full bg-gray-200">
             <motion.div
@@ -84,18 +70,16 @@ export function AnalysisFocusClient() {
         className="w-full max-w-2xl"
       >
         {/* 타이틀 */}
-        <h2 className="mb-2 text-center font-serif text-2xl font-bold text-[#1a1a1a] md:text-3xl">
-          어떤 분야를 집중적으로
-          <br />
-          알고 싶으신가요?
+        <h2 className="mb-2 whitespace-pre-line text-center font-serif text-2xl font-bold text-[#1a1a1a] md:text-3xl">
+          {t('focus.headline')}
         </h2>
         <p className="mb-8 text-center text-gray-500">
-          선택한 분야에 맞춰 더 깊은 분석을 제공합니다
+          {t('focus.subheadline')}
         </p>
 
         {/* 분석 영역 카드 */}
         <div className="mb-8 grid gap-4 md:grid-cols-2">
-          {focusAreas.slice(0, 4).map(([area, detail], index) => (
+          {focusAreas.slice(0, 4).map((area, index) => (
             <motion.button
               key={area}
               initial={{ opacity: 0, y: 20 }}
@@ -108,9 +92,9 @@ export function AnalysisFocusClient() {
                   : 'border-gray-200 bg-white hover:border-[#d4af37]/50'
               }`}
             >
-              <span className="mb-3 block text-4xl">{detail.icon}</span>
-              <h3 className="mb-1 text-lg font-semibold text-[#1a1a1a]">{FocusAreaLabel[area]}</h3>
-              <p className="text-sm text-gray-500">{detail.description}</p>
+              <span className="mb-3 block text-4xl">{focusAreaIcons[area]}</span>
+              <h3 className="mb-1 text-lg font-semibold text-[#1a1a1a]">{tFocusArea(area)}</h3>
+              <p className="text-sm text-gray-500">{tFocusAreaDesc(area)}</p>
               {selected === area && (
                 <motion.div
                   initial={{ scale: 0 }}
@@ -118,7 +102,7 @@ export function AnalysisFocusClient() {
                   className="mt-3 flex items-center gap-1 text-sm font-medium text-[#d4af37]"
                 >
                   <span>✓</span>
-                  <span>선택됨</span>
+                  <span>{t('focus.selected')}</span>
                 </motion.div>
               )}
             </motion.button>
@@ -138,12 +122,12 @@ export function AnalysisFocusClient() {
           }`}
         >
           <div className="flex items-center gap-4">
-            <span className="text-4xl">{focusAreaDetails.overall.icon}</span>
+            <span className="text-4xl">{focusAreaIcons.overall}</span>
             <div className="flex-1">
               <h3 className="mb-1 text-lg font-semibold text-[#1a1a1a]">
-                {FocusAreaLabel.overall}
+                {tFocusArea('overall')}
               </h3>
-              <p className="text-sm text-gray-500">{focusAreaDetails.overall.description}</p>
+              <p className="text-sm text-gray-500">{tFocusAreaDesc('overall')}</p>
             </div>
             {selected === 'overall' && (
               <motion.div
@@ -152,12 +136,12 @@ export function AnalysisFocusClient() {
                 className="flex items-center gap-1 text-sm font-medium text-[#d4af37]"
               >
                 <span>✓</span>
-                <span>선택됨</span>
+                <span>{t('focus.selected')}</span>
               </motion.div>
             )}
           </div>
           <p className="mt-3 text-xs text-gray-400">
-            평생 총운, 성격, 재물, 연애, 건강, 10년 대운 흐름 포함
+            {t('focus.overallNote')}
           </p>
         </motion.button>
 
@@ -174,12 +158,12 @@ export function AnalysisFocusClient() {
             size="lg"
             className="w-full max-w-md bg-gradient-to-r from-[#d4af37] to-[#c19a2e] py-6 text-lg font-semibold text-white shadow-lg transition-all hover:scale-[1.02] hover:shadow-xl disabled:opacity-50 disabled:hover:scale-100"
           >
-            다음: 고민 입력하기
+            {t('focus.nextButton')}
           </Button>
           {selected && (
             <p className="mt-4 text-center text-sm text-gray-400">
-              선택한 분야:{' '}
-              <span className="font-medium text-[#d4af37]">{FocusAreaLabel[selected]}</span>
+              {t('focus.selectedArea')}:{' '}
+              <span className="font-medium text-[#d4af37]">{tFocusArea(selected)}</span>
             </p>
           )}
         </motion.div>

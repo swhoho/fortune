@@ -6,6 +6,7 @@
  */
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
+import { useTranslations } from 'next-intl';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
@@ -52,6 +53,8 @@ function LoadingSkeleton() {
 }
 
 export function ProfileSettings() {
+  const t = useTranslations('mypage.profileSettings');
+  const tProfile = useTranslations('mypage.profile');
   const { data: profile, isLoading } = useUserProfile();
   const updateProfile = useUpdateProfile();
 
@@ -82,10 +85,10 @@ export function ProfileSettings() {
         name: name || undefined,
         preferredLanguage,
       });
-      toast.success('프로필이 저장되었습니다');
+      toast.success(t('success'));
       setHasChanges(false);
     } catch {
-      toast.error('프로필 저장에 실패했습니다');
+      toast.error(t('error'));
     }
   };
 
@@ -104,8 +107,8 @@ export function ProfileSettings() {
           animate={{ opacity: 1, y: 0 }}
           className="mb-6"
         >
-          <h2 className="font-serif text-xl font-bold text-white">프로필 설정</h2>
-          <p className="mt-1 text-sm text-gray-400">계정 정보를 관리하세요</p>
+          <h2 className="font-serif text-xl font-bold text-white">{t('title')}</h2>
+          <p className="mt-1 text-sm text-gray-400">{t('subtitle')}</p>
         </motion.div>
         <LoadingSkeleton />
       </div>
@@ -116,8 +119,8 @@ export function ProfileSettings() {
     <div>
       {/* 헤더 */}
       <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="mb-6">
-        <h2 className="font-serif text-xl font-bold text-white">프로필 설정</h2>
-        <p className="mt-1 text-sm text-gray-400">계정 정보를 관리하세요</p>
+        <h2 className="font-serif text-xl font-bold text-white">{t('title')}</h2>
+        <p className="mt-1 text-sm text-gray-400">{t('subtitle')}</p>
       </motion.div>
 
       {/* 프로필 카드 */}
@@ -138,11 +141,11 @@ export function ProfileSettings() {
             </div>
             <div>
               <p className="font-serif text-lg font-semibold text-white">
-                {name || profile?.email?.split('@')[0] || '사용자'}
+                {name || profile?.email?.split('@')[0] || tProfile('user')}
               </p>
               <p className="text-sm text-gray-400">{profile?.email}</p>
               <p className="mt-1 text-xs text-gray-500">
-                가입일: {profile?.createdAt ? formatDate(profile.createdAt) : '-'}
+                {t('joinedAt')}: {profile?.createdAt ? formatDate(profile.createdAt) : '-'}
               </p>
             </div>
           </div>
@@ -153,21 +156,21 @@ export function ProfileSettings() {
           {/* 이름 입력 */}
           <div className="space-y-2">
             <Label htmlFor="name" className="text-sm font-medium text-gray-300">
-              이름 (선택)
+              {t('nameOptional')}
             </Label>
             <Input
               id="name"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              placeholder="이름을 입력하세요"
+              placeholder={t('namePlaceholder')}
               className="h-12 rounded-xl border-[#333] bg-[#2a2a2a] text-white transition-all placeholder:text-gray-500 focus:border-[#d4af37] focus:ring-[#d4af37]/20"
             />
-            <p className="text-xs text-gray-500">이름은 마이페이지에서만 표시됩니다</p>
+            <p className="text-xs text-gray-500">{t('nameHint')}</p>
           </div>
 
           {/* 언어 선택 */}
           <div className="space-y-2">
-            <Label className="text-sm font-medium text-gray-300">선호 언어</Label>
+            <Label className="text-sm font-medium text-gray-300">{t('preferredLanguage')}</Label>
             <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
               {LANGUAGES.map((lang) => (
                 <button
@@ -184,16 +187,16 @@ export function ProfileSettings() {
                 </button>
               ))}
             </div>
-            <p className="text-xs text-gray-500">분석 결과 및 AI 응답에 적용됩니다</p>
+            <p className="text-xs text-gray-500">{t('languageHint')}</p>
           </div>
 
           {/* 이메일 (읽기 전용) */}
           <div className="space-y-2">
-            <Label className="text-sm font-medium text-gray-300">이메일</Label>
+            <Label className="text-sm font-medium text-gray-300">{t('email')}</Label>
             <div className="flex h-12 items-center rounded-xl border border-[#333] bg-[#242424] px-4 text-gray-400">
               {profile?.email}
             </div>
-            <p className="text-xs text-gray-500">이메일은 변경할 수 없습니다</p>
+            <p className="text-xs text-gray-500">{t('emailHint')}</p>
           </div>
         </div>
 
@@ -206,7 +209,7 @@ export function ProfileSettings() {
           >
             <div className="flex items-center justify-end gap-3">
               <Button variant="outline" onClick={handleReset} disabled={updateProfile.isPending}>
-                취소
+                {t('cancel')}
               </Button>
               <Button
                 onClick={handleSave}
@@ -231,10 +234,10 @@ export function ProfileSettings() {
                         d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
                       />
                     </svg>
-                    저장 중...
+                    {t('saving')}
                   </span>
                 ) : (
-                  '변경사항 저장'
+                  t('saveChanges')
                 )}
               </Button>
             </div>
@@ -249,18 +252,18 @@ export function ProfileSettings() {
         transition={{ delay: 0.1 }}
         className="mt-6 rounded-2xl border border-[#333] bg-[#1a1a1a] p-6 shadow-sm"
       >
-        <h3 className="mb-4 font-medium text-white">계정 정보</h3>
+        <h3 className="mb-4 font-medium text-white">{t('accountInfo')}</h3>
         <div className="space-y-3">
           <div className="flex justify-between text-sm">
-            <span className="text-gray-400">계정 ID</span>
+            <span className="text-gray-400">{t('accountId')}</span>
             <span className="font-mono text-gray-300">{profile?.id?.slice(0, 12)}...</span>
           </div>
           <div className="flex justify-between text-sm">
-            <span className="text-gray-400">보유 크레딧</span>
+            <span className="text-gray-400">{t('credits')}</span>
             <span className="font-medium text-[#d4af37]">{profile?.credits || 0}C</span>
           </div>
           <div className="flex justify-between text-sm">
-            <span className="text-gray-400">가입일</span>
+            <span className="text-gray-400">{t('joinedAt')}</span>
             <span className="text-gray-300">
               {profile?.createdAt ? formatDate(profile.createdAt) : '-'}
             </span>
@@ -275,16 +278,16 @@ export function ProfileSettings() {
         transition={{ delay: 0.2 }}
         className="mt-6 rounded-2xl border border-red-900/50 bg-red-950/30 p-6"
       >
-        <h3 className="mb-2 font-medium text-red-400">위험 영역</h3>
+        <h3 className="mb-2 font-medium text-red-400">{t('dangerZone')}</h3>
         <p className="mb-4 text-sm text-red-400/80">
-          계정 삭제는 되돌릴 수 없으며, 모든 데이터가 영구적으로 삭제됩니다.
+          {t('dangerZoneDescription')}
         </p>
         <Button
           variant="outline"
           className="border-red-900/50 text-red-400 hover:bg-red-950/50"
           disabled
         >
-          계정 삭제 (준비 중)
+          {t('deleteAccount')} ({t('deleteAccountPending')})
         </Button>
       </motion.div>
     </div>

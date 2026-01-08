@@ -8,9 +8,10 @@
 import { motion, AnimatePresence } from 'framer-motion';
 import { useEffect, useState } from 'react';
 import { CheckCircle2, Circle, Loader2 } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import { Button } from '@/components/ui/button';
 import { FORTUNE_TIPS, BRAND_COLORS } from '@/lib/constants/colors';
-import { LoadingStep, LoadingStepLabel } from '@/types/saju';
+import { LoadingStep } from '@/types/saju';
 
 /** 한자 천간 목록 (회전 애니메이션용) */
 const HANJA_CHARS = ['甲', '乙', '丙', '丁', '戊', '己', '庚', '辛', '壬', '癸'];
@@ -52,6 +53,9 @@ function getStepStatus(
 }
 
 export function ProcessingScreen({ currentStep, error, onRetry }: ProcessingScreenProps) {
+  const t = useTranslations('analysis');
+  const tPipeline = useTranslations('pipeline');
+  const tCommon = useTranslations('common');
   const [currentTipIndex, setCurrentTipIndex] = useState(0);
 
   // 팁 로테이션 (5초)
@@ -72,7 +76,7 @@ export function ProcessingScreen({ currentStep, error, onRetry }: ProcessingScre
               ⚠️
             </span>
           </div>
-          <h2 className="mb-2 text-xl font-semibold text-gray-900">분석 중 오류가 발생했습니다</h2>
+          <h2 className="mb-2 text-xl font-semibold text-gray-900">{t('processing.error')}</h2>
           <p className="mb-6 text-gray-500">{error}</p>
           {onRetry && (
             <Button
@@ -80,7 +84,7 @@ export function ProcessingScreen({ currentStep, error, onRetry }: ProcessingScre
               style={{ backgroundColor: BRAND_COLORS.primary }}
               className="text-black hover:opacity-90"
             >
-              다시 시도
+              {tCommon('retry')}
             </Button>
           )}
         </div>
@@ -123,7 +127,7 @@ export function ProcessingScreen({ currentStep, error, onRetry }: ProcessingScre
         animate={{ opacity: 1, y: 0 }}
         className="mb-8 text-center text-xl font-semibold text-gray-900"
       >
-        당신의 사주를 분석하고 있습니다...
+        {t('processing.analyzing')}
       </motion.h2>
 
       {/* 진행 단계 */}
@@ -156,8 +160,8 @@ export function ProcessingScreen({ currentStep, error, onRetry }: ProcessingScre
                 }`}
                 style={status === 'in_progress' ? { color: BRAND_COLORS.primary } : undefined}
               >
-                {LoadingStepLabel[step]}
-                {status === 'completed' && ' 완료'}
+                {tPipeline(`steps.${step}`)}
+                {status === 'completed' && ` ${t('processing.completed')}`}
                 {status === 'in_progress' && '...'}
               </span>
             </motion.div>
@@ -188,7 +192,7 @@ export function ProcessingScreen({ currentStep, error, onRetry }: ProcessingScre
 
       {/* 명리학 팁 */}
       <div className="w-full max-w-md text-center">
-        <p className="mb-2 text-xs text-gray-400">알고 계셨나요?</p>
+        <p className="mb-2 text-xs text-gray-400">{tPipeline('tip')}</p>
         <AnimatePresence mode="wait">
           <motion.p
             key={currentTipIndex}
