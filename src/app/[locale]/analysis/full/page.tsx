@@ -110,7 +110,7 @@ export default function FullAnalysisPage() {
               </p>
               <p className="mt-1 text-sm text-gray-400">
                 {t('fullAnalysis.creditInfo', {
-                  defaultValue: '전체 사주 분석에는 50 크레딧이 필요합니다',
+                  defaultValue: '전체 사주 분석에는 70 크레딧이 필요합니다',
                 })}
               </p>
             </div>
