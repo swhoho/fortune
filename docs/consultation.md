@@ -88,7 +88,8 @@ def build_answer_prompt(
     session_history: Optional[List[Dict[str, str]]] = None,
     clarification_response: Optional[str] = None,
     language: str = "ko",
-    today: Optional[str] = None
+    today: Optional[str] = None,
+    yearly_summary: Optional[dict] = None
 ) -> str
 ```
 
@@ -103,6 +104,7 @@ def build_answer_prompt(
 | `session_history` | List | 이전 대화 기록 (선택) |
 | `clarification_response` | str | 사용자 추가 정보 (선택) |
 | `today` | str | 오늘 날짜 YYYY-MM-DD |
+| `yearly_summary` | dict | 신년 운세 요약 (선택) |
 
 ### 응답 가이드라인
 
@@ -240,6 +242,35 @@ try { ... } catch { setAwaitingClarification(true); }
 
 ---
 
+## 신년분석 연동 (v1.38)
+
+상담 시 사용자의 신년분석 요약이 자동으로 포함됩니다.
+
+### 데이터 조회 로직
+```python
+# consultation_service.py - _get_report_data()
+yearly_result = supabase.table('yearly_analyses').select(
+    'target_year, overview'
+).eq('profile_id', profile_id).eq(
+    'status', 'completed'
+).order('target_year', desc=True).limit(1).execute()
+```
+
+### 프롬프트 포함 형식
+```
+2025년 신년 운세 요약:
+[overview.summary 내용]
+```
+
+### 처리 규칙
+| 상황 | 처리 |
+|------|------|
+| 신년분석 없음 | 프롬프트에 포함 안함 (기존 동작 유지) |
+| 여러 연도 존재 | 최신 연도만 사용 |
+| status != completed | 제외 |
+
+---
+
 ## 관련 문서
 
 - [fortune_engine.md](./fortune_engine.md) - 만세력 엔진, 점수 시스템
@@ -248,4 +279,4 @@ try { ... } catch { setAwaitingClarification(true); }
 
 ---
 
-**최종 수정**: 2026-01-07 (v1.32 중복 요청 방지 3계층 방어)
+**최종 수정**: 2026-01-08 (v1.38 신년분석 요약 연동)

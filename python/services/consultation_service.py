@@ -121,15 +121,36 @@ class ConsultationService:
             }).eq('id', message_id).eq('status', 'generating').execute()
 
     def _get_report_data(self, supabase: Client, report_id: str) -> dict:
-        """리포트 데이터 조회"""
+        """리포트 데이터 조회 (신년분석 요약 포함)"""
+        # 1. profile_reports 조회 (profile_id 추가)
         result = supabase.table('profile_reports').select(
-            'pillars, daewun, analysis'
+            'profile_id, pillars, daewun, analysis'
         ).eq('id', report_id).single().execute()
 
         if not result.data:
             raise ValueError("사주 분석 데이터를 불러올 수 없습니다")
 
-        return result.data
+        report_data = result.data
+
+        # 2. 신년분석 요약 조회 (없으면 생략)
+        profile_id = report_data.get('profile_id')
+        if profile_id:
+            yearly_result = supabase.table('yearly_analyses').select(
+                'target_year, overview'
+            ).eq('profile_id', profile_id).eq(
+                'status', 'completed'
+            ).order('target_year', desc=True).limit(1).execute()
+
+            if yearly_result.data:
+                yearly = yearly_result.data[0]
+                overview = yearly.get('overview') or {}
+                if overview.get('summary'):
+                    report_data['yearly_summary'] = {
+                        'year': yearly.get('target_year'),
+                        'summary': overview.get('summary')
+                    }
+
+        return report_data
 
     def _get_session_history(
         self,
@@ -251,6 +272,9 @@ class ConsultationService:
             if original_question:
                 user_content = original_question
 
+        # 신년분석 요약 추출
+        yearly_summary = report.get('yearly_summary')
+
         answer_prompt = build_answer_prompt(
             question=user_content,
             pillars=pillars,
@@ -260,6 +284,7 @@ class ConsultationService:
             clarification_response=clarification_response,
             language=language,
             today=datetime.now().strftime('%Y-%m-%d'),
+            yearly_summary=yearly_summary,
         )
 
         # v2.7: 에러 피드백 추가 (재시도 시)

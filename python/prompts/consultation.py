@@ -204,7 +204,8 @@ def build_answer_prompt(
     session_history: Optional[List[Dict[str, str]]] = None,
     clarification_response: Optional[str] = None,
     language: str = "ko",
-    today: Optional[str] = None
+    today: Optional[str] = None,
+    yearly_summary: Optional[dict] = None
 ) -> str:
     """
     최종 답변 프롬프트
@@ -267,6 +268,22 @@ def build_answer_prompt(
     today_info_ja = f"本日の日付: {today}" if today else ""
     today_info_zh = f"今日日期: {today}" if today else ""
 
+    # 신년분석 요약 포맷 (5개 언어)
+    yearly_info = ""
+    yearly_info_en = ""
+    yearly_info_ja = ""
+    yearly_info_zh_cn = ""
+    yearly_info_zh_tw = ""
+
+    if yearly_summary and yearly_summary.get('summary'):
+        year = yearly_summary.get('year', '')
+        summary = yearly_summary.get('summary', '')
+        yearly_info = f"\n{year}년 신년 운세 요약:\n{summary}"
+        yearly_info_en = f"\n{year} New Year Fortune Summary:\n{summary}"
+        yearly_info_ja = f"\n{year}年 新年運勢の要約:\n{summary}"
+        yearly_info_zh_cn = f"\n{year}年新年运势摘要:\n{summary}"
+        yearly_info_zh_tw = f"\n{year}年新年運勢摘要:\n{summary}"
+
     prompts = {
         "ko": f"""당신은 30년 경력의 명리학 전문가입니다.
 사용자의 사주를 바탕으로 상담 요청에 답변해주세요.
@@ -275,7 +292,7 @@ def build_answer_prompt(
 {today_info}
 {pillars_info}
 {daewun_info}
-{f"분석 요약: {analysis_summary}" if analysis_summary else ""}
+{f"분석 요약: {analysis_summary}" if analysis_summary else ""}{yearly_info}
 {history_info}
 
 ## 상담 요청
@@ -308,7 +325,7 @@ Please respond to the consultation request based on the user's Four Pillars char
 {today_info_en}
 {pillars_info}
 {daewun_info}
-{f"Analysis Summary: {analysis_summary}" if analysis_summary else ""}
+{f"Analysis Summary: {analysis_summary}" if analysis_summary else ""}{yearly_info_en}
 {history_info}
 
 ## Consultation Request
@@ -341,7 +358,7 @@ Write only the answer (no JSON format needed).""",
 {today_info_ja}
 {pillars_info}
 {daewun_info}
-{f"分析要約: {analysis_summary}" if analysis_summary else ""}
+{f"分析要約: {analysis_summary}" if analysis_summary else ""}{yearly_info_ja}
 {history_info}
 
 ## 相談内容
@@ -374,7 +391,7 @@ Write only the answer (no JSON format needed).""",
 {today_info_zh}
 {pillars_info}
 {daewun_info}
-{f"分析摘要: {analysis_summary}" if analysis_summary else ""}
+{f"分析摘要: {analysis_summary}" if analysis_summary else ""}{yearly_info_zh_cn}
 {history_info}
 
 ## 咨询内容
@@ -407,7 +424,7 @@ Write only the answer (no JSON format needed).""",
 {today_info_zh}
 {pillars_info}
 {daewun_info}
-{f"分析摘要: {analysis_summary}" if analysis_summary else ""}
+{f"分析摘要: {analysis_summary}" if analysis_summary else ""}{yearly_info_zh_tw}
 {history_info}
 
 ## 諮詢內容
