@@ -45,10 +45,7 @@ export async function POST(request: NextRequest) {
 
     // 필수 파라미터 검증
     if (!purchaseToken || !productId || !userId) {
-      return NextResponse.json(
-        { error: '필수 파라미터가 누락되었습니다' },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: '필수 파라미터가 누락되었습니다' }, { status: 400 });
     }
 
     // 크레딧 수량 확인
@@ -154,9 +151,6 @@ export async function POST(request: NextRequest) {
     });
   } catch (error) {
     console.error('Google Play 검증 오류:', error);
-    return NextResponse.json(
-      { error: '서버 오류가 발생했습니다' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: '서버 오류가 발생했습니다' }, { status: 500 });
   }
 }

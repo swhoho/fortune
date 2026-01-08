@@ -12,7 +12,7 @@ const EXAMPLES = [
   '/images/examples/example-5.png',
   '/images/examples/example-6.png',
   '/images/examples/example-7.png',
-];
+] as const;
 
 /**
  * 결제 페이지 예시 리포트 캐러셀
@@ -31,7 +31,7 @@ export function ExampleCarousel() {
       <div className="relative flex-1 overflow-hidden rounded-xl">
         {/* 원본 이미지 */}
         <Image
-          src={EXAMPLES[current]}
+          src={EXAMPLES[current]!}
           alt={`예시 리포트 ${current + 1}`}
           fill
           className="object-contain"

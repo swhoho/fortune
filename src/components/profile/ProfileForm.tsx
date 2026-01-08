@@ -60,7 +60,9 @@ export function ProfileForm({
       if (timeParts[0]) {
         const hour24 = parseInt(timeParts[0]);
         period = hour24 >= 12 ? 'PM' : 'AM';
-        hour12 = String(hour24 === 0 ? 12 : hour24 > 12 ? hour24 - 12 : hour24 === 12 ? 12 : hour24);
+        hour12 = String(
+          hour24 === 0 ? 12 : hour24 > 12 ? hour24 - 12 : hour24 === 12 ? 12 : hour24
+        );
       }
 
       return {

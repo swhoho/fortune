@@ -51,7 +51,8 @@ export function Footer() {
             </p>
             <p>주소: {BUSINESS_INFO.address}</p>
             <p>
-              사업자등록번호: {BUSINESS_INFO.businessNumber} / 통신판매업번호 {BUSINESS_INFO.sellerRegistration}
+              사업자등록번호: {BUSINESS_INFO.businessNumber} / 통신판매업번호{' '}
+              {BUSINESS_INFO.sellerRegistration}
             </p>
             <p>
               이메일: {BUSINESS_INFO.email} | 대표전화: {BUSINESS_INFO.phone}

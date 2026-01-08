@@ -59,9 +59,7 @@ export async function isBillingSupported(): Promise<boolean> {
 /**
  * Google Play 상품 정보 조회
  */
-export async function getGoogleProducts(
-  packageIds: string[]
-): Promise<
+export async function getGoogleProducts(packageIds: string[]): Promise<
   Array<{
     productId: string;
     title: string;

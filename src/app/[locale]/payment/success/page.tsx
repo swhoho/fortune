@@ -41,7 +41,7 @@ function PaymentSuccessContent() {
       }
 
       // 패키지 정보 확인
-      const selectedPackage = CREDIT_PACKAGES.find(p => p.id === packageId);
+      const selectedPackage = CREDIT_PACKAGES.find((p) => p.id === packageId);
       if (!selectedPackage) {
         setVerifyStatus('error');
         setErrorMessage('유효하지 않은 패키지입니다.');
@@ -104,8 +104,18 @@ function PaymentSuccessContent() {
     return (
       <div className="w-full max-w-md text-center">
         <div className="mx-auto mb-6 flex h-24 w-24 items-center justify-center rounded-full bg-red-500/20">
-          <svg className="h-12 w-12 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+          <svg
+            className="h-12 w-12 text-red-500"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M6 18L18 6M6 6l12 12"
+            />
           </svg>
         </div>
         <h1 className="mb-2 font-serif text-2xl font-bold text-white">결제 확인 실패</h1>
