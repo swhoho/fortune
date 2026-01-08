@@ -442,6 +442,98 @@
       "earth": "토(土)",
       "metal": "금(金)",
       "water": "수(水)"
+    },
+    "stems": {
+      "甲": { "name": "갑목", "meaning": "큰 나무의 기운. 시작과 성장, 진취적 에너지를 상징합니다." },
+      "乙": { "name": "을목", "meaning": "풀과 덩굴의 기운. 유연한 적응력과 섬세함을 상징합니다." },
+      "丙": { "name": "병화", "meaning": "태양의 기운. 밝은 열정과 활력을 상징합니다." },
+      "丁": { "name": "정화", "meaning": "촛불의 기운. 집중력과 내면의 따뜻함을 상징합니다." },
+      "戊": { "name": "무토", "meaning": "산의 기운. 안정과 신뢰, 중후함을 상징합니다." },
+      "己": { "name": "기토", "meaning": "전원의 기운. 포용력과 배려심을 상징합니다." },
+      "庚": { "name": "경금", "meaning": "바위와 쇠의 기운. 강인한 의지와 결단력을 상징합니다." },
+      "辛": { "name": "신금", "meaning": "보석의 기운. 정교함과 날카로운 통찰력을 상징합니다." },
+      "壬": { "name": "임수", "meaning": "바다의 기운. 넓은 포용력과 지혜를 상징합니다." },
+      "癸": { "name": "계수", "meaning": "이슬의 기운. 섬세한 감수성과 적응력을 상징합니다." }
+    },
+    "branches": {
+      "子": { "name": "자수", "meaning": "새로운 시작의 에너지. 기회와 가능성의 시기입니다." },
+      "丑": { "name": "축토", "meaning": "저축과 축적의 시기. 내실을 다지기 좋습니다." },
+      "寅": { "name": "인목", "meaning": "활발한 움직임의 시기. 도전과 확장에 유리합니다." },
+      "卯": { "name": "묘목", "meaning": "성장과 발전의 시기. 인연과 협력이 좋습니다." },
+      "辰": { "name": "진토", "meaning": "변화의 전환점. 새로운 국면을 맞이합니다." },
+      "巳": { "name": "사화", "meaning": "지혜와 계획의 결실. 머리를 쓰는 일에 유리합니다." },
+      "午": { "name": "오화", "meaning": "최고조의 시기. 열정과 활력이 넘칩니다." },
+      "未": { "name": "미토", "meaning": "성숙과 안정의 시기. 결실을 맺기 좋습니다." },
+      "申": { "name": "신금", "meaning": "변화와 새 시작의 시기. 결단이 필요합니다." },
+      "酉": { "name": "유금", "meaning": "수확과 결실의 시기. 노력의 대가를 받습니다." },
+      "戌": { "name": "술토", "meaning": "마무리와 정리의 시기. 한 단계를 마감합니다." },
+      "亥": { "name": "해수", "meaning": "휴식과 재충전의 시기. 다음을 준비합니다." }
+    },
+    "animals": {
+      "monkey": "원숭이",
+      "rooster": "닭",
+      "dog": "개",
+      "pig": "돼지",
+      "rat": "쥐",
+      "ox": "소",
+      "tiger": "호랑이",
+      "rabbit": "토끼",
+      "dragon": "용",
+      "snake": "뱀",
+      "horse": "말",
+      "sheep": "양"
+    },
+    "daewun": {
+      "fortuneFlow": "운세 흐름",
+      "tenYearTitle": "10년 대운",
+      "clickToExpand": "클릭하여 상세 보기",
+      "current": "현재",
+      "heavenlyStem": "천간 (天干)",
+      "earthlyBranch": "지지 (地支)",
+      "overallAdvice": "종합 조언",
+      "defaultStemMeaning": "천간의 에너지가 이 시기를 지배합니다.",
+      "defaultBranchMeaning": "지지의 기운이 이 시기를 지배합니다.",
+      "activeAdvice": "현재 흐름을 잘 활용하여 기회를 잡으세요.",
+      "defaultAdvice": "자신의 강점을 살리고 내실을 다지는 것이 좋습니다.",
+      "fallbackAdvice": "이 시기에는 균형을 유지하며 꾸준히 나아가세요."
+    },
+    "yearSelector": {
+      "yearOfAnimal": "{animal}의 해",
+      "selectedYear": "선택된 연도",
+      "recommended": "추천",
+      "thisYearFortune": "올해 운세"
+    },
+    "calendar": {
+      "title": "길흉일 캘린더",
+      "subtitle": "중요한 날들을 미리 확인하세요",
+      "luckyDays": "길일",
+      "unluckyDays": "주의일",
+      "daysCount": "({count}일)",
+      "luckyDaysOfMonth": "이달의 길일",
+      "unluckyDaysOfMonth": "이달의 주의일",
+      "days": {
+        "sun": "일",
+        "mon": "월",
+        "tue": "화",
+        "wed": "수",
+        "thu": "목",
+        "fri": "금",
+        "sat": "토"
+      },
+      "months": {
+        "1": "1월",
+        "2": "2월",
+        "3": "3월",
+        "4": "4월",
+        "5": "5월",
+        "6": "6월",
+        "7": "7월",
+        "8": "8월",
+        "9": "9월",
+        "10": "10월",
+        "11": "11월",
+        "12": "12월"
+      }
     }
   },
   "yearly": {
@@ -915,6 +1007,22 @@
   "credits": {
     "balance": "보유 크레딧",
     "required": "필요 크레딧",
+    "history": {
+      "title": "크레딧 기록",
+      "subtitle": "충전 및 사용 내역을 확인하세요",
+      "empty": "기록이 없습니다",
+      "emptyDescription": "크레딧 충전 및 사용 기록이 여기에 표시됩니다",
+      "totalCharge": "총 충전",
+      "totalUsage": "총 사용",
+      "charge": "크레딧 충전",
+      "usage": {
+        "report": "리포트 생성",
+        "session": "상담 세션",
+        "yearly": "신년 분석",
+        "reanalysis": "섹션 재분석",
+        "question": "AI 질문"
+      }
+    },
     "insufficient": {
       "title": "크레딧 부족",
       "message": "이 작업에는 {required}C가 필요하지만, 현재 {current}C를 보유하고 있습니다.",

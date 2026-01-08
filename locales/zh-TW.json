@@ -423,6 +423,98 @@
       "earth": "土",
       "metal": "金",
       "water": "水"
+    },
+    "stems": {
+      "甲": { "name": "甲木", "meaning": "大樹的能量。象徵開始、成長和進取的能量。" },
+      "乙": { "name": "乙木", "meaning": "草藤的能量。象徵靈活的適應力和細膩。" },
+      "丙": { "name": "丙火", "meaning": "太陽的能量。象徵明亮的熱情和活力。" },
+      "丁": { "name": "丁火", "meaning": "燭光的能量。象徵專注力和內心的溫暖。" },
+      "戊": { "name": "戊土", "meaning": "山的能量。象徵穩定、信任和厚重。" },
+      "己": { "name": "己土", "meaning": "田園的能量。象徵包容力和體貼。" },
+      "庚": { "name": "庚金", "meaning": "岩石和鐵的能量。象徵堅強的意志和決斷力。" },
+      "辛": { "name": "辛金", "meaning": "珠寶的能量。象徵精緻和敏銳的洞察力。" },
+      "壬": { "name": "壬水", "meaning": "大海的能量。象徵廣闊的包容力和智慧。" },
+      "癸": { "name": "癸水", "meaning": "露水的能量。象徵細膩的感受力和適應力。" }
+    },
+    "branches": {
+      "子": { "name": "子水", "meaning": "新開始的能量。充滿機會和可能性的時期。" },
+      "丑": { "name": "丑土", "meaning": "儲蓄和積累的時期。適合打好基礎。" },
+      "寅": { "name": "寅木", "meaning": "活躍的時期。有利於挑戰和擴展。" },
+      "卯": { "name": "卯木", "meaning": "成長和發展的時期。人緣和合作運好。" },
+      "辰": { "name": "辰土", "meaning": "變化的轉折點。迎來新的局面。" },
+      "巳": { "name": "巳火", "meaning": "智慧和計劃的結果。有利於腦力工作。" },
+      "午": { "name": "午火", "meaning": "巔峰時期。充滿熱情和活力。" },
+      "未": { "name": "未土", "meaning": "成熟和穩定的時期。適合收穫成果。" },
+      "申": { "name": "申金", "meaning": "變化和新開始的時期。需要做出決斷。" },
+      "酉": { "name": "酉金", "meaning": "收穫和結果的時期。獲得努力的回報。" },
+      "戌": { "name": "戌土", "meaning": "收尾和整理的時期。結束一個階段。" },
+      "亥": { "name": "亥水", "meaning": "休息和充電的時期。為下一階段做準備。" }
+    },
+    "animals": {
+      "monkey": "猴",
+      "rooster": "雞",
+      "dog": "狗",
+      "pig": "豬",
+      "rat": "鼠",
+      "ox": "牛",
+      "tiger": "虎",
+      "rabbit": "兔",
+      "dragon": "龍",
+      "snake": "蛇",
+      "horse": "馬",
+      "sheep": "羊"
+    },
+    "daewun": {
+      "fortuneFlow": "運勢走向",
+      "tenYearTitle": "十年大運",
+      "clickToExpand": "點擊查看詳情",
+      "current": "當前",
+      "heavenlyStem": "天干",
+      "earthlyBranch": "地支",
+      "overallAdvice": "綜合建議",
+      "defaultStemMeaning": "天干的能量主導這個時期。",
+      "defaultBranchMeaning": "地支的氣運主導這個時期。",
+      "activeAdvice": "好好利用當前的運勢，把握機會。",
+      "defaultAdvice": "發揮自己的優勢，打好基礎。",
+      "fallbackAdvice": "這個時期保持平衡，穩步前進。"
+    },
+    "yearSelector": {
+      "yearOfAnimal": "{animal}年",
+      "selectedYear": "已選年份",
+      "recommended": "推薦",
+      "thisYearFortune": "今年運勢"
+    },
+    "calendar": {
+      "title": "吉凶日曆",
+      "subtitle": "提前查看重要日期",
+      "luckyDays": "吉日",
+      "unluckyDays": "注意日",
+      "daysCount": "({count}天)",
+      "luckyDaysOfMonth": "本月吉日",
+      "unluckyDaysOfMonth": "本月注意日",
+      "days": {
+        "sun": "日",
+        "mon": "一",
+        "tue": "二",
+        "wed": "三",
+        "thu": "四",
+        "fri": "五",
+        "sat": "六"
+      },
+      "months": {
+        "1": "一月",
+        "2": "二月",
+        "3": "三月",
+        "4": "四月",
+        "5": "五月",
+        "6": "六月",
+        "7": "七月",
+        "8": "八月",
+        "9": "九月",
+        "10": "十月",
+        "11": "十一月",
+        "12": "十二月"
+      }
     }
   },
   "yearly": {
@@ -781,6 +873,22 @@
   "credits": {
     "balance": "持有積分",
     "required": "所需積分",
+    "history": {
+      "title": "積分記錄",
+      "subtitle": "查看充值和使用記錄",
+      "empty": "暫無記錄",
+      "emptyDescription": "您的積分充值和使用記錄將顯示在這裡",
+      "totalCharge": "總充值",
+      "totalUsage": "總使用",
+      "charge": "積分充值",
+      "usage": {
+        "report": "生成報告",
+        "session": "諮詢會話",
+        "yearly": "年度分析",
+        "reanalysis": "重新分析",
+        "question": "AI提問"
+      }
+    },
     "insufficient": {
       "title": "積分不足",
       "message": "此操作需要{required}積分，但您目前只有{current}積分。",

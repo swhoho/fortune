@@ -423,6 +423,98 @@
       "earth": "土",
       "metal": "金",
       "water": "水"
+    },
+    "stems": {
+      "甲": { "name": "甲木", "meaning": "大きな木のエネルギー。始まりと成長、進取的なエネルギーを象徴します。" },
+      "乙": { "name": "乙木", "meaning": "草や蔓のエネルギー。柔軟な適応力と繊細さを象徴します。" },
+      "丙": { "name": "丙火", "meaning": "太陽のエネルギー。明るい情熱と活力を象徴します。" },
+      "丁": { "name": "丁火", "meaning": "ろうそくのエネルギー。集中力と内面の温かさを象徴します。" },
+      "戊": { "name": "戊土", "meaning": "山のエネルギー。安定と信頼、重厚さを象徴します。" },
+      "己": { "name": "己土", "meaning": "田園のエネルギー。包容力と思いやりを象徴します。" },
+      "庚": { "name": "庚金", "meaning": "岩と鉄のエネルギー。強い意志と決断力を象徴します。" },
+      "辛": { "name": "辛金", "meaning": "宝石のエネルギー。精緻さと鋭い洞察力を象徴します。" },
+      "壬": { "name": "壬水", "meaning": "海のエネルギー。広い包容力と知恵を象徴します。" },
+      "癸": { "name": "癸水", "meaning": "露のエネルギー。繊細な感受性と適応力を象徴します。" }
+    },
+    "branches": {
+      "子": { "name": "子水", "meaning": "新しい始まりのエネルギー。機会と可能性の時期です。" },
+      "丑": { "name": "丑土", "meaning": "貯蓄と蓄積の時期。内実を固めるのに適しています。" },
+      "寅": { "name": "寅木", "meaning": "活発な動きの時期。挑戦と拡大に有利です。" },
+      "卯": { "name": "卯木", "meaning": "成長と発展の時期。縁と協力に恵まれます。" },
+      "辰": { "name": "辰土", "meaning": "変化の転換点。新しい局面を迎えます。" },
+      "巳": { "name": "巳火", "meaning": "知恵と計画の結実。頭脳労働に有利です。" },
+      "午": { "name": "午火", "meaning": "最高潮の時期。情熱と活力に満ちています。" },
+      "未": { "name": "未土", "meaning": "成熟と安定の時期。結実に適しています。" },
+      "申": { "name": "申金", "meaning": "変化と新しい始まりの時期。決断が必要です。" },
+      "酉": { "name": "酉金", "meaning": "収穫と結実の時期。努力の報いを受けます。" },
+      "戌": { "name": "戌土", "meaning": "まとめと整理の時期。一つの段階を締めくくります。" },
+      "亥": { "name": "亥水", "meaning": "休息と充電の時期。次の準備をします。" }
+    },
+    "animals": {
+      "monkey": "猿",
+      "rooster": "鶏",
+      "dog": "犬",
+      "pig": "猪",
+      "rat": "鼠",
+      "ox": "牛",
+      "tiger": "虎",
+      "rabbit": "兎",
+      "dragon": "龍",
+      "snake": "蛇",
+      "horse": "馬",
+      "sheep": "羊"
+    },
+    "daewun": {
+      "fortuneFlow": "運勢の流れ",
+      "tenYearTitle": "10年大運",
+      "clickToExpand": "クリックで詳細表示",
+      "current": "現在",
+      "heavenlyStem": "天干",
+      "earthlyBranch": "地支",
+      "overallAdvice": "総合アドバイス",
+      "defaultStemMeaning": "天干のエネルギーがこの時期を支配します。",
+      "defaultBranchMeaning": "地支の気運がこの時期を支配します。",
+      "activeAdvice": "現在の流れを活かしてチャンスを掴んでください。",
+      "defaultAdvice": "自分の強みを活かし、内実を固めることが大切です。",
+      "fallbackAdvice": "この時期はバランスを保ちながら着実に前進してください。"
+    },
+    "yearSelector": {
+      "yearOfAnimal": "{animal}年",
+      "selectedYear": "選択された年",
+      "recommended": "おすすめ",
+      "thisYearFortune": "今年の運勢"
+    },
+    "calendar": {
+      "title": "吉凶日カレンダー",
+      "subtitle": "重要な日を事前に確認しましょう",
+      "luckyDays": "吉日",
+      "unluckyDays": "注意日",
+      "daysCount": "({count}日)",
+      "luckyDaysOfMonth": "今月の吉日",
+      "unluckyDaysOfMonth": "今月の注意日",
+      "days": {
+        "sun": "日",
+        "mon": "月",
+        "tue": "火",
+        "wed": "水",
+        "thu": "木",
+        "fri": "金",
+        "sat": "土"
+      },
+      "months": {
+        "1": "1月",
+        "2": "2月",
+        "3": "3月",
+        "4": "4月",
+        "5": "5月",
+        "6": "6月",
+        "7": "7月",
+        "8": "8月",
+        "9": "9月",
+        "10": "10月",
+        "11": "11月",
+        "12": "12月"
+      }
     }
   },
   "yearly": {
@@ -781,6 +873,22 @@
   "credits": {
     "balance": "保有クレジット",
     "required": "必要クレジット",
+    "history": {
+      "title": "クレジット履歴",
+      "subtitle": "充電・使用履歴をご確認ください",
+      "empty": "履歴がありません",
+      "emptyDescription": "クレジットの充電・使用履歴がここに表示されます",
+      "totalCharge": "総充電",
+      "totalUsage": "総使用",
+      "charge": "クレジット充電",
+      "usage": {
+        "report": "レポート生成",
+        "session": "相談セッション",
+        "yearly": "年間分析",
+        "reanalysis": "セクション再分析",
+        "question": "AI質問"
+      }
+    },
     "insufficient": {
       "title": "クレジット不足",
       "message": "この操作には{required}Cが必要ですが、現在{current}Cを保有しています。",

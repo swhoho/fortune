@@ -7,17 +7,21 @@
 import { useQuery } from '@tanstack/react-query';
 import { motion } from 'framer-motion';
 import { format } from 'date-fns';
-import { ko } from 'date-fns/locale';
 import { ArrowUpCircle, ArrowDownCircle, Loader2 } from 'lucide-react';
+import { useTranslations, useLocale } from 'next-intl';
 import { supabase } from '@/lib/supabase/client';
 import { cn } from '@/lib/utils';
+import { getDateLocale } from '@/lib/date-locale';
 
 /** 크레딧 기록 아이템 타입 */
 interface CreditHistoryItem {
   id: string;
   type: 'charge' | 'usage';
   amount: number;
-  description: string;
+  /** 번역 키 또는 동적 설명 (충전 금액 포함) */
+  descriptionKey: string;
+  /** 충전 금액 (달러) - 충전 기록에만 존재 */
+  chargeAmount?: string;
   createdAt: string;
 }
 
@@ -55,7 +59,7 @@ async function fetchAllUsageLogs(userId: string) {
         id: `report-${r.id}`,
         type: 'usage' as const,
         amount: r.credits_used,
-        description: '리포트 생성',
+        descriptionKey: 'report',
         createdAt: r.created_at,
       }))
     );
@@ -76,7 +80,7 @@ async function fetchAllUsageLogs(userId: string) {
         id: `session-${s.id}`,
         type: 'usage' as const,
         amount: s.credits_used,
-        description: '상담 세션',
+        descriptionKey: 'session',
         createdAt: s.created_at,
       }))
     );
@@ -98,7 +102,7 @@ async function fetchAllUsageLogs(userId: string) {
         id: `yearly-${y.id}`,
         type: 'usage' as const,
         amount: y.credits_used,
-        description: '신년 분석',
+        descriptionKey: 'yearly',
         createdAt: y.created_at,
       }))
     );
@@ -120,7 +124,7 @@ async function fetchAllUsageLogs(userId: string) {
         id: `reanalysis-${r.id}`,
         type: 'usage' as const,
         amount: r.credits_used,
-        description: '섹션 재분석',
+        descriptionKey: 'reanalysis',
         createdAt: r.created_at,
       }))
     );
@@ -142,7 +146,7 @@ async function fetchAllUsageLogs(userId: string) {
         id: `question-${q.id}`,
         type: 'usage' as const,
         amount: q.credits_used,
-        description: 'AI 질문',
+        descriptionKey: 'question',
         createdAt: q.created_at,
       }))
     );
@@ -152,6 +156,10 @@ async function fetchAllUsageLogs(userId: string) {
 }
 
 export function CreditHistory() {
+  const t = useTranslations('credits.history');
+  const locale = useLocale();
+  const dateLocale = getDateLocale(locale);
+
   // 현재 사용자 ID 조회
   const { data: userId } = useQuery({
     queryKey: ['currentUserId'],
@@ -183,11 +191,20 @@ export function CreditHistory() {
       id: p.id,
       type: 'charge' as const,
       amount: p.credits,
-      description: `크레딧 충전 ($${(p.amount / 100).toFixed(2)})`,
+      descriptionKey: 'charge',
+      chargeAmount: `$${(p.amount / 100).toFixed(2)}`,
       createdAt: p.created_at,
     })),
     ...usageLogs,
   ].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+
+  /** 아이템 설명 번역 */
+  const getItemDescription = (item: CreditHistoryItem): string => {
+    if (item.type === 'charge') {
+      return `${t('charge')} (${item.chargeAmount})`;
+    }
+    return t(`usage.${item.descriptionKey}`);
+  };
 
   const isLoading = isPurchasesLoading || isUsageLoading;
 
@@ -209,8 +226,8 @@ export function CreditHistory() {
         <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-[#242424]">
           <ArrowUpCircle className="h-8 w-8 text-gray-500" />
         </div>
-        <h3 className="mb-2 font-serif text-lg font-semibold text-white">기록이 없습니다</h3>
-        <p className="text-gray-400">크레딧 충전 및 사용 기록이 여기에 표시됩니다</p>
+        <h3 className="mb-2 font-serif text-lg font-semibold text-white">{t('empty')}</h3>
+        <p className="text-gray-400">{t('emptyDescription')}</p>
       </motion.div>
     );
   }
@@ -222,8 +239,8 @@ export function CreditHistory() {
       className="space-y-4"
     >
       <div className="mb-6">
-        <h2 className="font-serif text-xl font-bold text-white">크레딧 기록</h2>
-        <p className="mt-1 text-sm text-gray-400">충전 및 사용 내역을 확인하세요</p>
+        <h2 className="font-serif text-xl font-bold text-white">{t('title')}</h2>
+        <p className="mt-1 text-sm text-gray-400">{t('subtitle')}</p>
       </div>
 
       {/* 통계 요약 */}
@@ -231,7 +248,7 @@ export function CreditHistory() {
         <div className="rounded-xl bg-green-900/30 p-4">
           <div className="flex items-center gap-2">
             <ArrowUpCircle className="h-5 w-5 text-green-400" />
-            <span className="text-sm text-green-400">총 충전</span>
+            <span className="text-sm text-green-400">{t('totalCharge')}</span>
           </div>
           <p className="mt-2 text-2xl font-bold text-green-400">
             {purchases.reduce((sum, p) => sum + p.credits, 0)}C
@@ -240,7 +257,7 @@ export function CreditHistory() {
         <div className="rounded-xl bg-red-900/30 p-4">
           <div className="flex items-center gap-2">
             <ArrowDownCircle className="h-5 w-5 text-red-400" />
-            <span className="text-sm text-red-400">총 사용</span>
+            <span className="text-sm text-red-400">{t('totalUsage')}</span>
           </div>
           <p className="mt-2 text-2xl font-bold text-red-400">
             {usageLogs.reduce((sum, u) => sum + u.amount, 0)}C
@@ -273,9 +290,9 @@ export function CreditHistory() {
                   )}
                 </div>
                 <div>
-                  <p className="font-medium text-white">{item.description}</p>
+                  <p className="font-medium text-white">{getItemDescription(item)}</p>
                   <p className="text-xs text-gray-500">
-                    {format(new Date(item.createdAt), 'yyyy.MM.dd HH:mm', { locale: ko })}
+                    {format(new Date(item.createdAt), 'yyyy.MM.dd HH:mm', { locale: dateLocale })}
                   </p>
                 </div>
               </div>

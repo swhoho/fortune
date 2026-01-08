@@ -7,6 +7,7 @@
 
 import { motion } from 'framer-motion';
 import { Calendar, Sparkles } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import {
   Select,
   SelectContent,
@@ -28,32 +29,37 @@ interface YearSelectorProps {
   disabled?: boolean;
 }
 
-/** 간지(干支) 계산 */
-function getGanZhi(year: number): { stem: string; branch: string; animal: string } {
-  const stems = ['庚', '辛', '壬', '癸', '甲', '乙', '丙', '丁', '戊', '己'];
-  const branches = ['申', '酉', '戌', '亥', '子', '丑', '寅', '卯', '辰', '巳', '午', '未'];
-  const animals = [
-    '원숭이',
-    '닭',
-    '개',
-    '돼지',
-    '쥐',
-    '소',
-    '호랑이',
-    '토끼',
-    '용',
-    '뱀',
-    '말',
-    '양',
-  ];
+/** 천간 목록 */
+const STEMS = ['庚', '辛', '壬', '癸', '甲', '乙', '丙', '丁', '戊', '己'];
 
+/** 지지 목록 */
+const BRANCHES = ['申', '酉', '戌', '亥', '子', '丑', '寅', '卯', '辰', '巳', '午', '未'];
+
+/** 동물 키 목록 (번역용) */
+const ANIMAL_KEYS = [
+  'monkey',
+  'rooster',
+  'dog',
+  'pig',
+  'rat',
+  'ox',
+  'tiger',
+  'rabbit',
+  'dragon',
+  'snake',
+  'horse',
+  'sheep',
+] as const;
+
+/** 간지(干支) 계산 */
+function getGanZhi(year: number): { stem: string; branch: string; animalKey: string } {
   const stemIndex = year % 10;
   const branchIndex = year % 12;
 
   return {
-    stem: stems[stemIndex] ?? '',
-    branch: branches[branchIndex] ?? '',
-    animal: animals[branchIndex] ?? '',
+    stem: STEMS[stemIndex] ?? '',
+    branch: BRANCHES[branchIndex] ?? '',
+    animalKey: ANIMAL_KEYS[branchIndex] ?? '',
   };
 }
 
@@ -64,6 +70,8 @@ export function YearSelector({
   maxYear,
   disabled = false,
 }: YearSelectorProps) {
+  const t = useTranslations('saju');
+  const tYearly = useTranslations('yearly');
   const currentYear = new Date().getFullYear();
   const effectiveMinYear = minYear ?? currentYear;
   const effectiveMaxYear = maxYear ?? currentYear + 3;
@@ -92,8 +100,8 @@ export function YearSelector({
           <Calendar className="h-5 w-5" style={{ color: BRAND_COLORS.primary }} />
         </div>
         <div>
-          <h3 className="font-serif text-lg font-semibold text-white">분석할 연도 선택</h3>
-          <p className="text-sm text-gray-400">월별 상세 운세를 확인할 연도를 선택하세요</p>
+          <h3 className="font-serif text-lg font-semibold text-white">{tYearly('selectYear')}</h3>
+          <p className="text-sm text-gray-400">{tYearly('selectYearDesc')}</p>
         </div>
       </div>
 
@@ -124,7 +132,9 @@ export function YearSelector({
                       {yearGanZhi.stem}
                       {yearGanZhi.branch}
                     </span>
-                    <span className="text-sm text-gray-500">({yearGanZhi.animal}띠)</span>
+                    <span className="text-sm text-gray-500">
+                      ({t(`animals.${yearGanZhi.animalKey}`)}띠)
+                    </span>
                     {isRecommended && (
                       <span
                         className="ml-auto flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium"
@@ -134,7 +144,7 @@ export function YearSelector({
                         }}
                       >
                         <Sparkles className="h-3 w-3" />
-                        추천
+                        {t('yearSelector.recommended')}
                       </span>
                     )}
                   </div>
@@ -154,7 +164,7 @@ export function YearSelector({
         >
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-gray-400">선택된 연도</p>
+              <p className="text-sm text-gray-400">{t('yearSelector.selectedYear')}</p>
               <p className="font-serif text-2xl font-bold text-white">
                 {selectedYear}년{' '}
                 <span style={{ color: BRAND_COLORS.primary }}>
@@ -164,7 +174,9 @@ export function YearSelector({
               </p>
             </div>
             <div className="text-right">
-              <p className="text-sm text-gray-500">{ganZhi.animal}의 해</p>
+              <p className="text-sm text-gray-500">
+                {t('yearSelector.yearOfAnimal', { animal: t(`animals.${ganZhi.animalKey}`) })}
+              </p>
               {isCurrentYear && (
                 <span
                   className="inline-flex items-center gap-1 rounded-full px-3 py-1 text-sm font-medium"
@@ -174,7 +186,7 @@ export function YearSelector({
                   }}
                 >
                   <Sparkles className="h-4 w-4" />
-                  올해 운세
+                  {t('yearSelector.thisYearFortune')}
                 </span>
               )}
             </div>

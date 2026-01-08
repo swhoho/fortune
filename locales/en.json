@@ -423,6 +423,98 @@
       "earth": "Earth",
       "metal": "Metal",
       "water": "Water"
+    },
+    "stems": {
+      "甲": { "name": "Jia Wood", "meaning": "Energy of a great tree. Symbolizes beginnings, growth, and progressive energy." },
+      "乙": { "name": "Yi Wood", "meaning": "Energy of grass and vines. Symbolizes flexible adaptability and delicacy." },
+      "丙": { "name": "Bing Fire", "meaning": "Energy of the sun. Symbolizes bright passion and vitality." },
+      "丁": { "name": "Ding Fire", "meaning": "Energy of candlelight. Symbolizes focus and inner warmth." },
+      "戊": { "name": "Wu Earth", "meaning": "Energy of mountains. Symbolizes stability, trust, and solidity." },
+      "己": { "name": "Ji Earth", "meaning": "Energy of farmland. Symbolizes inclusiveness and consideration." },
+      "庚": { "name": "Geng Metal", "meaning": "Energy of rock and iron. Symbolizes strong will and decisiveness." },
+      "辛": { "name": "Xin Metal", "meaning": "Energy of jewels. Symbolizes refinement and sharp insight." },
+      "壬": { "name": "Ren Water", "meaning": "Energy of the ocean. Symbolizes broad tolerance and wisdom." },
+      "癸": { "name": "Gui Water", "meaning": "Energy of dew. Symbolizes delicate sensitivity and adaptability." }
+    },
+    "branches": {
+      "子": { "name": "Zi Water", "meaning": "Energy of new beginnings. A time of opportunity and possibility." },
+      "丑": { "name": "Chou Earth", "meaning": "Time of savings and accumulation. Good for strengthening foundations." },
+      "寅": { "name": "Yin Wood", "meaning": "Time of active movement. Favorable for challenges and expansion." },
+      "卯": { "name": "Mao Wood", "meaning": "Time of growth and development. Good for connections and cooperation." },
+      "辰": { "name": "Chen Earth", "meaning": "Turning point of change. Facing a new phase." },
+      "巳": { "name": "Si Fire", "meaning": "Fruition of wisdom and planning. Favorable for intellectual work." },
+      "午": { "name": "Wu Fire", "meaning": "Peak period. Overflowing with passion and vitality." },
+      "未": { "name": "Wei Earth", "meaning": "Time of maturity and stability. Good for achieving results." },
+      "申": { "name": "Shen Metal", "meaning": "Time of change and new beginnings. Decisions are needed." },
+      "酉": { "name": "You Metal", "meaning": "Time of harvest and fruition. Receiving rewards for efforts." },
+      "戌": { "name": "Xu Earth", "meaning": "Time of completion and organization. Closing one chapter." },
+      "亥": { "name": "Hai Water", "meaning": "Time of rest and recharging. Preparing for the next phase." }
+    },
+    "animals": {
+      "monkey": "Monkey",
+      "rooster": "Rooster",
+      "dog": "Dog",
+      "pig": "Pig",
+      "rat": "Rat",
+      "ox": "Ox",
+      "tiger": "Tiger",
+      "rabbit": "Rabbit",
+      "dragon": "Dragon",
+      "snake": "Snake",
+      "horse": "Horse",
+      "sheep": "Sheep"
+    },
+    "daewun": {
+      "fortuneFlow": "Fortune Flow",
+      "tenYearTitle": "10-Year Major Cycle",
+      "clickToExpand": "Click to see details",
+      "current": "Current",
+      "heavenlyStem": "Heavenly Stem",
+      "earthlyBranch": "Earthly Branch",
+      "overallAdvice": "Overall Advice",
+      "defaultStemMeaning": "The heavenly stem energy governs this period.",
+      "defaultBranchMeaning": "The earthly branch energy governs this period.",
+      "activeAdvice": "Make good use of the current flow to seize opportunities.",
+      "defaultAdvice": "Focus on your strengths and build a solid foundation.",
+      "fallbackAdvice": "Maintain balance and move forward steadily during this time."
+    },
+    "yearSelector": {
+      "yearOfAnimal": "Year of the {animal}",
+      "selectedYear": "Selected Year",
+      "recommended": "Recommended",
+      "thisYearFortune": "This Year's Fortune"
+    },
+    "calendar": {
+      "title": "Lucky Days Calendar",
+      "subtitle": "Check important days in advance",
+      "luckyDays": "Lucky Days",
+      "unluckyDays": "Caution Days",
+      "daysCount": "({count} days)",
+      "luckyDaysOfMonth": "This Month's Lucky Days",
+      "unluckyDaysOfMonth": "This Month's Caution Days",
+      "days": {
+        "sun": "Sun",
+        "mon": "Mon",
+        "tue": "Tue",
+        "wed": "Wed",
+        "thu": "Thu",
+        "fri": "Fri",
+        "sat": "Sat"
+      },
+      "months": {
+        "1": "January",
+        "2": "February",
+        "3": "March",
+        "4": "April",
+        "5": "May",
+        "6": "June",
+        "7": "July",
+        "8": "August",
+        "9": "September",
+        "10": "October",
+        "11": "November",
+        "12": "December"
+      }
     }
   },
   "yearly": {
@@ -872,6 +964,22 @@
   "credits": {
     "balance": "Credit Balance",
     "required": "Required Credits",
+    "history": {
+      "title": "Credit History",
+      "subtitle": "View your charge and usage history",
+      "empty": "No history yet",
+      "emptyDescription": "Your credit charges and usage will appear here",
+      "totalCharge": "Total Charged",
+      "totalUsage": "Total Used",
+      "charge": "Credit Charge",
+      "usage": {
+        "report": "Report Generation",
+        "session": "Consultation Session",
+        "yearly": "Yearly Analysis",
+        "reanalysis": "Section Reanalysis",
+        "question": "AI Question"
+      }
+    },
     "insufficient": {
       "title": "Insufficient Credits",
       "message": "This action requires {required}C, but you only have {current}C.",

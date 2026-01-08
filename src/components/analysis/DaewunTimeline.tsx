@@ -17,39 +17,16 @@ import {
 } from 'recharts';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronDown } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import { BRAND_COLORS } from '@/lib/constants/colors';
 import type { YearlyFlow } from '@/lib/ai/types';
 import type { DaewunItem } from '@/types/saju';
 
-/** 천간 의미 */
-const STEM_MEANINGS: Record<string, { name: string; meaning: string }> = {
-  甲: { name: '갑목', meaning: '큰 나무의 기운. 시작과 성장, 진취적 에너지를 상징합니다.' },
-  乙: { name: '을목', meaning: '풀과 덩굴의 기운. 유연한 적응력과 섬세함을 상징합니다.' },
-  丙: { name: '병화', meaning: '태양의 기운. 밝은 열정과 활력을 상징합니다.' },
-  丁: { name: '정화', meaning: '촛불의 기운. 집중력과 내면의 따뜻함을 상징합니다.' },
-  戊: { name: '무토', meaning: '산의 기운. 안정과 신뢰, 중후함을 상징합니다.' },
-  己: { name: '기토', meaning: '전원의 기운. 포용력과 배려심을 상징합니다.' },
-  庚: { name: '경금', meaning: '바위와 쇠의 기운. 강인한 의지와 결단력을 상징합니다.' },
-  辛: { name: '신금', meaning: '보석의 기운. 정교함과 날카로운 통찰력을 상징합니다.' },
-  壬: { name: '임수', meaning: '바다의 기운. 넓은 포용력과 지혜를 상징합니다.' },
-  癸: { name: '계수', meaning: '이슬의 기운. 섬세한 감수성과 적응력을 상징합니다.' },
-};
+/** 천간 목록 */
+const STEMS = ['甲', '乙', '丙', '丁', '戊', '己', '庚', '辛', '壬', '癸'] as const;
 
-/** 지지 의미 */
-const BRANCH_MEANINGS: Record<string, { name: string; meaning: string }> = {
-  子: { name: '자수', meaning: '새로운 시작의 에너지. 기회와 가능성의 시기입니다.' },
-  丑: { name: '축토', meaning: '저축과 축적의 시기. 내실을 다지기 좋습니다.' },
-  寅: { name: '인목', meaning: '활발한 움직임의 시기. 도전과 확장에 유리합니다.' },
-  卯: { name: '묘목', meaning: '성장과 발전의 시기. 인연과 협력이 좋습니다.' },
-  辰: { name: '진토', meaning: '변화의 전환점. 새로운 국면을 맞이합니다.' },
-  巳: { name: '사화', meaning: '지혜와 계획의 결실. 머리를 쓰는 일에 유리합니다.' },
-  午: { name: '오화', meaning: '최고조의 시기. 열정과 활력이 넘칩니다.' },
-  未: { name: '미토', meaning: '성숙과 안정의 시기. 결실을 맺기 좋습니다.' },
-  申: { name: '신금', meaning: '변화와 새 시작의 시기. 결단이 필요합니다.' },
-  酉: { name: '유금', meaning: '수확과 결실의 시기. 노력의 대가를 받습니다.' },
-  戌: { name: '술토', meaning: '마무리와 정리의 시기. 한 단계를 마감합니다.' },
-  亥: { name: '해수', meaning: '휴식과 재충전의 시기. 다음을 준비합니다.' },
-};
+/** 지지 목록 */
+const BRANCHES = ['子', '丑', '寅', '卯', '辰', '巳', '午', '未', '申', '酉', '戌', '亥'] as const;
 
 interface DaewunTimelineProps {
   /** 연도별 운세 흐름 */
@@ -95,8 +72,31 @@ function CustomTooltip({
 }
 
 export function DaewunTimeline({ yearlyFlow, daewun }: DaewunTimelineProps) {
+  const t = useTranslations('saju');
   const currentYear = new Date().getFullYear();
   const [expandedIndex, setExpandedIndex] = useState<number | null>(null);
+
+  /** 천간 정보 조회 */
+  const getStemInfo = (stem: string) => {
+    if (STEMS.includes(stem as (typeof STEMS)[number])) {
+      return {
+        name: t.raw(`stems.${stem}.name`) as string,
+        meaning: t.raw(`stems.${stem}.meaning`) as string,
+      };
+    }
+    return null;
+  };
+
+  /** 지지 정보 조회 */
+  const getBranchInfo = (branch: string) => {
+    if (BRANCHES.includes(branch as (typeof BRANCHES)[number])) {
+      return {
+        name: t.raw(`branches.${branch}.name`) as string,
+        meaning: t.raw(`branches.${branch}.meaning`) as string,
+      };
+    }
+    return null;
+  };
 
   const toggleExpand = (index: number) => {
     setExpandedIndex(expandedIndex === index ? null : index);
@@ -110,7 +110,7 @@ export function DaewunTimeline({ yearlyFlow, daewun }: DaewunTimelineProps) {
       className="w-full rounded-xl border border-gray-200 bg-white p-6 shadow-lg"
     >
       {/* 헤더 */}
-      <h3 className="mb-6 font-serif text-lg font-semibold text-gray-900">운세 흐름</h3>
+      <h3 className="mb-6 font-serif text-lg font-semibold text-gray-900">{t('daewun.fortuneFlow')}</h3>
 
       {/* 차트 */}
       {yearlyFlow && yearlyFlow.length > 0 && (
@@ -153,14 +153,14 @@ export function DaewunTimeline({ yearlyFlow, daewun }: DaewunTimelineProps) {
       {daewun && daewun.length > 0 && (
         <div>
           <h4 className="mb-3 text-sm font-medium text-gray-500">
-            10년 대운 <span className="text-xs font-normal">(클릭하여 상세 보기)</span>
+            {t('daewun.tenYearTitle')} <span className="text-xs font-normal">({t('daewun.clickToExpand')})</span>
           </h4>
           <div className="space-y-3">
             {daewun.slice(0, 4).map((d, index) => {
               const isActive = currentYear >= d.startYear && currentYear < d.startYear + 10;
               const isExpanded = expandedIndex === index;
-              const stemInfo = STEM_MEANINGS[d.stem];
-              const branchInfo = BRANCH_MEANINGS[d.branch];
+              const stemInfo = getStemInfo(d.stem);
+              const branchInfo = getBranchInfo(d.branch);
 
               return (
                 <motion.div
@@ -201,7 +201,7 @@ export function DaewunTimeline({ yearlyFlow, daewun }: DaewunTimelineProps) {
                             color: '#000',
                           }}
                         >
-                          현재
+                          {t('daewun.current')}
                         </span>
                       )}
                     </div>
@@ -225,37 +225,37 @@ export function DaewunTimeline({ yearlyFlow, daewun }: DaewunTimelineProps) {
                         <div className="space-y-4 border-t border-gray-200 p-4">
                           {/* 천간 의미 */}
                           <div>
-                            <h5 className="text-xs font-medium text-gray-500">천간 (天干)</h5>
+                            <h5 className="text-xs font-medium text-gray-500">{t('daewun.heavenlyStem')}</h5>
                             <p className="mt-1 text-sm font-medium text-gray-900">
                               {stemInfo?.name || d.stem}
                             </p>
                             <p className="mt-0.5 text-sm text-gray-600">
-                              {stemInfo?.meaning || '천간의 에너지가 이 시기를 지배합니다.'}
+                              {stemInfo?.meaning || t('daewun.defaultStemMeaning')}
                             </p>
                           </div>
 
                           {/* 지지 의미 */}
                           <div>
-                            <h5 className="text-xs font-medium text-gray-500">지지 (地支)</h5>
+                            <h5 className="text-xs font-medium text-gray-500">{t('daewun.earthlyBranch')}</h5>
                             <p className="mt-1 text-sm font-medium text-gray-900">
                               {branchInfo?.name || d.branch}
                             </p>
                             <p className="mt-0.5 text-sm text-gray-600">
-                              {branchInfo?.meaning || '지지의 기운이 이 시기를 지배합니다.'}
+                              {branchInfo?.meaning || t('daewun.defaultBranchMeaning')}
                             </p>
                           </div>
 
                           {/* 종합 조언 */}
                           <div className="rounded-lg bg-gray-100 p-3">
-                            <h5 className="text-xs font-medium text-gray-500">종합 조언</h5>
+                            <h5 className="text-xs font-medium text-gray-500">{t('daewun.overallAdvice')}</h5>
                             <p className="mt-1 text-sm text-gray-700">
                               {stemInfo && branchInfo
                                 ? `${stemInfo.name}와 ${branchInfo.name}이 결합한 이 대운에서는 ${
                                     isActive
-                                      ? '현재 흐름을 잘 활용하여 기회를 잡으세요.'
-                                      : '자신의 강점을 살리고 내실을 다지는 것이 좋습니다.'
+                                      ? t('daewun.activeAdvice')
+                                      : t('daewun.defaultAdvice')
                                   }`
-                                : '이 시기에는 균형을 유지하며 꾸준히 나아가세요.'}
+                                : t('daewun.fallbackAdvice')}
                             </p>
                           </div>
                         </div>

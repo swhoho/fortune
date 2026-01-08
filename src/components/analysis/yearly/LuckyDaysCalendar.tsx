@@ -8,6 +8,7 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { ChevronLeft, ChevronRight, Star, AlertTriangle, Calendar } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import { BRAND_COLORS } from '@/lib/constants/colors';
 import type { MonthlyFortune, LuckyDay, UnluckyDay } from '@/lib/ai/types';
 
@@ -18,24 +19,8 @@ interface LuckyDaysCalendarProps {
   year: number;
 }
 
-/** 요일 이름 */
-const DAY_NAMES = ['일', '월', '화', '수', '목', '금', '토'];
-
-/** 월 이름 */
-const MONTH_NAMES = [
-  '1월',
-  '2월',
-  '3월',
-  '4월',
-  '5월',
-  '6월',
-  '7월',
-  '8월',
-  '9월',
-  '10월',
-  '11월',
-  '12월',
-];
+/** 요일 키 */
+const DAY_KEYS = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'] as const;
 
 /** 날짜에서 일자 추출 */
 function extractDay(dateStr: string): number {
@@ -49,6 +34,7 @@ function extractDay(dateStr: string): number {
 }
 
 export function LuckyDaysCalendar({ monthlyFortunes, year }: LuckyDaysCalendarProps) {
+  const t = useTranslations('saju.calendar');
   const currentDate = new Date();
   const currentYear = currentDate.getFullYear();
   const currentMonth = currentDate.getMonth() + 1;
@@ -116,8 +102,8 @@ export function LuckyDaysCalendar({ monthlyFortunes, year }: LuckyDaysCalendarPr
           <Calendar className="h-5 w-5" style={{ color: BRAND_COLORS.primary }} />
         </div>
         <div>
-          <h3 className="font-serif text-lg font-semibold text-white">길흉일 캘린더</h3>
-          <p className="text-sm text-gray-400">중요한 날들을 미리 확인하세요</p>
+          <h3 className="font-serif text-lg font-semibold text-white">{t('title')}</h3>
+          <p className="text-sm text-gray-400">{t('subtitle')}</p>
         </div>
       </div>
 
@@ -131,7 +117,7 @@ export function LuckyDaysCalendar({ monthlyFortunes, year }: LuckyDaysCalendarPr
           <ChevronLeft className="h-5 w-5 text-gray-400" />
         </button>
         <h4 className="font-serif text-xl font-semibold text-white">
-          {year}년 {MONTH_NAMES[selectedMonth - 1]}
+          {year}년 {t(`months.${selectedMonth}`)}
         </h4>
         <button
           onClick={handleNextMonth}
@@ -146,24 +132,28 @@ export function LuckyDaysCalendar({ monthlyFortunes, year }: LuckyDaysCalendarPr
       <div className="mb-4 flex items-center justify-center gap-6">
         <div className="flex items-center gap-2">
           <div className="h-3 w-3 rounded-full bg-green-500" />
-          <span className="text-sm text-gray-400">길일 ({luckyDays.length}일)</span>
+          <span className="text-sm text-gray-400">
+            {t('luckyDays')} {t('daysCount', { count: luckyDays.length })}
+          </span>
         </div>
         <div className="flex items-center gap-2">
           <div className="h-3 w-3 rounded-full bg-red-500" />
-          <span className="text-sm text-gray-400">주의일 ({unluckyDays.length}일)</span>
+          <span className="text-sm text-gray-400">
+            {t('unluckyDays')} {t('daysCount', { count: unluckyDays.length })}
+          </span>
         </div>
       </div>
 
       {/* 요일 헤더 */}
       <div className="mb-2 grid grid-cols-7 gap-1">
-        {DAY_NAMES.map((day, i) => (
+        {DAY_KEYS.map((dayKey, i) => (
           <div
-            key={day}
+            key={dayKey}
             className={`py-2 text-center text-sm font-medium ${
               i === 0 ? 'text-red-500' : i === 6 ? 'text-blue-500' : 'text-gray-500'
             }`}
           >
-            {day}
+            {t(`days.${dayKey}`)}
           </div>
         ))}
       </div>
@@ -221,7 +211,7 @@ export function LuckyDaysCalendar({ monthlyFortunes, year }: LuckyDaysCalendarPr
                   </p>
                   {isLucky && luckyInfo && (
                     <div className="mt-2">
-                      <p className="text-xs font-medium text-green-400">길일</p>
+                      <p className="text-xs font-medium text-green-400">{t('luckyDays')}</p>
                       <p className="text-xs text-gray-400">{luckyInfo.reason}</p>
                       {luckyInfo.suitableFor && luckyInfo.suitableFor.length > 0 && (
                         <div className="mt-1 flex flex-wrap gap-1">
@@ -239,7 +229,7 @@ export function LuckyDaysCalendar({ monthlyFortunes, year }: LuckyDaysCalendarPr
                   )}
                   {isUnlucky && unluckyInfo && (
                     <div className="mt-2">
-                      <p className="text-xs font-medium text-red-400">주의일</p>
+                      <p className="text-xs font-medium text-red-400">{t('unluckyDays')}</p>
                       <p className="text-xs text-gray-400">{unluckyInfo.reason}</p>
                       {unluckyInfo.avoid && unluckyInfo.avoid.length > 0 && (
                         <div className="mt-1 flex flex-wrap gap-1">
@@ -269,7 +259,7 @@ export function LuckyDaysCalendar({ monthlyFortunes, year }: LuckyDaysCalendarPr
           <div>
             <h5 className="mb-2 flex items-center gap-2 text-sm font-medium text-green-400">
               <Star className="h-4 w-4" />
-              이달의 길일
+              {t('luckyDaysOfMonth')}
             </h5>
             <div className="space-y-2">
               {luckyDays.map((day, i) => (
@@ -304,7 +294,7 @@ export function LuckyDaysCalendar({ monthlyFortunes, year }: LuckyDaysCalendarPr
           <div>
             <h5 className="mb-2 flex items-center gap-2 text-sm font-medium text-red-400">
               <AlertTriangle className="h-4 w-4" />
-              이달의 주의일
+              {t('unluckyDaysOfMonth')}
             </h5>
             <div className="space-y-2">
               {unluckyDays.map((day, i) => (
