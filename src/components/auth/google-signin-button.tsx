@@ -4,6 +4,7 @@ import { useState, Suspense } from 'react';
 import { supabase } from '@/lib/supabase/client';
 import { Loader2 } from 'lucide-react';
 import { useSearchParams } from 'next/navigation';
+import { isKakaoTalkBrowser, openInExternalBrowser } from '@/lib/browser-detect';
 
 interface GoogleSignInButtonProps {
   text?: string;
@@ -24,6 +25,13 @@ function GoogleSignInButtonInner({
   const next = searchParams.get('callbackUrl') || callbackUrl;
 
   const handleGoogleSignIn = async () => {
+    // 카카오톡 인앱 브라우저면 외부 브라우저로 이동
+    if (isKakaoTalkBrowser()) {
+      const loginUrl = `${window.location.origin}/auth/signin?callbackUrl=${encodeURIComponent(next)}`;
+      openInExternalBrowser(loginUrl);
+      return;
+    }
+
     setIsLoading(true);
 
     try {
