@@ -17,7 +17,18 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowLeft, Share2, Loader2, Sparkles, Home } from 'lucide-react';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 import { Link, useRouter } from '@/i18n/routing';
+import { useAuth } from '@/hooks/use-user';
 import {
   ProfileInfoHeader,
   SajuTable,
@@ -64,6 +75,7 @@ interface ReportData {
   wealth: WealthSectionData | null;
   romance: RomanceSectionData | null;
   detailedScores?: DetailedScoresData | null;
+  isOwner?: boolean; // 상담 탭 접근 제어용
 }
 
 /** 성격 재분석 섹션 타입 */
@@ -75,6 +87,7 @@ type PersonalityReanalyzeSection = 'outer' | 'inner' | 'social';
 export default function ProfileReportPage({ params }: PageProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const { isAuthenticated } = useAuth();
   const [id, setId] = useState<string>('');
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -89,6 +102,8 @@ export default function ProfileReportPage({ params }: PageProps) {
   const [reanalyzingSection, setReanalyzingSection] = useState<PersonalityReanalyzeSection | null>(
     null
   );
+  // 공유 확인 다이얼로그 상태
+  const [showShareDialog, setShowShareDialog] = useState(false);
 
   // URL의 tab 파라미터 감지
   useEffect(() => {
@@ -97,11 +112,30 @@ export default function ProfileReportPage({ params }: PageProps) {
       setActiveTab('daewun');
       setShowDaewunIndicator(false); // URL로 대운 탭 접근 시 indicator 숨김
     } else if (tab === 'consultation') {
+      // URL로 직접 상담 탭 접근 시 권한 체크는 reportData 로드 후 처리
       setActiveTab('consultation');
     } else {
       setActiveTab('saju');
     }
   }, [searchParams]);
+
+  // 상담 탭 URL 직접 접근 시 권한 체크
+  useEffect(() => {
+    if (activeTab === 'consultation' && reportData) {
+      // 비로그인 → 로그인 페이지로 리다이렉트
+      if (!isAuthenticated) {
+        const callbackUrl = encodeURIComponent(`/profiles/${id}/report?tab=consultation`);
+        router.push(`/auth/signin?callbackUrl=${callbackUrl}`);
+        return;
+      }
+      // 로그인했지만 본인이 아님 → 사주 탭으로 리다이렉트
+      if (!reportData.isOwner) {
+        toast.error('본인만 상담 탭에 접근할 수 있습니다.');
+        setActiveTab('saju');
+        router.replace(`/profiles/${id}/report`);
+      }
+    }
+  }, [activeTab, reportData, isAuthenticated, id, router]);
 
   // params 처리 (Promise 또는 일반 객체 모두 지원)
   useEffect(() => {
@@ -114,8 +148,24 @@ export default function ProfileReportPage({ params }: PageProps) {
 
   /**
    * 탭 변경 핸들러
+   * 상담 탭은 본인만 접근 가능
    */
   const handleTabChange = (tab: ReportTabType) => {
+    // 상담 탭 접근 제어
+    if (tab === 'consultation') {
+      // 비로그인 → 로그인 페이지로 리다이렉트
+      if (!isAuthenticated) {
+        const callbackUrl = encodeURIComponent(`/profiles/${id}/report?tab=consultation`);
+        router.push(`/auth/signin?callbackUrl=${callbackUrl}`);
+        return;
+      }
+      // 로그인했지만 본인이 아님 → 접근 불가
+      if (!reportData?.isOwner) {
+        toast.error('본인만 상담 탭에 접근할 수 있습니다.');
+        return;
+      }
+    }
+
     setActiveTab(tab);
     // 대운 탭 방문 시 indicator 숨김
     if (tab === 'daewun') {
@@ -187,15 +237,33 @@ export default function ProfileReportPage({ params }: PageProps) {
     }
   }, [id, fetchReportData]);
 
-  // 공유 핸들러
-  const handleShare = async () => {
+  /**
+   * 공유 버튼 클릭 핸들러
+   * 확인 다이얼로그를 먼저 표시
+   */
+  const handleShareClick = () => {
+    setShowShareDialog(true);
+  };
+
+  /**
+   * 공유 확인 후 실제 공유 수행
+   */
+  const handleShareConfirm = async () => {
+    setShowShareDialog(false);
+    // 사주/대운 탭만 공유 (상담 탭 제외)
+    const shareUrl = `${window.location.origin}/profiles/${id}/report`;
     if (navigator.share) {
-      await navigator.share({
-        title: `${reportData?.profile.name}님의 사주 리포트`,
-        url: window.location.href,
-      });
+      try {
+        await navigator.share({
+          title: `${reportData?.profile.name}님의 사주 리포트`,
+          url: shareUrl,
+        });
+      } catch {
+        // 사용자가 공유 취소
+      }
     } else {
-      await navigator.clipboard.writeText(window.location.href);
+      await navigator.clipboard.writeText(shareUrl);
+      toast.success('링크가 복사되었습니다.');
     }
   };
 
@@ -411,7 +479,7 @@ export default function ProfileReportPage({ params }: PageProps) {
             <Button
               variant="ghost"
               size="icon"
-              onClick={handleShare}
+              onClick={handleShareClick}
               title="공유하기"
               className="h-10 w-10 text-gray-400 hover:text-white"
             >
@@ -529,6 +597,29 @@ export default function ProfileReportPage({ params }: PageProps) {
           <p className="mt-1">© {new Date().getFullYear()} Master&apos;s Insight AI</p>
         </footer>
       </main>
+
+      {/* 공유 확인 다이얼로그 */}
+      <AlertDialog open={showShareDialog} onOpenChange={setShowShareDialog}>
+        <AlertDialogContent className="border-[#333] bg-[#1a1a1a]">
+          <AlertDialogHeader>
+            <AlertDialogTitle className="text-white">링크 공유</AlertDialogTitle>
+            <AlertDialogDescription className="text-gray-400">
+              해당 링크를 공유시 링크를 보유한 모두가 해당 페이지에 접근이 가능합니다.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel className="border-[#333] bg-transparent text-gray-400 hover:bg-[#242424] hover:text-white">
+              취소
+            </AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleShareConfirm}
+              className="bg-[#d4af37] text-white hover:bg-[#c19a2e]"
+            >
+              확인
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

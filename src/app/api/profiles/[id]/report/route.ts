@@ -854,22 +854,26 @@ function transformRomance(love: any, scores: any) {
 
 /**
  * GET /api/profiles/[id]/report
- * 완료된 리포트 조회
+ * 완료된 리포트 조회 (공개 접근 가능)
+ *
+ * v2.1: 인증 없이 조회 가능 (공유 링크 지원)
+ * - isOwner 플래그 반환 (상담 탭 접근 제어용)
+ * - 상담 데이터는 별도 API로 보호됨
  */
 export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
-    const user = await getAuthenticatedUser();
-    if (!user) {
-      return NextResponse.json(createErrorResponse(AUTH_ERRORS.UNAUTHORIZED), {
-        status: getStatusCode(AUTH_ERRORS.UNAUTHORIZED),
-      });
-    }
-
     const { id: profileId } = await params;
-    const userId = user.id;
     const supabase = getSupabaseAdmin();
 
-    // 1. 프로필 소유권 확인
+    // 인증은 선택적 (비로그인 사용자도 조회 가능)
+    let user = null;
+    try {
+      user = await getAuthenticatedUser();
+    } catch {
+      // 비로그인 사용자 - 정상 진행
+    }
+
+    // 1. 프로필 조회 (소유권 체크 없이)
     const { data: profile, error: profileError } = await supabase
       .from('profiles')
       .select('id, user_id')
@@ -882,11 +886,8 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
       });
     }
 
-    if (profile.user_id !== userId) {
-      return NextResponse.json(createErrorResponse(AUTH_ERRORS.FORBIDDEN), {
-        status: getStatusCode(AUTH_ERRORS.FORBIDDEN),
-      });
-    }
+    // 소유자 여부 판단 (상담 탭 접근 제어용)
+    const isOwner = user?.id === profile.user_id;
 
     // 2. 리포트 조회 (profile 정보 JOIN)
     const { data: report, error: reportError } = await supabase
@@ -991,7 +992,10 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
 
     return NextResponse.json({
       success: true,
-      data: reportData,
+      data: {
+        ...reportData,
+        isOwner, // 상담 탭 접근 제어용
+      },
     });
   } catch (error) {
     console.error('[API] GET /api/profiles/[id]/report 에러:', error);
