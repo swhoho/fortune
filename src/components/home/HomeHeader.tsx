@@ -17,7 +17,7 @@ import { useCreditsBalance } from '@/hooks/use-credits';
 export function HomeHeader() {
   const tCommon = useTranslations('common');
   const { user, isLoading } = useAuth();
-  const { data: creditsData } = useCreditsBalance();
+  const { data: creditsData, isLoading: isCreditsLoading } = useCreditsBalance();
 
   /** 아바타 이니셜 (이름 > 이메일 첫글자) */
   const initial = (
@@ -83,7 +83,11 @@ export function HomeHeader() {
               className="group flex items-center gap-1.5 rounded-full bg-white/10 px-3 py-1.5 text-sm transition-all hover:bg-white/20"
             >
               <Coins className="h-4 w-4 text-[#d4af37]" />
-              <span className="font-medium text-white">{credits}</span>
+              {isCreditsLoading ? (
+                <span className="h-4 w-6 animate-pulse rounded bg-white/20" />
+              ) : (
+                <span className="font-medium text-white">{credits}</span>
+              )}
               <span className="text-gray-400">C</span>
             </Link>
             {/* 사용자 아바타 */}
