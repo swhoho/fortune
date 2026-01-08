@@ -144,7 +144,7 @@ export function ConsultationTab({ profileId }: ConsultationTabProps) {
 
   return (
     <>
-      <div className="flex h-[calc(100vh-280px)] min-h-[400px] overflow-hidden rounded-lg border border-[#333] bg-[#111111] md:h-[calc(100vh-200px)] md:min-h-[500px]">
+      <div className="flex h-full overflow-hidden rounded-none border-0 bg-[#111111] md:h-[calc(100vh-200px)] md:min-h-[500px] md:rounded-lg md:border md:border-[#333]">
         {/* 데스크톱 세션 목록 */}
         <div className="hidden w-72 flex-shrink-0 border-r border-[#333] md:block">
           <SessionList

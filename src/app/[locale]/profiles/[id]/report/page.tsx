@@ -14,7 +14,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowLeft, Share2, Loader2, Sparkles, Home } from 'lucide-react';
+import { ArrowLeft, Share2, Loader2, Sparkles, Home, ChevronLeft } from 'lucide-react';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import {
@@ -578,15 +578,31 @@ export default function ProfileReportPage({ params }: PageProps) {
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: -20 }}
               transition={{ duration: 0.3 }}
+              className="fixed inset-0 z-50 flex flex-col bg-[#0a0a0a] md:relative md:inset-auto md:z-auto md:block"
             >
-              {/* 상담 탭: AI 상담 채팅 */}
-              <div className="mb-6">
+              {/* 모바일 헤더 (뒤로가기) */}
+              <div className="flex items-center gap-3 border-b border-[#333] px-4 py-3 md:hidden">
+                <button
+                  onClick={() => setActiveTab('saju')}
+                  className="rounded-md p-1 text-gray-400 hover:bg-[#242424] hover:text-white"
+                >
+                  <ChevronLeft className="h-6 w-6" />
+                </button>
+                <span className="text-lg font-medium text-white">AI 상담</span>
+              </div>
+
+              {/* 데스크톱 헤더 */}
+              <div className="mb-6 hidden md:block">
                 <h2 className="mb-2 text-xl font-semibold text-white">AI 상담</h2>
                 <p className="text-sm text-gray-400">
                   분석된 사주와 대운을 기반으로 전문가 AI에게 상담을 받아보세요.
                 </p>
               </div>
-              <ConsultationTab profileId={id} />
+
+              {/* 채팅 영역 */}
+              <div className="flex-1 md:flex-none">
+                <ConsultationTab profileId={id} />
+              </div>
             </motion.div>
           )}
         </AnimatePresence>
