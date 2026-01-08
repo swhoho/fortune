@@ -153,7 +153,7 @@ export default function PrivacyPage() {
                       <td className="px-4 py-2">데이터베이스 호스팅, 인증 서비스</td>
                     </tr>
                     <tr className="border-b border-[#222]">
-                      <td className="px-4 py-2">Stripe, Inc.</td>
+                      <td className="px-4 py-2">주식회사 포트원</td>
                       <td className="px-4 py-2">결제 처리</td>
                     </tr>
                     <tr className="border-b border-[#222]">
