@@ -11,7 +11,7 @@ import { routing, locales } from './i18n/routing';
 import { createServerClient } from '@supabase/ssr';
 
 /**
- * 공개 페이지 목록
+ * 공개 페이지 목록 (정적 경로)
  * /payment/success는 Stripe 결제 후 리다이렉트되므로 공개 처리
  */
 const publicPages = [
@@ -23,6 +23,14 @@ const publicPages = [
   '/auth/forgot-password',
   '/auth/reset-password',
   '/payment/success',
+];
+
+/**
+ * 공개 페이지 패턴 (동적 경로)
+ * 리포트 페이지는 공유 링크로 접근 가능
+ */
+const publicDynamicPatterns = [
+  /^\/profiles\/[^/]+\/report$/, // /profiles/{id}/report
 ];
 
 /**
@@ -46,7 +54,18 @@ export default async function middleware(request: NextRequest) {
     'i'
   );
 
-  const isPublicPage = publicPathnameRegex.test(request.nextUrl.pathname);
+  const isStaticPublicPage = publicPathnameRegex.test(request.nextUrl.pathname);
+
+  // 동적 공개 페이지 체크 (로케일 제거 후 매칭)
+  const pathWithoutLocale = request.nextUrl.pathname.replace(
+    new RegExp(`^/(${locales.join('|')})`),
+    ''
+  );
+  const isDynamicPublicPage = publicDynamicPatterns.some((pattern) =>
+    pattern.test(pathWithoutLocale)
+  );
+
+  const isPublicPage = isStaticPublicPage || isDynamicPublicPage;
 
   // 3. 인증 상태 확인
   // updateSession에서 이미 getUser를 호출했겠지만, 여기서 명시적으로 확인하거나
