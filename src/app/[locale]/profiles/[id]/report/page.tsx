@@ -592,9 +592,10 @@ export default function ProfileReportPage({ params }: PageProps) {
         </AnimatePresence>
 
         {/* 푸터 */}
-        <footer className="mt-16 border-t border-[#333] pt-8 text-center text-xs text-gray-500">
-          <p>본 분석은 AI가 생성한 참고 자료이며, 중요한 결정에 앞서 전문가 상담을 권장합니다.</p>
-          <p className="mt-1">© {new Date().getFullYear()} Master&apos;s Insight AI</p>
+        <footer
+          className={`border-t border-[#333] text-center text-xs text-gray-500 ${activeTab === 'consultation' ? 'mt-4 pt-4' : 'mt-16 pt-8'}`}
+        >
+          <p>© {new Date().getFullYear()} Master&apos;s Insight AI</p>
         </footer>
       </main>
 
