@@ -29,6 +29,7 @@ import {
   PillarsSection,
   SocialProofSection,
 } from '@/components/payment/PaymentSections';
+import { ExampleCarousel } from '@/components/payment/ExampleCarousel';
 import { Footer } from '@/components/layout/Footer';
 
 /** Analysis Includes */
@@ -232,10 +233,8 @@ export default function PaymentPage({ params: { locale } }: { params: { locale: 
                     </div>
                   </div>
                 ) : (
-                  // Fallback if no focus area (direct access)
-                  <div className="flex h-full flex-col justify-center rounded-2xl border border-white/5 bg-[#1a1a1a] p-8 text-center text-gray-400">
-                    <p>Select a credit package to recharge.</p>
-                  </div>
+                  // 예시 리포트 캐러셀 (focusArea 없을 때)
+                  <ExampleCarousel />
                 )}
               </div>
 
