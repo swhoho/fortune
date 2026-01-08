@@ -423,6 +423,7 @@ class ReportAnalysisService:
     async def _step_daewun_analysis(self, job_id: str, report_id: str, language: str):
         """대운 분석 단계 - 8개 대운 각각에 대해 AI 상세 분석 생성"""
         from prompts.daewun_analysis import build_daewun_analysis_prompt
+        from manseryeok.daewun import _calculate_favorable_percent, _calculate_unfavorable_percent
         from datetime import date
 
         job_store.update(
@@ -448,6 +449,21 @@ class ReportAnalysisService:
         # 용신/기신 추출
         useful_god = useful_god_data.get("primary", "")
         harmful_god = useful_god_data.get("harmful", "")
+
+        # v5.0: 대운 점수 재계산 (용신/기신 보정 적용)
+        for dw in daewun:
+            ten_god = dw.get("tenGod", "")
+            branch = dw.get("branch", "")
+            stem = dw.get("stem", "")
+
+            dw["favorablePercent"] = _calculate_favorable_percent(
+                ten_god, branch, useful_god, stem
+            )
+            dw["unfavorablePercent"] = _calculate_unfavorable_percent(
+                ten_god, branch, harmful_god, stem
+            )
+
+        logger.info(f"[{job_id}] 대운 점수 재계산 완료 (용신: {useful_god}, 기신: {harmful_god})")
 
         # 현재 나이 계산 (대략적)
         birth_year = pillars.get("year", {}).get("yearNum", date.today().year - 30)
@@ -487,14 +503,14 @@ class ReportAnalysisService:
                 if not daewun_analysis:
                     raise ValueError("daewunAnalysis 필드 없음")
 
-                # 대운 데이터에 AI 분석 결과 병합
+                # 대운 데이터에 AI 분석 결과 병합 (v5.0: 점수는 Python 엔진에서 계산)
                 for i, dw in enumerate(daewun):
                     if i < len(daewun_analysis):
                         ai_result = daewun_analysis[i]
                         dw["scoreReasoning"] = ai_result.get("scoreReasoning", "")
                         dw["summary"] = ai_result.get("summary", "")
-                        dw["favorablePercent"] = ai_result.get("favorablePercent", 50)
-                        dw["unfavorablePercent"] = ai_result.get("unfavorablePercent", 50)
+                        # v5.0: favorablePercent/unfavorablePercent는 Python 엔진에서 계산
+                        # Gemini 점수 덮어쓰기 제거 (일관된 점수 계산을 위해)
 
                         # 300자 미만이면 경고 로그
                         summary = dw.get("summary", "")

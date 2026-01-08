@@ -94,7 +94,8 @@ def get_ten_god_keywords(ten_god: str, language: str = 'ko') -> str:
 DAEWUN_ANALYSIS_PROMPT_KO = """## 대운 분석 전문가 역할
 
 당신은 30년 경력의 대운 분석 전문가입니다.
-각 대운에 대해 순풍운/역풍운 비율, 점수 근거, 그리고 나이에 맞는 상세 분석을 작성해주세요.
+각 대운에 대해 점수 근거와 나이에 맞는 상세 분석을 작성해주세요.
+(순풍운/역풍운 비율은 시스템에서 자동 계산됩니다)
 
 ### 입력 데이터
 - 일간: {day_master} ({day_master_element})
@@ -106,21 +107,14 @@ DAEWUN_ANALYSIS_PROMPT_KO = """## 대운 분석 전문가 역할
 
 ### 분석 원칙
 
-#### 1. 순풍운/역풍운 비율 (각각 독립 계산)
-- 순풍운 (0~100%): 대운 천간/지지가 용신과 같은 오행이면 순풍 ↑
-- 역풍운 (0~100%): 대운 천간/지지가 기신과 같은 오행이면 역풍 ↑
-- 두 값은 서로 독립적으로 계산 (합계가 100%가 아니어도 됨)
-- 예: 순풍 75%, 역풍 40% 같은 조합 가능
-- 원국과 합/충/형 관계 고려
-
-#### 2. 점수 근거 (scoreReasoning) - 반드시 작성
+#### 1. 점수 근거 (scoreReasoning) - 반드시 작성
 왜 이런 순풍/역풍 비율이 나왔는지 명리학적 근거를 설명합니다:
 - 대운 천간이 용신/기신과 어떤 관계인지
 - 대운 지지가 용신/기신과 어떤 관계인지
 - 원국과의 합/충/형/해/파 관계가 있는지
 - 예시: "대운 천간 癸水가 용신 水와 일치하여 순풍 기운이 강합니다. 지지 亥水 역시 용신 오행과 같아 안정감을 더합니다. 다만 원국 日支 巳火와 충(冲) 관계로 변동성이 예상됩니다."
 
-#### 3. 상세 요약 (summary) - 300~500자
+#### 2. 상세 요약 (summary) - 300~500자
 해당 10년 대운 기간 동안의 전반적인 운세 흐름을 상세히 설명합니다:
 - 십신의 특성이 해당 나이대에 어떻게 발현되는지
 - 이 시기에 주력해야 할 것과 피해야 할 것
@@ -154,17 +148,13 @@ DAEWUN_ANALYSIS_PROMPT_KO = """## 대운 분석 전문가 역할
       "ageRange": "7세~16세",
       "tenGod": "겁재",
       "tenGodType": "비겁운",
-      "favorablePercent": 35,
-      "unfavorablePercent": 65,
-      "scoreReasoning": "대운 천간이 기신 오행과 일치하여 역풍 기운이 우세합니다. 지지는 원국과 형(刑) 관계로 갈등과 시련이 예상되나, 천간의 일부 생조 관계로 완전한 흉운은 아닙니다.",
+      "scoreReasoning": "겁재운은 경쟁과 도전의 시기입니다. 대운 천간이 비겁 오행으로 자립심과 추진력이 강해지며, 지지와의 관계에서 활력이 더해집니다. 협력을 통해 시너지를 발휘하면 좋은 결과를 얻을 수 있습니다.",
       "summary": "이 시기는 학창시절과 사춘기가 겹치는 중요한 성장기입니다. 겁재의 기운이 강하게 작용하여 또래 친구들과의 경쟁이 치열해지고, 승부욕이 강해지는 시기입니다. 학업에서는 경쟁심이 동기부여가 될 수 있으나, 지나친 승부욕은 오히려 스트레스로 작용할 수 있습니다. 친구 관계에서 다툼이 생기기 쉽고, 형제자매와의 갈등도 예상됩니다. 부모님의 재정적 지원이 원활하지 않을 수 있어 용돈 관리에 신경 써야 합니다. 이 시기에는 무리한 투자나 도박성 행위를 절대 피하고, 기본에 충실한 학업과 체력 관리에 집중하는 것이 좋습니다. 운동이나 취미활동을 통해 경쟁 에너지를 건전하게 발산하면 오히려 성장의 발판이 될 수 있습니다."
     }},
     {{
       "ageRange": "27세~36세",
       "tenGod": "정인",
       "tenGodType": "인성운",
-      "favorablePercent": 75,
-      "unfavorablePercent": 25,
       "scoreReasoning": "대운 천간이 용신 오행과 일치하여 순풍 기운이 강합니다. 지지 역시 용신과 합을 이루어 안정감을 더하며, 원국과 조화로운 관계를 형성합니다.",
       "summary": "인성운이 들어오는 이 시기는 학습과 성장, 인정받음의 시기입니다. 사회생활 초반부터 중반까지 해당하는 이 기간은 자격증 취득, 대학원 진학, 전문 교육 등 자기계발에 투자하면 좋은 결과를 얻을 수 있습니다. 직장에서는 상사나 선배의 인정을 받기 쉽고, 좋은 멘토를 만날 가능성이 높습니다. 결혼을 고려한다면 이 시기가 적기이며, 배우자운도 좋은 편입니다. 부동산이나 안정적인 자산 형성에도 유리합니다. 다만 인성이 강하면 지나치게 신중해지거나 행동력이 떨어질 수 있으니, 기회가 왔을 때 과감하게 도전하는 자세도 필요합니다. 건강 면에서는 소화기 계통에 주의하고, 규칙적인 생활습관을 유지하는 것이 좋습니다."
     }}
@@ -178,7 +168,8 @@ DAEWUN_ANALYSIS_PROMPT_KO = """## 대운 분석 전문가 역할
 DAEWUN_ANALYSIS_PROMPT_EN = """## Fortune Period (大運) Analysis Expert Role
 
 You are a Fortune Period analysis expert with 30 years of experience.
-Analyze the favorable/unfavorable ratio, score reasoning, and detailed analysis for each fortune period.
+Analyze the score reasoning and detailed analysis for each fortune period.
+(Favorable/Unfavorable percentages are automatically calculated by the system)
 
 ### Input Data
 - Day Master: {day_master} ({day_master_element})
@@ -190,21 +181,14 @@ Analyze the favorable/unfavorable ratio, score reasoning, and detailed analysis 
 
 ### Analysis Principles
 
-#### 1. Favorable/Unfavorable Ratio (Independent Calculation)
-- Favorable (0~100%): If fortune period element matches Useful God → favorable ↑
-- Unfavorable (0~100%): If fortune period element matches Harmful God → unfavorable ↑
-- Two values are calculated independently (total does NOT need to be 100%)
-- Example: Favorable 75%, Unfavorable 40% is valid
-- Consider harmony/clash relationships with natal chart
-
-#### 2. Score Reasoning (scoreReasoning) - Required
+#### 1. Score Reasoning (scoreReasoning) - Required
 Explain the metaphysical basis for the favorable/unfavorable ratio:
 - How the fortune period stem relates to Useful/Harmful God
 - How the fortune period branch relates to Useful/Harmful God
 - Any harmony/clash/punishment relationships with natal chart
 - Example: "The fortune period stem matches the Useful God element, bringing favorable energy. The branch also harmonizes with the Useful God, adding stability. However, a clash with the natal day branch suggests some volatility."
 
-#### 3. Detailed Summary (summary) - 300~500 characters
+#### 2. Detailed Summary (summary) - 300~500 characters
 Comprehensive analysis of the entire 10-year fortune period:
 - How the Ten God characteristics manifest at this age
 - What to focus on and what to avoid during this period
@@ -238,9 +222,7 @@ Ten God Core Characteristics:
       "ageRange": "7-16",
       "tenGod": "Rob Wealth",
       "tenGodType": "Companion Period",
-      "favorablePercent": 35,
-      "unfavorablePercent": 65,
-      "scoreReasoning": "The fortune period stem matches the Harmful God element, creating unfavorable energy. The branch forms a punishment relationship with the natal chart, suggesting conflicts and trials.",
+      "scoreReasoning": "Rob Wealth period brings competitive energy and drive for independence. The stem relates to self-assertion while the branch adds vitality. Cooperation with others can lead to synergistic results.",
       "summary": "This period covers crucial school years and puberty. The Rob Wealth energy intensifies competition among peers and heightens your competitive spirit. In academics, this drive can motivate you, but excessive competitiveness may cause stress. Friendships may face conflicts, and sibling rivalries are possible. Financial support from parents might be limited, so managing allowances wisely is important. Avoid risky investments or gambling behaviors during this time. Focus on fundamentals: studies and physical fitness. Channel competitive energy through sports or hobbies for healthy development. This challenging period can become a foundation for growth if navigated wisely."
     }}
   ]
@@ -329,12 +311,11 @@ DAEWUN_ANALYSIS_OUTPUT_SCHEMA = {
                     "ageRange": {"type": "string"},
                     "tenGod": {"type": "string"},
                     "tenGodType": {"type": "string"},
-                    "favorablePercent": {"type": "integer", "minimum": 0, "maximum": 100},
-                    "unfavorablePercent": {"type": "integer", "minimum": 0, "maximum": 100},
+                    # v5.0: favorablePercent/unfavorablePercent 제거 (Python 엔진에서 계산)
                     "scoreReasoning": {"type": "string", "minLength": 80, "maxLength": 200},
                     "summary": {"type": "string", "minLength": 300, "maxLength": 500}
                 },
-                "required": ["ageRange", "tenGod", "tenGodType", "favorablePercent", "unfavorablePercent", "scoreReasoning", "summary"]
+                "required": ["ageRange", "tenGod", "tenGodType", "scoreReasoning", "summary"]
             }
         }
     },

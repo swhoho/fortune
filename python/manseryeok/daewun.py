@@ -266,16 +266,20 @@ def calculate_daewun_with_ten_god(
     birth_dt: datetime,
     gender: str,
     day_stem: str,
-    count: int = 10
+    count: int = 10,
+    useful_god: str = None,
+    harmful_god: str = None
 ) -> list[dict]:
     """
-    대운 계산 (십신 + favorablePercent 포함)
+    대운 계산 (십신 + favorablePercent 포함, v5.0 용신/기신 보정)
 
     Args:
         birth_dt: 양력 생년월일시
         gender: "male" 또는 "female"
         day_stem: 일간 (甲~癸)
         count: 대운 개수 (기본 10개 = 100년)
+        useful_god: 용신 오행 (木火土金水) - 순풍운 보정용
+        harmful_god: 기신 오행 (木火土金水) - 역풍운 보정용
 
     Returns:
         [
@@ -297,15 +301,19 @@ def calculate_daewun_with_ten_god(
     # 기본 대운 계산
     basic_daewun = calculate_daewun(birth_dt, gender, count)
 
-    # 십신 정보 + favorablePercent/unfavorablePercent 독립 계산
+    # 십신 정보 + favorablePercent/unfavorablePercent 독립 계산 (용신/기신 보정 포함)
     result = []
     for dw in basic_daewun:
         ten_god = get_ten_god_relation(day_stem, dw["stem"])
         ten_god_type = get_ten_god_type(ten_god)
 
-        # 순풍/역풍 독립 계산 (합계 100% 불필요)
-        favorable = _calculate_favorable_percent(ten_god, dw["branch"])
-        unfavorable = _calculate_unfavorable_percent(ten_god, dw["branch"])
+        # 순풍/역풍 독립 계산 (용신/기신 보정 포함)
+        favorable = _calculate_favorable_percent(
+            ten_god, dw["branch"], useful_god, dw["stem"]
+        )
+        unfavorable = _calculate_unfavorable_percent(
+            ten_god, dw["branch"], harmful_god, dw["stem"]
+        )
 
         result.append({
             "age": dw["age"],
@@ -327,28 +335,37 @@ def calculate_daewun_with_ten_god(
 # 대운 순풍운 비율 계산 (favorablePercent)
 # ============================================
 
-# 십신별 기본 순풍운 비율
-# 정통 명리학에서 십신의 길흉 해석 기반
-TEN_GOD_BASE_FAVORABLE = {
-    # 인성 (나를 생함) - 보호, 학습, 안정
-    "정인": 68,  # 바른 보호와 학습운
-    "편인": 52,  # 독특한 기술, 단 도식(倒食) 주의
+# 지지 → 오행 매핑 (용신/기신 보정용)
+BRANCH_TO_ELEMENT = {
+    "寅": "木", "卯": "木",
+    "巳": "火", "午": "火",
+    "辰": "土", "戌": "土", "丑": "土", "未": "土",
+    "申": "金", "酉": "金",
+    "亥": "水", "子": "水",
+}
 
-    # 비겁 (동류) - 자립, 경쟁
-    "비견": 55,  # 동료, 경쟁자
-    "겁재": 42,  # 재물 손실 주의, 경쟁 심화
+# 십신별 기본 순풍운 비율
+# 정통 명리학에서 십신의 길흉 해석 기반 (v5.0 상향 조정)
+TEN_GOD_BASE_FAVORABLE = {
+    # 관성 (나를 극함) - 명예, 직장
+    "정관": 80,  # 승진, 안정, 명예 (최고 길신)
+    "편관": 52,  # 도전과 압박, 극복 시 성장
 
     # 식상 (내가 생함) - 표현, 창조
-    "식신": 70,  # 복록, 재능 발휘
-    "상관": 45,  # 창의적이나 관성 충돌 주의
+    "식신": 78,  # 복록, 재능 발휘
+    "상관": 58,  # 창의적이나 관성 충돌 주의
+
+    # 인성 (나를 생함) - 보호, 학습, 안정
+    "정인": 76,  # 바른 보호와 학습운
+    "편인": 62,  # 독특한 기술, 단 도식(倒食) 주의
 
     # 재성 (내가 극함) - 재물, 부친
-    "정재": 65,  # 안정적 재물
-    "편재": 58,  # 투자 기회, 변동성
+    "정재": 73,  # 안정적 재물
+    "편재": 68,  # 투자 기회, 변동성
 
-    # 관성 (나를 극함) - 명예, 직장
-    "정관": 72,  # 승진, 안정, 명예
-    "편관": 40,  # 도전과 압박, 칠살(七殺) 주의
+    # 비겁 (동류) - 자립, 경쟁
+    "비견": 65,  # 동료, 경쟁자
+    "겁재": 55,  # 재물 손실 주의, 경쟁 심화
 }
 
 # 지지별 보정값 (대운 지지의 영향)
@@ -373,28 +390,46 @@ BRANCH_FAVORABLE_MODIFIER = {
 }
 
 
-def _calculate_favorable_percent(ten_god: str, branch: str) -> int:
+def _calculate_favorable_percent(
+    ten_god: str,
+    branch: str,
+    useful_god: str = None,
+    stem: str = None
+) -> int:
     """
-    대운의 순풍운 비율(favorablePercent) 계산
+    대운의 순풍운 비율(favorablePercent) 계산 (v5.0 용신 보정 포함)
 
     계산 공식:
-    favorablePercent = 십신기본점수 + 지지보정값
+    favorablePercent = 십신기본점수 + 지지보정값 + 용신보정값
 
     Args:
         ten_god: 대운 천간의 십신
         branch: 대운 지지
+        useful_god: 용신 오행 (木火土金水)
+        stem: 대운 천간 (甲~癸)
 
     Returns:
         순풍운 비율 (0~100 범위)
     """
-    # 기본 점수
+    # 1. 기본 점수
     base = TEN_GOD_BASE_FAVORABLE.get(ten_god, 50)
 
-    # 지지 보정
-    modifier = BRANCH_FAVORABLE_MODIFIER.get(branch, 0)
+    # 2. 지지 보정
+    branch_mod = BRANCH_FAVORABLE_MODIFIER.get(branch, 0)
 
-    # 최종 점수 (0~100 범위로 클램프)
-    favorable = base + modifier
+    # 3. 용신 보정 (지지/천간이 용신 오행과 일치하면 +12)
+    god_mod = 0
+    if useful_god:
+        branch_element = BRANCH_TO_ELEMENT.get(branch)
+        stem_element = STEM_TO_ELEMENT.get(stem) if stem else None
+
+        if branch_element == useful_god:
+            god_mod += 8  # 지지가 용신 오행
+        if stem_element == useful_god:
+            god_mod += 8  # 천간이 용신 오행
+
+    # 4. 최종 점수 (0~100 범위로 클램프)
+    favorable = base + branch_mod + god_mod
     return max(0, min(100, favorable))
 
 
@@ -403,27 +438,27 @@ def _calculate_favorable_percent(ten_god: str, branch: str) -> int:
 # ============================================
 
 # 십신별 기본 역풍운 비율
-# 정통 명리학에서 십신의 흉한 측면 해석 기반
+# 정통 명리학에서 십신의 흉한 측면 해석 기반 (v5.0 하향 조정)
 TEN_GOD_BASE_UNFAVORABLE = {
     # 관성 (나를 극함) - 압박, 스트레스
-    "편관": 70,  # 칠살, 압박, 스트레스
-    "정관": 20,  # 명예, 안정 (역풍 낮음)
+    "편관": 50,  # 칠살, 압박 있으나 제화 시 권력
+    "정관": 15,  # 명예, 안정 (역풍 최소)
 
     # 비겁 (동류) - 경쟁, 손재
-    "겁재": 65,  # 재물 손실, 경쟁 심화
-    "비견": 45,  # 경쟁, 분쟁
+    "겁재": 45,  # 재물 손실 가능, 협력으로 극복
+    "비견": 35,  # 경쟁, 분쟁 가능
 
     # 식상 (내가 생함) - 소모, 충돌
-    "상관": 60,  # 관성 충돌, 구설수
-    "식신": 25,  # 복록 (역풍 낮음)
+    "상관": 42,  # 관성 충돌 가능, 창의력으로 전환
+    "식신": 18,  # 복록 (역풍 최소)
 
     # 인성 (나를 생함) - 도식, 게으름
-    "편인": 50,  # 도식(倒食), 변덕
-    "정인": 30,  # 안정 (역풍 낮음)
+    "편인": 38,  # 도식 가능, 특수 재능으로 승화
+    "정인": 22,  # 안정 (역풍 낮음)
 
     # 재성 (내가 극함) - 변동, 손실
-    "편재": 40,  # 변동성, 투기 손실
-    "정재": 35,  # 안정적 (역풍 낮음)
+    "편재": 30,  # 변동성 있으나 기회로 활용
+    "정재": 25,  # 안정적 (역풍 낮음)
 }
 
 # 지지별 역풍 보정값 (대운 지지의 부정적 영향)
@@ -448,26 +483,44 @@ BRANCH_UNFAVORABLE_MODIFIER = {
 }
 
 
-def _calculate_unfavorable_percent(ten_god: str, branch: str) -> int:
+def _calculate_unfavorable_percent(
+    ten_god: str,
+    branch: str,
+    harmful_god: str = None,
+    stem: str = None
+) -> int:
     """
-    대운의 역풍운 비율(unfavorablePercent) 독립 계산
+    대운의 역풍운 비율(unfavorablePercent) 독립 계산 (v5.0 기신 보정 포함)
 
     계산 공식:
-    unfavorablePercent = 십신기본역풍점수 + 지지역풍보정값
+    unfavorablePercent = 십신기본역풍점수 + 지지역풍보정값 + 기신보정값
 
     Args:
         ten_god: 대운 천간의 십신
         branch: 대운 지지
+        harmful_god: 기신 오행 (木火土金水)
+        stem: 대운 천간 (甲~癸)
 
     Returns:
         역풍운 비율 (0~100 범위)
     """
-    # 기본 점수
+    # 1. 기본 점수
     base = TEN_GOD_BASE_UNFAVORABLE.get(ten_god, 50)
 
-    # 지지 보정
-    modifier = BRANCH_UNFAVORABLE_MODIFIER.get(branch, 0)
+    # 2. 지지 보정
+    branch_mod = BRANCH_UNFAVORABLE_MODIFIER.get(branch, 0)
 
-    # 최종 점수 (0~100 범위로 클램프)
-    unfavorable = base + modifier
+    # 3. 기신 보정 (지지/천간이 기신 오행과 일치하면 +8)
+    god_mod = 0
+    if harmful_god:
+        branch_element = BRANCH_TO_ELEMENT.get(branch)
+        stem_element = STEM_TO_ELEMENT.get(stem) if stem else None
+
+        if branch_element == harmful_god:
+            god_mod += 6  # 지지가 기신 오행
+        if stem_element == harmful_god:
+            god_mod += 6  # 천간이 기신 오행
+
+    # 4. 최종 점수 (0~100 범위로 클램프)
+    unfavorable = base + branch_mod + god_mod
     return max(0, min(100, unfavorable))
