@@ -379,7 +379,7 @@ export function ChatArea({
       </div>
 
       {/* 입력 영역 */}
-      <div className="border-t border-[#333] p-4">
+      <div className="border-t border-[#333] p-4 pb-8 md:pb-4">
         {isCompleted ? (
           // 세션 완료 상태
           <div className="flex flex-col items-center gap-3 py-2">
