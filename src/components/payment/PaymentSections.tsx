@@ -284,7 +284,7 @@ export function HeroSection({ currentLocale }: PaymentSectionsProps) {
   const content = COPY[currentLocale] || DEFAULT_CONTENT;
 
   return (
-    <section className="relative px-6 py-20 text-center">
+    <section className="relative px-6 py-12 text-center">
       {/* Background Decor */}
       <div className="absolute left-1/2 top-0 block h-64 w-[200%] -translate-x-1/2 rounded-[100%] bg-gradient-to-b from-[#d4af37]/10 via-[#d4af37]/5 to-transparent blur-3xl" />
 
@@ -312,12 +312,8 @@ export function PillarsSection({ currentLocale }: PaymentSectionsProps) {
   const content = COPY[currentLocale] || DEFAULT_CONTENT;
 
   return (
-    <section className="px-6 py-16">
+    <section className="px-6 py-8">
       <div className="mx-auto max-w-6xl">
-        <h2 className="mb-16 text-center text-sm font-bold uppercase tracking-[0.2em] text-[#d4af37]">
-          Why Saju30 is Accurate
-        </h2>
-
         <div className="grid grid-cols-1 gap-8 md:grid-cols-3 lg:grid-cols-5">
           {content.pillars.map((pillar, index) => (
             <motion.div
@@ -370,20 +366,16 @@ export function SocialProofSection({ currentLocale }: PaymentSectionsProps) {
   const content = COPY[currentLocale] || DEFAULT_CONTENT;
 
   return (
-    <section className="px-6 py-20 text-center">
+    <section className="px-6 py-10 text-center">
       <motion.div
         initial={{ opacity: 0, scale: 0.9 }}
         whileInView={{ opacity: 1, scale: 1 }}
         viewport={{ once: true }}
         className="mx-auto max-w-3xl rounded-3xl border border-white/5 bg-gradient-to-br from-[#1a1a1a] to-[#2a2a2a] p-10 shadow-2xl"
       >
-        <span className="mb-6 block text-4xl text-[#d4af37]">❝</span>
-        <h3 className="mb-2 font-serif text-xl font-medium text-white md:text-3xl">
+        <h3 className="font-serif text-xl font-medium text-white md:text-3xl">
           {content.socialProof}
         </h3>
-        <p className="mt-6 text-sm font-medium uppercase tracking-wider text-gray-500 opacity-70">
-          Saju30 Official Guarantee
-        </p>
       </motion.div>
     </section>
   );

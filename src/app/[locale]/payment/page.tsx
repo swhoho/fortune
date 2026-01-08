@@ -172,7 +172,7 @@ export default function PaymentPage({ params: { locale } }: { params: { locale: 
       <SocialProofSection currentLocale={locale} />
 
       {/* 4. Payment Action */}
-      <div className="relative px-6 py-24">
+      <div className="relative px-6 py-12">
         {/* Background Gradient for Package Section */}
         <div className="absolute inset-0 z-0 bg-gradient-to-t from-[#0a0a0a] via-[#1a1a1a]/50 to-[#0a0a0a]" />
 
@@ -183,7 +183,7 @@ export default function PaymentPage({ params: { locale } }: { params: { locale: 
             transition={{ duration: 0.5 }}
           >
             {/* 타이틀 */}
-            <h2 className="mb-12 text-center font-serif text-3xl font-bold text-white">
+            <h2 className="mb-8 text-center font-serif text-3xl font-bold text-white">
               Start Your Analysis
             </h2>
 
