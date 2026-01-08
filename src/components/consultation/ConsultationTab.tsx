@@ -158,7 +158,7 @@ export function ConsultationTab({ profileId }: ConsultationTabProps) {
         </div>
 
         {/* 채팅 영역 */}
-        <div className="flex-1">
+        <div className="min-h-0 flex-1">
           <ChatArea
             profileId={profileId}
             sessionId={activeSessionId}

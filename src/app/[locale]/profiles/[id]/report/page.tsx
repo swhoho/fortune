@@ -600,7 +600,7 @@ export default function ProfileReportPage({ params }: PageProps) {
               </div>
 
               {/* 채팅 영역 */}
-              <div className="flex-1 md:flex-none">
+              <div className="min-h-0 flex-1 md:flex-none">
                 <ConsultationTab profileId={id} />
               </div>
             </motion.div>
