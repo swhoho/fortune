@@ -187,7 +187,7 @@ BASIC_ANALYSIS_SCHEMA = {
         "structure": {
             "type": "object",
             "properties": {
-                "type": {"type": "string", "description": "격국명 한글 (예: 상관격)"},
+                "type": {"type": "string", "description": "격국명 한글 음독만 (반드시 한글로! 예: 식신격, 상관격, 정관격). 한자 사용 금지"},
                 "typeChinese": {"type": "string", "description": "격국 한자 (예: 傷官格)"},
                 "quality": {"type": "string", "description": "품질 (上/中/下)"},
                 "description": {"type": "string", "description": "격국 형성 원리와 삶의 방식"},
