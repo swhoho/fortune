@@ -19,9 +19,17 @@
     "test:e2e:headed": "playwright test --headed",
     "test:e2e:chromium": "playwright test --project=chromium",
     "test:all": "npm run test:unit && npm run test:e2e",
-    "test:lighthouse": "lhci autorun"
+    "test:lighthouse": "lhci autorun",
+    "cap:sync": "npx cap sync android",
+    "cap:open": "npx cap open android",
+    "cap:build": "cd android && ./gradlew bundleRelease",
+    "cap:build:debug": "cd android && ./gradlew assembleDebug"
   },
   "dependencies": {
+    "@capacitor/android": "^8.0.0",
+    "@capacitor/cli": "^8.0.0",
+    "@capacitor/core": "^8.0.0",
+    "@capgo/native-purchases": "^8.0.10",
     "@google/generative-ai": "^0.24.1",
     "@portone/browser-sdk": "^0.1.2",
     "@radix-ui/react-alert-dialog": "^1.1.15",
@@ -45,6 +53,7 @@
     "d3": "^7.9.0",
     "date-fns": "^4.1.0",
     "framer-motion": "^12.23.26",
+    "googleapis": "^170.0.0",
     "lucide-react": "^0.562.0",
     "next": "14.2.35",
     "next-auth": "^4.24.13",

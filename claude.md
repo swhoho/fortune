@@ -13,7 +13,9 @@
 | Database | Supabase (PostgreSQL) |
 | Auth | Supabase Auth |
 | AI | Gemini 2.0 Flash |
-| Payment | Stripe |
+| Payment (Web) | PortOne (한국 PG) |
+| Payment (App) | Google Play Billing |
+| Mobile App | Capacitor (Android) |
 | Live Chat | Crisp |
 | i18n | next-intl (ko, en, ja, zh-CN, zh-TW) |
 
@@ -74,6 +76,7 @@ python/
 | `docs/report_analysis.md` | 프로필 리포트 분석 파이프라인 |
 | `docs/yearly_analysis.md` | 신년 분석 파이프라인 |
 | `docs/consultation.md` | AI 상담 시스템 |
+| `docs/app.md` | Android 앱 출시 가이드 (Capacitor, Google Play Billing) |
 
 ## 핵심 기능
 
@@ -158,6 +161,10 @@ python/
 - **Backend (Python)**: Railway
   - Root Directory: `/python`
   - Dockerfile 자동 감지
+- **Android App**: Google Play Store
+  - Package: `ai.mastersinsight.app`
+  - 빌드: `npm run cap:build` (AAB 생성)
+  - 상세: `docs/app.md` 참조
 
 ## 개발 가이드라인
 
@@ -294,10 +301,19 @@ cd python && pytest  # Python
 
 ---
 
-**Version**: 1.36.0
-**Last Updated**: 2026-01-07 (점수 시스템 v4.0)
+**Version**: 1.37.0
+**Last Updated**: 2026-01-08 (Android 앱 출시 준비)
 
 ## Changelog
+
+### v1.37.0 (2026-01-08)
+- **Android 앱 출시 준비 (Capacitor)**
+  - Capacitor 8.0 + Android 프로젝트 설정
+  - 원격 서버 모드 (Vercel 웹사이트 로드)
+  - Google Play Billing 통합 (`@capgo/native-purchases`)
+  - 구매 검증 API (`/api/payment/google/verify`)
+  - 앱 빌드 스크립트 (`cap:sync`, `cap:build`)
+  - 상세 가이드: `docs/app.md`
 
 ### v1.36.0 (2026-01-07)
 - **점수 시스템 고도화 (v4.0)**
