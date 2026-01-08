@@ -14,11 +14,10 @@ const BUSINESS_INFO = {
   companyName: '갓생제조기',
   representative: '박유민',
   businessNumber: '761-23-01990',
-  address: '경기도 용인시 수지구 신봉2로 154, 104동 2003호(신봉동, 힐스테이트 광교산)',
+  address: '경기도 용인시 수지구 신봉2로 154',
   phone: '070-7954-2284',
   email: 'asolid@gmail.com',
-  // 통신판매업번호는 신고 후 추가 예정
-  // sellerRegistration: '제 2026-용인수지-XXXX호',
+  sellerRegistration: '제-2026용인수지-0217호',
 };
 
 /** 정책 링크 */
@@ -52,9 +51,7 @@ export function Footer() {
             </p>
             <p>주소: {BUSINESS_INFO.address}</p>
             <p>
-              사업자등록번호: {BUSINESS_INFO.businessNumber}
-              {/* 통신판매업번호 추가 시 아래 주석 해제 */}
-              {/* {' | '}통신판매업번호: {BUSINESS_INFO.sellerRegistration} */}
+              사업자등록번호: {BUSINESS_INFO.businessNumber} / 통신판매업번호 {BUSINESS_INFO.sellerRegistration}
             </p>
             <p>
               이메일: {BUSINESS_INFO.email} | 대표전화: {BUSINESS_INFO.phone}
