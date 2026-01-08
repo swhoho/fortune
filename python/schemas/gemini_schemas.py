@@ -367,27 +367,6 @@ YEARLY_ADVICE_SCHEMA = {
     "required": ["yearlyAdvice"]
 }
 
-KEY_DATES_SCHEMA = {
-    "type": "object",
-    "properties": {
-        "keyDates": {
-            "type": "array",
-            "description": "최소 5개 이상의 주요 일자",
-            "items": {
-                "type": "object",
-                "properties": {
-                    "date": {"type": "string"},
-                    "type": {"type": "string", "description": "lucky 또는 unlucky"},
-                    "description": {"type": "string"},
-                    "category": {"type": "string"}
-                },
-                "required": ["date", "type", "description"]
-            }
-        }
-    },
-    "required": ["keyDates"]
-}
-
 CLASSICAL_REFS_SCHEMA = {
     "type": "object",
     "properties": {
@@ -440,7 +419,6 @@ GEMINI_SCHEMAS.update({
     "monthly_7_9": MONTHLY_FORTUNES_SCHEMA,
     "monthly_10_12": MONTHLY_FORTUNES_SCHEMA,
     "yearly_advice": YEARLY_ADVICE_SCHEMA,
-    "key_dates": KEY_DATES_SCHEMA,
     "classical_refs": CLASSICAL_REFS_SCHEMA,
     "daewun_analysis": DAEWUN_ANALYSIS_SCHEMA,
 })

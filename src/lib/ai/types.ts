@@ -255,20 +255,6 @@ export interface QuarterlyHighlight {
 }
 
 /**
- * 연중 핵심 날짜
- */
-export interface KeyDate {
-  /** 날짜 (YYYY-MM-DD 형식) */
-  date: string;
-  /** 날짜 유형 */
-  type: 'lucky' | 'unlucky' | 'neutral';
-  /** 중요도 설명 */
-  significance: string;
-  /** 추천 사항 */
-  recommendation: string;
-}
-
-/**
  * 섹션 콘텐츠 (상반기/하반기 구분)
  * 키 이름은 camelCase로 통일 (DB 저장 형식과 일치)
  */
@@ -322,8 +308,6 @@ export interface YearlyAnalysisResult {
   monthlyFortunes: MonthlyFortune[];
   /** 분기별 하이라이트 (deprecated - optional) */
   quarterlyHighlights?: QuarterlyHighlight[];
-  /** 연중 핵심 날짜 (10-15개) */
-  keyDates: KeyDate[];
   /** 분야별 연간 조언 */
   yearlyAdvice: YearlyAdvice;
   /** 고전 인용 */

@@ -5,3 +5,5 @@
 export { HomeHeader } from './HomeHeader';
 export { HomeMenuCard } from './HomeMenuCard';
 export { HomeMenuGrid } from './HomeMenuGrid';
+export { RecentProfiles } from './RecentProfiles';
+export { RecentProfileCard } from './RecentProfileCard';

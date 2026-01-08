@@ -7,6 +7,7 @@
 import { motion } from 'framer-motion';
 import { useTranslations } from 'next-intl';
 import { HomeMenuCard } from './HomeMenuCard';
+import { RecentProfiles } from './RecentProfiles';
 import { BRAND_COLORS } from '@/lib/constants/colors';
 import { UserPlus, Users, Sparkles, Calendar, Heart, User } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
@@ -113,6 +114,9 @@ export function HomeMenuGrid() {
               );
             })}
           </div>
+
+          {/* 최근 프로필 영역 (프로필 관리 섹션에만 표시) */}
+          {section.titleKey === 'sections.profile' && <RecentProfiles />}
         </motion.div>
       ))}
     </div>

@@ -7,9 +7,8 @@ import { useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useTranslations } from 'next-intl';
 import { useRouter } from 'next/navigation';
-import { HomeHeader } from '@/components/home/HomeHeader';
 import { HomeMenuGrid } from '@/components/home/HomeMenuGrid';
-import { Footer } from '@/components/layout/Footer';
+import { AppHeader, Footer } from '@/components/layout';
 import { BRAND_COLORS } from '@/lib/constants/colors';
 import { useAuth } from '@/hooks/use-user';
 
@@ -74,7 +73,7 @@ export function HomePageClient() {
         {/* 컨텐츠 */}
         <div className="relative z-10 mx-auto max-w-3xl">
           {/* 헤더 */}
-          <HomeHeader />
+          <AppHeader sticky={false} className="border-b-0" />
 
           {/* 로고 영역 */}
           <motion.div

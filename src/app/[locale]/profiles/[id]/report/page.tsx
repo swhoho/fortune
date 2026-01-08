@@ -14,9 +14,10 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowLeft, Share2, Loader2, Sparkles, Home, ChevronLeft } from 'lucide-react';
+import { Share2, Loader2, Sparkles } from 'lucide-react';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
+import { AppHeader } from '@/components/layout';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -377,34 +378,7 @@ export default function ProfileReportPage({ params }: PageProps) {
   if (noReport || !reportData) {
     return (
       <div className="min-h-screen bg-[#0a0a0a]">
-        <header className="sticky top-0 z-10 border-b border-[#333] bg-[#0a0a0a]/80 backdrop-blur-sm">
-          <div className="mx-auto flex max-w-2xl items-center justify-between px-6 py-4">
-            <div className="flex items-center gap-1 sm:gap-2">
-              <Button
-                variant="ghost"
-                size="icon"
-                asChild
-                className="h-10 w-10 text-gray-400 hover:text-white"
-              >
-                <Link href="/home">
-                  <Home className="h-5 w-5" />
-                </Link>
-              </Button>
-              <Button
-                variant="ghost"
-                size="icon"
-                asChild
-                className="h-10 w-10 text-gray-400 hover:text-white"
-              >
-                <Link href={`/profiles/${id}`}>
-                  <ArrowLeft className="h-5 w-5" />
-                </Link>
-              </Button>
-            </div>
-            <h1 className="font-serif text-lg font-semibold text-white">사주 리포트</h1>
-            <div className="w-20" />
-          </div>
-        </header>
+        <AppHeader showBack backHref={`/profiles/${id}`} title="사주 리포트" />
 
         <main className="mx-auto max-w-2xl px-6 py-16">
           <motion.div
@@ -446,48 +420,22 @@ export default function ProfileReportPage({ params }: PageProps) {
   return (
     <div className="min-h-screen bg-[#0a0a0a]">
       {/* 헤더 */}
-      <header className="sticky top-0 z-30 border-b border-[#333] bg-[#0a0a0a]/90 backdrop-blur-sm">
-        <div className="mx-auto flex max-w-4xl items-center justify-between px-6 py-3">
-          <div className="flex items-center gap-1 sm:gap-2">
-            <Button
-              variant="ghost"
-              size="icon"
-              asChild
-              className="h-10 w-10 text-gray-400 hover:text-white"
-            >
-              <Link href="/home">
-                <Home className="h-5 w-5" />
-              </Link>
-            </Button>
-            <Button
-              variant="ghost"
-              size="icon"
-              asChild
-              className="h-10 w-10 text-gray-400 hover:text-white"
-            >
-              <Link href={`/profiles/${id}`}>
-                <ArrowLeft className="h-5 w-5" />
-              </Link>
-            </Button>
-          </div>
-
-          <h1 className="font-serif text-lg font-semibold text-white">
-            {reportData.profile.name}님의 사주 리포트
-          </h1>
-
-          <div className="flex items-center gap-1 sm:gap-2">
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={handleShareClick}
-              title="공유하기"
-              className="h-10 w-10 text-gray-400 hover:text-white"
-            >
-              <Share2 className="h-5 w-5" />
-            </Button>
-          </div>
-        </div>
-      </header>
+      <AppHeader
+        showBack
+        backHref={`/profiles/${id}`}
+        title={`${reportData.profile.name}님의 사주 리포트`}
+        rightSlot={
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={handleShareClick}
+            title="공유하기"
+            className="h-9 w-9 rounded-xl text-gray-400 hover:bg-white/[0.06] hover:text-white"
+          >
+            <Share2 className="h-5 w-5" />
+          </Button>
+        }
+      />
 
       {/* 탭 네비게이션 */}
       <ReportNavigation

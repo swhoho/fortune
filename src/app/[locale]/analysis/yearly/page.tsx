@@ -14,6 +14,7 @@ import { Sparkles, Home, Eye, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { YearSelector } from '@/components/analysis/yearly';
 import { ProfileSelector } from '@/components/profile';
+import { AppHeader } from '@/components/layout';
 import { useYearlyStore } from '@/stores/yearly-store';
 import { useUserProfile } from '@/hooks/use-user';
 import { useProfiles } from '@/hooks/use-profiles';
@@ -125,28 +126,15 @@ export default function YearlyAnalysisPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#0a0a0a] px-4 py-8">
-      <div className="mx-auto max-w-2xl">
-        {/* 상단 네비게이션 */}
-        <motion.div
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="mb-4"
-        >
-          <button
-            onClick={() => router.push('/home')}
-            className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#1a1a1a] text-gray-400 transition-all hover:bg-[#242424] hover:text-white"
-            title="홈으로"
-          >
-            <Home className="h-5 w-5" />
-          </button>
-        </motion.div>
+    <div className="min-h-screen bg-[#0a0a0a]">
+      {/* 헤더 */}
+      <AppHeader title={t('title', { defaultValue: '신년 운세 분석' })} />
 
-        {/* 헤더 */}
+      <div className="mx-auto max-w-2xl px-4 py-8">
+        {/* 서브 헤더 */}
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.05 }}
           className="mb-8 text-center"
         >
           <div
@@ -155,10 +143,7 @@ export default function YearlyAnalysisPage() {
           >
             <Sparkles className="h-8 w-8" style={{ color: BRAND_COLORS.primary }} />
           </div>
-          <h1 className="font-serif text-2xl font-bold text-white">
-            {t('title', { defaultValue: '신년 운세 분석' })}
-          </h1>
-          <p className="mt-2 text-gray-400">
+          <p className="text-gray-400">
             {t('subtitle', { defaultValue: '월별 상세 운세와 길흉일을 확인하세요' })}
           </p>
         </motion.div>

@@ -622,6 +622,7 @@
   "home": {
     "sections": {
       "profile": "档案管理",
+      "recentProfiles": "最近的档案",
       "analysis": "八字分析",
       "compatibility": "合婚分析",
       "account": "账户"

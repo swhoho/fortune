@@ -1,13 +1,12 @@
 """
 신년 사주 분석 서비스
-비동기 백그라운드 작업 처리 (8단계 순차 파이프라인)
+비동기 백그라운드 작업 처리 (7단계 순차 파이프라인)
 
 파이프라인 단계:
 1. yearly_overview - 기본 정보 (year, summary, theme, score)
 2-5. monthly_1_3, monthly_4_6, monthly_7_9, monthly_10_12 - 월별 운세
 6. yearly_advice - 6섹션 연간 조언
-7. key_dates - 핵심 길흉일
-8. classical_refs - 고전 인용
+7. classical_refs - 고전 인용
 """
 import asyncio
 import uuid
@@ -58,7 +57,6 @@ class JobStore:
                 "monthly_7_9": "pending",
                 "monthly_10_12": "pending",
                 "yearly_advice": "pending",
-                "key_dates": "pending",
                 "classical_refs": "pending",
                 "complete": "pending",
             },
@@ -118,22 +116,21 @@ class JobStore:
 job_store = JobStore()
 
 
-# 단계별 진행률
+# 단계별 진행률 (7단계)
 STEP_PROGRESS = {
     "yearly_overview": 10,
-    "monthly_1_3": 22,
-    "monthly_4_6": 34,
-    "monthly_7_9": 46,
-    "monthly_10_12": 58,
-    "yearly_advice": 75,
-    "key_dates": 85,
+    "monthly_1_3": 25,
+    "monthly_4_6": 40,
+    "monthly_7_9": 55,
+    "monthly_10_12": 70,
+    "yearly_advice": 85,
     "classical_refs": 95,
     "complete": 100,
 }
 
 
 class YearlyAnalysisService:
-    """신년 분석 서비스 (8단계 순차 파이프라인)"""
+    """신년 분석 서비스 (7단계 순차 파이프라인)"""
 
     def __init__(self):
         self.gemini = None  # lazy init
@@ -214,15 +211,7 @@ class YearlyAnalysisService:
                 result["yearlyAdvice"] = None
                 logger.warning(f"[{job_id}] yearlyAdvice 단계 실패 - null 설정")
 
-            # 7. key_dates
-            key_dates = await self._step_key_dates(job_id, request, result)
-            if key_dates:
-                result["keyDates"] = key_dates.get("keyDates", [])
-            else:
-                result["keyDates"] = None
-                logger.warning(f"[{job_id}] keyDates 단계 실패 - null 설정")
-
-            # 8. classical_refs
+            # 7. classical_refs
             refs = await self._step_classical_refs(job_id, request, result)
             if refs:
                 result["classicalReferences"] = refs.get("classicalReferences", [])
@@ -237,14 +226,12 @@ class YearlyAnalysisService:
             failed_steps = []
             if not result.get("yearlyAdvice"):
                 failed_steps.append("yearlyAdvice")
-            if not result.get("keyDates"):
-                failed_steps.append("keyDates")
             if not result.get("classicalReferences"):
                 failed_steps.append("classicalReferences")
             if len(result.get("monthlyFortunes", [])) < 12:
                 failed_steps.append("monthlyFortunes")
 
-            # 9. 완료 - DB 최종 저장
+            # 8. 완료 - DB 최종 저장
             job_store.update_step_status(job_id, "complete", "completed")
             job_store.update(
                 job_id,
@@ -511,86 +498,13 @@ class YearlyAnalysisService:
 
         return result
 
-    async def _step_key_dates(
-        self,
-        job_id: str,
-        request: YearlyAnalysisRequest,
-        previous_result: Dict[str, Any]
-    ) -> Optional[Dict[str, Any]]:
-        """Step 7: 핵심 길흉일 (3회 재시도)"""
-        step_name = "key_dates"
-        max_retries = 3
-
-        job_store.update(
-            job_id,
-            current_step=step_name,
-            progress_percent=STEP_PROGRESS[step_name]
-        )
-        job_store.update_step_status(job_id, step_name, "in_progress")
-
-        analysis_id = getattr(request, 'analysis_id', None)
-        success = False
-        last_error = None
-        result = None
-
-        for attempt in range(1, max_retries + 1):
-            try:
-                logger.info(f"[{job_id}] {step_name} 시도 {attempt}/{max_retries}")
-
-                # 프롬프트 빌드
-                prompt = YearlyStepPrompts.build_key_dates(
-                    language=request.language,
-                    year=request.target_year,
-                    pillars=request.pillars,
-                    monthly_fortunes=previous_result.get("monthlyFortunes", [])
-                )
-
-                # v2.7: 에러 피드백 포함 Gemini 호출
-                result = await self._call_gemini(
-                    prompt, step_name,
-                    previous_error=last_error if attempt > 1 else None
-                )
-
-                # 빈 응답 검증
-                key_dates = result.get("keyDates", [])
-                if not result or not key_dates:
-                    raise ValueError("keyDates 필드 누락 또는 빈 배열")
-
-                # 최소 5개 이상 확인
-                if len(key_dates) < 5:
-                    raise ValueError(f"keyDates 개수 부족 (min=5, got={len(key_dates)})")
-
-                # 성공
-                logger.info(f"[{job_id}] {step_name} 성공: {len(key_dates)}개 날짜")
-                job_store.update_step_status(job_id, step_name, "completed")
-
-                # DB 중간 저장
-                if analysis_id:
-                    partial_result = dict(previous_result)
-                    partial_result["keyDates"] = key_dates
-                    await self._update_db_analysis(analysis_id, partial_result, "in_progress")
-
-                success = True
-                break
-
-            except Exception as e:
-                last_error = str(e)
-                logger.warning(f"[{job_id}] {step_name} 실패 ({attempt}/{max_retries}): {e}")
-
-        if not success:
-            logger.error(f"[{job_id}] {step_name} 최종 실패: {last_error}")
-            job_store.update_step_status(job_id, step_name, "failed")
-            return None
-
-        return result
-
     async def _step_classical_refs(
         self,
         job_id: str,
         request: YearlyAnalysisRequest,
         previous_result: Dict[str, Any]
     ) -> Optional[Dict[str, Any]]:
-        """Step 8: 고전 인용 (3회 재시도)"""
+        """Step 7: 고전 인용 (3회 재시도)"""
         step_name = "classical_refs"
         max_retries = 3
 
@@ -727,7 +641,6 @@ class YearlyAnalysisService:
             } if analysis.get("year") else None,
             "monthly_fortunes": analysis.get("monthlyFortunes"),
             "yearly_advice": analysis.get("yearlyAdvice"),
-            "key_dates": analysis.get("keyDates"),
             "classical_refs": analysis.get("classicalReferences"),
         }
 
@@ -804,7 +717,7 @@ class YearlyAnalysisService:
 
         Args:
             analysis_id: yearly_analyses 테이블 ID
-            step_type: 재분석할 단계 (yearly_advice, key_dates, classical_refs, monthly_X_X)
+            step_type: 재분석할 단계 (yearly_advice, classical_refs, monthly_X_X)
             pillars: 사주 정보
             daewun: 대운 정보
             target_year: 분석 대상 연도
@@ -831,13 +744,6 @@ class YearlyAnalysisService:
                 pillars=pillars,
                 daewun=daewun,
                 overview_result=overview_result
-            )
-        elif step_type == "key_dates":
-            prompt = YearlyStepPrompts.build_key_dates(
-                language=language,
-                year=target_year,
-                pillars=pillars,
-                monthly_fortunes=existing_analysis.get("monthlyFortunes", []) if existing_analysis else []
             )
         elif step_type == "classical_refs":
             prompt = YearlyStepPrompts.build_classical_refs(
@@ -894,11 +800,6 @@ class YearlyAnalysisService:
                     if missing:
                         raise ValueError(f"누락된 섹션: {missing}")
 
-                elif step_type == "key_dates":
-                    key_dates = result.get("keyDates", [])
-                    if not key_dates or len(key_dates) < 3:
-                        raise ValueError(f"keyDates 부족 (최소 3개 필요, 현재: {len(key_dates)})")
-
                 elif step_type == "classical_refs":
                     refs = result.get("classicalReferences", [])
                     if not refs or len(refs) < 2:
@@ -920,8 +821,6 @@ class YearlyAnalysisService:
 
         if step_type == "yearly_advice":
             updated_analysis["yearlyAdvice"] = result.get("yearlyAdvice", {})
-        elif step_type == "key_dates":
-            updated_analysis["keyDates"] = result.get("keyDates", [])
         elif step_type == "classical_refs":
             updated_analysis["classicalReferences"] = result.get("classicalReferences", [])
         elif step_type.startswith("monthly_"):

@@ -8,9 +8,10 @@
 import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
-import { ArrowLeft, Share2, Sparkles, Calendar, BookOpen, Loader2, Home } from 'lucide-react';
+import { Share2, Sparkles, Calendar, BookOpen, Loader2 } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
+import { AppHeader } from '@/components/layout';
 import {
   MonthlyTimeline,
   LuckyDaysCalendar,
@@ -22,7 +23,7 @@ import { BRAND_COLORS } from '@/lib/constants/colors';
 import type { YearlyAnalysisResult } from '@/lib/ai/types';
 
 /** 재분석 가능한 단계 타입 */
-type ReanalyzableStep = 'yearly_advice' | 'key_dates' | 'classical_refs';
+type ReanalyzableStep = 'yearly_advice' | 'classical_refs';
 
 export default function YearlyResultPage() {
   const params = useParams();
@@ -62,8 +63,6 @@ export default function YearlyResultPage() {
         // stepType에 따라 해당 필드 업데이트
         if (stepType === 'yearly_advice' && resultData.yearlyAdvice) {
           updatedResult.yearlyAdvice = resultData.yearlyAdvice;
-        } else if (stepType === 'key_dates' && resultData.keyDates) {
-          updatedResult.keyDates = resultData.keyDates;
         } else if (stepType === 'classical_refs' && resultData.classicalReferences) {
           updatedResult.classicalReferences = resultData.classicalReferences;
         }
@@ -258,75 +257,6 @@ export default function YearlyResultPage() {
               onReanalyze={() => handleReanalyze('yearly_advice')}
               isReanalyzing={reanalyzingStep === 'yearly_advice'}
               icon={<Sparkles className="h-5 w-5" style={{ color: BRAND_COLORS.primary }} />}
-            />
-          )}
-
-          {/* 핵심 날짜 */}
-          {result.keyDates && result.keyDates.length > 0 ? (
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.6 }}
-              className="rounded-2xl border border-[#333] bg-[#1a1a1a] p-6 shadow-lg"
-            >
-              <div className="mb-4 flex items-center gap-3">
-                <div
-                  className="flex h-10 w-10 items-center justify-center rounded-full"
-                  style={{ backgroundColor: `${BRAND_COLORS.primary}20` }}
-                >
-                  <Calendar className="h-5 w-5" style={{ color: BRAND_COLORS.primary }} />
-                </div>
-                <div>
-                  <h3 className="font-serif text-lg font-semibold text-white">연중 핵심 날짜</h3>
-                  <p className="text-sm text-gray-400">{result.year}년 주목해야 할 중요한 날들</p>
-                </div>
-              </div>
-
-              <div className="space-y-3">
-                {result.keyDates.map((keyDate, index) => (
-                  <div
-                    key={index}
-                    className={`rounded-lg p-4 ${
-                      keyDate.type === 'lucky'
-                        ? 'border border-green-900/50 bg-green-900/20'
-                        : keyDate.type === 'unlucky'
-                          ? 'border border-red-900/50 bg-red-900/20'
-                          : 'border border-[#444] bg-[#242424]'
-                    }`}
-                  >
-                    <div className="flex items-center justify-between">
-                      <span className="font-medium text-white">{keyDate.date}</span>
-                      <span
-                        className={`rounded-full px-2 py-0.5 text-xs font-medium ${
-                          keyDate.type === 'lucky'
-                            ? 'bg-green-900/50 text-green-400'
-                            : keyDate.type === 'unlucky'
-                              ? 'bg-red-900/50 text-red-400'
-                              : 'bg-[#333] text-gray-300'
-                        }`}
-                      >
-                        {keyDate.type === 'lucky'
-                          ? '길일'
-                          : keyDate.type === 'unlucky'
-                            ? '주의'
-                            : '특별일'}
-                      </span>
-                    </div>
-                    <p className="mt-1 text-sm text-gray-400">{keyDate.significance}</p>
-                    {keyDate.recommendation && (
-                      <p className="mt-2 text-sm text-gray-500">💡 {keyDate.recommendation}</p>
-                    )}
-                  </div>
-                ))}
-              </div>
-            </motion.div>
-          ) : (
-            <FailedSectionCard
-              title="연중 핵심 날짜"
-              description={`${result.year}년 주목해야 할 중요한 날들`}
-              onReanalyze={() => handleReanalyze('key_dates')}
-              isReanalyzing={reanalyzingStep === 'key_dates'}
-              icon={<Calendar className="h-5 w-5" style={{ color: BRAND_COLORS.primary }} />}
             />
           )}
 

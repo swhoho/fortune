@@ -17,15 +17,14 @@ class JobStatus(str, Enum):
 
 
 class YearlyPipelineStep(str, Enum):
-    """신년 분석 파이프라인 단계 (8단계 순차 실행)"""
+    """신년 분석 파이프라인 단계 (7단계 순차 실행)"""
     YEARLY_OVERVIEW = "yearly_overview"      # Step 1: 기본 정보
     MONTHLY_1_3 = "monthly_1_3"              # Step 2: 1-3월
     MONTHLY_4_6 = "monthly_4_6"              # Step 3: 4-6월
     MONTHLY_7_9 = "monthly_7_9"              # Step 4: 7-9월
     MONTHLY_10_12 = "monthly_10_12"          # Step 5: 10-12월
     YEARLY_ADVICE = "yearly_advice"          # Step 6: 6섹션 조언
-    KEY_DATES = "key_dates"                  # Step 7: 핵심 길흉일
-    CLASSICAL_REFS = "classical_refs"        # Step 8: 고전 인용
+    CLASSICAL_REFS = "classical_refs"        # Step 7: 고전 인용
     COMPLETE = "complete"                    # 완료
 
 
@@ -105,7 +104,6 @@ class YearlyAnalysisResult(BaseModel):
     quarterly_highlights: Optional[List[QuarterlyHighlight]] = Field(
         default=[], description="분기별 하이라이트 (deprecated)"
     )
-    key_dates: Dict[str, List[str]] = Field(..., description="핵심 날짜 (lucky/unlucky)")
     yearly_advice: YearlyAdvice = Field(..., description="6개 섹션 분야별 조언")
     classical_references: List[Dict[str, str]] = Field(..., description="고전 인용")
 

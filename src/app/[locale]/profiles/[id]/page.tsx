@@ -8,13 +8,14 @@
 import { useState, useEffect } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { motion } from 'framer-motion';
-import { ArrowLeft, Loader2, Home } from 'lucide-react';
+import { Loader2 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { useQuery } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { ProfileInfoCard, DeleteProfileDialog } from '@/components/profile';
 import { InsufficientCreditsDialog, CreditDeductionDialog } from '@/components/credits';
+import { AppHeader } from '@/components/layout';
 import { useProfile, useUpdateProfile, useDeleteProfile } from '@/hooks/use-profiles';
 import { useReportCreditsCheck } from '@/hooks/use-credits';
 import { Link, useRouter } from '@/i18n/routing';
@@ -190,34 +191,7 @@ export default function ProfileDetailPage({ params }: PageProps) {
   return (
     <div className="min-h-screen bg-[#0a0a0a]">
       {/* 헤더 */}
-      <header className="sticky top-0 z-10 border-b border-[#333] bg-[#111111]/90 backdrop-blur-sm">
-        <div className="mx-auto flex max-w-2xl items-center justify-between px-6 py-4">
-          <div className="flex items-center gap-1 sm:gap-2">
-            <Button
-              variant="ghost"
-              size="icon"
-              asChild
-              className="h-10 w-10 text-white hover:bg-[#242424]"
-            >
-              <Link href="/home">
-                <Home className="h-5 w-5" />
-              </Link>
-            </Button>
-            <Button
-              variant="ghost"
-              size="icon"
-              asChild
-              className="h-10 w-10 text-white hover:bg-[#242424]"
-            >
-              <Link href="/profiles">
-                <ArrowLeft className="h-5 w-5" />
-              </Link>
-            </Button>
-          </div>
-          <h1 className="font-serif text-lg font-semibold text-white">{t('pageTitle.detail')}</h1>
-          <div className="w-20" /> {/* 균형을 위한 빈 공간 */}
-        </div>
-      </header>
+      <AppHeader showBack backHref="/profiles" title={t('pageTitle.detail')} />
 
       {/* 콘텐츠 */}
       <main className="mx-auto max-w-2xl px-6 py-8">

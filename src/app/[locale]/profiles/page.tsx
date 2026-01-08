@@ -6,10 +6,11 @@
  */
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Home, Plus } from 'lucide-react';
+import { Plus } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { Button } from '@/components/ui/button';
 import { ProfileList } from '@/components/profile';
+import { AppHeader } from '@/components/layout';
 import { useProfiles } from '@/hooks/use-profiles';
 import { Link, useRouter } from '@/i18n/routing';
 import type { ProfileResponse } from '@/types/profile';
@@ -30,21 +31,21 @@ export default function ProfilesPage() {
   return (
     <div className="min-h-screen bg-[#0a0a0a]">
       {/* 헤더 */}
-      <header className="sticky top-0 z-10 border-b border-[#333] bg-[#111111]/90 backdrop-blur-sm">
-        <div className="mx-auto flex max-w-2xl items-center justify-between px-6 py-4">
-          <Button variant="ghost" size="icon" asChild className="text-white hover:bg-[#242424]">
-            <Link href="/home">
-              <Home className="h-5 w-5" />
-            </Link>
-          </Button>
-          <h1 className="font-serif text-lg font-semibold text-white">{t('pageTitle.list')}</h1>
-          <Button variant="ghost" size="icon" asChild className="text-white hover:bg-[#242424]">
+      <AppHeader
+        title={t('pageTitle.list')}
+        rightSlot={
+          <Button
+            variant="ghost"
+            size="icon"
+            asChild
+            className="hidden h-9 w-9 rounded-xl text-gray-400 hover:bg-white/[0.06] hover:text-white md:flex"
+          >
             <Link href="/profiles/new">
               <Plus className="h-5 w-5" />
             </Link>
           </Button>
-        </div>
-      </header>
+        }
+      />
 
       {/* 목록 */}
       <main className="mx-auto max-w-2xl px-6 py-8">

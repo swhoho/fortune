@@ -622,6 +622,7 @@
   "home": {
     "sections": {
       "profile": "Profile Management",
+      "recentProfiles": "Recent Profiles",
       "analysis": "Fortune Analysis",
       "compatibility": "Compatibility",
       "account": "Account"

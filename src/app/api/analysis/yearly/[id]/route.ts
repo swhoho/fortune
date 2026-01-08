@@ -87,7 +87,6 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
         overallScore: analysis.overview?.overallScore ?? analysis.analysis?.overallScore,
         monthlyFortunes: analysis.monthly_fortunes ?? analysis.analysis?.monthlyFortunes,
         yearlyAdvice: rawYearlyAdvice ? normalizeKeys(rawYearlyAdvice) : null,
-        keyDates: analysis.key_dates ?? analysis.analysis?.keyDates,
         classicalReferences: analysis.classical_refs ?? analysis.analysis?.classicalReferences,
         quarterlyHighlights: analysis.analysis?.quarterlyHighlights ?? [],
       };

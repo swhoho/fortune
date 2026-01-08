@@ -1,13 +1,12 @@
 """
 신년 분석 단계별 프롬프트 모듈
-8단계 순차 실행용 프롬프트 빌더
+7단계 순차 실행용 프롬프트 빌더
 
 Steps:
 1. yearly_overview - 기본 정보 (year, summary, theme, score)
 2-5. monthly_1_3, monthly_4_6, monthly_7_9, monthly_10_12 - 월별 운세
 6. yearly_advice - 6섹션 연간 조언
-7. key_dates - 핵심 길흉일
-8. classical_refs - 고전 인용
+7. classical_refs - 고전 인용
 """
 import json
 from typing import Dict, Any, List, Literal
@@ -390,86 +389,6 @@ Yearly theme: {theme}
             return cls.build_yearly_advice('ko', year, pillars, daewun, overview_result)
 
     @classmethod
-    def build_key_dates(
-        cls,
-        language: LocaleType,
-        year: int,
-        pillars: Dict[str, Any],
-        monthly_fortunes: List[Dict[str, Any]] = None
-    ) -> str:
-        """
-        Step 7: 핵심 길흉일 프롬프트
-        출력: keyDates (10-15개)
-        """
-        pillars_str = cls._format_pillars(pillars, language)
-        persona = cls.PERSONA.get(language, cls.PERSONA['ko'])
-
-        if language == 'ko':
-            return f"""{persona}
-
-{year}년의 가장 중요한 길일과 흉일을 선정해주세요.
-
-## 사주 정보
-{pillars_str}
-
-## 응답 형식 (JSON)
-반드시 아래 JSON 형식으로만 응답하세요.
-
-```json
-{{
-  "keyDates": [
-    {{
-      "date": "{year}-03-21",
-      "type": "lucky",
-      "significance": "연중 가장 중요한 길일",
-      "recommendation": "중요한 계약, 사업 시작에 최적"
-    }},
-    {{
-      "date": "{year}-07-15",
-      "type": "unlucky",
-      "significance": "주의가 필요한 날",
-      "recommendation": "큰 결정을 피하고 안정을 취하세요"
-    }}
-  ]
-}}
-```
-
-**주의사항**:
-- keyDates 배열에 10-15개 날짜 포함
-- type: "lucky" 또는 "unlucky"
-- 날짜 형식: YYYY-MM-DD
-- 연간 전체에서 가장 중요한 날짜들만 선정
-"""
-        elif language == 'en':
-            return f"""{persona}
-
-Select the most important lucky and unlucky dates for {year}.
-
-## BaZi Information
-{pillars_str}
-
-## Response Format (JSON)
-```json
-{{
-  "keyDates": [
-    {{
-      "date": "{year}-03-21",
-      "type": "lucky",
-      "significance": "Most important lucky day of the year",
-      "recommendation": "Ideal for contracts, starting businesses"
-    }}
-  ]
-}}
-```
-
-**Requirements**:
-- Include 10-15 dates in keyDates array
-- type: "lucky" or "unlucky"
-"""
-        else:
-            return cls.build_key_dates('ko', year, pillars, monthly_fortunes)
-
-    @classmethod
     def build_classical_refs(
         cls,
         language: LocaleType,
@@ -478,7 +397,7 @@ Select the most important lucky and unlucky dates for {year}.
         overview_result: Dict[str, Any] = None
     ) -> str:
         """
-        Step 8: 고전 인용 프롬프트
+        Step 7: 고전 인용 프롬프트
         출력: classicalReferences (2-3개)
         """
         pillars_str = cls._format_pillars(pillars, language)

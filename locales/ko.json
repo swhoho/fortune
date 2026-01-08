@@ -641,6 +641,7 @@
   "home": {
     "sections": {
       "profile": "프로필 관리",
+      "recentProfiles": "최근 프로필",
       "analysis": "사주 분석",
       "compatibility": "궁합 분석",
       "account": "계정"

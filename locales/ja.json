@@ -622,6 +622,7 @@
   "home": {
     "sections": {
       "profile": "プロファイル管理",
+      "recentProfiles": "最近のプロファイル",
       "analysis": "四柱推命分析",
       "compatibility": "相性分析",
       "account": "アカウント"
