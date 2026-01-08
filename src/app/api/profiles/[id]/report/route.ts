@@ -183,14 +183,17 @@ function transformBasicAnalysis(basicAnalysis: any) {
       : typeof dayMasterRaw.characteristics === 'string'
         ? [dayMasterRaw.characteristics]
         : dayMasterRaw.특성 || [],
+    description: dayMasterRaw.description || '', // v3.1: 일간 성격 설명
   };
 
   // 격국
   const structureRaw = data.structure || data.격국 || {};
   const structure = {
     type: structureRaw.type || structureRaw.격국명 || '',
+    typeChinese: structureRaw.typeChinese || '', // v3.1: 격국 한자
     quality: structureRaw.quality || structureRaw.품질 || '中',
     description: structureRaw.description || structureRaw.설명 || '',
+    practicalAdvice: structureRaw.practicalAdvice || null, // v3.1: 실생활 조언
   };
 
   // 용신/기신
@@ -200,6 +203,7 @@ function transformBasicAnalysis(basicAnalysis: any) {
     secondary: usefulGodRaw.heeshin || usefulGodRaw.secondary || usefulGodRaw.희신 || '',
     harmful: usefulGodRaw.kishin || usefulGodRaw.harmful || usefulGodRaw.기신 || '',
     reasoning: usefulGodRaw.reason || usefulGodRaw.reasoning || usefulGodRaw.근거 || '',
+    practicalApplication: usefulGodRaw.practicalApplication || '', // v3.1: 실생활 활용법
   };
 
   // 사주 요약

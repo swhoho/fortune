@@ -336,10 +336,50 @@ PersonalitySection → socialStyleDetail (type/strengths/weaknesses)
 
 ---
 
+## 기본분석 확장 필드 (v3.1)
+
+`basic_analysis` 단계에서 Gemini가 생성하는 확장 필드:
+
+### dayMaster (일간 특성)
+| 필드 | 타입 | 설명 |
+|------|------|------|
+| `stem` | string | 천간 한자 (甲~癸) |
+| `element` | string | 오행 한자 (木火土金水) |
+| `yinYang` | string | 음양 (陰/陽) |
+| `characteristics` | string[] | 행동 특성 키워드 4-5개 |
+| `description` | string | **v3.1** 일간 성격/행동 패턴 2-3문장 |
+
+### structure (격국)
+| 필드 | 타입 | 설명 |
+|------|------|------|
+| `type` | string | 격국명 한글 (예: 상관격) |
+| `typeChinese` | string | **v3.1** 격국 한자 (예: 傷官格) |
+| `quality` | string | 품질 (上/中/下) |
+| `description` | string | 격국 형성 원리 설명 |
+| `practicalAdvice` | object | **v3.1** 실생활 조언 |
+| `practicalAdvice.lifeStrategy` | string | 인생 전략 2-3문장 |
+| `practicalAdvice.careerTips` | string[] | 추천 직업 3-4개 |
+| `practicalAdvice.pitfallsToAvoid` | string[] | 주의사항 2-3개 |
+
+### usefulGod (용신/기신)
+| 필드 | 타입 | 설명 |
+|------|------|------|
+| `primary` | string | 용신 오행 한자 |
+| `secondary` | string | 희신 오행 한자 |
+| `harmful` | string | 기신 오행 한자 |
+| `reasoning` | string | 용신 선정 근거 |
+| `practicalApplication` | string | **v3.1** 실생활 활용법 3-4문장 (방위, 색상, 업종) |
+
+**스키마**: `python/schemas/gemini_schemas.py` (`BASIC_ANALYSIS_SCHEMA`)
+**프롬프트**: `python/prompts/builder.py` (basic 단계)
+
+---
+
 ## 변경 이력
 
 | 날짜 | 버전 | 변경 내용 |
 |------|------|----------|
+| 2026-01-08 | v3.1 | 기본분석 확장 필드 추가 (dayMaster.description, structure.practicalAdvice, usefulGod.practicalApplication) |
 | 2026-01-07 | v3.0 | 사주 요약(summary) 500자+ 상세화, Python 점수 계산 SENSITIVITY=1.5 적용, CharacteristicsSection 삭제 |
 | 2026-01-07 | v2.9 | 한자 용어 설명 규칙 추가 (일상적 비유 + 음독 방식) |
 | 2026-01-07 | v2.8 | response_schema 미지원 필드 제거 (minimum, maximum → description) |

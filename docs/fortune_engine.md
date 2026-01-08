@@ -432,6 +432,7 @@ src/lib/
 
 | 날짜 | 버전 | 변경 내용 |
 |------|------|----------|
+| 2026-01-08 | v4.1 | 기본분석 확장 필드 추가 (dayMaster.description, structure.practicalAdvice, usefulGod.practicalApplication) |
 | 2026-01-07 | v4.0 | 점수 시스템 고도화 (지장간 월률분야 비율, 12운성 가중치, 지지 상호작용 배수, SENSITIVITY 제거) |
 | 2026-01-07 | v3.0 | 점수 분포 극단화 (SENSITIVITY=1.5 편차 증폭, modifier ×1.8, 지장간 여기/중기 가중치 0) |
 | 2026-01-07 | v2.5 | response_schema 미지원 필드 제거 (minimum, maximum, minItems, enum → description) |
