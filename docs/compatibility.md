@@ -5,7 +5,7 @@
 ## 개요
 
 두 사람의 사주를 비교하여 궁합을 분석하는 시스템.
-- **Python 엔진**: 모든 점수 계산 (100% 규칙 기반)
+- **Python 엔진**: 만세력 계산 + 점수 계산 (100% 규칙 기반)
 - **Gemini AI**: 점수 기반 해석 생성 (점수 계산 X)
 
 ## 크레딧
@@ -13,25 +13,95 @@
 | 서비스 | 비용 |
 |--------|------|
 | 연인 궁합 | 70C |
-| 섹션 재분석 | 0C (무료) |
+| 무료 재시도 | 0C (실패한 분석 재시도) |
 
 ---
 
-## 점수 체계 (Python 엔진)
+## 아키텍처
+
+```
+클라이언트 (Next.js)
+    ↓ POST /api/analysis/compatibility
+Next.js API Route
+    ↓ 프로필 검증, 만세력 체크, 크레딧 차감
+Python 백엔드 (Railway)
+    ↓ 10단계 비동기 파이프라인
+    ↓ GET /api/analysis/compatibility/{job_id}/status (폴링)
+완료 → DB 저장 (Supabase)
+```
+
+---
+
+## 파이프라인 (10단계)
+
+| 단계 | 이름 | 엔진 | 설명 | 진행률 |
+|------|------|------|------|--------|
+| 1 | `manseryeok_a` | Python | A 사주 팔자 + 대운 계산 | 5% |
+| 2 | `manseryeok_b` | Python | B 사주 팔자 + 대운 계산 | 10% |
+| 3 | `compatibility_score` | Python | 5개 항목 점수 계산 | 25% |
+| 4 | `trait_scores` | Python | 연애 스타일 5항목 | 35% |
+| 5 | `relationship_type` | Gemini | 인연의 성격 분석 | 50% |
+| 6 | `trait_interpretation` | Gemini | 연애 스타일 해석 | 60% |
+| 7 | `conflict_analysis` | Gemini | 갈등 포인트 분석 | 70% |
+| 8 | `marriage_fit` | Gemini | 결혼 적합도 분석 | 80% |
+| 9 | `mutual_influence` | Gemini | 상호 영향 분석 | 90% |
+| 10 | `saving` | DB | 결과 저장 | 97% |
+| - | `complete` | - | 완료 | 100% |
+
+**에러 처리**:
+- Step 1-4 (Python): 실패 시 파이프라인 중단
+- Step 5-9 (Gemini): 3회 재시도 후 실패해도 계속 진행, `failed_steps`에 기록
+
+---
+
+## Python 점수 엔진 (Step 3-4)
 
 ### 5개 항목 점수 (가중치 합 100%)
 
-| 항목 | 가중치 | 계산 로직 | 파일 위치 |
-|------|--------|-----------|-----------|
-| 천간 조화 | 25% | 5합 성립률 (갑기합토, 을경합금...) | `compatibility_engine.py:calculate_stem_harmony()` |
-| 지지 조화 | 25% | 6합 - 충×1.4 - 형×1.5 - 파/해 | `compatibility_engine.py:calculate_branch_harmony()` |
-| 오행 균형 | 20% | 보완 오행 +12, 과다 오행 -8 | `compatibility_engine.py:calculate_element_balance()` |
-| 십신 호환 | 20% | `TEN_GOD_COMPATIBILITY` 매트릭스 | `compatibility_engine.py:calculate_ten_god_compatibility()` |
-| 12운성 시너지 | 10% | `WUNSEONG_SYNERGY` 매트릭스 (상대 일지 기준) | `compatibility_engine.py:calculate_wunseong_synergy()` |
+| 항목 | 가중치 | 계산 로직 | 함수 |
+|------|--------|-----------|------|
+| 천간 조화 | 25% | 5합 성립률 (갑기합토, 을경합금...) | `calculate_stem_harmony()` |
+| 지지 조화 | 25% | 6합(+) - 충×1.4 - 형×1.5 - 파/해 | `calculate_branch_harmony()` |
+| 오행 균형 | 20% | 보완 오행 +12, 과다 오행 -8 | `calculate_element_balance()` |
+| 십신 호환 | 20% | `TEN_GOD_COMPATIBILITY` 매트릭스 | `calculate_ten_god_compatibility()` |
+| 12운성 시너지 | 10% | 교차평가 (A일간→B일지, B일간→A일지) | `calculate_wunseong_synergy()` |
 
-### 연애 스타일 5항목
+**총점 계산**:
+```python
+total_score = int(
+    stem_harmony * 0.25 +
+    branch_harmony * 0.25 +
+    element_balance * 0.20 +
+    ten_god_compat * 0.20 +
+    wunseong_synergy * 0.10
+)
+```
 
-| 항목 | 영문 키 | 십신 매핑 |
+### 천간 5합 규칙
+
+```python
+STEM_COMBINATIONS = {
+    ('甲', '己'): ('土', ['辰', '戌', '丑', '未'], '갑기합토'),
+    ('乙', '庚'): ('金', ['申', '酉'], '을경합금'),
+    ('丙', '辛'): ('水', ['亥', '子'], '병신합수'),
+    ('丁', '壬'): ('木', ['寅', '卯'], '정임합목'),
+    ('戊', '癸'): ('火', ['巳', '午'], '무계합화'),
+}
+```
+
+### 지지 상호작용 배수
+
+| 관계 | 효과 | 배수 |
+|------|------|------|
+| 6합 | +20점 | ×0.6~1.0 |
+| 충 | -25점 | ×1.4 |
+| 형 | -20점 | ×1.5 |
+| 해 | -10점 | ×1.0 |
+| 파 | -10점 | ×1.0 |
+
+### 연애 스타일 5항목 (Step 4)
+
+| 항목 | 영문 키 | 주요 십신 |
 |------|---------|-----------|
 | 표현력 | expression | 식신×1.5, 상관×1.3 |
 | 독점욕 | possessiveness | 편관×1.5, 겁재×1.3 |
@@ -41,22 +111,176 @@
 
 ---
 
-## 파이프라인 (10단계)
+## Gemini AI 분석 (Step 5-9)
 
-| 단계 | 이름 | 엔진 | 진행률 |
-|-----|------|------|--------|
-| 1 | `manseryeok_a` | Python | 5% |
-| 2 | `manseryeok_b` | Python | 10% |
-| 3 | `compatibility_score` | Python | 25% |
-| 4 | `trait_scores` | Python | 35% |
-| 5 | `relationship_type` | Gemini | 50% |
-| 6 | `trait_interpretation` | Gemini | 60% |
-| 7 | `conflict_analysis` | Gemini | 70% |
-| 8 | `marriage_fit` | Gemini | 80% |
-| 9 | `mutual_influence` | Gemini | 90% |
-| 10 | `saving` | - | 100% |
+**모델**: Gemini 2.0 Flash (response_schema 제어)
 
-**중요**: Gemini 단계 실패 시 `failed_steps`에 기록, 나머지 계속 진행
+### Step 5: 인연의 성격 (`relationship_type`)
+
+**출력**:
+```json
+{
+  "keywords": ["키워드 3-4개"],
+  "firstImpression": "첫인상과 끌림 (150-200자)",
+  "developmentPattern": "관계 발전 패턴 (200-300자)"
+}
+```
+
+### Step 6: 연애 스타일 해석 (`trait_interpretation`)
+
+**출력**:
+```json
+{
+  "items": [
+    {
+      "trait": "expression",
+      "traitName": "표현력",
+      "a_interpretation": "A의 해석 (50-100자)",
+      "b_interpretation": "B의 해석 (50-100자)",
+      "comparison": "비교 (80-120자)"
+    }
+    // ... 5개
+  ],
+  "overall": "종합 평가 (150-200자)"
+}
+```
+
+### Step 7: 갈등 포인트 (`conflict_analysis`)
+
+**입력 강조**: 간지 상호작용 (충/형/해/파)
+
+**출력**:
+```json
+{
+  "conflictPoints": [
+    {
+      "source": "갈등 원인",
+      "description": "일상 표현 (100-150자)",
+      "resolution": "해결 조언 (80-120자)"
+    }
+    // ... 2-4개
+  ],
+  "avoidBehaviors": ["피해야 할 행동 3-4개"],
+  "communicationTips": "소통 방법 (100-150자)"
+}
+```
+
+### Step 8: 결혼 적합도 (`marriage_fit`)
+
+**출력**:
+```json
+{
+  "score": 75,  // 결혼 관점 재평가 (총점과 별개)
+  "postMarriageChange": "결혼 후 변화 (150-200자)",
+  "roleDistribution": "역할 분담 (100-150자)",
+  "childFortune": "자녀운 (100-150자)",
+  "wealthSynergy": "재물운 (100-150자)"
+}
+```
+
+### Step 9: 상호 영향 (`mutual_influence`)
+
+**입력 강조**: 십신 관계 (A→B, B→A)
+
+**출력**:
+```json
+{
+  "aToB": {
+    "tenGod": "정재",
+    "meaning": "십신 의미 (50-80자)",
+    "positiveInfluence": "긍정 영향 (100-150자)",
+    "caution": "주의점 (80-120자)"
+  },
+  "bToA": { ... },
+  "synergy": "시너지 요약 (150-200자)"
+}
+```
+
+---
+
+## API 엔드포인트
+
+### 분석 시작 (Next.js → Python)
+
+**Next.js**: `POST /api/analysis/compatibility`
+
+```json
+// Request
+{
+  "profileIdA": "uuid",
+  "profileIdB": "uuid",
+  "analysisType": "romance",
+  "language": "ko"
+}
+
+// Response (성공)
+{
+  "success": true,
+  "analysisId": "uuid",
+  "jobId": "uuid",
+  "status": "processing",
+  "pollUrl": "/api/analysis/compatibility/{id}"
+}
+
+// Response (만세력 없음)
+{
+  "success": false,
+  "error": "여호정의 기본 사주 분석을 먼저 완료해주세요.",
+  "errorCode": "SAJU_REQUIRED",
+  "missingProfiles": ["여호정"]
+}
+```
+
+### 상태 조회 (폴링)
+
+**Next.js**: `GET /api/analysis/compatibility/{id}`
+
+```json
+// 진행 중
+{
+  "success": true,
+  "status": "processing",
+  "progressPercent": 50,
+  "currentStep": "relationship_type",
+  "stepStatuses": {
+    "manseryeok_a": "completed",
+    "manseryeok_b": "completed",
+    "compatibility_score": "completed",
+    "trait_scores": "completed",
+    "relationship_type": "in_progress",
+    ...
+  }
+}
+
+// 완료
+{
+  "success": true,
+  "status": "completed",
+  "progressPercent": 100,
+  "data": { ... 전체 분석 결과 ... }
+}
+```
+
+### 기존 분석 확인 (UI용)
+
+**Next.js**: `GET /api/analysis/compatibility/check?profileIdA=...&profileIdB=...`
+
+```json
+// 무료 재시도 가능
+{
+  "exists": true,
+  "isFreeRetry": true,
+  "status": "failed",
+  "analysisId": "uuid"
+}
+
+// 이미 완료
+{
+  "exists": true,
+  "isCompleted": true,
+  "analysisId": "uuid"
+}
+```
 
 ---
 
@@ -65,29 +289,71 @@
 테이블: `compatibility_analyses`
 
 ```sql
--- 주요 컬럼
 id UUID PRIMARY KEY,
 user_id TEXT NOT NULL,
 profile_id_a UUID, profile_id_b UUID,
 analysis_type VARCHAR DEFAULT 'romance',
+language VARCHAR DEFAULT 'ko',
 status VARCHAR DEFAULT 'pending',  -- pending/processing/completed/failed
 job_id TEXT,
 progress_percent INTEGER DEFAULT 0,
+credits_used INTEGER DEFAULT 70,
 
--- Python 결과
+-- Python 결과 (Step 1-4)
 pillars_a JSONB, pillars_b JSONB,
+daewun_a JSONB, daewun_b JSONB,
 total_score INTEGER,
-scores JSONB,  -- 5개 항목 점수
+scores JSONB,  -- 5개 항목 상세
 trait_scores_a JSONB, trait_scores_b JSONB,
-interactions JSONB,
+interactions JSONB,  -- 간지 상호작용
 
--- Gemini 결과
+-- Gemini 결과 (Step 5-9)
 relationship_type JSONB,
 trait_interpretation JSONB,
 conflict_analysis JSONB,
 marriage_fit JSONB,
 mutual_influence JSONB,
-failed_steps TEXT[] DEFAULT '{}'
+
+-- 메타
+failed_steps TEXT[] DEFAULT '{}',
+error TEXT,
+created_at TIMESTAMPTZ,
+updated_at TIMESTAMPTZ
+```
+
+---
+
+## 에러 처리
+
+### SAJU_REQUIRED (만세력 없음)
+
+기본 사주 분석(profile_reports)이 없는 프로필로 궁합 분석 시도 시:
+
+```json
+{
+  "success": false,
+  "error": "여호정, 박유민의 기본 사주 분석을 먼저 완료해주세요.",
+  "errorCode": "SAJU_REQUIRED",
+  "missingProfiles": ["여호정", "박유민"]
+}
+```
+
+**HTTP Status**: 400
+
+### 재시도 전략 (Gemini)
+
+각 단계 **3회 재시도** + 이전 오류 피드백:
+
+```python
+for attempt in range(1, 4):
+    try:
+        result = await gemini_call(prompt, previous_error)
+        break
+    except Exception as e:
+        previous_error = str(e)
+        if attempt == 3:
+            failed_steps.append(step_name)
+            result = None
 ```
 
 ---
@@ -97,36 +363,40 @@ failed_steps TEXT[] DEFAULT '{}'
 ```
 python/
 ├── manseryeok/
-│   └── compatibility_engine.py    # 점수 계산 엔진
+│   ├── engine.py                 # 만세력 계산
+│   └── compatibility_engine.py   # 궁합 점수 계산
 ├── services/
-│   └── compatibility_service.py   # 파이프라인 서비스
-└── schemas/
-    └── compatibility.py           # Pydantic 스키마
+│   └── compatibility_service.py  # 파이프라인 오케스트레이션
+├── schemas/
+│   ├── compatibility.py          # Pydantic 요청/응답
+│   └── gemini_schemas.py         # Gemini response_schema
+└── main.py                       # FastAPI 엔드포인트
 
 src/
 ├── app/[locale]/compatibility/
-│   ├── page.tsx                   # 유형 선택
+│   ├── page.tsx                  # 유형 선택
 │   └── romance/
-│       ├── new/page.tsx           # 프로필 선택
+│       ├── new/page.tsx          # 프로필 선택
 │       └── [id]/
-│           ├── page.tsx           # 결과 (3탭)
-│           └── generating/page.tsx # 생성 중
+│           ├── page.tsx          # 결과 (3탭)
+│           └── generating/page.tsx
 └── app/api/analysis/compatibility/
-    ├── route.ts                   # POST: 분석 시작
-    └── [id]/route.ts              # GET: 결과 조회
+    ├── route.ts                  # POST: 시작
+    ├── check/route.ts            # GET: 기존 확인
+    └── [id]/route.ts             # GET: 상태/결과
 ```
 
 ---
 
 ## Gemini 스키마 주의사항
 
-> **절대 금지**: response_schema에 default 값 넣지 말 것 (Gemini가 그대로 복사)
+> **절대 금지**: response_schema에 default 값 넣지 말 것
 
 ```python
-# BAD - default 값 있음
+# BAD
 {"score": {"type": "integer", "default": 50}}
 
-# GOOD - description만
+# GOOD
 {"score": {"type": "integer", "description": "0-100 범위의 점수"}}
 ```
 
@@ -144,5 +414,13 @@ src/
 
 ---
 
-**Version**: 1.0.0
-**Created**: 2026-01-09
+## 변경 이력
+
+| 날짜 | 버전 | 변경 내용 |
+|------|------|----------|
+| 2026-01-09 | v1.1.0 | 만세력 예외 처리 추가 (SAJU_REQUIRED), 무료 재시도 로직, 기존 분석 확인 API |
+| 2026-01-09 | v1.0.0 | 초기 버전 - 10단계 파이프라인 |
+
+---
+
+**최종 수정**: 2026-01-09 (v1.1.0)
