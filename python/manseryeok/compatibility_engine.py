@@ -296,7 +296,7 @@ def calculate_all_scores(
     trait_scores_a = calculate_romance_traits(pillars_a, jijanggan_a)
     trait_scores_b = calculate_romance_traits(pillars_b, jijanggan_b)
 
-    # 간지 상호작용 상세 정보 (v2.0: 원진 추가)
+    # 간지 상호작용 상세 정보 (v2.0: 원진 추가, 도화살 포함)
     interactions = {
         'stemCombinations': stem_harmony.get('combinations', []),
         'branchCombinations': branch_harmony.get('combinations', []),
@@ -308,6 +308,7 @@ def calculate_all_scores(
         'samhapFormed': combination_synergy.get('samhapFormed', []),
         'banhapFormed': combination_synergy.get('banhapFormed', []),
         'banghapFormed': combination_synergy.get('banghapFormed', []),
+        'peachBlossom': peach_blossom,  # 도화살 정보 추가
     }
 
     return {

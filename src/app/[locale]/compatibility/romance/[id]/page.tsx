@@ -741,7 +741,10 @@ function CompareTab({ data }: { data: CompatibilityData }) {
         <SectionHeader title="간지 상호작용" icon={<Zap className="h-4 w-4" />} />
         <InteractionDisplay
           interactions={data.interactions || {}}
-          peachBlossom={data.peachBlossom}
+          peachBlossom={
+            ((data.interactions as Record<string, unknown>)
+              ?.peachBlossom as typeof data.peachBlossom) || data.peachBlossom
+          }
         />
       </GlassCard>
     </div>
