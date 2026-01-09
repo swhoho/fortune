@@ -617,6 +617,182 @@ MUTUAL_INFLUENCE_SCHEMA = {
     "required": ["aToB", "bToA", "synergy"]
 }
 
+# 간지 상호작용 해석 스키마
+INTERACTION_INTERPRETATION_SCHEMA = {
+    "type": "object",
+    "properties": {
+        "peachBlossom": {
+            "type": "object",
+            "description": "도화살 해석",
+            "properties": {
+                "title": {
+                    "type": "string",
+                    "description": "도화살 제목 (예: '민지의 도화', '쌍방 도화', '도화 없음')"
+                },
+                "description": {
+                    "type": "string",
+                    "description": "도화살이 이 커플에게 미치는 영향 (100-150자)"
+                },
+                "advice": {
+                    "type": "string",
+                    "description": "도화살 관련 조언 (50-80자)"
+                }
+            },
+            "required": ["title", "description", "advice"]
+        },
+        "samhapBanghap": {
+            "type": "object",
+            "description": "삼합/방합 해석",
+            "properties": {
+                "formations": {
+                    "type": "array",
+                    "description": "형성된 삼합/방합 목록",
+                    "items": {
+                        "type": "object",
+                        "properties": {
+                            "name": {
+                                "type": "string",
+                                "description": "삼합/방합 이름 (예: '해묘미 목국')"
+                            },
+                            "description": {
+                                "type": "string",
+                                "description": "이 조합이 커플에게 주는 의미 (80-120자)"
+                            }
+                        },
+                        "required": ["name", "description"]
+                    }
+                },
+                "emptyMessage": {
+                    "type": "string",
+                    "description": "삼합/방합이 없을 때 메시지 (60-100자)"
+                }
+            },
+            "required": ["formations", "emptyMessage"]
+        },
+        "stemCombinations": {
+            "type": "object",
+            "description": "천간합 해석",
+            "properties": {
+                "items": {
+                    "type": "array",
+                    "description": "천간합 목록",
+                    "items": {
+                        "type": "object",
+                        "properties": {
+                            "name": {
+                                "type": "string",
+                                "description": "천간합 이름 (예: '갑기합토')"
+                            },
+                            "description": {
+                                "type": "string",
+                                "description": "이 천간합의 의미 (80-100자)"
+                            }
+                        },
+                        "required": ["name", "description"]
+                    }
+                },
+                "emptyMessage": {
+                    "type": "string",
+                    "description": "천간합이 없을 때 메시지 (50-80자)"
+                }
+            },
+            "required": ["items", "emptyMessage"]
+        },
+        "branchCombinations": {
+            "type": "object",
+            "description": "지지합(6합) 해석",
+            "properties": {
+                "items": {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "properties": {
+                            "name": {"type": "string"},
+                            "description": {"type": "string"}
+                        },
+                        "required": ["name", "description"]
+                    }
+                },
+                "emptyMessage": {"type": "string"}
+            },
+            "required": ["items", "emptyMessage"]
+        },
+        "branchClashes": {
+            "type": "object",
+            "description": "지지충(6충) 해석",
+            "properties": {
+                "items": {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "properties": {
+                            "name": {"type": "string"},
+                            "description": {"type": "string"}
+                        },
+                        "required": ["name", "description"]
+                    }
+                },
+                "emptyMessage": {
+                    "type": "string",
+                    "description": "충이 없을 때 긍정적 의미 설명 (60-100자)"
+                }
+            },
+            "required": ["items", "emptyMessage"]
+        },
+        "branchPunishments": {
+            "type": "object",
+            "description": "지지형(3형) 해석",
+            "properties": {
+                "items": {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "properties": {
+                            "name": {"type": "string"},
+                            "description": {"type": "string"}
+                        },
+                        "required": ["name", "description"]
+                    }
+                },
+                "emptyMessage": {
+                    "type": "string",
+                    "description": "형이 없을 때 긍정적 의미 설명 (60-100자)"
+                }
+            },
+            "required": ["items", "emptyMessage"]
+        },
+        "branchWonjin": {
+            "type": "object",
+            "description": "원진 해석",
+            "properties": {
+                "items": {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "properties": {
+                            "name": {
+                                "type": "string",
+                                "description": "원진 이름 (한글 음독 포함, 예: '묘신(卯申)원진')"
+                            },
+                            "description": {
+                                "type": "string",
+                                "description": "이 원진이 커플에게 미치는 심리적 영향 (80-120자)"
+                            }
+                        },
+                        "required": ["name", "description"]
+                    }
+                },
+                "emptyMessage": {
+                    "type": "string",
+                    "description": "원진이 없을 때 긍정적 의미 (60-100자)"
+                }
+            },
+            "required": ["items", "emptyMessage"]
+        }
+    },
+    "required": ["peachBlossom", "samhapBanghap", "stemCombinations", "branchCombinations", "branchClashes", "branchPunishments", "branchWonjin"]
+}
+
 # 궁합 분석 스키마 매핑 추가
 GEMINI_SCHEMAS.update({
     "relationship_type": RELATIONSHIP_TYPE_SCHEMA,
@@ -624,6 +800,7 @@ GEMINI_SCHEMAS.update({
     "conflict_analysis": CONFLICT_ANALYSIS_SCHEMA,
     "marriage_fit": MARRIAGE_FIT_SCHEMA,
     "mutual_influence": MUTUAL_INFLUENCE_SCHEMA,
+    "interaction_interpretation": INTERACTION_INTERPRETATION_SCHEMA,
 })
 
 

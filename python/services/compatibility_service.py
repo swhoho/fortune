@@ -312,11 +312,12 @@ STEP_PROGRESS = {
     "manseryeok_b": 10,
     "compatibility_score": 25,
     "trait_scores": 35,
-    "relationship_type": 50,
-    "trait_interpretation": 60,
-    "conflict_analysis": 70,
-    "marriage_fit": 80,
-    "mutual_influence": 90,
+    "relationship_type": 45,
+    "trait_interpretation": 55,
+    "conflict_analysis": 65,
+    "marriage_fit": 75,
+    "mutual_influence": 82,
+    "interaction_interpretation": 90,
     "saving": 97,
     "complete": 100,
 }
@@ -415,6 +416,8 @@ class CompatibilityAnalysisService:
 
             # Gemini 분석을 위한 컨텍스트 준비
             analysis_context = {
+                "name_a": request.get("profile_a", {}).get("name", "A"),
+                "name_b": request.get("profile_b", {}).get("name", "B"),
                 "pillars_a": pillars_a,
                 "pillars_b": pillars_b,
                 "scores": scores_result.get("scores", {}),
@@ -454,7 +457,12 @@ class CompatibilityAnalysisService:
                 job_id, "mutual_influence", analysis_context, analysis_id
             )
 
-            # 10. DB 저장 (최종)
+            # 10. 간지 상호작용 해석
+            gemini_results["interaction_interpretation"] = await self._step_gemini_analysis(
+                job_id, "interaction_interpretation", analysis_context, analysis_id
+            )
+
+            # 11. DB 저장 (최종)
             await self._step_saving(
                 job_id,
                 analysis_id,
@@ -707,16 +715,25 @@ class CompatibilityAnalysisService:
         language = context.get("language", "ko")
         johu = context.get("johu_analysis", {})
 
+        # 이름 정보
+        name_a = context.get("name_a", "A")
+        name_b = context.get("name_b", "B")
+
         # 기본 컨텍스트
         base_prompt = f"""당신은 30년 경력의 명리학 거장입니다. 두 사람의 사주를 분석하여 궁합을 판단해주세요.
 
-[A의 사주]
+[두 사람 정보]
+- A: {name_a}
+- B: {name_b}
+※ 분석 결과에서 A 대신 '{name_a}', B 대신 '{name_b}'를 사용하세요.
+
+[{name_a}의 사주]
 - 연주: {context['pillars_a'].get('year', {})}
 - 월주: {context['pillars_a'].get('month', {})}
 - 일주: {context['pillars_a'].get('day', {})}
 - 시주: {context['pillars_a'].get('hour', {})}
 
-[B의 사주]
+[{name_b}의 사주]
 - 연주: {context['pillars_b'].get('year', {})}
 - 월주: {context['pillars_b'].get('month', {})}
 - 일주: {context['pillars_b'].get('day', {})}
@@ -734,14 +751,14 @@ class CompatibilityAnalysisService:
 [조후(調候) 분석 - 궁통보감 기반]
 {self._format_johu_context(johu)}
 
-[A의 연애 스타일 점수]
+[{name_a}의 연애 스타일 점수]
 - 표현력: {context['trait_scores_a'].get('expression', 50)}
 - 독점욕: {context['trait_scores_a'].get('possessiveness', 50)}
 - 헌신도: {context['trait_scores_a'].get('devotion', 50)}
 - 모험심: {context['trait_scores_a'].get('adventure', 50)}
 - 안정추구: {context['trait_scores_a'].get('stability', 50)}
 
-[B의 연애 스타일 점수]
+[{name_b}의 연애 스타일 점수]
 - 표현력: {context['trait_scores_b'].get('expression', 50)}
 - 독점욕: {context['trait_scores_b'].get('possessiveness', 50)}
 - 헌신도: {context['trait_scores_b'].get('devotion', 50)}
@@ -846,6 +863,37 @@ class CompatibilityAnalysisService:
    - tenGod, meaning, positiveInfluence, caution
 3. synergy: 시너지 요약 (150-200자, 두 십신 조합의 역학 설명)
 """,
+            "interaction_interpretation": """
+[분석 요청: 간지 상호작용 해석]
+위의 [간지 상호작용] 데이터를 바탕으로 각 상호작용이 이 커플에게 어떤 의미인지 해석해주세요.
+
+**중요: 실제 이름 사용**
+- A/B 대신 위에서 안내한 실제 이름을 사용하세요
+- 예: "민지는 연애에서 자연스러운 매력을 발산하는 타입입니다."
+
+**일반 유저가 이해할 수 있게 쉬운 말로 설명**:
+- 한자 용어는 한글 음독과 함께 표기 (예: 卯申 → "묘신(卯申)")
+- 명리학 용어보다 일상적 비유 사용
+- 실생활에서 어떻게 느껴질지 구체적으로 설명
+
+**도화살 해석 (peachBlossom)**:
+- title: 누가 도화를 가지고 있는지 (예: "민지의 도화", "쌍방 도화", "도화 없음")
+- description: 이 끌림이 관계에 어떤 영향을 미칠지 (100-150자)
+- advice: 도화살 관련 조언 (50-80자)
+
+**삼합/방합 해석 (samhapBanghap)**:
+- formations: 각 삼합/방합이 커플에게 주는 시너지 설명
+- emptyMessage: 없으면 "각자의 기운이 독립적으로 작용하여..." 등 긍정적으로
+
+**충/형/원진 해석** (없으면 긍정적으로):
+- 있으면: 어떤 상황에서 갈등이 생길 수 있는지 구체적으로
+- 없으면 emptyMessage: "~이 없어서 ~한 장점이 있다"는 긍정적 설명 필수
+
+**원진 특별 주의**:
+- 원진 이름은 한글 음독 포함 (예: "묘신(卯申)원진")
+- "설명하기 어려운 심리적 거리감"으로 표현
+- 겉으로는 괜찮아 보이지만 마음속에서 느끼는 이질감 설명
+""",
         }
         return instructions.get(step_name, "")
 
@@ -901,10 +949,14 @@ class CompatibilityAnalysisService:
             wonjins = [f"{w.get('name', '')}" for w in interactions["branchWonjin"]]
             parts.append(f"- 지지 원진: {', '.join(wonjins)}")
 
-        # 삼합/방합 추가
+        # 삼합/반합/방합 추가
         if interactions.get("samhapFormed"):
             samhaps = [f"{s.get('name', '')}" for s in interactions["samhapFormed"]]
             parts.append(f"- 삼합 형성: {', '.join(samhaps)}")
+
+        if interactions.get("banhapFormed"):
+            banhaps = [f"{b.get('name', '')}" for b in interactions["banhapFormed"]]
+            parts.append(f"- 반합 형성: {', '.join(banhaps)}")
 
         if interactions.get("banghapFormed"):
             banghaps = [f"{b.get('name', '')}" for b in interactions["banghapFormed"]]

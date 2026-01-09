@@ -145,6 +145,38 @@ interface CompatibilityData {
     attractionBonus: number;
     description: string;
   };
+  interactionInterpretation?: {
+    peachBlossom?: {
+      title: string;
+      description: string;
+      advice: string;
+    };
+    samhapBanghap?: {
+      formations: { name: string; description: string }[];
+      overallMeaning?: string;
+      emptyMessage: string;
+    };
+    stemCombinations?: {
+      items: { name: string; description: string }[];
+      emptyMessage: string;
+    };
+    branchCombinations?: {
+      items: { name: string; description: string }[];
+      emptyMessage: string;
+    };
+    branchClashes?: {
+      items: { name: string; description: string }[];
+      emptyMessage: string;
+    };
+    branchPunishments?: {
+      items: { name: string; description: string }[];
+      emptyMessage: string;
+    };
+    branchWonjin?: {
+      items: { name: string; description: string }[];
+      emptyMessage: string;
+    };
+  };
   failedSteps?: string[];
   createdAt: string;
 }
@@ -745,6 +777,7 @@ function CompareTab({ data }: { data: CompatibilityData }) {
             ((data.interactions as Record<string, unknown>)
               ?.peachBlossom as typeof data.peachBlossom) || data.peachBlossom
           }
+          interpretation={data.interactionInterpretation}
           nameA={data.nameA}
           nameB={data.nameB}
         />
@@ -807,6 +840,7 @@ const TERM_EXPLANATIONS: Record<string, string> = {
 function InteractionDisplay({
   interactions,
   peachBlossom,
+  interpretation,
   nameA,
   nameB,
 }: {
@@ -820,6 +854,7 @@ function InteractionDisplay({
     attractionBonus: number;
     description: string;
   };
+  interpretation?: CompatibilityData['interactionInterpretation'];
   nameA: string;
   nameB: string;
 }) {
@@ -868,7 +903,9 @@ function InteractionDisplay({
       <div className="rounded-xl border border-pink-500/20 bg-pink-500/5 p-4">
         <div className="mb-2 flex items-center gap-2">
           <Heart className="h-4 w-4 text-pink-400" />
-          <span className="font-medium text-pink-400">도화살 (桃花煞, 도화살)</span>
+          <span className="font-medium text-pink-400">
+            {interpretation?.peachBlossom?.title || '도화살 (桃花煞)'}
+          </span>
           {peachBlossom && (
             <span className="ml-auto rounded-full bg-pink-500/20 px-2 py-0.5 text-xs text-pink-300">
               +{peachBlossom.attractionBonus}점
@@ -878,12 +915,21 @@ function InteractionDisplay({
         <p className="mb-2 text-xs text-gray-500">
           연지/일지 기준으로 특별한 이성 끌림을 나타내는 살(煞)
         </p>
-        {peachBlossom ? (
+        {interpretation?.peachBlossom ? (
+          <div className="space-y-2">
+            <p className="text-sm text-gray-300">{interpretation.peachBlossom.description}</p>
+            {interpretation.peachBlossom.advice && (
+              <p className="text-xs text-gray-500">💡 {interpretation.peachBlossom.advice}</p>
+            )}
+          </div>
+        ) : peachBlossom ? (
           <p className="text-sm text-gray-300">
             {replaceAB(peachBlossom.description, nameA, nameB)}
           </p>
         ) : (
-          <p className="text-sm text-gray-400">이 커플에게는 도화살이 없습니다</p>
+          <p className="text-sm text-gray-400">
+            도화살이 없습니다. 강렬한 끌림보다는 차분하고 안정적인 관계를 형성합니다.
+          </p>
         )}
       </div>
 
@@ -897,34 +943,56 @@ function InteractionDisplay({
           세 지지가 모여 강력한 오행 기운을 형성하는 특별한 결합
         </p>
         {samhapFormed.length > 0 || banhapFormed.length > 0 || banghapFormed.length > 0 ? (
-          <div className="space-y-2">
-            {samhapFormed.map((item, i) => (
-              <div key={`samhap-${i}`} className="flex flex-col gap-1">
-                <span className="inline-block w-fit rounded-full bg-[#d4af37]/20 px-3 py-1 text-sm text-[#d4af37]">
-                  {item.name}
-                </span>
-                <ExplanationText name={item.name} />
-              </div>
-            ))}
-            {banhapFormed.map((item, i) => (
-              <div key={`banhap-${i}`} className="flex flex-col gap-1">
-                <span className="inline-block w-fit rounded-full bg-amber-500/20 px-3 py-1 text-sm text-amber-400">
-                  {item.name}
-                </span>
-                <ExplanationText name={item.name} />
-              </div>
-            ))}
-            {banghapFormed.map((item, i) => (
-              <div key={`banghap-${i}`} className="flex flex-col gap-1">
-                <span className="inline-block w-fit rounded-full bg-yellow-500/20 px-3 py-1 text-sm text-yellow-400">
-                  {item.name}
-                </span>
-                <ExplanationText name={item.name} />
-              </div>
-            ))}
+          <div className="space-y-3">
+            {/* Gemini interpretation 우선 사용 (빈 배열 체크) */}
+            {(interpretation?.samhapBanghap?.formations?.length ?? 0) > 0
+              ? interpretation!.samhapBanghap!.formations!.map((item, i) => (
+                  <div key={`formation-${i}`} className="flex flex-col gap-1">
+                    <span className="inline-block w-fit rounded-full bg-[#d4af37]/20 px-3 py-1 text-sm text-[#d4af37]">
+                      {item.name}
+                    </span>
+                    <p className="text-sm text-gray-300">{item.description}</p>
+                  </div>
+                ))
+              : (
+              <>
+                {samhapFormed.map((item, i) => (
+                  <div key={`samhap-${i}`} className="flex flex-col gap-1">
+                    <span className="inline-block w-fit rounded-full bg-[#d4af37]/20 px-3 py-1 text-sm text-[#d4af37]">
+                      {item.name}
+                    </span>
+                    <ExplanationText name={item.name} />
+                  </div>
+                ))}
+                {banhapFormed.map((item, i) => (
+                  <div key={`banhap-${i}`} className="flex flex-col gap-1">
+                    <span className="inline-block w-fit rounded-full bg-amber-500/20 px-3 py-1 text-sm text-amber-400">
+                      {item.name}
+                    </span>
+                    <ExplanationText name={item.name} />
+                  </div>
+                ))}
+                {banghapFormed.map((item, i) => (
+                  <div key={`banghap-${i}`} className="flex flex-col gap-1">
+                    <span className="inline-block w-fit rounded-full bg-yellow-500/20 px-3 py-1 text-sm text-yellow-400">
+                      {item.name}
+                    </span>
+                    <ExplanationText name={item.name} />
+                  </div>
+                ))}
+              </>
+            )}
+            {interpretation?.samhapBanghap?.overallMeaning && (
+              <p className="mt-2 text-xs text-gray-500">
+                ✨ {interpretation.samhapBanghap.overallMeaning}
+              </p>
+            )}
           </div>
         ) : (
-          <p className="text-sm text-gray-400">삼합·방합 형성이 없습니다</p>
+          <p className="text-sm text-gray-400">
+            {interpretation?.samhapBanghap?.emptyMessage ||
+              '삼합·방합 형성이 없습니다. 서로의 개성을 존중하며 각자의 방식으로 관계를 만들어갑니다.'}
+          </p>
         )}
       </div>
 
@@ -936,17 +1004,29 @@ function InteractionDisplay({
         </p>
         {stemCombinations.length > 0 ? (
           <div className="space-y-2">
-            {stemCombinations.map((item, i) => (
-              <div key={i} className="flex flex-col gap-1">
-                <span className="inline-block w-fit rounded-full bg-green-500/20 px-3 py-1 text-sm text-green-300">
-                  {item.name}
-                </span>
-                <ExplanationText name={item.name} />
-              </div>
-            ))}
+            {(interpretation?.stemCombinations?.items?.length ?? 0) > 0
+              ? interpretation!.stemCombinations!.items!.map((item, i) => (
+                  <div key={i} className="flex flex-col gap-1">
+                    <span className="inline-block w-fit rounded-full bg-green-500/20 px-3 py-1 text-sm text-green-300">
+                      {item.name}
+                    </span>
+                    <p className="text-sm text-gray-300">{item.description}</p>
+                  </div>
+                ))
+              : stemCombinations.map((item, i) => (
+                  <div key={i} className="flex flex-col gap-1">
+                    <span className="inline-block w-fit rounded-full bg-green-500/20 px-3 py-1 text-sm text-green-300">
+                      {item.name}
+                    </span>
+                    <ExplanationText name={item.name} />
+                  </div>
+                ))}
           </div>
         ) : (
-          <p className="text-sm text-gray-400">천간 합이 없습니다</p>
+          <p className="text-sm text-gray-400">
+            {interpretation?.stemCombinations?.emptyMessage ||
+              '천간 합이 없습니다. 서로 다른 방식으로 생각하고 표현하지만, 이 차이가 관계에 다양성을 더합니다.'}
+          </p>
         )}
       </div>
 
@@ -958,17 +1038,29 @@ function InteractionDisplay({
         </p>
         {branchCombinations.length > 0 ? (
           <div className="space-y-2">
-            {branchCombinations.map((item, i) => (
-              <div key={i} className="flex flex-col gap-1">
-                <span className="inline-block w-fit rounded-full bg-blue-500/20 px-3 py-1 text-sm text-blue-300">
-                  {item.name}
-                </span>
-                <ExplanationText name={item.name} />
-              </div>
-            ))}
+            {(interpretation?.branchCombinations?.items?.length ?? 0) > 0
+              ? interpretation!.branchCombinations!.items!.map((item, i) => (
+                  <div key={i} className="flex flex-col gap-1">
+                    <span className="inline-block w-fit rounded-full bg-blue-500/20 px-3 py-1 text-sm text-blue-300">
+                      {item.name}
+                    </span>
+                    <p className="text-sm text-gray-300">{item.description}</p>
+                  </div>
+                ))
+              : branchCombinations.map((item, i) => (
+                  <div key={i} className="flex flex-col gap-1">
+                    <span className="inline-block w-fit rounded-full bg-blue-500/20 px-3 py-1 text-sm text-blue-300">
+                      {item.name}
+                    </span>
+                    <ExplanationText name={item.name} />
+                  </div>
+                ))}
           </div>
         ) : (
-          <p className="text-sm text-gray-400">지지 합이 없습니다</p>
+          <p className="text-sm text-gray-400">
+            {interpretation?.branchCombinations?.emptyMessage ||
+              '지지 합이 없습니다. 서로 독립적인 공간을 유지하며 건강한 거리감을 지키는 관계입니다.'}
+          </p>
         )}
       </div>
 
@@ -980,17 +1072,29 @@ function InteractionDisplay({
         </p>
         {branchClashes.length > 0 ? (
           <div className="space-y-2">
-            {branchClashes.map((item, i) => (
-              <div key={i} className="flex flex-col gap-1">
-                <span className="inline-block w-fit rounded-full bg-red-500/20 px-3 py-1 text-sm text-red-300">
-                  {item.name}
-                </span>
-                <ExplanationText name={item.name} />
-              </div>
-            ))}
+            {(interpretation?.branchClashes?.items?.length ?? 0) > 0
+              ? interpretation!.branchClashes!.items!.map((item, i) => (
+                  <div key={i} className="flex flex-col gap-1">
+                    <span className="inline-block w-fit rounded-full bg-red-500/20 px-3 py-1 text-sm text-red-300">
+                      {item.name}
+                    </span>
+                    <p className="text-sm text-gray-300">{item.description}</p>
+                  </div>
+                ))
+              : branchClashes.map((item, i) => (
+                  <div key={i} className="flex flex-col gap-1">
+                    <span className="inline-block w-fit rounded-full bg-red-500/20 px-3 py-1 text-sm text-red-300">
+                      {item.name}
+                    </span>
+                    <ExplanationText name={item.name} />
+                  </div>
+                ))}
           </div>
         ) : (
-          <p className="text-sm text-gray-400">지지 충이 없습니다 (긍정적)</p>
+          <p className="text-sm text-gray-400">
+            {interpretation?.branchClashes?.emptyMessage ||
+              '지지 충이 없습니다. 감정적으로 부딪히는 일이 적어 평화롭게 소통할 수 있는 관계입니다.'}
+          </p>
         )}
       </div>
 
@@ -1002,17 +1106,29 @@ function InteractionDisplay({
         </p>
         {branchPunishments.length > 0 ? (
           <div className="space-y-2">
-            {branchPunishments.map((item, i) => (
-              <div key={i} className="flex flex-col gap-1">
-                <span className="inline-block w-fit rounded-full bg-orange-500/20 px-3 py-1 text-sm text-orange-300">
-                  {item.name}
-                </span>
-                <ExplanationText name={item.name} />
-              </div>
-            ))}
+            {(interpretation?.branchPunishments?.items?.length ?? 0) > 0
+              ? interpretation!.branchPunishments!.items!.map((item, i) => (
+                  <div key={i} className="flex flex-col gap-1">
+                    <span className="inline-block w-fit rounded-full bg-orange-500/20 px-3 py-1 text-sm text-orange-300">
+                      {item.name}
+                    </span>
+                    <p className="text-sm text-gray-300">{item.description}</p>
+                  </div>
+                ))
+              : branchPunishments.map((item, i) => (
+                  <div key={i} className="flex flex-col gap-1">
+                    <span className="inline-block w-fit rounded-full bg-orange-500/20 px-3 py-1 text-sm text-orange-300">
+                      {item.name}
+                    </span>
+                    <ExplanationText name={item.name} />
+                  </div>
+                ))}
           </div>
         ) : (
-          <p className="text-sm text-gray-400">지지 형이 없습니다 (긍정적)</p>
+          <p className="text-sm text-gray-400">
+            {interpretation?.branchPunishments?.emptyMessage ||
+              '지지 형이 없습니다. 서로에게 날카롭게 상처 주는 기운이 없어 편안하게 지낼 수 있습니다.'}
+          </p>
         )}
       </div>
 
@@ -1024,19 +1140,31 @@ function InteractionDisplay({
         </p>
         {branchWonjin.length > 0 ? (
           <div className="space-y-2">
-            {branchWonjin.map((item, i) => (
-              <div key={i} className="flex flex-col gap-1">
-                <span className="inline-block w-fit rounded-full bg-purple-500/20 px-3 py-1 text-sm text-purple-300">
-                  {item.name || `${(item as { branches?: string[] }).branches?.join('')}원진`}
-                </span>
-                <ExplanationText
-                  name={item.name || `${(item as { branches?: string[] }).branches?.join('')}원진`}
-                />
-              </div>
-            ))}
+            {(interpretation?.branchWonjin?.items?.length ?? 0) > 0
+              ? interpretation!.branchWonjin!.items!.map((item, i) => (
+                  <div key={i} className="flex flex-col gap-1">
+                    <span className="inline-block w-fit rounded-full bg-purple-500/20 px-3 py-1 text-sm text-purple-300">
+                      {item.name}
+                    </span>
+                    <p className="text-sm text-gray-300">{item.description}</p>
+                  </div>
+                ))
+              : branchWonjin.map((item, i) => (
+                  <div key={i} className="flex flex-col gap-1">
+                    <span className="inline-block w-fit rounded-full bg-purple-500/20 px-3 py-1 text-sm text-purple-300">
+                      {item.name || `${(item as { branches?: string[] }).branches?.join('')}원진`}
+                    </span>
+                    <ExplanationText
+                      name={item.name || `${(item as { branches?: string[] }).branches?.join('')}원진`}
+                    />
+                  </div>
+                ))}
           </div>
         ) : (
-          <p className="text-sm text-gray-400">원진 관계가 없습니다 (긍정적)</p>
+          <p className="text-sm text-gray-400">
+            {interpretation?.branchWonjin?.emptyMessage ||
+              '원진 관계가 없습니다. 마음속 깊은 곳에서 느껴지는 거리감 없이 자연스럽게 가까워질 수 있습니다.'}
+          </p>
         )}
       </div>
     </div>
