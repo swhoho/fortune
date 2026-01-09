@@ -71,8 +71,7 @@ export function GlassCard({
       <div
         className="pointer-events-none absolute inset-0"
         style={{
-          background:
-            'linear-gradient(180deg, rgba(255,255,255,0.02) 0%, transparent 50%)',
+          background: 'linear-gradient(180deg, rgba(255,255,255,0.02) 0%, transparent 50%)',
         }}
       />
 
@@ -97,7 +96,8 @@ export function SectionHeader({ title, icon }: SectionHeaderProps) {
         <div
           className="flex h-8 w-8 items-center justify-center rounded-lg"
           style={{
-            background: 'linear-gradient(135deg, rgba(212,175,55,0.2) 0%, rgba(212,175,55,0.05) 100%)',
+            background:
+              'linear-gradient(135deg, rgba(212,175,55,0.2) 0%, rgba(212,175,55,0.05) 100%)',
           }}
         >
           <span className="text-[#d4af37]">{icon}</span>

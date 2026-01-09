@@ -182,9 +182,7 @@ export async function POST(request: NextRequest) {
     // 5. 크레딧 무료 재시도 조건 확인
     // 이미 크레딧을 사용한 failed 분석은 무료로 재시도
     const isRetryWithCredits =
-      existingAnalysis &&
-      existingAnalysis.credits_used > 0 &&
-      existingAnalysis.status === 'failed';
+      existingAnalysis && existingAnalysis.credits_used > 0 && existingAnalysis.status === 'failed';
 
     const shouldDeductCredits = !isRetryWithCredits;
 

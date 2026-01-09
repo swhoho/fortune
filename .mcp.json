@@ -7,7 +7,7 @@
         "--project-ref", "amhkerkybudzcsasvkit"
       ],
       "env": {
-        "SUPABASE_ACCESS_TOKEN": "c41fd985-680b-40ad-b26c-c7134260ba08"
+        "SUPABASE_ACCESS_TOKEN": "sbp_9a97742823d60b826020a12781cbb3473d0afa3a"
       }
     }
   }

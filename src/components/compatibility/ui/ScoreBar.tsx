@@ -59,9 +59,7 @@ export function ScoreBar({
       <div className="mb-2 flex items-center justify-between">
         <div className="flex items-center gap-2">
           <span className="font-medium text-white">{label}</span>
-          {sublabel && (
-            <span className="text-xs text-gray-500">({sublabel})</span>
-          )}
+          {sublabel && <span className="text-xs text-gray-500">({sublabel})</span>}
         </div>
         {showValue && (
           <motion.span
@@ -97,8 +95,7 @@ export function ScoreBar({
           <div
             className="absolute inset-0 rounded-full"
             style={{
-              background:
-                'linear-gradient(180deg, rgba(255,255,255,0.3) 0%, transparent 50%)',
+              background: 'linear-gradient(180deg, rgba(255,255,255,0.3) 0%, transparent 50%)',
             }}
           />
         </motion.div>

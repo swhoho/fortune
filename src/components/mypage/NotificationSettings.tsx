@@ -185,9 +185,7 @@ export function NotificationSettings() {
           </div>
           <div>
             <h4 className="font-medium text-white">{t('infoTitle')}</h4>
-            <p className="mt-1 text-sm text-gray-400">
-              {t('infoDescription')}
-            </p>
+            <p className="mt-1 text-sm text-gray-400">{t('infoDescription')}</p>
           </div>
         </div>
       </motion.div>

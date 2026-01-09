@@ -73,9 +73,7 @@ export function AnalysisFocusClient() {
         <h2 className="mb-2 whitespace-pre-line text-center font-serif text-2xl font-bold text-[#1a1a1a] md:text-3xl">
           {t('focus.headline')}
         </h2>
-        <p className="mb-8 text-center text-gray-500">
-          {t('focus.subheadline')}
-        </p>
+        <p className="mb-8 text-center text-gray-500">{t('focus.subheadline')}</p>
 
         {/* 분석 영역 카드 */}
         <div className="mb-8 grid gap-4 md:grid-cols-2">
@@ -124,9 +122,7 @@ export function AnalysisFocusClient() {
           <div className="flex items-center gap-4">
             <span className="text-4xl">{focusAreaIcons.overall}</span>
             <div className="flex-1">
-              <h3 className="mb-1 text-lg font-semibold text-[#1a1a1a]">
-                {tFocusArea('overall')}
-              </h3>
+              <h3 className="mb-1 text-lg font-semibold text-[#1a1a1a]">{tFocusArea('overall')}</h3>
               <p className="text-sm text-gray-500">{tFocusAreaDesc('overall')}</p>
             </div>
             {selected === 'overall' && (
@@ -140,9 +136,7 @@ export function AnalysisFocusClient() {
               </motion.div>
             )}
           </div>
-          <p className="mt-3 text-xs text-gray-400">
-            {t('focus.overallNote')}
-          </p>
+          <p className="mt-3 text-xs text-gray-400">{t('focus.overallNote')}</p>
         </motion.button>
 
         {/* CTA */}

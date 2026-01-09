@@ -47,11 +47,7 @@ export function CosmicBackground() {
     }));
 
     // 애니메이션 루프
-    let lastTime = 0;
     const animate = (time: number) => {
-      const delta = time - lastTime;
-      lastTime = time;
-
       ctx.clearRect(0, 0, canvas.width, canvas.height);
 
       // 별 그리기
@@ -64,14 +60,7 @@ export function CosmicBackground() {
         ctx.fill();
 
         // 별 빛 번짐 효과
-        const gradient = ctx.createRadialGradient(
-          star.x,
-          star.y,
-          0,
-          star.x,
-          star.y,
-          star.size * 3
-        );
+        const gradient = ctx.createRadialGradient(star.x, star.y, 0, star.x, star.y, star.size * 3);
         gradient.addColorStop(0, `rgba(212, 175, 55, ${star.opacity * twinkle * 0.5})`);
         gradient.addColorStop(1, 'rgba(212, 175, 55, 0)');
         ctx.beginPath();

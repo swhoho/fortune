@@ -6,14 +6,7 @@
  */
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import {
-  Loader2,
-  Sparkles,
-  UserPlus,
-  AlertTriangle,
-  CheckCircle,
-  RefreshCw,
-} from 'lucide-react';
+import { Loader2, Sparkles, UserPlus, AlertTriangle, CheckCircle, RefreshCw } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { Button } from '@/components/ui/button';
 import { Link, useRouter } from '@/i18n/routing';

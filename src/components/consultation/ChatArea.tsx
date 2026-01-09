@@ -122,7 +122,7 @@ export function ChatArea({
     return () => {
       clearInterval(pollInterval);
     };
-  }, [generatingMessage, refetch]);
+  }, [generatingMessage, refetch, t]);
 
   // 폴링 완료 시 세션 목록도 갱신 (question_count 업데이트)
   useEffect(() => {
@@ -267,7 +267,9 @@ export function ChatArea({
 
           <div>
             <h4 className="font-medium text-white">{session?.title || t('newSession')}</h4>
-            <p className="text-xs text-gray-500">{t('question')} {session?.questionCount || 0}/2</p>
+            <p className="text-xs text-gray-500">
+              {t('question')} {session?.questionCount || 0}/2
+            </p>
           </div>
         </div>
 

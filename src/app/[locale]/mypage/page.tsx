@@ -130,7 +130,6 @@ export default function MyPage() {
       </div>
 
       <div className="relative mx-auto max-w-6xl px-6 py-8">
-
         {/* 메인 레이아웃 */}
         <div className="flex flex-col gap-8 md:flex-row">
           {/* 사이드바 */}

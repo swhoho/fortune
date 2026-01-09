@@ -12,7 +12,7 @@ import { useEffect, useState, useCallback, useRef } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useTranslations } from 'next-intl';
-import { Heart, Check, Loader2, AlertCircle, RefreshCw, X } from 'lucide-react';
+import { Check, Loader2, AlertCircle, RefreshCw, X } from 'lucide-react';
 
 import { AppHeader } from '@/components/layout';
 import { Button } from '@/components/ui/button';
@@ -136,7 +136,7 @@ export default function CompatibilityGeneratingPage() {
   const t = useTranslations('compatibility');
 
   const [status, setStatus] = useState<StatusResponse | null>(null);
-  const [pollCount, setPollCount] = useState(0);
+  const pollCountRef = useRef(0);
   const [error, setError] = useState<{
     step: CompatibilityStep;
     message: string;
@@ -264,19 +264,17 @@ export default function CompatibilityGeneratingPage() {
 
     // 폴링 인터벌 설정
     const interval = setInterval(() => {
-      setPollCount((prev) => {
-        if (prev >= MAX_POLL_COUNT) {
-          // 타임아웃
-          setError({
-            step: 'saving',
-            message: '분석 시간이 초과되었습니다. 다시 시도해주세요.',
-            retryable: true,
-          });
-          return prev;
-        }
-        pollStatus();
-        return prev + 1;
-      });
+      if (pollCountRef.current >= MAX_POLL_COUNT) {
+        // 타임아웃
+        setError({
+          step: 'saving',
+          message: '분석 시간이 초과되었습니다. 다시 시도해주세요.',
+          retryable: true,
+        });
+        return;
+      }
+      pollStatus();
+      pollCountRef.current += 1;
     }, POLLING_INTERVAL);
 
     return () => clearInterval(interval);
@@ -286,7 +284,7 @@ export default function CompatibilityGeneratingPage() {
    * 재시도 핸들러
    */
   const handleRetry = () => {
-    setPollCount(0);
+    pollCountRef.current = 0;
     setError(null);
     startTimeRef.current = Date.now();
     setElapsedTime(0);

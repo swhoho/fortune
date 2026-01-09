@@ -37,7 +37,6 @@ export function ExampleCarousel() {
           className="object-contain"
           sizes="(max-width: 768px) 100vw, 50vw"
         />
-
       </div>
 
       {/* 좌/우 화살표 */}

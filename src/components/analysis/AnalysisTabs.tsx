@@ -69,7 +69,9 @@ export function AnalysisTabs({ result }: AnalysisTabsProps) {
             {/* 고전 인용 */}
             {result.classical_references && result.classical_references.length > 0 && (
               <div className="mt-6 space-y-4">
-                <h4 className="font-serif text-lg font-semibold text-gray-900">{t('classicalInterpretation')}</h4>
+                <h4 className="font-serif text-lg font-semibold text-gray-900">
+                  {t('classicalInterpretation')}
+                </h4>
                 {result.classical_references.map((ref, index) => (
                   <div key={index} className="rounded-lg border border-gray-200 bg-gray-50 p-4">
                     <p className="text-xs font-medium text-gray-500">{ref.source}</p>

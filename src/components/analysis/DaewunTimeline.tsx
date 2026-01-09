@@ -110,7 +110,9 @@ export function DaewunTimeline({ yearlyFlow, daewun }: DaewunTimelineProps) {
       className="w-full rounded-xl border border-gray-200 bg-white p-6 shadow-lg"
     >
       {/* 헤더 */}
-      <h3 className="mb-6 font-serif text-lg font-semibold text-gray-900">{t('daewun.fortuneFlow')}</h3>
+      <h3 className="mb-6 font-serif text-lg font-semibold text-gray-900">
+        {t('daewun.fortuneFlow')}
+      </h3>
 
       {/* 차트 */}
       {yearlyFlow && yearlyFlow.length > 0 && (
@@ -153,7 +155,8 @@ export function DaewunTimeline({ yearlyFlow, daewun }: DaewunTimelineProps) {
       {daewun && daewun.length > 0 && (
         <div>
           <h4 className="mb-3 text-sm font-medium text-gray-500">
-            {t('daewun.tenYearTitle')} <span className="text-xs font-normal">({t('daewun.clickToExpand')})</span>
+            {t('daewun.tenYearTitle')}{' '}
+            <span className="text-xs font-normal">({t('daewun.clickToExpand')})</span>
           </h4>
           <div className="space-y-3">
             {daewun.slice(0, 4).map((d, index) => {
@@ -225,7 +228,9 @@ export function DaewunTimeline({ yearlyFlow, daewun }: DaewunTimelineProps) {
                         <div className="space-y-4 border-t border-gray-200 p-4">
                           {/* 천간 의미 */}
                           <div>
-                            <h5 className="text-xs font-medium text-gray-500">{t('daewun.heavenlyStem')}</h5>
+                            <h5 className="text-xs font-medium text-gray-500">
+                              {t('daewun.heavenlyStem')}
+                            </h5>
                             <p className="mt-1 text-sm font-medium text-gray-900">
                               {stemInfo?.name || d.stem}
                             </p>
@@ -236,7 +241,9 @@ export function DaewunTimeline({ yearlyFlow, daewun }: DaewunTimelineProps) {
 
                           {/* 지지 의미 */}
                           <div>
-                            <h5 className="text-xs font-medium text-gray-500">{t('daewun.earthlyBranch')}</h5>
+                            <h5 className="text-xs font-medium text-gray-500">
+                              {t('daewun.earthlyBranch')}
+                            </h5>
                             <p className="mt-1 text-sm font-medium text-gray-900">
                               {branchInfo?.name || d.branch}
                             </p>
@@ -247,13 +254,13 @@ export function DaewunTimeline({ yearlyFlow, daewun }: DaewunTimelineProps) {
 
                           {/* 종합 조언 */}
                           <div className="rounded-lg bg-gray-100 p-3">
-                            <h5 className="text-xs font-medium text-gray-500">{t('daewun.overallAdvice')}</h5>
+                            <h5 className="text-xs font-medium text-gray-500">
+                              {t('daewun.overallAdvice')}
+                            </h5>
                             <p className="mt-1 text-sm text-gray-700">
                               {stemInfo && branchInfo
                                 ? `${stemInfo.name}와 ${branchInfo.name}이 결합한 이 대운에서는 ${
-                                    isActive
-                                      ? t('daewun.activeAdvice')
-                                      : t('daewun.defaultAdvice')
+                                    isActive ? t('daewun.activeAdvice') : t('daewun.defaultAdvice')
                                   }`
                                 : t('daewun.fallbackAdvice')}
                             </p>

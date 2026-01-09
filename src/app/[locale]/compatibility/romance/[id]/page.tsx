@@ -68,7 +68,7 @@ interface CompatibilityData {
     elementBalance: { score: number };
     tenGodCompatibility: { score: number };
     wunsengSynergy: { score: number };
-    combinationSynergy?: { score: number };  // 삼합/방합 시너지
+    combinationSynergy?: { score: number }; // 삼합/방합 시너지
   };
   traitScoresA: {
     expression: number;
@@ -359,42 +359,48 @@ function ScoreTab({ data }: { data: CompatibilityData }) {
       score: data.scores.stemHarmony?.score ?? 0,
       weight: '24%',
       icon: <TrendingUp className="h-4 w-4" />,
-      description: '두 사람의 천간이 얼마나 조화롭게 어울리는지',
+      description:
+        '천간은 겉으로 드러나는 성격입니다. 두 사람의 천간이 \'합\'을 이루면 처음 만났을 때 "아, 이 사람이다" 하는 느낌을 받을 수 있고, 자연스럽게 끌립니다. 반대로 \'극\'이 있으면 대화할 때 의견 충돌이 잦거나 생각의 방향이 달라 답답할 수 있습니다.',
     },
     {
       label: '지지 조화',
       score: data.scores.branchHarmony?.score ?? 0,
       weight: '24%',
       icon: <Users className="h-4 w-4" />,
-      description: '지지의 합, 충, 형, 원진 관계 분석',
+      description:
+        "지지는 내면의 감정과 무의식적 반응입니다. '합'이 많으면 함께 있을 때 편안하고 정서적으로 친밀해집니다. '충'이 있으면 사소한 일에 감정 충돌이 생기기 쉽고, '원진'은 설명하기 어려운 심리적 거리감을 느끼게 합니다.",
     },
     {
       label: '오행 균형',
       score: data.scores.elementBalance?.score ?? 0,
       weight: '19%',
       icon: <Compass className="h-4 w-4" />,
-      description: '서로의 오행이 보완되는 정도',
+      description:
+        '오행은 목(나무)·화(불)·토(흙)·금(쇠)·수(물) 다섯 기운입니다. 내가 부족한 기운을 상대가 가지고 있으면 서로 보완하는 좋은 궁합입니다. 예를 들어 급한 성격(화)의 사람에게 차분한 성격(수)의 상대가 중심을 잡아줄 수 있습니다.',
     },
     {
       label: '십신 호환성',
       score: data.scores.tenGodCompatibility?.score ?? 0,
       weight: '19%',
       icon: <Heart className="h-4 w-4" />,
-      description: '십신 관계로 본 궁합',
+      description:
+        "십신은 상대가 나에게 어떤 존재인지를 나타냅니다. '정재·정관'은 안정적이고 책임감 있는 관계를, '편관'은 강렬하고 열정적인 끌림을 의미합니다. 상대가 나에게 긍정적인 십신일수록 함께하면 마음이 편안하고 서로 성장하게 됩니다.",
     },
     {
       label: '12운성 시너지',
       score: data.scores.wunsengSynergy?.score ?? 0,
       weight: '9%',
       icon: <Sparkles className="h-4 w-4" />,
-      description: '에너지 레벨의 조화',
+      description:
+        "12운성은 상대방 곁에서 내 기운이 강해지는지, 약해지는지를 봅니다. '건록·제왕'이면 상대와 있을 때 자신감이 생기고 에너지가 충전됩니다. 반대로 '사·묘·절'이면 상대에게 맞추느라 지치거나 위축될 수 있습니다.",
     },
     {
       label: '삼합/방합 시너지',
       score: data.scores.combinationSynergy?.score ?? 0,
       weight: '5%',
       icon: <Zap className="h-4 w-4" />,
-      description: '삼합·방합으로 형성되는 특별한 결합력',
+      description:
+        '삼합은 세 지지가 모여 특별한 기운을 만드는 것입니다. 두 사람의 사주가 합쳐져 삼합이 완성되면, 따로 있을 때보다 함께 있을 때 더 큰 에너지가 생깁니다. "둘이 만나니까 일이 잘 풀린다"는 느낌이 드는 운명적 인연입니다.',
     },
   ];
 
@@ -402,10 +408,7 @@ function ScoreTab({ data }: { data: CompatibilityData }) {
     <div className="space-y-6">
       {/* 6개 항목 점수 */}
       <GlassCard className="p-6">
-        <SectionHeader
-          title="상세 점수"
-          icon={<TrendingUp className="h-4 w-4" />}
-        />
+        <SectionHeader title="상세 점수" icon={<TrendingUp className="h-4 w-4" />} />
         <div className="space-y-5">
           {scoreItems.map((item, index) => (
             <div key={item.label}>
@@ -423,10 +426,7 @@ function ScoreTab({ data }: { data: CompatibilityData }) {
 
       {/* 연애 스타일 비교 */}
       <GlassCard className="p-6">
-        <SectionHeader
-          title="연애 스타일 비교"
-          icon={<Heart className="h-4 w-4" />}
-        />
+        <SectionHeader title="연애 스타일 비교" icon={<Heart className="h-4 w-4" />} />
         <div className="grid gap-3 sm:grid-cols-2">
           <DualScoreBar
             label="표현력"
@@ -481,10 +481,7 @@ function AnalysisTab({ data }: { data: CompatibilityData }) {
       {/* 인연의 성격 */}
       {data.relationshipType && (
         <GlassCard variant="highlight" className="p-6">
-          <SectionHeader
-            title="인연의 성격"
-            icon={<Sparkles className="h-4 w-4" />}
-          />
+          <SectionHeader title="인연의 성격" icon={<Sparkles className="h-4 w-4" />} />
           <div className="mb-4 flex flex-wrap gap-2">
             {data.relationshipType.keywords.map((keyword, i) => (
               <motion.span
@@ -508,7 +505,9 @@ function AnalysisTab({ data }: { data: CompatibilityData }) {
             {replaceAB(data.relationshipType.firstImpression, data.nameA, data.nameB)}
           </p>
           <div className="mt-4 rounded-lg bg-white/5 p-4">
-            <p className="text-sm text-gray-400">{replaceAB(data.relationshipType.developmentPattern, data.nameA, data.nameB)}</p>
+            <p className="text-sm text-gray-400">
+              {replaceAB(data.relationshipType.developmentPattern, data.nameA, data.nameB)}
+            </p>
           </div>
         </GlassCard>
       )}
@@ -516,10 +515,7 @@ function AnalysisTab({ data }: { data: CompatibilityData }) {
       {/* 갈등 포인트 */}
       {data.conflictAnalysis && data.conflictAnalysis.conflictPoints.length > 0 && (
         <GlassCard className="p-6">
-          <SectionHeader
-            title="갈등 포인트"
-            icon={<Flame className="h-4 w-4" />}
-          />
+          <SectionHeader title="갈등 포인트" icon={<Flame className="h-4 w-4" />} />
           <div className="space-y-3">
             {data.conflictAnalysis.conflictPoints.map((point, i) => (
               <motion.div
@@ -533,10 +529,14 @@ function AnalysisTab({ data }: { data: CompatibilityData }) {
                   <div className="h-1.5 w-1.5 rounded-full bg-amber-400" />
                   <p className="font-medium text-amber-400">{point.source}</p>
                 </div>
-                <p className="text-sm text-gray-300">{replaceAB(point.description, data.nameA, data.nameB)}</p>
+                <p className="text-sm text-gray-300">
+                  {replaceAB(point.description, data.nameA, data.nameB)}
+                </p>
                 <div className="mt-3 flex items-start gap-2 rounded-lg bg-green-950/30 p-3">
                   <ArrowRight className="mt-0.5 h-4 w-4 shrink-0 text-green-400" />
-                  <p className="text-sm text-green-400">{replaceAB(point.resolution, data.nameA, data.nameB)}</p>
+                  <p className="text-sm text-green-400">
+                    {replaceAB(point.resolution, data.nameA, data.nameB)}
+                  </p>
                 </div>
               </motion.div>
             ))}
@@ -558,10 +558,7 @@ function AnalysisTab({ data }: { data: CompatibilityData }) {
       {/* 결혼 적합도 */}
       {data.marriageFit && (
         <GlassCard className="p-6">
-          <SectionHeader
-            title="결혼 적합도"
-            icon={<Shield className="h-4 w-4" />}
-          />
+          <SectionHeader title="결혼 적합도" icon={<Shield className="h-4 w-4" />} />
           <div className="mb-4 flex items-center gap-4">
             <div
               className="flex h-16 w-16 items-center justify-center rounded-2xl"
@@ -572,7 +569,9 @@ function AnalysisTab({ data }: { data: CompatibilityData }) {
             >
               <span className="text-2xl font-bold text-[#d4af37]">{data.marriageFit.score}</span>
             </div>
-            <p className="flex-1 text-gray-300">{replaceAB(data.marriageFit.postMarriageChange, data.nameA, data.nameB)}</p>
+            <p className="flex-1 text-gray-300">
+              {replaceAB(data.marriageFit.postMarriageChange, data.nameA, data.nameB)}
+            </p>
           </div>
           <div className="grid gap-3">
             {[
@@ -585,7 +584,9 @@ function AnalysisTab({ data }: { data: CompatibilityData }) {
                 className="rounded-lg border border-white/5 bg-white/[0.02] p-3"
               >
                 <p className="mb-1 text-xs font-medium text-gray-500">{item.label}</p>
-                <p className="text-sm text-gray-300">{replaceAB(item.value, data.nameA, data.nameB)}</p>
+                <p className="text-sm text-gray-300">
+                  {replaceAB(item.value, data.nameA, data.nameB)}
+                </p>
               </div>
             ))}
           </div>
@@ -595,10 +596,7 @@ function AnalysisTab({ data }: { data: CompatibilityData }) {
       {/* 상호 영향 */}
       {data.mutualInfluence && (
         <GlassCard className="p-6">
-          <SectionHeader
-            title="상호 영향"
-            icon={<Zap className="h-4 w-4" />}
-          />
+          <SectionHeader title="상호 영향" icon={<Zap className="h-4 w-4" />} />
           <div className="space-y-4">
             {/* A → B */}
             <div className="rounded-xl border border-[#d4af37]/20 bg-[#d4af37]/5 p-4">
@@ -621,7 +619,9 @@ function AnalysisTab({ data }: { data: CompatibilityData }) {
                   {data.mutualInfluence.aToB.tenGod}
                 </span>
               </div>
-              <p className="text-sm text-gray-300">{replaceAB(data.mutualInfluence.aToB.positiveInfluence, data.nameA, data.nameB)}</p>
+              <p className="text-sm text-gray-300">
+                {replaceAB(data.mutualInfluence.aToB.positiveInfluence, data.nameA, data.nameB)}
+              </p>
               <p className="mt-2 text-xs text-amber-400/80">
                 <Lock className="mr-1 inline-block h-3 w-3" />
                 주의: {replaceAB(data.mutualInfluence.aToB.caution, data.nameA, data.nameB)}
@@ -649,7 +649,9 @@ function AnalysisTab({ data }: { data: CompatibilityData }) {
                   {data.mutualInfluence.bToA.tenGod}
                 </span>
               </div>
-              <p className="text-sm text-gray-300">{replaceAB(data.mutualInfluence.bToA.positiveInfluence, data.nameA, data.nameB)}</p>
+              <p className="text-sm text-gray-300">
+                {replaceAB(data.mutualInfluence.bToA.positiveInfluence, data.nameA, data.nameB)}
+              </p>
               <p className="mt-2 text-xs text-amber-400/80">
                 <Lock className="mr-1 inline-block h-3 w-3" />
                 주의: {replaceAB(data.mutualInfluence.bToA.caution, data.nameA, data.nameB)}
@@ -658,7 +660,9 @@ function AnalysisTab({ data }: { data: CompatibilityData }) {
 
             {/* 시너지 */}
             <div className="rounded-lg bg-white/5 p-4 text-center">
-              <p className="text-sm text-gray-400">{replaceAB(data.mutualInfluence.synergy, data.nameA, data.nameB)}</p>
+              <p className="text-sm text-gray-400">
+                {replaceAB(data.mutualInfluence.synergy, data.nameA, data.nameB)}
+              </p>
             </div>
           </div>
         </GlassCard>
@@ -672,10 +676,7 @@ function CompareTab({ data }: { data: CompatibilityData }) {
   return (
     <div className="space-y-6">
       <GlassCard className="p-6">
-        <SectionHeader
-          title="사주 명식 비교"
-          icon={<Users className="h-4 w-4" />}
-        />
+        <SectionHeader title="사주 명식 비교" icon={<Users className="h-4 w-4" />} />
 
         {data.pillarsA && data.pillarsB ? (
           <div className="grid gap-4 md:grid-cols-2">
@@ -726,10 +727,7 @@ function CompareTab({ data }: { data: CompatibilityData }) {
 
       {/* 간지 상호작용 */}
       <GlassCard className="p-6">
-        <SectionHeader
-          title="간지 상호작용"
-          icon={<Zap className="h-4 w-4" />}
-        />
+        <SectionHeader title="간지 상호작용" icon={<Zap className="h-4 w-4" />} />
         <InteractionDisplay interactions={data.interactions} />
       </GlassCard>
     </div>
@@ -739,11 +737,11 @@ function CompareTab({ data }: { data: CompatibilityData }) {
 /** 용어 해설 매핑 (한자 + 음절 + 뜻) */
 const TERM_EXPLANATIONS: Record<string, string> = {
   // 천간 합 (5합)
-  '갑기합토': '甲(갑)+己(기) → 土(토, 흙) 기운 생성 - 안정과 신뢰의 결합',
-  '을경합금': '乙(을)+庚(경) → 金(금, 쇠) 기운 생성 - 결단과 의리의 결합',
-  '병신합수': '丙(병)+辛(신) → 水(수, 물) 기운 생성 - 지혜와 유연함의 결합',
-  '정임합목': '丁(정)+壬(임) → 木(목, 나무) 기운 생성 - 성장과 발전의 결합',
-  '무계합화': '戊(무)+癸(계) → 火(화, 불) 기운 생성 - 열정과 활력의 결합',
+  갑기합토: '甲(갑)+己(기) → 土(토, 흙) 기운 생성 - 안정과 신뢰의 결합',
+  을경합금: '乙(을)+庚(경) → 金(금, 쇠) 기운 생성 - 결단과 의리의 결합',
+  병신합수: '丙(병)+辛(신) → 水(수, 물) 기운 생성 - 지혜와 유연함의 결합',
+  정임합목: '丁(정)+壬(임) → 木(목, 나무) 기운 생성 - 성장과 발전의 결합',
+  무계합화: '戊(무)+癸(계) → 火(화, 불) 기운 생성 - 열정과 활력의 결합',
   // 삼합
   '인오술 화국': '寅(인)+午(오)+戌(술) → 火局(화국) - 열정적이고 활동적인 에너지',
   '신자진 수국': '申(신)+子(자)+辰(진) → 水局(수국) - 지혜롭고 유연한 교류',
@@ -755,35 +753,35 @@ const TERM_EXPLANATIONS: Record<string, string> = {
   '신유술 금방': '申(신)+酉(유)+戌(술) → 金方(금방) - 가을의 쇠 기운',
   '해자축 수방': '亥(해)+子(자)+丑(축) → 水方(수방) - 겨울의 물 기운',
   // 지지 합 (6합)
-  '자축합토': '子(자)+丑(축) → 土(토, 흙) - 안정적인 결합',
-  '인해합목': '寅(인)+亥(해) → 木(목, 나무) - 발전하는 관계',
-  '묘술합화': '卯(묘)+戌(술) → 火(화, 불) - 열정적인 만남',
-  '진유합금': '辰(진)+酉(유) → 金(금, 쇠) - 단단한 결속',
-  '사신합수': '巳(사)+申(신) → 水(수, 물) - 원활한 소통',
-  '오미합화': '午(오)+未(미) → 火(화, 불) - 열정적인 교류',
+  자축합토: '子(자)+丑(축) → 土(토, 흙) - 안정적인 결합',
+  인해합목: '寅(인)+亥(해) → 木(목, 나무) - 발전하는 관계',
+  묘술합화: '卯(묘)+戌(술) → 火(화, 불) - 열정적인 만남',
+  진유합금: '辰(진)+酉(유) → 金(금, 쇠) - 단단한 결속',
+  사신합수: '巳(사)+申(신) → 水(수, 물) - 원활한 소통',
+  오미합화: '午(오)+未(미) → 火(화, 불) - 열정적인 교류',
   // 충 (6충)
-  '자오충': '子(자)↔午(오) 충돌 - 감정적 갈등, 마음이 어긋남',
-  '축미충': '丑(축)↔未(미) 충돌 - 가치관 차이, 고집 충돌',
-  '인신충': '寅(인)↔申(신) 충돌 - 활동 방향 충돌',
-  '묘유충': '卯(묘)↔酉(유) 충돌 - 의견 대립, 날카로운 마찰',
-  '진술충': '辰(진)↔戌(술) 충돌 - 환경 변화로 인한 갈등',
-  '사해충': '巳(사)↔亥(해) 충돌 - 이동/변화 관련 마찰',
+  자오충: '子(자)↔午(오) 충돌 - 감정적 갈등, 마음이 어긋남',
+  축미충: '丑(축)↔未(미) 충돌 - 가치관 차이, 고집 충돌',
+  인신충: '寅(인)↔申(신) 충돌 - 활동 방향 충돌',
+  묘유충: '卯(묘)↔酉(유) 충돌 - 의견 대립, 날카로운 마찰',
+  진술충: '辰(진)↔戌(술) 충돌 - 환경 변화로 인한 갈등',
+  사해충: '巳(사)↔亥(해) 충돌 - 이동/변화 관련 마찰',
   // 형 (3형)
-  '인사형': '寅(인)+巳(사) 형벌 - 권력 다툼, 경쟁 갈등',
-  '인신형': '寅(인)+申(신) 형벌 - 무은지형, 배신 주의',
-  '사신형': '巳(사)+申(신) 형벌 - 의리 갈등',
-  '축술형': '丑(축)+戌(술) 형벌 - 고집으로 인한 마찰',
-  '축미형': '丑(축)+未(미) 형벌 - 가치관 대립',
-  '술미형': '戌(술)+未(미) 형벌 - 완고함 충돌',
-  '자묘형': '子(자)+卯(묘) 형벌 - 무례지형, 예의 갈등',
-  '오오자형': '午(오)+午(오)+子(자) 무례지형 - 감정 충돌, 예의 문제',
+  인사형: '寅(인)+巳(사) 형벌 - 권력 다툼, 경쟁 갈등',
+  인신형: '寅(인)+申(신) 형벌 - 무은지형, 배신 주의',
+  사신형: '巳(사)+申(신) 형벌 - 의리 갈등',
+  축술형: '丑(축)+戌(술) 형벌 - 고집으로 인한 마찰',
+  축미형: '丑(축)+未(미) 형벌 - 가치관 대립',
+  술미형: '戌(술)+未(미) 형벌 - 완고함 충돌',
+  자묘형: '子(자)+卯(묘) 형벌 - 무례지형, 예의 갈등',
+  오오자형: '午(오)+午(오)+子(자) 무례지형 - 감정 충돌, 예의 문제',
   // 원진
-  '자유원진': '子(자)↔酉(유) 원진 - 심리적 거리감',
-  '축오원진': '丑(축)↔午(오) 원진 - 서로 밀어내는 기운',
-  '인미원진': '寅(인)↔未(미) 원진 - 뜻이 맞지 않음',
-  '묘신원진': '卯(묘)↔申(신) 원진 - 방향성 차이',
-  '진해원진': '辰(진)↔亥(해) 원진 - 환경적 부조화',
-  '사술원진': '巳(사)↔戌(술) 원진 - 시기적 어긋남',
+  자유원진: '子(자)↔酉(유) 원진 - 심리적 거리감',
+  축오원진: '丑(축)↔午(오) 원진 - 서로 밀어내는 기운',
+  인미원진: '寅(인)↔未(미) 원진 - 뜻이 맞지 않음',
+  묘신원진: '卯(묘)↔申(신) 원진 - 방향성 차이',
+  진해원진: '辰(진)↔亥(해) 원진 - 환경적 부조화',
+  사술원진: '巳(사)↔戌(술) 원진 - 시기적 어긋남',
 };
 
 /** 간지 상호작용 표시 컴포넌트 */
@@ -799,7 +797,9 @@ function InteractionDisplay({ interactions }: { interactions: Record<string, unk
   const samhapFormed = (interactions?.samhapFormed || []) as InteractionItem[];
   const banhapFormed = (interactions?.banhapFormed || []) as InteractionItem[];
   const banghapFormed = (interactions?.banghapFormed || []) as InteractionItem[];
-  const peachBlossom = interactions?.peachBlossom as { type: string; description: string; score: number } | undefined;
+  const peachBlossom = interactions?.peachBlossom as
+    | { type: string; description: string; score: number }
+    | undefined;
 
   /** 용어에 대한 설명을 반환 */
   const getExplanation = (name: string): string => {
@@ -1009,7 +1009,9 @@ function PillarDisplay({ pillars }: { pillars: Record<string, unknown> }) {
   return (
     <div className="grid grid-cols-4 gap-2">
       {positions.map((pos) => {
-        const pillar = pillars[pos] as { stem?: string; branch?: string; stemElement?: string; branchElement?: string } | undefined;
+        const pillar = pillars[pos] as
+          | { stem?: string; branch?: string; stemElement?: string; branchElement?: string }
+          | undefined;
         return (
           <div key={pos} className="text-center">
             <p className="mb-1 text-[10px] text-gray-500">{positionLabels[pos]}</p>

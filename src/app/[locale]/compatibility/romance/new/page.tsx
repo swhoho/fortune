@@ -183,9 +183,7 @@ export default function CompatibilityRomanceNewPage() {
           className="flex flex-col items-center text-center"
         >
           <AlertCircle className="mb-4 h-16 w-16 text-red-400" />
-          <h2 className="mb-2 text-xl font-semibold text-white">
-            기본 사주 분석이 필요합니다
-          </h2>
+          <h2 className="mb-2 text-xl font-semibold text-white">기본 사주 분석이 필요합니다</h2>
           <p className="mb-6 max-w-sm text-gray-400">
             {sajuRequiredError.missingProfiles.join(', ')}의 기본 사주 분석을 먼저 완료해주세요.
           </p>
@@ -228,7 +226,8 @@ export default function CompatibilityRomanceNewPage() {
       return {
         text: '진행 상황 확인',
         icon: <Loader2 className="mr-2 h-5 w-5" />,
-        action: () => router.push(`/compatibility/romance/${existingAnalysis.analysisId}/generating`),
+        action: () =>
+          router.push(`/compatibility/romance/${existingAnalysis.analysisId}/generating`),
         disabled: false,
         style: {
           background: 'linear-gradient(135deg, #f59e0b, #d97706)',
@@ -243,7 +242,9 @@ export default function CompatibilityRomanceNewPage() {
         action: handleStart,
         disabled: !canStart || isSubmitting,
         style: {
-          background: canStart ? 'linear-gradient(135deg, #22c55e, #16a34a)' : 'rgba(255,255,255,0.1)',
+          background: canStart
+            ? 'linear-gradient(135deg, #22c55e, #16a34a)'
+            : 'rgba(255,255,255,0.1)',
           color: canStart ? '#000' : '#666',
         },
       };
@@ -258,7 +259,9 @@ export default function CompatibilityRomanceNewPage() {
       action: handleStart,
       disabled: !canStart || isSubmitting,
       style: {
-        background: canStart ? 'linear-gradient(135deg, #d4af37, #c9a227)' : 'rgba(255,255,255,0.1)',
+        background: canStart
+          ? 'linear-gradient(135deg, #d4af37, #c9a227)'
+          : 'rgba(255,255,255,0.1)',
         color: canStart ? '#000' : '#666',
         border: canStart ? 'none' : '1px solid rgba(255,255,255,0.1)',
       },
@@ -440,10 +443,7 @@ export default function CompatibilityRomanceNewPage() {
             transition={{ delay: 0.5 }}
             className="my-6"
           >
-            <GlassCard
-              variant={hasEnoughCredits ? 'default' : 'warning'}
-              className="p-5"
-            >
+            <GlassCard variant={hasEnoughCredits ? 'default' : 'warning'} className="p-5">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
                   <div
@@ -464,7 +464,9 @@ export default function CompatibilityRomanceNewPage() {
                     <p className="text-sm text-gray-400">
                       {isFreeRetry ? '무료 재시도' : '분석 비용'}
                     </p>
-                    <p className={`text-xl font-bold ${isFreeRetry ? 'text-green-400' : 'text-[#d4af37]'}`}>
+                    <p
+                      className={`text-xl font-bold ${isFreeRetry ? 'text-green-400' : 'text-[#d4af37]'}`}
+                    >
                       {isFreeRetry ? '0C' : `${COMPATIBILITY_COST}C`}
                     </p>
                   </div>
@@ -507,18 +509,18 @@ export default function CompatibilityRomanceNewPage() {
                 </motion.div>
               )}
 
-              {hasEnoughCredits && selectedProfileA && selectedProfileA?.id === selectedProfileB?.id && (
-                <motion.div
-                  initial={{ opacity: 0, height: 0 }}
-                  animate={{ opacity: 1, height: 'auto' }}
-                  className="mt-4 flex items-center gap-2 rounded-lg bg-amber-950/30 p-3"
-                >
-                  <AlertTriangle className="h-4 w-4 shrink-0 text-amber-400" />
-                  <p className="text-sm text-amber-400">
-                    서로 다른 두 프로필을 선택해주세요.
-                  </p>
-                </motion.div>
-              )}
+              {hasEnoughCredits &&
+                selectedProfileA &&
+                selectedProfileA?.id === selectedProfileB?.id && (
+                  <motion.div
+                    initial={{ opacity: 0, height: 0 }}
+                    animate={{ opacity: 1, height: 'auto' }}
+                    className="mt-4 flex items-center gap-2 rounded-lg bg-amber-950/30 p-3"
+                  >
+                    <AlertTriangle className="h-4 w-4 shrink-0 text-amber-400" />
+                    <p className="text-sm text-amber-400">서로 다른 두 프로필을 선택해주세요.</p>
+                  </motion.div>
+                )}
 
               {/* 로딩 중 */}
               {isChecking && (

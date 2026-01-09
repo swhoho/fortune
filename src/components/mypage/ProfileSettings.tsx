@@ -279,9 +279,7 @@ export function ProfileSettings() {
         className="mt-6 rounded-2xl border border-red-900/50 bg-red-950/30 p-6"
       >
         <h3 className="mb-2 font-medium text-red-400">{t('dangerZone')}</h3>
-        <p className="mb-4 text-sm text-red-400/80">
-          {t('dangerZoneDescription')}
-        </p>
+        <p className="mb-4 text-sm text-red-400/80">{t('dangerZoneDescription')}</p>
         <Button
           variant="outline"
           className="border-red-900/50 text-red-400 hover:bg-red-950/50"

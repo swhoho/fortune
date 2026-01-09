@@ -199,19 +199,14 @@ async function fetchAllUsageLogs(
   if (compatibility) {
     results.push(
       ...compatibility.map((c) => {
-        const nameA = getProfileName(
-          c.profile_a as { name: string } | { name: string }[] | null
-        );
-        const nameB = getProfileName(
-          c.profile_b as { name: string } | { name: string }[] | null
-        );
+        const nameA = getProfileName(c.profile_a as { name: string } | { name: string }[] | null);
+        const nameB = getProfileName(c.profile_b as { name: string } | { name: string }[] | null);
         return {
           id: `compatibility-${c.id}`,
           type: 'usage' as const,
           amount: c.credits_used,
           descriptionKey: 'compatibility',
-          description:
-            nameA && nameB ? t('usage.compatibility', { nameA, nameB }) : undefined,
+          description: nameA && nameB ? t('usage.compatibility', { nameA, nameB }) : undefined,
           createdAt: c.created_at,
         };
       })
