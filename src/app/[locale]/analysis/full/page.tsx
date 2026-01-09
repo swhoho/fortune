@@ -7,7 +7,6 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
 import {
-  Home,
   Loader2,
   Sparkles,
   UserPlus,
@@ -21,6 +20,7 @@ import { Link, useRouter } from '@/i18n/routing';
 import { useProfiles } from '@/hooks/use-profiles';
 import { useReportCreditsCheck } from '@/hooks/use-credits';
 import { InsufficientCreditsDialog, CreditDeductionDialog } from '@/components/credits';
+import { AppHeader } from '@/components/layout';
 import type { ProfileResponse } from '@/types/profile';
 
 export default function FullAnalysisPage() {
@@ -81,19 +81,7 @@ export default function FullAnalysisPage() {
   return (
     <div className="min-h-screen bg-[#0a0a0a]">
       {/* 헤더 */}
-      <header className="sticky top-0 z-10 border-b border-[#333] bg-[#0a0a0a]/80 backdrop-blur-sm">
-        <div className="mx-auto flex max-w-2xl items-center justify-between px-6 py-4">
-          <Button variant="ghost" size="icon" asChild className="text-white hover:bg-[#242424]">
-            <Link href="/home">
-              <Home className="h-5 w-5" />
-            </Link>
-          </Button>
-          <h1 className="font-serif text-lg font-semibold text-white">
-            {t('fullAnalysis.title', { defaultValue: '전체 사주 분석' })}
-          </h1>
-          <div className="w-10" />
-        </div>
-      </header>
+      <AppHeader title={t('fullAnalysis.title', { defaultValue: '전체 사주 분석' })} />
 
       <main className="mx-auto max-w-2xl px-6 py-8">
         {/* 안내 메시지 */}

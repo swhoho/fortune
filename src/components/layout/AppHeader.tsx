@@ -79,9 +79,9 @@ export function AppHeader({
         className
       )}
     >
-      <div className="mx-auto flex max-w-4xl items-center justify-between px-4 py-3">
-        {/* 좌측: Home + Back */}
-        <div className="flex items-center gap-0.5">
+      <div className="mx-auto flex max-w-3xl items-center justify-between px-4 py-3">
+        {/* 좌측: Home + Back (고정 너비로 중앙 정렬 보장) */}
+        <div className="flex min-w-[80px] items-center gap-0.5">
           <Button
             variant="ghost"
             size="icon"
@@ -129,8 +129,8 @@ export function AppHeader({
           )}
         </div>
 
-        {/* 우측: 추가 슬롯 + 언어 + 크레딧 + 아바타 */}
-        <div className="flex items-center gap-1.5 sm:gap-2">
+        {/* 우측: 추가 슬롯 + 언어 + 크레딧 + 아바타 (min-width로 좌측과 균형) */}
+        <div className="flex min-w-[80px] items-center justify-end gap-1.5 sm:gap-2">
           {/* 페이지별 추가 버튼 (공유, 추가 등) */}
           {rightSlot}
 
