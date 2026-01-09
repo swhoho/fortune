@@ -9,15 +9,15 @@ import { useState, useEffect } from 'react';
 import { Toaster } from '@/components/ui/sonner';
 import { CrispChat } from '@/components/crisp-chat';
 import { Analytics } from '@vercel/analytics/react';
-import { isKakaoTalkBrowser, openInExternalBrowser } from '@/lib/browser-detect';
+import { isInAppBrowser, openInExternalBrowser } from '@/lib/browser-detect';
 import { useViewportHeight } from '@/hooks/use-viewport-height';
 
 /**
- * 카카오톡 인앱 브라우저 감지 시 외부 브라우저로 리다이렉트
+ * 인앱 브라우저 감지 시 외부 브라우저로 리다이렉트
  */
-function KakaoRedirect() {
+function InAppBrowserRedirect() {
   useEffect(() => {
-    if (isKakaoTalkBrowser()) {
+    if (isInAppBrowser()) {
       openInExternalBrowser(window.location.href);
     }
   }, []);
@@ -52,7 +52,7 @@ export function Providers({ children }: ProvidersProps) {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <KakaoRedirect />
+      <InAppBrowserRedirect />
       <ViewportHeightManager />
       {children}
       <Toaster />
