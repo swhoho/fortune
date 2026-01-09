@@ -45,6 +45,15 @@ function truncateName(name: string, maxLength = 3): string {
   return name.length > maxLength ? name.slice(0, maxLength) + '…' : name;
 }
 
+/** 텍스트 내 A/B를 실제 이름으로 치환 */
+function replaceAB(text: string, nameA: string, nameB: string): string {
+  // 한국어 조사 패턴과 함께 A/B 치환
+  // A는, A가, A의, A를, A와, A에게, A도 등
+  return text
+    .replace(/\bA(?=[는가의를와에도]|$|\s|,|\.)/g, nameA)
+    .replace(/\bB(?=[는가의를와에도]|$|\s|,|\.)/g, nameB);
+}
+
 interface CompatibilityData {
   id: string;
   profileIdA: string;
@@ -496,10 +505,10 @@ function AnalysisTab({ data }: { data: CompatibilityData }) {
             ))}
           </div>
           <p className="leading-relaxed text-gray-300">
-            {data.relationshipType.firstImpression}
+            {replaceAB(data.relationshipType.firstImpression, data.nameA, data.nameB)}
           </p>
           <div className="mt-4 rounded-lg bg-white/5 p-4">
-            <p className="text-sm text-gray-400">{data.relationshipType.developmentPattern}</p>
+            <p className="text-sm text-gray-400">{replaceAB(data.relationshipType.developmentPattern, data.nameA, data.nameB)}</p>
           </div>
         </GlassCard>
       )}
@@ -524,10 +533,10 @@ function AnalysisTab({ data }: { data: CompatibilityData }) {
                   <div className="h-1.5 w-1.5 rounded-full bg-amber-400" />
                   <p className="font-medium text-amber-400">{point.source}</p>
                 </div>
-                <p className="text-sm text-gray-300">{point.description}</p>
+                <p className="text-sm text-gray-300">{replaceAB(point.description, data.nameA, data.nameB)}</p>
                 <div className="mt-3 flex items-start gap-2 rounded-lg bg-green-950/30 p-3">
                   <ArrowRight className="mt-0.5 h-4 w-4 shrink-0 text-green-400" />
-                  <p className="text-sm text-green-400">{point.resolution}</p>
+                  <p className="text-sm text-green-400">{replaceAB(point.resolution, data.nameA, data.nameB)}</p>
                 </div>
               </motion.div>
             ))}
@@ -538,7 +547,7 @@ function AnalysisTab({ data }: { data: CompatibilityData }) {
               <div>
                 <p className="text-sm font-medium text-[#d4af37]">소통 팁</p>
                 <p className="mt-1 text-sm text-gray-300">
-                  {data.conflictAnalysis.communicationTips}
+                  {replaceAB(data.conflictAnalysis.communicationTips, data.nameA, data.nameB)}
                 </p>
               </div>
             </div>
@@ -563,7 +572,7 @@ function AnalysisTab({ data }: { data: CompatibilityData }) {
             >
               <span className="text-2xl font-bold text-[#d4af37]">{data.marriageFit.score}</span>
             </div>
-            <p className="flex-1 text-gray-300">{data.marriageFit.postMarriageChange}</p>
+            <p className="flex-1 text-gray-300">{replaceAB(data.marriageFit.postMarriageChange, data.nameA, data.nameB)}</p>
           </div>
           <div className="grid gap-3">
             {[
@@ -576,7 +585,7 @@ function AnalysisTab({ data }: { data: CompatibilityData }) {
                 className="rounded-lg border border-white/5 bg-white/[0.02] p-3"
               >
                 <p className="mb-1 text-xs font-medium text-gray-500">{item.label}</p>
-                <p className="text-sm text-gray-300">{item.value}</p>
+                <p className="text-sm text-gray-300">{replaceAB(item.value, data.nameA, data.nameB)}</p>
               </div>
             ))}
           </div>
@@ -612,10 +621,10 @@ function AnalysisTab({ data }: { data: CompatibilityData }) {
                   {data.mutualInfluence.aToB.tenGod}
                 </span>
               </div>
-              <p className="text-sm text-gray-300">{data.mutualInfluence.aToB.positiveInfluence}</p>
+              <p className="text-sm text-gray-300">{replaceAB(data.mutualInfluence.aToB.positiveInfluence, data.nameA, data.nameB)}</p>
               <p className="mt-2 text-xs text-amber-400/80">
                 <Lock className="mr-1 inline-block h-3 w-3" />
-                주의: {data.mutualInfluence.aToB.caution}
+                주의: {replaceAB(data.mutualInfluence.aToB.caution, data.nameA, data.nameB)}
               </p>
             </div>
 
@@ -640,16 +649,16 @@ function AnalysisTab({ data }: { data: CompatibilityData }) {
                   {data.mutualInfluence.bToA.tenGod}
                 </span>
               </div>
-              <p className="text-sm text-gray-300">{data.mutualInfluence.bToA.positiveInfluence}</p>
+              <p className="text-sm text-gray-300">{replaceAB(data.mutualInfluence.bToA.positiveInfluence, data.nameA, data.nameB)}</p>
               <p className="mt-2 text-xs text-amber-400/80">
                 <Lock className="mr-1 inline-block h-3 w-3" />
-                주의: {data.mutualInfluence.bToA.caution}
+                주의: {replaceAB(data.mutualInfluence.bToA.caution, data.nameA, data.nameB)}
               </p>
             </div>
 
             {/* 시너지 */}
             <div className="rounded-lg bg-white/5 p-4 text-center">
-              <p className="text-sm text-gray-400">{data.mutualInfluence.synergy}</p>
+              <p className="text-sm text-gray-400">{replaceAB(data.mutualInfluence.synergy, data.nameA, data.nameB)}</p>
             </div>
           </div>
         </GlassCard>
