@@ -745,6 +745,8 @@ function CompareTab({ data }: { data: CompatibilityData }) {
             ((data.interactions as Record<string, unknown>)
               ?.peachBlossom as typeof data.peachBlossom) || data.peachBlossom
           }
+          nameA={data.nameA}
+          nameB={data.nameB}
         />
       </GlassCard>
     </div>
@@ -805,6 +807,8 @@ const TERM_EXPLANATIONS: Record<string, string> = {
 function InteractionDisplay({
   interactions,
   peachBlossom,
+  nameA,
+  nameB,
 }: {
   interactions: Record<string, unknown>;
   peachBlossom?: {
@@ -816,6 +820,8 @@ function InteractionDisplay({
     attractionBonus: number;
     description: string;
   };
+  nameA: string;
+  nameB: string;
 }) {
   // 타입 정의
   type InteractionItem = { name: string; formed?: boolean };
@@ -835,6 +841,27 @@ function InteractionDisplay({
     return TERM_EXPLANATIONS[key] || '';
   };
 
+  /** 설명을 한자/의미로 분리하여 표시하는 컴포넌트 */
+  const ExplanationText = ({ name }: { name: string }) => {
+    const explanation = getExplanation(name);
+    if (!explanation) return null;
+
+    const dashIndex = explanation.lastIndexOf(' - ');
+    if (dashIndex === -1) {
+      return <span className="text-xs text-gray-400">{explanation}</span>;
+    }
+
+    const hanja = explanation.slice(0, dashIndex);
+    const meaning = explanation.slice(dashIndex + 3);
+
+    return (
+      <div className="text-xs">
+        <span className="text-gray-500">{hanja}</span>
+        <span className="block text-gray-300">{meaning}</span>
+      </div>
+    );
+  };
+
   return (
     <div className="space-y-4">
       {/* 도화살 (항상 표시) */}
@@ -852,7 +879,9 @@ function InteractionDisplay({
           연지/일지 기준으로 특별한 이성 끌림을 나타내는 살(煞)
         </p>
         {peachBlossom ? (
-          <p className="text-sm text-gray-300">{peachBlossom.description}</p>
+          <p className="text-sm text-gray-300">
+            {replaceAB(peachBlossom.description, nameA, nameB)}
+          </p>
         ) : (
           <p className="text-sm text-gray-400">이 커플에게는 도화살이 없습니다</p>
         )}
@@ -874,7 +903,7 @@ function InteractionDisplay({
                 <span className="inline-block w-fit rounded-full bg-[#d4af37]/20 px-3 py-1 text-sm text-[#d4af37]">
                   {item.name}
                 </span>
-                <span className="text-xs text-gray-500">{getExplanation(item.name)}</span>
+                <ExplanationText name={item.name} />
               </div>
             ))}
             {banhapFormed.map((item, i) => (
@@ -882,7 +911,7 @@ function InteractionDisplay({
                 <span className="inline-block w-fit rounded-full bg-amber-500/20 px-3 py-1 text-sm text-amber-400">
                   {item.name}
                 </span>
-                <span className="text-xs text-gray-500">{getExplanation(item.name)}</span>
+                <ExplanationText name={item.name} />
               </div>
             ))}
             {banghapFormed.map((item, i) => (
@@ -890,7 +919,7 @@ function InteractionDisplay({
                 <span className="inline-block w-fit rounded-full bg-yellow-500/20 px-3 py-1 text-sm text-yellow-400">
                   {item.name}
                 </span>
-                <span className="text-xs text-gray-500">{getExplanation(item.name)}</span>
+                <ExplanationText name={item.name} />
               </div>
             ))}
           </div>
@@ -912,7 +941,7 @@ function InteractionDisplay({
                 <span className="inline-block w-fit rounded-full bg-green-500/20 px-3 py-1 text-sm text-green-300">
                   {item.name}
                 </span>
-                <span className="text-xs text-gray-500">{getExplanation(item.name)}</span>
+                <ExplanationText name={item.name} />
               </div>
             ))}
           </div>
@@ -934,7 +963,7 @@ function InteractionDisplay({
                 <span className="inline-block w-fit rounded-full bg-blue-500/20 px-3 py-1 text-sm text-blue-300">
                   {item.name}
                 </span>
-                <span className="text-xs text-gray-500">{getExplanation(item.name)}</span>
+                <ExplanationText name={item.name} />
               </div>
             ))}
           </div>
@@ -956,7 +985,7 @@ function InteractionDisplay({
                 <span className="inline-block w-fit rounded-full bg-red-500/20 px-3 py-1 text-sm text-red-300">
                   {item.name}
                 </span>
-                <span className="text-xs text-gray-500">{getExplanation(item.name)}</span>
+                <ExplanationText name={item.name} />
               </div>
             ))}
           </div>
@@ -978,7 +1007,7 @@ function InteractionDisplay({
                 <span className="inline-block w-fit rounded-full bg-orange-500/20 px-3 py-1 text-sm text-orange-300">
                   {item.name}
                 </span>
-                <span className="text-xs text-gray-500">{getExplanation(item.name)}</span>
+                <ExplanationText name={item.name} />
               </div>
             ))}
           </div>
@@ -1000,11 +1029,9 @@ function InteractionDisplay({
                 <span className="inline-block w-fit rounded-full bg-purple-500/20 px-3 py-1 text-sm text-purple-300">
                   {item.name || `${(item as { branches?: string[] }).branches?.join('')}원진`}
                 </span>
-                <span className="text-xs text-gray-500">
-                  {getExplanation(
-                    item.name || `${(item as { branches?: string[] }).branches?.join('')}원진`
-                  )}
-                </span>
+                <ExplanationText
+                  name={item.name || `${(item as { branches?: string[] }).branches?.join('')}원진`}
+                />
               </div>
             ))}
           </div>
