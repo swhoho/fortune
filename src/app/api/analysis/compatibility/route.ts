@@ -189,6 +189,20 @@ export async function POST(request: NextRequest) {
           updated_at: new Date().toISOString(),
         })
         .eq('id', userId);
+
+      // 크레딧 사용 기록 (ai_usage_logs)
+      await supabase.from('ai_usage_logs').insert({
+        user_id: userId,
+        feature_type: 'compatibility_analysis',
+        credits_used: COMPATIBILITY_ANALYSIS_CREDIT_COST,
+        profile_id: data.profileIdA, // 첫 번째 프로필 기준
+        input_tokens: 0,
+        output_tokens: 0,
+        metadata: {
+          profile_id_b: data.profileIdB,
+          analysis_type: data.analysisType,
+        },
+      });
     } else {
       console.log(`[API] 궁합 분석 무료 재시도: ${existingAnalysis?.id}`);
     }

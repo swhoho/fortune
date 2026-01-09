@@ -455,4 +455,5 @@ export type FeatureType =
   | 'report_generation'
   | 'section_reanalysis'
   | 'follow_up_question'
-  | 'yearly_analysis';
+  | 'yearly_analysis'
+  | 'compatibility_analysis';
