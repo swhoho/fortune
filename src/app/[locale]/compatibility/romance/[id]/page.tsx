@@ -429,7 +429,7 @@ function ScoreTab({ data }: { data: CompatibilityData }) {
                 sublabel={item.weight}
                 delay={index * 0.1}
               />
-              <p className="mt-1 text-xs text-gray-500">{item.description}</p>
+              <p className="mt-1 text-xs text-gray-300">{item.description}</p>
             </div>
           ))}
         </div>
