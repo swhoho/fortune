@@ -3,6 +3,7 @@
 /**
  * 크레딧 충전/사용 기록 컴포넌트
  * 마이페이지 - 크레딧 기록 탭
+ * 프로필 이름, 연도 등 상세 정보 포함
  */
 import { useQuery } from '@tanstack/react-query';
 import { motion } from 'framer-motion';
@@ -18,8 +19,10 @@ interface CreditHistoryItem {
   id: string;
   type: 'charge' | 'usage';
   amount: number;
-  /** 번역 키 또는 동적 설명 (충전 금액 포함) */
+  /** 번역 키 */
   descriptionKey: string;
+  /** 동적 설명 (프로필 이름 등 포함) */
+  description?: string;
   /** 충전 금액 (달러) - 충전 기록에만 존재 */
   chargeAmount?: string;
   createdAt: string;
@@ -39,14 +42,24 @@ async function fetchPurchases(userId: string) {
   return data || [];
 }
 
+/** 프로필 이름 추출 헬퍼 */
+function getProfileName(profile: { name: string } | { name: string }[] | null): string {
+  if (!profile) return '';
+  if (Array.isArray(profile)) return profile[0]?.name || '';
+  return profile.name || '';
+}
+
 /** 모든 크레딧 사용 기록 조회 (여러 테이블에서) */
-async function fetchAllUsageLogs(userId: string) {
+async function fetchAllUsageLogs(
+  userId: string,
+  t: (key: string, params?: Record<string, string | number>) => string
+) {
   const results: CreditHistoryItem[] = [];
 
-  // 1. 리포트 생성 (profile_reports)
+  // 1. 리포트 생성 (profile_reports) - 프로필 이름 조인
   const { data: reports } = await supabase
     .from('profile_reports')
-    .select('id, credits_used, created_at, status')
+    .select('id, credits_used, created_at, status, profiles(name)')
     .eq('user_id', userId)
     .eq('status', 'completed')
     .gt('credits_used', 0)
@@ -55,13 +68,19 @@ async function fetchAllUsageLogs(userId: string) {
 
   if (reports) {
     results.push(
-      ...reports.map((r) => ({
-        id: `report-${r.id}`,
-        type: 'usage' as const,
-        amount: r.credits_used,
-        descriptionKey: 'report',
-        createdAt: r.created_at,
-      }))
+      ...reports.map((r) => {
+        const profileName = getProfileName(
+          r.profiles as { name: string } | { name: string }[] | null
+        );
+        return {
+          id: `report-${r.id}`,
+          type: 'usage' as const,
+          amount: r.credits_used,
+          descriptionKey: 'report',
+          description: profileName ? t('usage.report', { name: profileName }) : undefined,
+          createdAt: r.created_at,
+        };
+      })
     );
   }
 
@@ -86,10 +105,10 @@ async function fetchAllUsageLogs(userId: string) {
     );
   }
 
-  // 3. 신년 분석 (yearly_analyses)
+  // 3. 신년 분석 (yearly_analyses) - 프로필 이름 + 연도 조인
   const { data: yearly } = await supabase
     .from('yearly_analyses')
-    .select('id, credits_used, created_at, status')
+    .select('id, credits_used, created_at, status, target_year, profiles(name)')
     .eq('user_id', userId)
     .eq('status', 'completed')
     .gt('credits_used', 0)
@@ -98,13 +117,22 @@ async function fetchAllUsageLogs(userId: string) {
 
   if (yearly) {
     results.push(
-      ...yearly.map((y) => ({
-        id: `yearly-${y.id}`,
-        type: 'usage' as const,
-        amount: y.credits_used,
-        descriptionKey: 'yearly',
-        createdAt: y.created_at,
-      }))
+      ...yearly.map((y) => {
+        const profileName = getProfileName(
+          y.profiles as { name: string } | { name: string }[] | null
+        );
+        return {
+          id: `yearly-${y.id}`,
+          type: 'usage' as const,
+          amount: y.credits_used,
+          descriptionKey: 'yearly',
+          description:
+            profileName && y.target_year
+              ? t('usage.yearly', { year: y.target_year, name: profileName })
+              : undefined,
+          createdAt: y.created_at,
+        };
+      })
     );
   }
 
@@ -152,6 +180,44 @@ async function fetchAllUsageLogs(userId: string) {
     );
   }
 
+  // 6. 궁합 분석 (compatibility_analyses) - 두 프로필 이름 조인
+  const { data: compatibility } = await supabase
+    .from('compatibility_analyses')
+    .select(
+      `
+      id, credits_used, created_at, status,
+      profile_a:profiles!compatibility_analyses_profile_id_a_fkey(name),
+      profile_b:profiles!compatibility_analyses_profile_id_b_fkey(name)
+    `
+    )
+    .eq('user_id', userId)
+    .eq('status', 'completed')
+    .gt('credits_used', 0)
+    .order('created_at', { ascending: false })
+    .limit(50);
+
+  if (compatibility) {
+    results.push(
+      ...compatibility.map((c) => {
+        const nameA = getProfileName(
+          c.profile_a as { name: string } | { name: string }[] | null
+        );
+        const nameB = getProfileName(
+          c.profile_b as { name: string } | { name: string }[] | null
+        );
+        return {
+          id: `compatibility-${c.id}`,
+          type: 'usage' as const,
+          amount: c.credits_used,
+          descriptionKey: 'compatibility',
+          description:
+            nameA && nameB ? t('usage.compatibility', { nameA, nameB }) : undefined,
+          createdAt: c.created_at,
+        };
+      })
+    );
+  }
+
   return results;
 }
 
@@ -181,7 +247,7 @@ export function CreditHistory() {
   // 사용 기록 조회 (모든 테이블에서)
   const { data: usageLogs = [], isLoading: isUsageLoading } = useQuery({
     queryKey: ['allUsageLogs', userId],
-    queryFn: () => fetchAllUsageLogs(userId!),
+    queryFn: () => fetchAllUsageLogs(userId!, t),
     enabled: !!userId,
   });
 
@@ -198,10 +264,14 @@ export function CreditHistory() {
     ...usageLogs,
   ].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
 
-  /** 아이템 설명 번역 */
+  /** 아이템 설명 (동적 설명 우선) */
   const getItemDescription = (item: CreditHistoryItem): string => {
     if (item.type === 'charge') {
       return `${t('charge')} (${item.chargeAmount})`;
+    }
+    // 동적 설명이 있으면 사용, 없으면 기본 번역
+    if (item.description) {
+      return item.description;
     }
     return t(`usage.${item.descriptionKey}`);
   };

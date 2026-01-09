@@ -883,11 +883,12 @@
       "totalUsage": "總使用",
       "charge": "積分充值",
       "usage": {
-        "report": "生成報告",
+        "report": "{name} 全面分析",
         "session": "諮詢會話",
-        "yearly": "年度分析",
+        "yearly": "{year}年 {name} 年運分析",
         "reanalysis": "重新分析",
-        "question": "AI提問"
+        "question": "AI提問",
+        "compatibility": "{nameA}、{nameB} 合婚分析"
       }
     },
     "insufficient": {

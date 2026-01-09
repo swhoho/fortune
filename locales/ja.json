@@ -883,11 +883,12 @@
       "totalUsage": "総使用",
       "charge": "クレジット充電",
       "usage": {
-        "report": "レポート生成",
+        "report": "{name} 総合分析",
         "session": "相談セッション",
-        "yearly": "年間分析",
+        "yearly": "{year}年 {name} 運勢分析",
         "reanalysis": "セクション再分析",
-        "question": "AI質問"
+        "question": "AI質問",
+        "compatibility": "{nameA}・{nameB} 相性分析"
       }
     },
     "insufficient": {

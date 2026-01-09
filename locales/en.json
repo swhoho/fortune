@@ -974,11 +974,12 @@
       "totalUsage": "Total Used",
       "charge": "Credit Charge",
       "usage": {
-        "report": "Report Generation",
+        "report": "{name} Full Analysis",
         "session": "Consultation Session",
-        "yearly": "Yearly Analysis",
+        "yearly": "{year} Yearly {name} Fortune",
         "reanalysis": "Section Reanalysis",
-        "question": "AI Question"
+        "question": "AI Question",
+        "compatibility": "{nameA} & {nameB} Compatibility"
       }
     },
     "insufficient": {

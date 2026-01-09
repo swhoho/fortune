@@ -1017,11 +1017,12 @@
       "totalUsage": "총 사용",
       "charge": "크레딧 충전",
       "usage": {
-        "report": "리포트 생성",
+        "report": "{name} 전체 사주 분석",
         "session": "상담 세션",
-        "yearly": "신년 분석",
+        "yearly": "{year}년 신년 {name} 운세 분석",
         "reanalysis": "섹션 재분석",
-        "question": "AI 질문"
+        "question": "AI 질문",
+        "compatibility": "{nameA}, {nameB} 궁합 분석"
       }
     },
     "insufficient": {
