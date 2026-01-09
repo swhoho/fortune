@@ -107,9 +107,19 @@ export function AppHeader({
         {/* 중앙: 제목 또는 앱 이름 */}
         <div className="flex-1 text-center">
           {title ? (
-            <h1 className="truncate font-serif text-base font-semibold text-white sm:text-lg">
-              {title}
-            </h1>
+            <>
+              {/* 모바일: 命 한자만 표시 (공간 부족으로 제목 잘림 방지) */}
+              <h1
+                className="font-serif text-xl font-semibold sm:hidden"
+                style={{ color: BRAND_COLORS.primary }}
+              >
+                命
+              </h1>
+              {/* 태블릿+: 제목 표시 */}
+              <h1 className="hidden truncate font-serif text-lg font-semibold text-white sm:block">
+                {title}
+              </h1>
+            </>
           ) : (
             <h1
               className="font-semibold tracking-wide text-white"
