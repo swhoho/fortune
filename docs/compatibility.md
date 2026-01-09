@@ -376,6 +376,91 @@ updated_at TIMESTAMPTZ
 
 ---
 
+## 프론트엔드 데이터 구조
+
+> **중요**: Python 엔진 출력과 프론트엔드 기대값이 다를 수 있으므로 주의
+
+### `pillars` 객체 구조
+
+DB에서 반환되는 실제 구조:
+```json
+{
+  "year": { "stem": "甲", "branch": "寅", "element": "木" },
+  "month": { "stem": "壬", "branch": "午", "element": "水" },
+  "day": { "stem": "丙", "branch": "子", "element": "火" },
+  "hour": { "stem": "戊", "branch": "戌", "element": "土" }
+}
+```
+
+**주의**: `element` 필드 하나만 존재. `stemElement`/`branchElement`로 분리되지 않음.
+
+### `interactions` 객체 구조
+
+```json
+{
+  "stemCombinations": [
+    { "name": "갑기합토", "stems": ["甲", "己"], "formed": true, "transformedElement": "土" }
+  ],
+  "branchCombinations": [
+    { "name": "자축합토", "branches": ["子", "丑"], "formed": true, "transformedElement": "土" }
+  ],
+  "branchClashes": [
+    { "name": "자오충", "branches": ["子", "午"], "severity": "high" }
+  ],
+  "branchHarms": [
+    { "name": "자미해", "branches": ["子", "未"], "severity": "medium" }
+  ],
+  "branchPunishments": [
+    { "name": "자묘형", "branches": ["子", "卯"], "severity": "medium" }
+  ],
+  "branchWonjin": [
+    { "type": "원진", "branches": ["卯", "申"], "severity": "low", "positions": [...] }
+  ],
+  "peachBlossom": {
+    "typeA": "쌍방 도화",
+    "typeB": "일방 도화",
+    "attractionBonus": 23,
+    "description": "..."
+  },
+  "samhapBanghap": [
+    { "type": "삼합", "branches": ["寅", "午", "戌"], "element": "火", "bonus": 20 }
+  ]
+}
+```
+
+### `branchWonjin` 필드 (v2.0)
+
+**실제 구조**:
+```typescript
+interface BranchWonjinItem {
+  type: string;        // "원진"
+  branches: string[];  // ["卯", "申"]
+  severity: string;    // "low" | "medium" | "high"
+  positions: { a: string; b: string }[];
+}
+```
+
+**⚠️ `name` 필드 없음** - 프론트엔드에서 fallback 처리 필요:
+```typescript
+item.name || `${item.branches?.join('')}원진`
+```
+
+### `peachBlossom` 필드 (v2.0)
+
+**실제 구조**:
+```typescript
+interface PeachBlossom {
+  typeA: string;          // A의 도화 유형
+  typeB: string;          // B의 도화 유형
+  attractionBonus: number; // 매력도 보너스 (구: score)
+  description: string;
+}
+```
+
+**⚠️ `score` 필드명 변경** → `attractionBonus`
+
+---
+
 ## 에러 처리
 
 ### SAJU_REQUIRED (만세력 없음)

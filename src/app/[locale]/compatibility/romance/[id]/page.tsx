@@ -998,9 +998,13 @@ function InteractionDisplay({
             {branchWonjin.map((item, i) => (
               <div key={i} className="flex flex-col gap-1">
                 <span className="inline-block w-fit rounded-full bg-purple-500/20 px-3 py-1 text-sm text-purple-300">
-                  {item.name}
+                  {item.name || `${(item as { branches?: string[] }).branches?.join('')}원진`}
                 </span>
-                <span className="text-xs text-gray-500">{getExplanation(item.name)}</span>
+                <span className="text-xs text-gray-500">
+                  {getExplanation(
+                    item.name || `${(item as { branches?: string[] }).branches?.join('')}원진`
+                  )}
+                </span>
               </div>
             ))}
           </div>
@@ -1038,16 +1042,25 @@ function PillarDisplay({ pillars }: { pillars: Record<string, unknown> }) {
     <div className="grid grid-cols-4 gap-2">
       {positions.map((pos) => {
         const pillar = pillars[pos] as
-          | { stem?: string; branch?: string; stemElement?: string; branchElement?: string }
+          | {
+              stem?: string;
+              branch?: string;
+              stemElement?: string;
+              branchElement?: string;
+              element?: string;
+            }
           | undefined;
+        // stemElement/branchElement가 없으면 element 필드 fallback
+        const stemEl = pillar?.stemElement || pillar?.element;
+        const branchEl = pillar?.branchElement || pillar?.element;
         return (
           <div key={pos} className="text-center">
             <p className="mb-1 text-[10px] text-gray-500">{positionLabels[pos]}</p>
             <div
               className="mb-1 flex h-8 items-center justify-center rounded-md text-sm font-medium"
               style={{
-                backgroundColor: `${getElementColor(pillar?.stemElement)}20`,
-                color: getElementColor(pillar?.stemElement),
+                backgroundColor: `${getElementColor(stemEl)}20`,
+                color: getElementColor(stemEl),
               }}
             >
               {pillar?.stem || '-'}
@@ -1055,8 +1068,8 @@ function PillarDisplay({ pillars }: { pillars: Record<string, unknown> }) {
             <div
               className="flex h-8 items-center justify-center rounded-md text-sm font-medium"
               style={{
-                backgroundColor: `${getElementColor(pillar?.branchElement)}20`,
-                color: getElementColor(pillar?.branchElement),
+                backgroundColor: `${getElementColor(branchEl)}20`,
+                color: getElementColor(branchEl),
               }}
             >
               {pillar?.branch || '-'}
