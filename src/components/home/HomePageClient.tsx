@@ -73,7 +73,7 @@ export function HomePageClient() {
         {/* 컨텐츠 */}
         <div className="relative z-10 mx-auto max-w-3xl">
           {/* 헤더 */}
-          <AppHeader sticky={false} className="border-b-0" />
+          <AppHeader sticky={false} className="border-b-0 bg-transparent" />
 
           {/* 로고 영역 */}
           <motion.div
