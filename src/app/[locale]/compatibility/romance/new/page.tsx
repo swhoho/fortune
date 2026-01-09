@@ -17,6 +17,7 @@ import {
   Check,
   Coins,
   AlertTriangle,
+  AlertCircle,
   RefreshCw,
   ExternalLink,
 } from 'lucide-react';
@@ -56,6 +57,11 @@ export default function CompatibilityRomanceNewPage() {
   // 기존 분석 상태
   const [existingAnalysis, setExistingAnalysis] = useState<ExistingAnalysis | null>(null);
   const [isChecking, setIsChecking] = useState(false);
+
+  // SAJU_REQUIRED 에러 상태
+  const [sajuRequiredError, setSajuRequiredError] = useState<{
+    missingProfiles: string[];
+  } | null>(null);
 
   // 기존 분석 확인 (프로필 선택 시)
   useEffect(() => {
@@ -116,7 +122,14 @@ export default function CompatibilityRomanceNewPage() {
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.error?.message || '분석 시작에 실패했습니다');
+        // SAJU_REQUIRED 에러 처리
+        if (data.errorCode === 'SAJU_REQUIRED') {
+          setSajuRequiredError({
+            missingProfiles: data.missingProfiles || [],
+          });
+          return;
+        }
+        throw new Error(data.error || '분석 시작에 실패했습니다');
       }
 
       if (data.status === 'completed' && data.analysisId) {
@@ -130,6 +143,18 @@ export default function CompatibilityRomanceNewPage() {
       alert(error instanceof Error ? error.message : '분석 시작에 실패했습니다');
     } finally {
       setIsSubmitting(false);
+    }
+  };
+
+  // 사주 분석 페이지로 이동
+  const handleGoToSajuAnalysis = () => {
+    const profileToAnalyze = profiles?.find((p) =>
+      sajuRequiredError?.missingProfiles.includes(p.name)
+    );
+    if (profileToAnalyze) {
+      router.push(`/profiles/${profileToAnalyze.id}/generating`);
+    } else {
+      router.push('/profiles');
     }
   };
 
@@ -147,6 +172,103 @@ export default function CompatibilityRomanceNewPage() {
     }
     setSelectedProfileB(profile);
   };
+
+  // SAJU_REQUIRED 에러 화면
+  if (sajuRequiredError) {
+    return (
+      <div className="flex min-h-screen flex-col items-center justify-center bg-[#0a0a0a] px-6">
+        <motion.div
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+          className="flex flex-col items-center text-center"
+        >
+          <AlertCircle className="mb-4 h-16 w-16 text-red-400" />
+          <h2 className="mb-2 text-xl font-semibold text-white">
+            기본 사주 분석이 필요합니다
+          </h2>
+          <p className="mb-6 max-w-sm text-gray-400">
+            {sajuRequiredError.missingProfiles.join(', ')}의 기본 사주 분석을 먼저 완료해주세요.
+          </p>
+          <div className="flex gap-3">
+            <Button
+              variant="outline"
+              onClick={() => setSajuRequiredError(null)}
+              className="border-[#333] bg-[#1a1a1a] text-white hover:bg-[#242424]"
+            >
+              돌아가기
+            </Button>
+            <Button
+              onClick={handleGoToSajuAnalysis}
+              style={{ backgroundColor: '#d4af37', color: '#000' }}
+              className="hover:opacity-90"
+            >
+              사주 분석 하기
+            </Button>
+          </div>
+        </motion.div>
+      </div>
+    );
+  }
+
+  // 버튼 설정 (상태별)
+  const getButtonConfig = () => {
+    if (existingAnalysis?.isCompleted) {
+      return {
+        text: '결과 보기',
+        icon: <ExternalLink className="mr-2 h-5 w-5" />,
+        action: () => router.push(`/compatibility/romance/${existingAnalysis.analysisId}`),
+        disabled: false,
+        style: {
+          background: 'linear-gradient(135deg, #3b82f6, #2563eb)',
+          color: '#fff',
+        },
+      };
+    }
+    if (existingAnalysis?.isProcessing) {
+      return {
+        text: '진행 상황 확인',
+        icon: <Loader2 className="mr-2 h-5 w-5" />,
+        action: () => router.push(`/compatibility/romance/${existingAnalysis.analysisId}/generating`),
+        disabled: false,
+        style: {
+          background: 'linear-gradient(135deg, #f59e0b, #d97706)',
+          color: '#000',
+        },
+      };
+    }
+    if (isFreeRetry) {
+      return {
+        text: '무료 재시도',
+        icon: <RefreshCw className="mr-2 h-5 w-5" />,
+        action: handleStart,
+        disabled: !canStart || isSubmitting,
+        style: {
+          background: canStart ? 'linear-gradient(135deg, #22c55e, #16a34a)' : 'rgba(255,255,255,0.1)',
+          color: canStart ? '#000' : '#666',
+        },
+      };
+    }
+    return {
+      text: isSubmitting ? '분석 시작 중...' : '궁합 분석 시작',
+      icon: isSubmitting ? (
+        <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+      ) : (
+        <Sparkles className="mr-2 h-5 w-5" />
+      ),
+      action: handleStart,
+      disabled: !canStart || isSubmitting,
+      style: {
+        background: canStart ? 'linear-gradient(135deg, #d4af37, #c9a227)' : 'rgba(255,255,255,0.1)',
+        color: canStart ? '#000' : '#666',
+        border: canStart ? 'none' : '1px solid rgba(255,255,255,0.1)',
+      },
+    };
+  };
+
+  const buttonConfig = getButtonConfig();
+
+  // 크레딧 섹션 표시 여부 (완료/진행 중이면 숨김)
+  const showCreditSection = !existingAnalysis?.isCompleted && !existingAnalysis?.isProcessing;
 
   return (
     <div className="min-h-screen bg-[#050508]">
@@ -310,179 +432,124 @@ export default function CompatibilityRomanceNewPage() {
           </motion.div>
         </div>
 
-        {/* 크레딧 정보 */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.5 }}
-          className="my-6"
-        >
-          <GlassCard
-            variant={hasEnoughCredits ? 'default' : 'warning'}
-            className="p-5"
+        {/* 크레딧 정보 - 신규 분석 또는 재시도 시에만 표시 */}
+        {showCreditSection && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.5 }}
+            className="my-6"
           >
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <div
-                  className="flex h-10 w-10 items-center justify-center rounded-lg"
-                  style={{
-                    background: isFreeRetry
-                      ? 'linear-gradient(135deg, rgba(34,197,94,0.2) 0%, rgba(34,197,94,0.05) 100%)'
-                      : 'linear-gradient(135deg, rgba(212,175,55,0.2) 0%, rgba(212,175,55,0.05) 100%)',
-                  }}
-                >
-                  {isFreeRetry ? (
-                    <RefreshCw className="h-5 w-5 text-green-400" />
-                  ) : (
-                    <Coins className="h-5 w-5 text-[#d4af37]" />
-                  )}
+            <GlassCard
+              variant={hasEnoughCredits ? 'default' : 'warning'}
+              className="p-5"
+            >
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div
+                    className="flex h-10 w-10 items-center justify-center rounded-lg"
+                    style={{
+                      background: isFreeRetry
+                        ? 'linear-gradient(135deg, rgba(34,197,94,0.2) 0%, rgba(34,197,94,0.05) 100%)'
+                        : 'linear-gradient(135deg, rgba(212,175,55,0.2) 0%, rgba(212,175,55,0.05) 100%)',
+                    }}
+                  >
+                    {isFreeRetry ? (
+                      <RefreshCw className="h-5 w-5 text-green-400" />
+                    ) : (
+                      <Coins className="h-5 w-5 text-[#d4af37]" />
+                    )}
+                  </div>
+                  <div>
+                    <p className="text-sm text-gray-400">
+                      {isFreeRetry ? '무료 재시도' : '분석 비용'}
+                    </p>
+                    <p className={`text-xl font-bold ${isFreeRetry ? 'text-green-400' : 'text-[#d4af37]'}`}>
+                      {isFreeRetry ? '0C' : `${COMPATIBILITY_COST}C`}
+                    </p>
+                  </div>
                 </div>
-                <div>
-                  <p className="text-sm text-gray-400">
-                    {isFreeRetry ? '무료 재시도' : '분석 비용'}
-                  </p>
-                  <p className={`text-xl font-bold ${isFreeRetry ? 'text-green-400' : 'text-[#d4af37]'}`}>
-                    {isFreeRetry ? '0C' : `${COMPATIBILITY_COST}C`}
+                <div className="text-right">
+                  <p className="text-sm text-gray-400">보유 크레딧</p>
+                  <p
+                    className={`text-xl font-bold ${hasEnoughCredits ? 'text-green-400' : 'text-red-400'}`}
+                  >
+                    {user?.credits ?? 0}C
                   </p>
                 </div>
               </div>
-              <div className="text-right">
-                <p className="text-sm text-gray-400">보유 크레딧</p>
-                <p
-                  className={`text-xl font-bold ${hasEnoughCredits ? 'text-green-400' : 'text-red-400'}`}
+
+              {/* 무료 재시도 안내 */}
+              {isFreeRetry && (
+                <motion.div
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: 'auto' }}
+                  className="mt-4 flex items-center gap-2 rounded-lg bg-green-950/30 p-3"
                 >
-                  {user?.credits ?? 0}C
-                </p>
-              </div>
-            </div>
-
-            {/* 무료 재시도 안내 */}
-            {isFreeRetry && (
-              <motion.div
-                initial={{ opacity: 0, height: 0 }}
-                animate={{ opacity: 1, height: 'auto' }}
-                className="mt-4 flex items-center gap-2 rounded-lg bg-green-950/30 p-3"
-              >
-                <RefreshCw className="h-4 w-4 shrink-0 text-green-400" />
-                <p className="text-sm text-green-400">
-                  이전 분석이 실패했습니다. 무료로 재시도할 수 있습니다.
-                </p>
-              </motion.div>
-            )}
-
-            {/* 이미 완료된 분석 */}
-            {existingAnalysis?.isCompleted && (
-              <motion.div
-                initial={{ opacity: 0, height: 0 }}
-                animate={{ opacity: 1, height: 'auto' }}
-                className="mt-4"
-              >
-                <div className="flex items-center gap-2 rounded-lg bg-blue-950/30 p-3">
-                  <Check className="h-4 w-4 shrink-0 text-blue-400" />
-                  <p className="flex-1 text-sm text-blue-400">
-                    이미 완료된 분석이 있습니다.
+                  <RefreshCw className="h-4 w-4 shrink-0 text-green-400" />
+                  <p className="text-sm text-green-400">
+                    이전 분석이 실패했습니다. 무료로 재시도할 수 있습니다.
                   </p>
-                  <Button
-                    size="sm"
-                    variant="ghost"
-                    className="h-7 text-blue-400 hover:bg-blue-900/30 hover:text-blue-300"
-                    onClick={() => router.push(`/compatibility/romance/${existingAnalysis.analysisId}`)}
-                  >
-                    결과 보기
-                    <ExternalLink className="ml-1 h-3 w-3" />
-                  </Button>
-                </div>
-              </motion.div>
-            )}
+                </motion.div>
+              )}
 
-            {/* 진행 중인 분석 */}
-            {existingAnalysis?.isProcessing && (
-              <motion.div
-                initial={{ opacity: 0, height: 0 }}
-                animate={{ opacity: 1, height: 'auto' }}
-                className="mt-4"
-              >
-                <div className="flex items-center gap-2 rounded-lg bg-amber-950/30 p-3">
-                  <Loader2 className="h-4 w-4 shrink-0 animate-spin text-amber-400" />
-                  <p className="flex-1 text-sm text-amber-400">
-                    분석이 진행 중입니다.
+              {/* 경고 메시지 */}
+              {!hasEnoughCredits && !isFreeRetry && (
+                <motion.div
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: 'auto' }}
+                  className="mt-4 flex items-center gap-2 rounded-lg bg-red-950/30 p-3"
+                >
+                  <AlertTriangle className="h-4 w-4 shrink-0 text-red-400" />
+                  <p className="text-sm text-red-400">
+                    크레딧이 부족합니다. 크레딧을 충전해주세요.
                   </p>
-                  <Button
-                    size="sm"
-                    variant="ghost"
-                    className="h-7 text-amber-400 hover:bg-amber-900/30 hover:text-amber-300"
-                    onClick={() =>
-                      router.push(`/compatibility/romance/${existingAnalysis.analysisId}/generating`)
-                    }
-                  >
-                    진행 상황
-                    <ExternalLink className="ml-1 h-3 w-3" />
-                  </Button>
-                </div>
-              </motion.div>
-            )}
+                </motion.div>
+              )}
 
-            {/* 경고 메시지 */}
-            {!hasEnoughCredits && !isFreeRetry && (
-              <motion.div
-                initial={{ opacity: 0, height: 0 }}
-                animate={{ opacity: 1, height: 'auto' }}
-                className="mt-4 flex items-center gap-2 rounded-lg bg-red-950/30 p-3"
-              >
-                <AlertTriangle className="h-4 w-4 shrink-0 text-red-400" />
-                <p className="text-sm text-red-400">
-                  크레딧이 부족합니다. 크레딧을 충전해주세요.
-                </p>
-              </motion.div>
-            )}
+              {hasEnoughCredits && selectedProfileA && selectedProfileA?.id === selectedProfileB?.id && (
+                <motion.div
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: 'auto' }}
+                  className="mt-4 flex items-center gap-2 rounded-lg bg-amber-950/30 p-3"
+                >
+                  <AlertTriangle className="h-4 w-4 shrink-0 text-amber-400" />
+                  <p className="text-sm text-amber-400">
+                    서로 다른 두 프로필을 선택해주세요.
+                  </p>
+                </motion.div>
+              )}
 
-            {hasEnoughCredits && selectedProfileA && selectedProfileA?.id === selectedProfileB?.id && (
-              <motion.div
-                initial={{ opacity: 0, height: 0 }}
-                animate={{ opacity: 1, height: 'auto' }}
-                className="mt-4 flex items-center gap-2 rounded-lg bg-amber-950/30 p-3"
-              >
-                <AlertTriangle className="h-4 w-4 shrink-0 text-amber-400" />
-                <p className="text-sm text-amber-400">
-                  서로 다른 두 프로필을 선택해주세요.
-                </p>
-              </motion.div>
-            )}
+              {/* 로딩 중 */}
+              {isChecking && (
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  className="mt-4 flex items-center justify-center gap-2 py-2"
+                >
+                  <Loader2 className="h-4 w-4 animate-spin text-gray-400" />
+                  <p className="text-sm text-gray-400">기존 분석 확인 중...</p>
+                </motion.div>
+              )}
+            </GlassCard>
+          </motion.div>
+        )}
 
-            {/* 로딩 중 */}
-            {isChecking && (
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                className="mt-4 flex items-center justify-center gap-2 py-2"
-              >
-                <Loader2 className="h-4 w-4 animate-spin text-gray-400" />
-                <p className="text-sm text-gray-400">기존 분석 확인 중...</p>
-              </motion.div>
-            )}
-          </GlassCard>
-        </motion.div>
-
-        {/* 분석 시작 버튼 */}
+        {/* 통합 버튼 (상태별 텍스트/동작 변경) */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.6 }}
+          className="mt-6"
         >
           <Button
-            onClick={handleStart}
-            disabled={!canStart || isSubmitting}
+            onClick={buttonConfig.action}
+            disabled={buttonConfig.disabled}
             className="relative h-14 w-full overflow-hidden text-lg font-semibold transition-all"
-            style={{
-              background: canStart
-                ? 'linear-gradient(135deg, #d4af37, #c9a227)'
-                : 'rgba(255, 255, 255, 0.1)',
-              color: canStart ? '#000' : '#666',
-              border: canStart ? 'none' : '1px solid rgba(255,255,255,0.1)',
-            }}
+            style={buttonConfig.style}
           >
-            {/* 배경 글로우 */}
-            {canStart && (
+            {/* 배경 글로우 (활성화 시) */}
+            {!buttonConfig.disabled && (
               <motion.div
                 className="absolute inset-0 bg-white/20"
                 animate={{ x: ['-100%', '200%'] }}
@@ -491,34 +558,22 @@ export default function CompatibilityRomanceNewPage() {
               />
             )}
 
-            {isSubmitting ? (
-              <>
-                <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-                분석 시작 중...
-              </>
-            ) : isFreeRetry ? (
-              <>
-                <RefreshCw className="mr-2 h-5 w-5" />
-                무료 재시도
-              </>
-            ) : (
-              <>
-                <Sparkles className="mr-2 h-5 w-5" />
-                {t('romance.startButton', { defaultValue: '궁합 분석 시작' })}
-              </>
-            )}
+            {buttonConfig.icon}
+            {buttonConfig.text}
           </Button>
         </motion.div>
 
-        {/* 안내 텍스트 */}
-        <motion.p
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.7 }}
-          className="mt-4 text-center text-sm text-gray-500"
-        >
-          분석에는 약 30~60초가 소요됩니다
-        </motion.p>
+        {/* 안내 텍스트 - 신규 분석 시에만 표시 */}
+        {showCreditSection && (
+          <motion.p
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.7 }}
+            className="mt-4 text-center text-sm text-gray-500"
+          >
+            분석에는 약 30~60초가 소요됩니다
+          </motion.p>
+        )}
       </div>
     </div>
   );
