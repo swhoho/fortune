@@ -467,4 +467,61 @@ if (!result.success) {
 
 ---
 
-**최종 수정**: 2026-01-07 (신년 분석 422 에러 응답 추가)
+## 궁합 분석 API
+
+### POST /api/analysis/compatibility
+궁합 분석 시작 | **인증**: 필수 | **크레딧**: 70C
+
+```json
+{
+  "profileIdA": "uuid-a",
+  "profileIdB": "uuid-b",
+  "analysisType": "romance",
+  "language": "ko"
+}
+```
+→ `{ "success": true, "analysisId": "...", "jobId": "...", "status": "processing", "pollUrl": "/api/analysis/compatibility/{id}" }`
+
+### GET /api/analysis/compatibility/:id
+궁합 분석 상태/결과 조회 | **인증**: 필수
+
+**진행 중 응답**:
+```json
+{
+  "success": true,
+  "status": "processing",
+  "progressPercent": 50,
+  "currentStep": "relationship_type",
+  "stepStatuses": { "manseryeok_a": "completed", ... }
+}
+```
+
+**완료 시 응답**:
+```json
+{
+  "success": true,
+  "status": "completed",
+  "progressPercent": 100,
+  "data": {
+    "totalScore": 72,
+    "scores": { "stemHarmony": {...}, "branchHarmony": {...}, ... },
+    "traitScoresA": { "expression": 80, ... },
+    "traitScoresB": { "expression": 60, ... },
+    "relationshipType": { "keywords": [...], "firstImpression": "...", ... },
+    "conflictAnalysis": { "conflictPoints": [...], ... },
+    "marriageFit": { "score": 75, ... },
+    "mutualInfluence": { "aToB": {...}, "bToA": {...}, ... }
+  }
+}
+```
+
+### Python Backend API
+
+| Method | Endpoint | 설명 |
+|--------|----------|------|
+| POST | `/api/analysis/compatibility` | 분석 작업 시작 (비동기) |
+| GET | `/api/analysis/compatibility/{job_id}/status` | 작업 상태 조회 |
+
+---
+
+**최종 수정**: 2026-01-09 (궁합 분석 API 추가)

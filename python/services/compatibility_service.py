@@ -171,6 +171,8 @@ class CompatibilityAnalysisService:
         3-4. Python 점수 계산
         5-9. Gemini 분석
         10. DB 저장
+
+        각 단계 완료 시 DB 중간 저장 (Report 패턴)
         """
         analysis_id = request.get("analysis_id")
         language = request.get("language", "ko")
@@ -184,21 +186,32 @@ class CompatibilityAnalysisService:
 
             # 1. A 만세력 계산
             pillars_a, daewun_a, jijanggan_a = await self._step_manseryeok(
-                job_id, "manseryeok_a", request.get("profile_a")
+                job_id, "manseryeok_a", request.get("profile_a"), analysis_id
             )
 
             # 2. B 만세력 계산
             pillars_b, daewun_b, jijanggan_b = await self._step_manseryeok(
-                job_id, "manseryeok_b", request.get("profile_b")
+                job_id, "manseryeok_b", request.get("profile_b"), analysis_id
             )
 
             # 3. 궁합 점수 계산 (Python 엔진)
             scores_result = await self._step_compatibility_score(
-                job_id, pillars_a, pillars_b, jijanggan_a, jijanggan_b
+                job_id, pillars_a, pillars_b, jijanggan_a, jijanggan_b, analysis_id
             )
 
             # 4. 연애 스타일 점수 (이미 scores_result에 포함)
             self._update_step(job_id, "trait_scores", "completed", 35)
+
+            # trait_scores 중간 저장
+            if analysis_id:
+                job = compatibility_job_store.get(job_id)
+                await self._update_db_status(
+                    analysis_id,
+                    status="processing",
+                    step_statuses=job.get("step_statuses") if job else None,
+                    progress_percent=35,
+                    current_step="trait_scores"
+                )
 
             # Gemini 분석을 위한 컨텍스트 준비
             analysis_context = {
@@ -217,30 +230,30 @@ class CompatibilityAnalysisService:
 
             # 5. 인연의 성격
             gemini_results["relationship_type"] = await self._step_gemini_analysis(
-                job_id, "relationship_type", analysis_context
+                job_id, "relationship_type", analysis_context, analysis_id
             )
 
             # 6. 연애 스타일 해석
             gemini_results["trait_interpretation"] = await self._step_gemini_analysis(
-                job_id, "trait_interpretation", analysis_context
+                job_id, "trait_interpretation", analysis_context, analysis_id
             )
 
             # 7. 갈등 포인트
             gemini_results["conflict_analysis"] = await self._step_gemini_analysis(
-                job_id, "conflict_analysis", analysis_context
+                job_id, "conflict_analysis", analysis_context, analysis_id
             )
 
             # 8. 결혼 적합도
             gemini_results["marriage_fit"] = await self._step_gemini_analysis(
-                job_id, "marriage_fit", analysis_context
+                job_id, "marriage_fit", analysis_context, analysis_id
             )
 
             # 9. 상호 영향
             gemini_results["mutual_influence"] = await self._step_gemini_analysis(
-                job_id, "mutual_influence", analysis_context
+                job_id, "mutual_influence", analysis_context, analysis_id
             )
 
-            # 10. DB 저장
+            # 10. DB 저장 (최종)
             await self._step_saving(
                 job_id,
                 analysis_id,
@@ -271,12 +284,24 @@ class CompatibilityAnalysisService:
                 status=CompatibilityJobStatus.FAILED,
                 error=str(e)
             )
+            # 전체 실패 시 DB에도 기록
+            if analysis_id:
+                job = compatibility_job_store.get(job_id)
+                await self._update_db_status(
+                    analysis_id,
+                    status="failed",
+                    step_statuses=job.get("step_statuses") if job else None,
+                    failed_steps=job.get("failed_steps") if job else [],
+                    error=str(e),
+                    current_step=job.get("current_step") if job else None
+                )
 
     async def _step_manseryeok(
         self,
         job_id: str,
         step_name: str,
-        profile: Dict[str, Any]
+        profile: Dict[str, Any],
+        analysis_id: str = None
     ) -> tuple:
         """만세력 계산 단계"""
         self._update_step(job_id, step_name, "in_progress", STEP_PROGRESS[step_name])
@@ -306,12 +331,39 @@ class CompatibilityAnalysisService:
             jijanggan = result.jijanggan.model_dump() if hasattr(result.jijanggan, 'model_dump') else result.jijanggan
 
             self._update_step(job_id, step_name, "completed", STEP_PROGRESS[step_name])
+
+            # DB 중간 저장 (Report 패턴)
+            if analysis_id:
+                job = compatibility_job_store.get(job_id)
+                pillar_key = "pillars_a" if step_name == "manseryeok_a" else "pillars_b"
+                daewun_key = "daewun_a" if step_name == "manseryeok_a" else "daewun_b"
+
+                await self._update_db_status(
+                    analysis_id,
+                    status="processing",
+                    **{pillar_key: pillars, daewun_key: daewun},
+                    step_statuses=job.get("step_statuses") if job else None,
+                    progress_percent=STEP_PROGRESS[step_name],
+                    current_step=step_name
+                )
+
             return pillars, daewun, jijanggan
 
         except Exception as e:
             logger.error(f"[Compatibility] {step_name} 실패: {str(e)}")
             compatibility_job_store.update_step_status(job_id, step_name, "failed")
             compatibility_job_store.add_failed_step(job_id, step_name)
+            # 실패 시 DB에도 기록
+            if analysis_id:
+                job = compatibility_job_store.get(job_id)
+                await self._update_db_status(
+                    analysis_id,
+                    status="failed",
+                    step_statuses=job.get("step_statuses") if job else None,
+                    failed_steps=job.get("failed_steps") if job else [step_name],
+                    error=str(e),
+                    current_step=step_name
+                )
             raise
 
     async def _step_compatibility_score(
@@ -320,7 +372,8 @@ class CompatibilityAnalysisService:
         pillars_a: Dict,
         pillars_b: Dict,
         jijanggan_a: Dict = None,
-        jijanggan_b: Dict = None
+        jijanggan_b: Dict = None,
+        analysis_id: str = None
     ) -> Dict[str, Any]:
         """궁합 점수 계산 단계 (Python 엔진)"""
         self._update_step(job_id, "compatibility_score", "in_progress", 25)
@@ -334,12 +387,40 @@ class CompatibilityAnalysisService:
             )
 
             self._update_step(job_id, "compatibility_score", "completed", 25)
+
+            # DB 중간 저장 (Report 패턴)
+            if analysis_id:
+                job = compatibility_job_store.get(job_id)
+                await self._update_db_status(
+                    analysis_id,
+                    status="processing",
+                    total_score=result.get("totalScore"),
+                    scores=result.get("scores"),
+                    trait_scores_a=result.get("traitScoresA"),
+                    trait_scores_b=result.get("traitScoresB"),
+                    interactions=result.get("interactions"),
+                    step_statuses=job.get("step_statuses") if job else None,
+                    progress_percent=25,
+                    current_step="compatibility_score"
+                )
+
             return result
 
         except Exception as e:
             logger.error(f"[Compatibility] compatibility_score 실패: {str(e)}")
             compatibility_job_store.update_step_status(job_id, "compatibility_score", "failed")
             compatibility_job_store.add_failed_step(job_id, "compatibility_score")
+            # 실패 시 DB에도 기록
+            if analysis_id:
+                job = compatibility_job_store.get(job_id)
+                await self._update_db_status(
+                    analysis_id,
+                    status="failed",
+                    step_statuses=job.get("step_statuses") if job else None,
+                    failed_steps=job.get("failed_steps") if job else ["compatibility_score"],
+                    error=str(e),
+                    current_step="compatibility_score"
+                )
             raise
 
     async def _step_gemini_analysis(
@@ -347,6 +428,7 @@ class CompatibilityAnalysisService:
         job_id: str,
         step_name: str,
         context: Dict[str, Any],
+        analysis_id: str = None,
         max_retries: int = 3
     ) -> Optional[Dict[str, Any]]:
         """Gemini 분석 단계 (재시도 + 에러 피드백)"""
@@ -372,6 +454,19 @@ class CompatibilityAnalysisService:
                 normalized = normalize_all_keys(result)
 
                 self._update_step(job_id, step_name, "completed", STEP_PROGRESS.get(step_name, 50))
+
+                # DB 중간 저장 (Report 패턴)
+                if analysis_id:
+                    job = compatibility_job_store.get(job_id)
+                    await self._update_db_status(
+                        analysis_id,
+                        status="processing",
+                        **{step_name: normalized},
+                        step_statuses=job.get("step_statuses") if job else None,
+                        progress_percent=STEP_PROGRESS.get(step_name, 50),
+                        current_step=step_name
+                    )
+
                 return normalized
 
             except Exception as e:
@@ -382,6 +477,19 @@ class CompatibilityAnalysisService:
                     logger.error(f"[Compatibility] {step_name} 최종 실패")
                     compatibility_job_store.update_step_status(job_id, step_name, "failed")
                     compatibility_job_store.add_failed_step(job_id, step_name)
+
+                    # 실패 시에도 DB에 상태 기록 (파이프라인은 계속)
+                    if analysis_id:
+                        job = compatibility_job_store.get(job_id)
+                        await self._update_db_status(
+                            analysis_id,
+                            status="processing",  # Gemini 실패해도 파이프라인 계속
+                            step_statuses=job.get("step_statuses") if job else None,
+                            failed_steps=job.get("failed_steps") if job else [],
+                            progress_percent=STEP_PROGRESS.get(step_name, 50),
+                            current_step=step_name
+                        )
+
                     return None
 
                 await asyncio.sleep(1)  # 잠시 대기 후 재시도
@@ -603,6 +711,64 @@ class CompatibilityAnalysisService:
             current_step=step,
             progress_percent=progress
         )
+
+    async def _update_db_status(self, analysis_id: str, **kwargs):
+        """
+        Supabase DB 상태 업데이트 (Report 패턴)
+        각 단계 완료 시 호출하여 크래시 복구 가능하게 함
+        """
+        if not SUPABASE_URL or not SUPABASE_SERVICE_ROLE_KEY:
+            logger.warning("[Compatibility] Supabase 설정 없음, DB 중간 저장 건너뜀")
+            return
+
+        update_data = {"updated_at": datetime.utcnow().isoformat()}
+
+        # 필드 매핑 (kwargs → DB 컬럼)
+        field_mapping = {
+            "status": "status",
+            "progress_percent": "progress_percent",
+            "current_step": "current_step",
+            "step_statuses": "step_statuses",
+            "pillars_a": "pillars_a",
+            "pillars_b": "pillars_b",
+            "daewun_a": "daewun_a",
+            "daewun_b": "daewun_b",
+            "total_score": "total_score",
+            "scores": "scores",
+            "trait_scores_a": "trait_scores_a",
+            "trait_scores_b": "trait_scores_b",
+            "interactions": "interactions",
+            "relationship_type": "relationship_type",
+            "trait_interpretation": "trait_interpretation",
+            "conflict_analysis": "conflict_analysis",
+            "marriage_fit": "marriage_fit",
+            "mutual_influence": "mutual_influence",
+            "failed_steps": "failed_steps",
+            "error": "error",
+        }
+
+        for kwarg_key, db_key in field_mapping.items():
+            if kwarg_key in kwargs and kwargs[kwarg_key] is not None:
+                update_data[db_key] = kwargs[kwarg_key]
+
+        try:
+            async with httpx.AsyncClient() as client:
+                response = await client.patch(
+                    f"{SUPABASE_URL}/rest/v1/compatibility_analyses?id=eq.{analysis_id}",
+                    json=update_data,
+                    headers={
+                        "apikey": SUPABASE_SERVICE_ROLE_KEY,
+                        "Authorization": f"Bearer {SUPABASE_SERVICE_ROLE_KEY}",
+                        "Content-Type": "application/json",
+                        "Prefer": "return=minimal"
+                    },
+                    timeout=30.0
+                )
+                response.raise_for_status()
+                logger.info(f"[Compatibility] DB 중간 저장: {analysis_id}, step={kwargs.get('current_step')}")
+        except Exception as e:
+            logger.error(f"[Compatibility] DB 중간 저장 실패: {e}")
+            # 중간 저장 실패해도 파이프라인은 계속 진행
 
 
 # 싱글톤 서비스 인스턴스

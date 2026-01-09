@@ -189,7 +189,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
             });
           }
 
-          // 진행 중
+          // 진행 중 (Python 상태 반환)
           return NextResponse.json({
             success: true,
             status: statusData.status,
@@ -198,19 +198,83 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
             stepStatuses: statusData.step_statuses,
           });
         }
+
+        // Python 404: Job Store에 없음 → DB fallback으로 이미 처리됨
+        // Python에서 DB fallback 후에도 404면 DB 직접 조회
+        if (statusRes.status === 404) {
+          console.log('[API] Python 404 - DB 상태 반환');
+          // DB에 이미 완료 상태가 있을 수 있음 (중간 저장으로)
+          const { data: refreshedAnalysis } = await supabase
+            .from('compatibility_analyses')
+            .select('*')
+            .eq('id', analysisId)
+            .single();
+
+          if (refreshedAnalysis?.status === 'completed') {
+            return NextResponse.json({
+              success: true,
+              status: 'completed',
+              progressPercent: 100,
+              data: normalizeKeys({
+                id: refreshedAnalysis.id,
+                profileIdA: refreshedAnalysis.profile_id_a,
+                profileIdB: refreshedAnalysis.profile_id_b,
+                analysisType: refreshedAnalysis.analysis_type,
+                pillarsA: refreshedAnalysis.pillars_a,
+                pillarsB: refreshedAnalysis.pillars_b,
+                daewunA: refreshedAnalysis.daewun_a,
+                daewunB: refreshedAnalysis.daewun_b,
+                totalScore: refreshedAnalysis.total_score,
+                scores: refreshedAnalysis.scores,
+                traitScoresA: refreshedAnalysis.trait_scores_a,
+                traitScoresB: refreshedAnalysis.trait_scores_b,
+                interactions: refreshedAnalysis.interactions,
+                relationshipType: refreshedAnalysis.relationship_type,
+                traitInterpretation: refreshedAnalysis.trait_interpretation,
+                conflictAnalysis: refreshedAnalysis.conflict_analysis,
+                marriageFit: refreshedAnalysis.marriage_fit,
+                mutualInfluence: refreshedAnalysis.mutual_influence,
+                language: refreshedAnalysis.language,
+                creditsUsed: refreshedAnalysis.credits_used,
+                failedSteps: refreshedAnalysis.failed_steps,
+                createdAt: refreshedAnalysis.created_at,
+              }),
+            });
+          }
+
+          if (refreshedAnalysis?.status === 'failed') {
+            return NextResponse.json({
+              success: false,
+              status: 'failed',
+              error: refreshedAnalysis.error || '분석에 실패했습니다',
+              failedSteps: refreshedAnalysis.failed_steps,
+            });
+          }
+
+          // 여전히 processing이면 DB 상태 반환 (중간 저장된 진행 상태)
+          if (refreshedAnalysis) {
+            return NextResponse.json({
+              success: true,
+              status: refreshedAnalysis.status || 'processing',
+              progressPercent: refreshedAnalysis.progress_percent || 0,
+              currentStep: refreshedAnalysis.current_step,
+              stepStatuses: refreshedAnalysis.step_statuses || {},
+            });
+          }
+        }
       } catch (pythonError) {
         console.error('[API] Python 상태 조회 실패:', pythonError);
-        // Python 조회 실패해도 현재 상태 반환
+        // Python 조회 실패 시 DB에서 최신 상태 반환
       }
     }
 
-    // 6. 상태 불명확한 경우
+    // 6. DB 상태 반환 (중간 저장된 진행 상태 포함)
     return NextResponse.json({
       success: true,
       status: analysis.status || 'pending',
       progressPercent: analysis.progress_percent || 0,
       currentStep: analysis.current_step,
-      stepStatuses: analysis.step_statuses,
+      stepStatuses: analysis.step_statuses || {},
     });
   } catch (error) {
     console.error('[API] /api/analysis/compatibility/:id 에러:', error);

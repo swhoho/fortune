@@ -75,6 +75,7 @@ python/
 | `docs/fortune_engine.md` | 만세력 엔진, 점수 시스템 |
 | `docs/report_analysis.md` | 프로필 리포트 분석 파이프라인 |
 | `docs/yearly_analysis.md` | 신년 분석 파이프라인 |
+| `docs/compatibility.md` | 궁합 분석 시스템 (Python 점수 엔진 + Gemini 해석) |
 | `docs/consultation.md` | AI 상담 시스템 |
 | `docs/app.md` | Android 앱 출시 가이드 (Capacitor, Google Play Billing) |
 
@@ -301,10 +302,18 @@ cd python && pytest  # Python
 
 ---
 
-**Version**: 1.37.0
-**Last Updated**: 2026-01-08 (Android 앱 출시 준비)
+**Version**: 1.38.0
+**Last Updated**: 2026-01-09 (궁합 분석 시스템)
 
 ## Changelog
+
+### v1.38.0 (2026-01-09)
+- **궁합 분석 시스템 구현**
+  - Python 점수 엔진: 5개 항목 (천간/지지/오행/십신/12운성)
+  - 10단계 파이프라인: 만세력 → 점수 → Gemini 분석 (5단계)
+  - 12운성 교차평가: A의 일간 → B의 일지 (상대방 기준)
+  - 3탭 UI: 궁합점수 / 궁합분석 / 사주비교
+  - 상세 문서: `docs/compatibility.md`
 
 ### v1.37.0 (2026-01-08)
 - **Android 앱 출시 준비 (Capacitor)**

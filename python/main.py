@@ -2,7 +2,11 @@
 만세력 계산 API - FastAPI 엔트리포인트
 사주 팔자, 대운, 지장간 계산 서비스 + AI 프롬프트 빌더
 """
+import logging
 from typing import Dict, List, Any, Optional
+
+# 로거 설정
+logger = logging.getLogger(__name__)
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 from fastapi.middleware.cors import CORSMiddleware
@@ -817,28 +821,68 @@ async def get_compatibility_analysis_status(job_id: str) -> CompatibilityAnalysi
 
     Returns:
         작업 상태, 진행률, 현재 단계, 실패 단계
+
+    Notes:
+        Job Store에 없으면 DB에서 조회 (크래시 복구용)
     """
+    import httpx
+    import os
     from services.compatibility_service import compatibility_service
 
     job = compatibility_service.get_status(job_id)
 
-    if not job:
-        raise HTTPException(
-            status_code=404,
-            detail="작업을 찾을 수 없습니다"
+    # Job Store에 있으면 그대로 반환
+    if job:
+        return CompatibilityAnalysisStatusResponse(
+            job_id=job["job_id"],
+            analysis_id=job.get("analysis_id"),
+            status=job["status"],
+            progress_percent=job["progress_percent"],
+            current_step=job.get("current_step"),
+            step_statuses=job.get("step_statuses"),
+            failed_steps=job.get("failed_steps", []),
+            error=job.get("error"),
+            created_at=job.get("created_at"),
+            updated_at=job.get("updated_at"),
         )
 
-    return CompatibilityAnalysisStatusResponse(
-        job_id=job["job_id"],
-        analysis_id=job.get("analysis_id"),
-        status=job["status"],
-        progress_percent=job["progress_percent"],
-        current_step=job.get("current_step"),
-        step_statuses=job.get("step_statuses"),
-        failed_steps=job.get("failed_steps", []),
-        error=job.get("error"),
-        created_at=job.get("created_at"),
-        updated_at=job.get("updated_at"),
+    # Job Store에 없으면 DB fallback (서버 재시작 등)
+    SUPABASE_URL = os.getenv("SUPABASE_URL", "")
+    SUPABASE_SERVICE_ROLE_KEY = os.getenv("SUPABASE_SERVICE_ROLE_KEY", "")
+
+    if SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY:
+        try:
+            async with httpx.AsyncClient() as client:
+                response = await client.get(
+                    f"{SUPABASE_URL}/rest/v1/compatibility_analyses?job_id=eq.{job_id}&select=*",
+                    headers={
+                        "apikey": SUPABASE_SERVICE_ROLE_KEY,
+                        "Authorization": f"Bearer {SUPABASE_SERVICE_ROLE_KEY}",
+                    },
+                    timeout=10.0
+                )
+                data = response.json()
+
+                if data and len(data) > 0:
+                    analysis = data[0]
+                    return CompatibilityAnalysisStatusResponse(
+                        job_id=job_id,
+                        analysis_id=analysis.get("id"),
+                        status=analysis.get("status", "pending"),
+                        progress_percent=analysis.get("progress_percent", 0),
+                        current_step=analysis.get("current_step"),
+                        step_statuses=analysis.get("step_statuses"),
+                        failed_steps=analysis.get("failed_steps", []),
+                        error=analysis.get("error"),
+                        created_at=analysis.get("created_at"),
+                        updated_at=analysis.get("updated_at"),
+                    )
+        except Exception as e:
+            logger.error(f"[Compatibility] DB fallback 조회 실패: {e}")
+
+    raise HTTPException(
+        status_code=404,
+        detail="작업을 찾을 수 없습니다"
     )
 
 

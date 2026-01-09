@@ -35,12 +35,13 @@
 
 ## 🔄 분석 파이프라인
 
-3가지 분석 서비스 제공:
+4가지 분석 서비스 제공:
 
 | 서비스 | 단계 | 크레딧 | 상세 문서 |
 |--------|------|--------|----------|
 | **리포트 분석** | 11단계 | 70C | [report_analysis.md](./report_analysis.md) |
 | **신년 분석** | 9단계 | 50C | [yearly_analysis.md](./yearly_analysis.md) |
+| **궁합 분석** | 10단계 | 70C | [compatibility.md](./compatibility.md) |
 | **상담 AI** | 2단계 | 10C/질문 | [consultation.md](./consultation.md) |
 
 **공통 특징**:
@@ -207,6 +208,45 @@ return max(0, min(100, int(round(final_score))))
 | 업무 (5) | 기획력, 추진력, 실행력, 완성도, 관리력 |
 | 적성 (10) | 분석력, 협동심, 학습력, 창의력, 예술성, 표현력, 활동성, 도전정신, 사업감각, 신뢰성 |
 | 연애 (10) | 배려심, 유머감각, 감성, 자존감, 모험심, 성실도, 사교성, 경제관념, 신뢰성, 표현력 |
+
+---
+
+## 💑 궁합 엔진
+
+**파일**: `python/manseryeok/compatibility_engine.py`
+
+> 상세 문서: [compatibility.md](./compatibility.md)
+
+### 점수 체계 (5개 항목)
+
+| 항목 | 가중치 | 계산 로직 |
+|------|--------|----------|
+| 천간 조화 | 25% | 5합 성립률 (갑기합토, 을경합금...) |
+| 지지 조화 | 25% | 6합 - 충×1.4 - 형×1.5 - 파/해 |
+| 오행 균형 | 20% | 보완 오행 +12, 과다 오행 -8 |
+| 십신 호환 | 20% | `TEN_GOD_COMPATIBILITY` 매트릭스 |
+| 12운성 시너지 | 10% | Cross-evaluation (A의 일간 → B의 일지) |
+
+### 핵심 로직: 12운성 교차 평가
+
+```python
+# 일반 사주분석: 본인 일간 → 본인 지지
+wunseong = JIBYEON_12WUNSEONG[day_stem][day_branch]
+
+# 궁합분석: A의 일간 → B의 일지 (상대방 기준)
+wunseong_a = JIBYEON_12WUNSEONG[day_stem_a][day_branch_b]  # A가 B에게서 느끼는 에너지
+wunseong_b = JIBYEON_12WUNSEONG[day_stem_b][day_branch_a]  # B가 A에게서 느끼는 에너지
+```
+
+### 연애 스타일 5항목
+
+| 항목 | 영문 키 | 십신 매핑 |
+|------|---------|----------|
+| 표현력 | expression | 식신×1.5, 상관×1.3 |
+| 독점욕 | possessiveness | 편관×1.5, 겁재×1.3 |
+| 헌신도 | devotion | 정인×1.5, 정재×1.3 |
+| 모험심 | adventure | 편재×1.5, 상관×1.3 |
+| 안정추구 | stability | 정관×1.5, 정인×1.3 |
 
 ---
 
@@ -432,6 +472,7 @@ src/lib/
 
 | 날짜 | 버전 | 변경 내용 |
 |------|------|----------|
+| 2026-01-09 | v5.0 | 궁합 분석 시스템 추가 (10단계 파이프라인, Python 점수 엔진 + Gemini 해석) |
 | 2026-01-08 | v4.1 | 기본분석 확장 필드 추가 (dayMaster.description, structure.practicalAdvice, usefulGod.practicalApplication) |
 | 2026-01-07 | v4.0 | 점수 시스템 고도화 (지장간 월률분야 비율, 12운성 가중치, 지지 상호작용 배수, SENSITIVITY 제거) |
 | 2026-01-07 | v3.0 | 점수 분포 극단화 (SENSITIVITY=1.5 편차 증폭, modifier ×1.8, 지장간 여기/중기 가중치 0) |
@@ -446,4 +487,4 @@ src/lib/
 
 ---
 
-**최종 수정**: 2026-01-07 (v4.0)
+**최종 수정**: 2026-01-09 (v5.0)

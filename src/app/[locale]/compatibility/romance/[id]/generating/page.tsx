@@ -18,11 +18,14 @@ import { AppHeader } from '@/components/layout';
 import { Button } from '@/components/ui/button';
 import { BRAND_COLORS } from '@/lib/constants/colors';
 
-/** 폴링 간격 (ms) */
-const POLLING_INTERVAL = 3000;
+/** 폴링 간격 (ms) - 서버 상태 빠른 반영을 위해 2초 */
+const POLLING_INTERVAL = 2000;
 
-/** 최대 폴링 횟수 (6분 = 120회) */
-const MAX_POLL_COUNT = 120;
+/** 최대 폴링 횟수 (6분 = 180회) */
+const MAX_POLL_COUNT = 180;
+
+/** 서버 응답 지연 경고 시간 (초) */
+const SLOW_RESPONSE_THRESHOLD = 45;
 
 /** 예상 총 시간 (초) */
 const ESTIMATED_TOTAL_TIME = 60;
@@ -140,6 +143,9 @@ export default function CompatibilityGeneratingPage() {
     retryable: boolean;
   } | null>(null);
 
+  // 서버 응답 지연 경고
+  const [showSlowWarning, setShowSlowWarning] = useState(false);
+
   // 타이머 기반 시뮬레이션 상태
   const [elapsedTime, setElapsedTime] = useState(0);
   const [isGenerating, setIsGenerating] = useState(true); // 즉시 시작
@@ -181,6 +187,20 @@ export default function CompatibilityGeneratingPage() {
     }, 5000);
     return () => clearInterval(interval);
   }, []);
+
+  // 서버 응답 지연 감지
+  useEffect(() => {
+    // 조건: 45초 경과 && 서버 progressPercent가 0 && status가 processing
+    const serverProgress = status?.progressPercent || 0;
+    const isProcessing = status?.status === 'processing' || status?.status === 'pending';
+
+    if (elapsedTime > SLOW_RESPONSE_THRESHOLD && serverProgress === 0 && isProcessing) {
+      setShowSlowWarning(true);
+    } else if (serverProgress > 0) {
+      // 서버에서 실제 진행률이 오면 경고 해제
+      setShowSlowWarning(false);
+    }
+  }, [elapsedTime, status]);
 
   /**
    * 상태 폴링 함수
@@ -297,12 +317,17 @@ export default function CompatibilityGeneratingPage() {
       ? (status.currentStep as CompatibilityStep)
       : simulatedState.currentStep;
 
-  const displayProgress =
-    status?.status === 'processing' && status?.progressPercent
-      ? Math.max(status.progressPercent, simulatedState.progressPercent)
-      : status?.status === 'completed'
-        ? 100
-        : simulatedState.progressPercent;
+  // 서버 progressPercent > 0이면 서버 값 우선 (실제 진행 상태 반영)
+  // 서버 값이 0이면 시뮬레이션 fallback (UX 유지)
+  const displayProgress = (() => {
+    if (status?.status === 'completed') return 100;
+    if (status?.progressPercent && status.progressPercent > 0) {
+      // 서버 진행률이 있으면 서버 값과 시뮬레이션 중 큰 값 사용 (역행 방지)
+      return Math.max(status.progressPercent, simulatedState.progressPercent);
+    }
+    // 서버 응답 없거나 0이면 시뮬레이션 (최대 95%)
+    return simulatedState.progressPercent;
+  })();
 
   // 남은 시간 계산
   const remainingTime = Math.max(0, ESTIMATED_TOTAL_TIME - elapsedTime);
@@ -519,6 +544,34 @@ export default function CompatibilityGeneratingPage() {
                 })}
               </div>
             </motion.div>
+
+            {/* 서버 응답 지연 경고 */}
+            {showSlowWarning && !error && !isCompleted && (
+              <motion.div
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="mt-4 rounded-lg border border-amber-900/50 bg-amber-950/30 p-4"
+              >
+                <div className="mb-2 flex items-center gap-2">
+                  <AlertCircle className="h-4 w-4 text-amber-400" />
+                  <p className="text-sm font-medium text-amber-400">
+                    서버 응답이 지연되고 있습니다
+                  </p>
+                </div>
+                <p className="mb-3 text-xs text-gray-400">
+                  분석이 진행 중이지만 서버 응답이 늦어지고 있습니다. 잠시 더 기다려주세요.
+                </p>
+                <Button
+                  onClick={() => window.location.reload()}
+                  variant="outline"
+                  size="sm"
+                  className="h-8 border-amber-900/50 bg-transparent text-amber-400 hover:bg-amber-950/50"
+                >
+                  <RefreshCw className="mr-1 h-3 w-3" />
+                  새로고침
+                </Button>
+              </motion.div>
+            )}
 
             {/* 실패한 단계 표시 (일부 실패) */}
             {status?.failedSteps && status.failedSteps.length > 0 && !error && (
