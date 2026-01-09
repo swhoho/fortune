@@ -5,11 +5,21 @@
  * Premium Celestial Theme Design
  */
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { useTranslations } from 'next-intl';
-import { Heart, Sparkles, Loader2, User, Check, Coins, AlertTriangle } from 'lucide-react';
+import {
+  Heart,
+  Sparkles,
+  Loader2,
+  User,
+  Check,
+  Coins,
+  AlertTriangle,
+  RefreshCw,
+  ExternalLink,
+} from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 import { AppHeader } from '@/components/layout';
@@ -20,6 +30,17 @@ import type { ProfileResponse } from '@/types/profile';
 
 /** 크레딧 비용 */
 const COMPATIBILITY_COST = 70;
+
+/** 기존 분석 상태 */
+interface ExistingAnalysis {
+  exists: boolean;
+  isFreeRetry: boolean;
+  isCompleted?: boolean;
+  isProcessing?: boolean;
+  status: string | null;
+  analysisId: string | null;
+  message?: string;
+}
 
 export default function CompatibilityRomanceNewPage() {
   const router = useRouter();
@@ -32,8 +53,44 @@ export default function CompatibilityRomanceNewPage() {
   const [selectedProfileB, setSelectedProfileB] = useState<ProfileResponse | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // 크레딧 확인
-  const hasEnoughCredits = (user?.credits ?? 0) >= COMPATIBILITY_COST;
+  // 기존 분석 상태
+  const [existingAnalysis, setExistingAnalysis] = useState<ExistingAnalysis | null>(null);
+  const [isChecking, setIsChecking] = useState(false);
+
+  // 기존 분석 확인 (프로필 선택 시)
+  useEffect(() => {
+    if (!selectedProfileA?.id || !selectedProfileB?.id) {
+      setExistingAnalysis(null);
+      return;
+    }
+
+    if (selectedProfileA.id === selectedProfileB.id) {
+      setExistingAnalysis(null);
+      return;
+    }
+
+    const checkExisting = async () => {
+      setIsChecking(true);
+      try {
+        const res = await fetch(
+          `/api/analysis/compatibility/check?profileIdA=${selectedProfileA.id}&profileIdB=${selectedProfileB.id}&analysisType=romance`
+        );
+        const data = await res.json();
+        setExistingAnalysis(data);
+      } catch (error) {
+        console.error('기존 분석 확인 실패:', error);
+        setExistingAnalysis(null);
+      } finally {
+        setIsChecking(false);
+      }
+    };
+
+    checkExisting();
+  }, [selectedProfileA?.id, selectedProfileB?.id]);
+
+  // 크레딧 확인 (무료 재시도면 크레딧 불필요)
+  const isFreeRetry = existingAnalysis?.isFreeRetry ?? false;
+  const hasEnoughCredits = isFreeRetry || (user?.credits ?? 0) >= COMPATIBILITY_COST;
   const canStart =
     hasEnoughCredits &&
     selectedProfileA !== null &&
@@ -269,15 +326,24 @@ export default function CompatibilityRomanceNewPage() {
                 <div
                   className="flex h-10 w-10 items-center justify-center rounded-lg"
                   style={{
-                    background:
-                      'linear-gradient(135deg, rgba(212,175,55,0.2) 0%, rgba(212,175,55,0.05) 100%)',
+                    background: isFreeRetry
+                      ? 'linear-gradient(135deg, rgba(34,197,94,0.2) 0%, rgba(34,197,94,0.05) 100%)'
+                      : 'linear-gradient(135deg, rgba(212,175,55,0.2) 0%, rgba(212,175,55,0.05) 100%)',
                   }}
                 >
-                  <Coins className="h-5 w-5 text-[#d4af37]" />
+                  {isFreeRetry ? (
+                    <RefreshCw className="h-5 w-5 text-green-400" />
+                  ) : (
+                    <Coins className="h-5 w-5 text-[#d4af37]" />
+                  )}
                 </div>
                 <div>
-                  <p className="text-sm text-gray-400">분석 비용</p>
-                  <p className="text-xl font-bold text-[#d4af37]">{COMPATIBILITY_COST}C</p>
+                  <p className="text-sm text-gray-400">
+                    {isFreeRetry ? '무료 재시도' : '분석 비용'}
+                  </p>
+                  <p className={`text-xl font-bold ${isFreeRetry ? 'text-green-400' : 'text-[#d4af37]'}`}>
+                    {isFreeRetry ? '0C' : `${COMPATIBILITY_COST}C`}
+                  </p>
                 </div>
               </div>
               <div className="text-right">
@@ -290,8 +356,74 @@ export default function CompatibilityRomanceNewPage() {
               </div>
             </div>
 
+            {/* 무료 재시도 안내 */}
+            {isFreeRetry && (
+              <motion.div
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: 'auto' }}
+                className="mt-4 flex items-center gap-2 rounded-lg bg-green-950/30 p-3"
+              >
+                <RefreshCw className="h-4 w-4 shrink-0 text-green-400" />
+                <p className="text-sm text-green-400">
+                  이전 분석이 실패했습니다. 무료로 재시도할 수 있습니다.
+                </p>
+              </motion.div>
+            )}
+
+            {/* 이미 완료된 분석 */}
+            {existingAnalysis?.isCompleted && (
+              <motion.div
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: 'auto' }}
+                className="mt-4"
+              >
+                <div className="flex items-center gap-2 rounded-lg bg-blue-950/30 p-3">
+                  <Check className="h-4 w-4 shrink-0 text-blue-400" />
+                  <p className="flex-1 text-sm text-blue-400">
+                    이미 완료된 분석이 있습니다.
+                  </p>
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    className="h-7 text-blue-400 hover:bg-blue-900/30 hover:text-blue-300"
+                    onClick={() => router.push(`/compatibility/romance/${existingAnalysis.analysisId}`)}
+                  >
+                    결과 보기
+                    <ExternalLink className="ml-1 h-3 w-3" />
+                  </Button>
+                </div>
+              </motion.div>
+            )}
+
+            {/* 진행 중인 분석 */}
+            {existingAnalysis?.isProcessing && (
+              <motion.div
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: 'auto' }}
+                className="mt-4"
+              >
+                <div className="flex items-center gap-2 rounded-lg bg-amber-950/30 p-3">
+                  <Loader2 className="h-4 w-4 shrink-0 animate-spin text-amber-400" />
+                  <p className="flex-1 text-sm text-amber-400">
+                    분석이 진행 중입니다.
+                  </p>
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    className="h-7 text-amber-400 hover:bg-amber-900/30 hover:text-amber-300"
+                    onClick={() =>
+                      router.push(`/compatibility/romance/${existingAnalysis.analysisId}/generating`)
+                    }
+                  >
+                    진행 상황
+                    <ExternalLink className="ml-1 h-3 w-3" />
+                  </Button>
+                </div>
+              </motion.div>
+            )}
+
             {/* 경고 메시지 */}
-            {!hasEnoughCredits && (
+            {!hasEnoughCredits && !isFreeRetry && (
               <motion.div
                 initial={{ opacity: 0, height: 0 }}
                 animate={{ opacity: 1, height: 'auto' }}
@@ -314,6 +446,18 @@ export default function CompatibilityRomanceNewPage() {
                 <p className="text-sm text-amber-400">
                   서로 다른 두 프로필을 선택해주세요.
                 </p>
+              </motion.div>
+            )}
+
+            {/* 로딩 중 */}
+            {isChecking && (
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                className="mt-4 flex items-center justify-center gap-2 py-2"
+              >
+                <Loader2 className="h-4 w-4 animate-spin text-gray-400" />
+                <p className="text-sm text-gray-400">기존 분석 확인 중...</p>
               </motion.div>
             )}
           </GlassCard>
@@ -351,6 +495,11 @@ export default function CompatibilityRomanceNewPage() {
               <>
                 <Loader2 className="mr-2 h-5 w-5 animate-spin" />
                 분석 시작 중...
+              </>
+            ) : isFreeRetry ? (
+              <>
+                <RefreshCw className="mr-2 h-5 w-5" />
+                무료 재시도
               </>
             ) : (
               <>
