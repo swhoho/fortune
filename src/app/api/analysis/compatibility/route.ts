@@ -111,6 +111,40 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // 3.5 각 프로필의 기존 리포트(만세력) 확인
+    const { data: reportA } = await supabase
+      .from('profile_reports')
+      .select('pillars')
+      .eq('profile_id', profileA.id)
+      .eq('status', 'completed')
+      .limit(1)
+      .maybeSingle();
+
+    const { data: reportB } = await supabase
+      .from('profile_reports')
+      .select('pillars')
+      .eq('profile_id', profileB.id)
+      .eq('status', 'completed')
+      .limit(1)
+      .maybeSingle();
+
+    // 만세력 없는 프로필 확인
+    const missingReports: string[] = [];
+    if (!reportA?.pillars) missingReports.push(profileA.name);
+    if (!reportB?.pillars) missingReports.push(profileB.name);
+
+    if (missingReports.length > 0) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: `${missingReports.join(', ')}의 기본 사주 분석을 먼저 완료해주세요.`,
+          errorCode: 'SAJU_REQUIRED',
+          missingProfiles: missingReports,
+        },
+        { status: 400 }
+      );
+    }
+
     // 4. 기존 분석 확인 (동일 조합의 완료/진행중/실패 분석)
     const { data: existingAnalysis } = await supabase
       .from('compatibility_analyses')
