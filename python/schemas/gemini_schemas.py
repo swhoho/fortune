@@ -424,12 +424,215 @@ GEMINI_SCHEMAS.update({
 })
 
 
+# ============================================
+# Compatibility Analysis Schemas (궁합 분석)
+# 주의: default 값 절대 금지! (Gemini가 그대로 복사함)
+# ============================================
+
+RELATIONSHIP_TYPE_SCHEMA = {
+    "type": "object",
+    "description": "인연의 성격 분석 - 두 사람이 만났을 때 형성되는 관계 유형",
+    "properties": {
+        "keywords": {
+            "type": "array",
+            "items": {"type": "string"},
+            "description": "관계 유형을 나타내는 핵심 키워드 3-4개 (예: 불꽃같은 열정, 운명적 끌림)"
+        },
+        "firstImpression": {
+            "type": "string",
+            "description": "두 사람의 첫인상과 서로에게 끌리는 이유 분석 (150-200자)"
+        },
+        "developmentPattern": {
+            "type": "string",
+            "description": "관계가 시간에 따라 어떻게 발전하는지 예측 (200-300자). 초기-중기-장기 단계별 변화 포함"
+        }
+    },
+    "required": ["keywords", "firstImpression", "developmentPattern"]
+}
+
+TRAIT_INTERPRETATION_SCHEMA = {
+    "type": "object",
+    "description": "연애 스타일 5항목 해석 - Python 점수를 바탕으로 각 항목 해석",
+    "properties": {
+        "items": {
+            "type": "array",
+            "description": "5개 항목(expression, possessiveness, devotion, adventure, stability) 해석",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "trait": {
+                        "type": "string",
+                        "description": "항목명 (expression/possessiveness/devotion/adventure/stability)"
+                    },
+                    "traitName": {
+                        "type": "string",
+                        "description": "항목 한글명 (표현력/독점욕/헌신도/모험심/안정추구)"
+                    },
+                    "a_interpretation": {
+                        "type": "string",
+                        "description": "A의 해당 특성 해석 (50-100자)"
+                    },
+                    "b_interpretation": {
+                        "type": "string",
+                        "description": "B의 해당 특성 해석 (50-100자)"
+                    },
+                    "comparison": {
+                        "type": "string",
+                        "description": "두 사람의 해당 특성 비교 분석 (80-120자)"
+                    }
+                },
+                "required": ["trait", "traitName", "a_interpretation", "b_interpretation", "comparison"]
+            }
+        },
+        "overall": {
+            "type": "string",
+            "description": "연애 스타일 종합 평가 - 두 사람의 연애 케미 분석 (150-200자)"
+        }
+    },
+    "required": ["items", "overall"]
+}
+
+CONFLICT_ANALYSIS_SCHEMA = {
+    "type": "object",
+    "description": "갈등 포인트 분석 - 충/형/파/해 기반 갈등 요소 도출",
+    "properties": {
+        "conflictPoints": {
+            "type": "array",
+            "description": "발생 가능한 갈등 포인트 목록 (2-4개)",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "source": {
+                        "type": "string",
+                        "description": "갈등의 명리학적 원인 (예: 子午 충, 寅巳 형)"
+                    },
+                    "description": {
+                        "type": "string",
+                        "description": "갈등이 일상에서 어떻게 나타나는지 구체적 설명 (100-150자)"
+                    },
+                    "resolution": {
+                        "type": "string",
+                        "description": "갈등 해결을 위한 실질적 조언 (80-120자)"
+                    }
+                },
+                "required": ["source", "description", "resolution"]
+            }
+        },
+        "avoidBehaviors": {
+            "type": "array",
+            "items": {"type": "string"},
+            "description": "관계에서 피해야 할 행동 패턴 3-4개"
+        },
+        "communicationTips": {
+            "type": "string",
+            "description": "두 사람의 효과적인 소통 방법 (100-150자)"
+        }
+    },
+    "required": ["conflictPoints", "avoidBehaviors", "communicationTips"]
+}
+
+MARRIAGE_FIT_SCHEMA = {
+    "type": "object",
+    "description": "결혼 적합도 분석 - 장기 관계와 결혼 후 예측",
+    "properties": {
+        "score": {
+            "type": "integer",
+            "description": "결혼 적합도 점수 (0-100). 총 궁합점수와 별개로 결혼 관점에서 평가"
+        },
+        "postMarriageChange": {
+            "type": "string",
+            "description": "결혼 후 예상되는 관계 변화 (150-200자)"
+        },
+        "roleDistribution": {
+            "type": "string",
+            "description": "가정 내 자연스러운 역할 분담 예측 (100-150자)"
+        },
+        "childFortune": {
+            "type": "string",
+            "description": "자녀운과 육아 시너지 (100-150자)"
+        },
+        "wealthSynergy": {
+            "type": "string",
+            "description": "재물운 시너지 - 경제적 협력 가능성 (100-150자)"
+        }
+    },
+    "required": ["score", "postMarriageChange", "roleDistribution", "childFortune", "wealthSynergy"]
+}
+
+MUTUAL_INFLUENCE_SCHEMA = {
+    "type": "object",
+    "description": "상호 영향 분석 - 서로에게 주는 영향",
+    "properties": {
+        "aToB": {
+            "type": "object",
+            "description": "A가 B에게 주는 영향",
+            "properties": {
+                "tenGod": {
+                    "type": "string",
+                    "description": "A가 B에게 어떤 십신인지 (예: 정재, 편관)"
+                },
+                "meaning": {
+                    "type": "string",
+                    "description": "해당 십신의 관계적 의미 (50-80자)"
+                },
+                "positiveInfluence": {
+                    "type": "string",
+                    "description": "A가 B에게 주는 긍정적 영향 (100-150자)"
+                },
+                "caution": {
+                    "type": "string",
+                    "description": "A가 B에게 주의해야 할 점 (80-120자)"
+                }
+            },
+            "required": ["tenGod", "meaning", "positiveInfluence", "caution"]
+        },
+        "bToA": {
+            "type": "object",
+            "description": "B가 A에게 주는 영향",
+            "properties": {
+                "tenGod": {
+                    "type": "string",
+                    "description": "B가 A에게 어떤 십신인지"
+                },
+                "meaning": {
+                    "type": "string",
+                    "description": "해당 십신의 관계적 의미 (50-80자)"
+                },
+                "positiveInfluence": {
+                    "type": "string",
+                    "description": "B가 A에게 주는 긍정적 영향 (100-150자)"
+                },
+                "caution": {
+                    "type": "string",
+                    "description": "B가 A에게 주의해야 할 점 (80-120자)"
+                }
+            },
+            "required": ["tenGod", "meaning", "positiveInfluence", "caution"]
+        },
+        "synergy": {
+            "type": "string",
+            "description": "두 사람의 상호작용 시너지 종합 요약 (150-200자)"
+        }
+    },
+    "required": ["aToB", "bToA", "synergy"]
+}
+
+# 궁합 분석 스키마 매핑 추가
+GEMINI_SCHEMAS.update({
+    "relationship_type": RELATIONSHIP_TYPE_SCHEMA,
+    "trait_interpretation": TRAIT_INTERPRETATION_SCHEMA,
+    "conflict_analysis": CONFLICT_ANALYSIS_SCHEMA,
+    "marriage_fit": MARRIAGE_FIT_SCHEMA,
+    "mutual_influence": MUTUAL_INFLUENCE_SCHEMA,
+})
+
+
 def get_gemini_schema(step_name: str) -> dict:
     """
     단계별 Gemini response_schema 반환
 
     Args:
-        step_name: 단계명 (basic, personality, aptitude, fortune, yearly_*, monthly_*)
+        step_name: 단계명 (basic, personality, aptitude, fortune, yearly_*, monthly_*, relationship_type, ...)
 
     Returns:
         JSON Schema 딕셔너리 (없으면 None)

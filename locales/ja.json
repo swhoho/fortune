@@ -1041,5 +1041,34 @@
     "PAYMENT_RECORD_CREATE_FAILED": "決済記録の作成に失敗しました",
     "PAYMENT_USER_FETCH_FAILED": "ユーザー情報の取得に失敗しました",
     "PAYMENT_CREDIT_UPDATE_FAILED": "クレジットの更新に失敗しました"
+  },
+  "compatibility": {
+    "title": "相性分析",
+    "subtitle": "二人の四柱で相性を分析します",
+    "notice": "分析には約30〜60秒かかります",
+    "comingSoon": "準備中",
+    "types": {
+      "romance": {
+        "title": "恋人相性",
+        "description": "二人の恋愛スタイル、相性スコア、結婚適性を分析します"
+      },
+      "friend": {
+        "title": "友達相性",
+        "description": "友人や同僚との相性を分析します"
+      }
+    },
+    "romance": {
+      "title": "恋人相性分析",
+      "subtitle": "相性を見る二人を選んでください",
+      "personA": "一人目",
+      "personB": "二人目",
+      "startButton": "相性分析を開始"
+    },
+    "generating": {
+      "title": "相性分析中"
+    },
+    "result": {
+      "title": "相性結果"
+    }
   }
 }

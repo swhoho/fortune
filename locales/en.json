@@ -1049,5 +1049,34 @@
     "PAYMENT_RECORD_CREATE_FAILED": "Failed to create payment record",
     "PAYMENT_USER_FETCH_FAILED": "Failed to retrieve user information",
     "PAYMENT_CREDIT_UPDATE_FAILED": "Failed to update credits"
+  },
+  "compatibility": {
+    "title": "Compatibility Analysis",
+    "subtitle": "Analyze compatibility between two people using their Saju",
+    "notice": "Analysis takes approximately 30-60 seconds",
+    "comingSoon": "Coming Soon",
+    "types": {
+      "romance": {
+        "title": "Romance Compatibility",
+        "description": "Analyze dating styles, compatibility scores, and marriage suitability"
+      },
+      "friend": {
+        "title": "Friend Compatibility",
+        "description": "Analyze compatibility with friends and colleagues"
+      }
+    },
+    "romance": {
+      "title": "Romance Compatibility Analysis",
+      "subtitle": "Select two people to analyze compatibility",
+      "personA": "First Person",
+      "personB": "Second Person",
+      "startButton": "Start Compatibility Analysis"
+    },
+    "generating": {
+      "title": "Analyzing Compatibility"
+    },
+    "result": {
+      "title": "Compatibility Results"
+    }
   }
 }

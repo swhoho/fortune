@@ -1045,6 +1045,35 @@
       "confirm": "분석 시작"
     }
   },
+  "compatibility": {
+    "title": "궁합 분석",
+    "subtitle": "두 사람의 사주로 궁합을 분석합니다",
+    "notice": "분석에는 약 30~60초가 소요됩니다",
+    "comingSoon": "준비 중",
+    "types": {
+      "romance": {
+        "title": "연인 궁합",
+        "description": "두 사람의 연애 스타일, 궁합 점수, 결혼 적합도를 분석합니다"
+      },
+      "friend": {
+        "title": "친구 궁합",
+        "description": "친구, 동료와의 관계 궁합을 분석합니다"
+      }
+    },
+    "romance": {
+      "title": "연인 궁합 분석",
+      "subtitle": "궁합을 볼 두 사람을 선택해주세요",
+      "personA": "첫 번째 사람",
+      "personB": "두 번째 사람",
+      "startButton": "궁합 분석 시작"
+    },
+    "generating": {
+      "title": "궁합 분석 중"
+    },
+    "result": {
+      "title": "궁합 결과"
+    }
+  },
   "errors": {
     "AUTH_UNAUTHORIZED": "로그인이 필요합니다",
     "AUTH_SESSION_EXPIRED": "세션이 만료되었습니다. 다시 로그인해주세요",

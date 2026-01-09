@@ -1041,5 +1041,34 @@
     "PAYMENT_RECORD_CREATE_FAILED": "建立付款記錄失敗",
     "PAYMENT_USER_FETCH_FAILED": "取得用戶資訊失敗",
     "PAYMENT_CREDIT_UPDATE_FAILED": "積分更新失敗"
+  },
+  "compatibility": {
+    "title": "合婚分析",
+    "subtitle": "通過兩人的八字分析合婚",
+    "notice": "分析大約需要30-60秒",
+    "comingSoon": "即將推出",
+    "types": {
+      "romance": {
+        "title": "戀人合婚",
+        "description": "分析兩人的戀愛風格、合婚分數和結婚適合度"
+      },
+      "friend": {
+        "title": "朋友合婚",
+        "description": "分析與朋友、同事的關係合婚"
+      }
+    },
+    "romance": {
+      "title": "戀人合婚分析",
+      "subtitle": "請選擇要分析合婚的兩人",
+      "personA": "第一個人",
+      "personB": "第二個人",
+      "startButton": "開始合婚分析"
+    },
+    "generating": {
+      "title": "合婚分析中"
+    },
+    "result": {
+      "title": "合婚結果"
+    }
   }
 }

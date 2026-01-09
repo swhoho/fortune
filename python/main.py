@@ -23,6 +23,12 @@ from schemas.report import (
     ReportAnalysisStatusResponse,
     JobStatus as ReportJobStatus,
 )
+from schemas.compatibility import (
+    CompatibilityAnalysisRequest,
+    CompatibilityAnalysisStartResponse,
+    CompatibilityAnalysisStatusResponse,
+    CompatibilityJobStatus,
+)
 from manseryeok.engine import ManseryeokEngine
 from visualization import SajuVisualizer
 from prompts.builder import (
@@ -758,6 +764,82 @@ async def start_consultation_generate(request: dict):
             status_code=500,
             detail=f"상담 응답 생성 시작 실패: {str(e)}"
         )
+
+
+# ============================================
+# 궁합 분석 API (비동기 작업)
+# ============================================
+
+@app.post("/api/analysis/compatibility", response_model=CompatibilityAnalysisStartResponse)
+async def start_compatibility_analysis(request: dict) -> CompatibilityAnalysisStartResponse:
+    """
+    궁합 분석 시작 (비동기)
+
+    백그라운드에서 10단계 파이프라인을 실행하고 즉시 작업 ID를 반환합니다.
+    상태 확인은 GET /api/analysis/compatibility/{job_id}/status로 폴링하세요.
+
+    - **analysis_id**: DB 분석 레코드 ID
+    - **profile_id_a**: A 프로필 ID
+    - **profile_id_b**: B 프로필 ID
+    - **profile_a**: A 프로필 데이터 (name, gender, birth_date, birth_time, calendar_type)
+    - **profile_b**: B 프로필 데이터
+    - **analysis_type**: 분석 유형 (romance, friend)
+    - **language**: 언어 (ko, en, ja, zh-CN, zh-TW)
+    - **user_id**: 사용자 ID
+
+    Returns:
+        작업 ID, 상태, 메시지
+    """
+    from services.compatibility_service import compatibility_service
+
+    try:
+        job_id = await compatibility_service.start_analysis(request)
+
+        return CompatibilityAnalysisStartResponse(
+            job_id=job_id,
+            analysis_id=request.get("analysis_id"),
+            status=CompatibilityJobStatus.PENDING,
+            message="궁합 분석이 시작되었습니다. 상태를 폴링해주세요."
+        )
+    except Exception as e:
+        raise HTTPException(
+            status_code=500,
+            detail=f"궁합 분석 시작 실패: {str(e)}"
+        )
+
+
+@app.get("/api/analysis/compatibility/{job_id}/status", response_model=CompatibilityAnalysisStatusResponse)
+async def get_compatibility_analysis_status(job_id: str) -> CompatibilityAnalysisStatusResponse:
+    """
+    궁합 분석 상태 조회
+
+    - **job_id**: 작업 ID
+
+    Returns:
+        작업 상태, 진행률, 현재 단계, 실패 단계
+    """
+    from services.compatibility_service import compatibility_service
+
+    job = compatibility_service.get_status(job_id)
+
+    if not job:
+        raise HTTPException(
+            status_code=404,
+            detail="작업을 찾을 수 없습니다"
+        )
+
+    return CompatibilityAnalysisStatusResponse(
+        job_id=job["job_id"],
+        analysis_id=job.get("analysis_id"),
+        status=job["status"],
+        progress_percent=job["progress_percent"],
+        current_step=job.get("current_step"),
+        step_statuses=job.get("step_statuses"),
+        failed_steps=job.get("failed_steps", []),
+        error=job.get("error"),
+        created_at=job.get("created_at"),
+        updated_at=job.get("updated_at"),
+    )
 
 
 @app.exception_handler(ValueError)
