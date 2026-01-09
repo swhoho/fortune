@@ -38,22 +38,6 @@ export function ExampleCarousel() {
           sizes="(max-width: 768px) 100vw, 50vw"
         />
 
-        {/* 오버레이 + 블러 레이어 */}
-        <div
-          className="absolute inset-0 flex items-center justify-center"
-          style={{
-            backgroundColor: 'rgba(0, 0, 0, 0.4)',
-            backdropFilter: 'blur(2px)',
-          }}
-        >
-          {/* 가이드 텍스트 */}
-          <span
-            className="text-xs uppercase tracking-[0.2em]"
-            style={{ color: 'rgba(255, 255, 255, 0.5)' }}
-          >
-            Sample Report
-          </span>
-        </div>
       </div>
 
       {/* 좌/우 화살표 */}
