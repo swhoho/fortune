@@ -41,17 +41,19 @@ import {
 type TabType = 'score' | 'analysis' | 'compare';
 
 /** 이름 3글자 제한 (초과 시 말줄임) */
-function truncateName(name: string, maxLength = 3): string {
+function truncateName(name: string | undefined | null, maxLength = 3): string {
+  if (!name) return 'A';
   return name.length > maxLength ? name.slice(0, maxLength) + '…' : name;
 }
 
 /** 텍스트 내 A/B를 실제 이름으로 치환 */
-function replaceAB(text: string, nameA: string, nameB: string): string {
+function replaceAB(text: string | undefined | null, nameA: string, nameB: string): string {
+  if (!text) return '';
   // 한국어 조사 패턴과 함께 A/B 치환
   // A는, A가, A의, A를, A와, A에게, A도 등
   return text
-    .replace(/\bA(?=[는가의를와에도]|$|\s|,|\.)/g, nameA)
-    .replace(/\bB(?=[는가의를와에도]|$|\s|,|\.)/g, nameB);
+    .replace(/\bA(?=[는가의를와에도]|$|\s|,|\.)/g, nameA || 'A')
+    .replace(/\bB(?=[는가의를와에도]|$|\s|,|\.)/g, nameB || 'B');
 }
 
 interface CompatibilityData {
@@ -604,14 +606,14 @@ function AnalysisTab({ data }: { data: CompatibilityData }) {
                 <div
                   className="flex shrink-0 items-center justify-center rounded-full px-2 py-0.5 text-xs font-bold"
                   style={{ background: 'linear-gradient(135deg, #d4af37, #c9a227)', color: '#000' }}
-                  title={data.nameA}
+                  title={data.nameA || 'A'}
                 >
                   {truncateName(data.nameA)}
                 </div>
                 <ArrowRight className="h-4 w-4 text-gray-500" />
                 <div
                   className="flex shrink-0 items-center justify-center rounded-full bg-pink-500 px-2 py-0.5 text-xs font-bold text-white"
-                  title={data.nameB}
+                  title={data.nameB || 'B'}
                 >
                   {truncateName(data.nameB)}
                 </div>
@@ -633,7 +635,7 @@ function AnalysisTab({ data }: { data: CompatibilityData }) {
               <div className="mb-3 flex items-center gap-2">
                 <div
                   className="flex shrink-0 items-center justify-center rounded-full bg-pink-500 px-2 py-0.5 text-xs font-bold text-white"
-                  title={data.nameB}
+                  title={data.nameB || 'B'}
                 >
                   {truncateName(data.nameB)}
                 </div>
@@ -641,7 +643,7 @@ function AnalysisTab({ data }: { data: CompatibilityData }) {
                 <div
                   className="flex shrink-0 items-center justify-center rounded-full px-2 py-0.5 text-xs font-bold"
                   style={{ background: 'linear-gradient(135deg, #d4af37, #c9a227)', color: '#000' }}
-                  title={data.nameA}
+                  title={data.nameA || 'A'}
                 >
                   {truncateName(data.nameA)}
                 </div>
@@ -690,11 +692,11 @@ function CompareTab({ data }: { data: CompatibilityData }) {
                 <div
                   className="flex shrink-0 items-center justify-center rounded-full px-2 py-0.5 text-sm font-bold"
                   style={{ background: 'linear-gradient(135deg, #d4af37, #c9a227)', color: '#000' }}
-                  title={data.nameA}
+                  title={data.nameA || 'A'}
                 >
                   {truncateName(data.nameA)}
                 </div>
-                <span className="font-medium text-white">{data.nameA}의 사주</span>
+                <span className="font-medium text-white">{data.nameA || 'A'}의 사주</span>
               </div>
               <PillarDisplay pillars={data.pillarsA} />
             </motion.div>
@@ -709,11 +711,11 @@ function CompareTab({ data }: { data: CompatibilityData }) {
               <div className="mb-3 flex items-center gap-2">
                 <div
                   className="flex shrink-0 items-center justify-center rounded-full bg-pink-500 px-2 py-0.5 text-sm font-bold text-white"
-                  title={data.nameB}
+                  title={data.nameB || 'B'}
                 >
                   {truncateName(data.nameB)}
                 </div>
-                <span className="font-medium text-white">{data.nameB}의 사주</span>
+                <span className="font-medium text-white">{data.nameB || 'B'}의 사주</span>
               </div>
               <PillarDisplay pillars={data.pillarsB} />
             </motion.div>
