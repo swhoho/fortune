@@ -136,6 +136,15 @@ interface CompatibilityData {
   pillarsB?: Record<string, unknown>;
   daewunA?: unknown[];
   daewunB?: unknown[];
+  peachBlossom?: {
+    aHasDohwa: boolean;
+    bHasDohwa: boolean;
+    aDohwaBranch?: string;
+    bDohwaBranch?: string;
+    mutualAttraction: number;
+    attractionBonus: number;
+    description: string;
+  };
   failedSteps?: string[];
   createdAt: string;
 }
@@ -362,7 +371,7 @@ function ScoreTab({ data }: { data: CompatibilityData }) {
       weight: '24%',
       icon: <TrendingUp className="h-4 w-4" />,
       description:
-        '천간은 겉으로 드러나는 성격입니다. 두 사람의 천간이 \'합\'을 이루면 처음 만났을 때 "아, 이 사람이다" 하는 느낌을 받을 수 있고, 자연스럽게 끌립니다. 반대로 \'극\'이 있으면 대화할 때 의견 충돌이 잦거나 생각의 방향이 달라 답답할 수 있습니다.',
+        "천간은 겉으로 드러나는 성격입니다. 두 사람의 천간이 '합'을 이루면 처음 만났을 때 \"아, 이 사람이다\" 하는 느낌을 받을 수 있고, 자연스럽게 끌립니다. 반대로 '극'이 있으면 대화할 때 의견 충돌이 잦거나 생각의 방향이 달라 답답할 수 있습니다.",
     },
     {
       label: '지지 조화',
@@ -730,7 +739,10 @@ function CompareTab({ data }: { data: CompatibilityData }) {
       {/* 간지 상호작용 */}
       <GlassCard className="p-6">
         <SectionHeader title="간지 상호작용" icon={<Zap className="h-4 w-4" />} />
-        <InteractionDisplay interactions={data.interactions} />
+        <InteractionDisplay
+          interactions={data.interactions || {}}
+          peachBlossom={data.peachBlossom}
+        />
       </GlassCard>
     </div>
   );
@@ -787,7 +799,21 @@ const TERM_EXPLANATIONS: Record<string, string> = {
 };
 
 /** 간지 상호작용 표시 컴포넌트 */
-function InteractionDisplay({ interactions }: { interactions: Record<string, unknown> }) {
+function InteractionDisplay({
+  interactions,
+  peachBlossom,
+}: {
+  interactions: Record<string, unknown>;
+  peachBlossom?: {
+    aHasDohwa: boolean;
+    bHasDohwa: boolean;
+    aDohwaBranch?: string;
+    bDohwaBranch?: string;
+    mutualAttraction: number;
+    attractionBonus: number;
+    description: string;
+  };
+}) {
   // 타입 정의
   type InteractionItem = { name: string; formed?: boolean };
 
@@ -799,9 +825,6 @@ function InteractionDisplay({ interactions }: { interactions: Record<string, unk
   const samhapFormed = (interactions?.samhapFormed || []) as InteractionItem[];
   const banhapFormed = (interactions?.banhapFormed || []) as InteractionItem[];
   const banghapFormed = (interactions?.banghapFormed || []) as InteractionItem[];
-  const peachBlossom = interactions?.peachBlossom as
-    | { type: string; description: string; score: number }
-    | undefined;
 
   /** 용어에 대한 설명을 반환 */
   const getExplanation = (name: string): string => {
@@ -818,7 +841,7 @@ function InteractionDisplay({ interactions }: { interactions: Record<string, unk
           <span className="font-medium text-pink-400">도화살 (桃花煞, 도화살)</span>
           {peachBlossom && (
             <span className="ml-auto rounded-full bg-pink-500/20 px-2 py-0.5 text-xs text-pink-300">
-              +{peachBlossom.score}점
+              +{peachBlossom.attractionBonus}점
             </span>
           )}
         </div>
