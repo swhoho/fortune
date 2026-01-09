@@ -40,6 +40,11 @@ import {
 /** 탭 타입 */
 type TabType = 'score' | 'analysis' | 'compare';
 
+/** 이름 3글자 제한 (초과 시 말줄임) */
+function truncateName(name: string, maxLength = 3): string {
+  return name.length > maxLength ? name.slice(0, maxLength) + '…' : name;
+}
+
 interface CompatibilityData {
   id: string;
   profileIdA: string;
@@ -590,18 +595,18 @@ function AnalysisTab({ data }: { data: CompatibilityData }) {
             <div className="rounded-xl border border-[#d4af37]/20 bg-[#d4af37]/5 p-4">
               <div className="mb-3 flex items-center gap-2">
                 <div
-                  className="flex h-6 w-6 items-center justify-center rounded-full text-xs font-bold"
+                  className="flex shrink-0 items-center justify-center rounded-full px-2 py-0.5 text-xs font-bold"
                   style={{ background: 'linear-gradient(135deg, #d4af37, #c9a227)', color: '#000' }}
                   title={data.nameA}
                 >
-                  {data.nameA.charAt(0)}
+                  {truncateName(data.nameA)}
                 </div>
                 <ArrowRight className="h-4 w-4 text-gray-500" />
                 <div
-                  className="flex h-6 w-6 items-center justify-center rounded-full bg-pink-500 text-xs font-bold text-white"
+                  className="flex shrink-0 items-center justify-center rounded-full bg-pink-500 px-2 py-0.5 text-xs font-bold text-white"
                   title={data.nameB}
                 >
-                  {data.nameB.charAt(0)}
+                  {truncateName(data.nameB)}
                 </div>
                 <span className="ml-2 rounded-full bg-white/10 px-2 py-0.5 text-xs text-gray-300">
                   {data.mutualInfluence.aToB.tenGod}
@@ -618,18 +623,18 @@ function AnalysisTab({ data }: { data: CompatibilityData }) {
             <div className="rounded-xl border border-pink-500/20 bg-pink-500/5 p-4">
               <div className="mb-3 flex items-center gap-2">
                 <div
-                  className="flex h-6 w-6 items-center justify-center rounded-full bg-pink-500 text-xs font-bold text-white"
+                  className="flex shrink-0 items-center justify-center rounded-full bg-pink-500 px-2 py-0.5 text-xs font-bold text-white"
                   title={data.nameB}
                 >
-                  {data.nameB.charAt(0)}
+                  {truncateName(data.nameB)}
                 </div>
                 <ArrowRight className="h-4 w-4 text-gray-500" />
                 <div
-                  className="flex h-6 w-6 items-center justify-center rounded-full text-xs font-bold"
+                  className="flex shrink-0 items-center justify-center rounded-full px-2 py-0.5 text-xs font-bold"
                   style={{ background: 'linear-gradient(135deg, #d4af37, #c9a227)', color: '#000' }}
                   title={data.nameA}
                 >
-                  {data.nameA.charAt(0)}
+                  {truncateName(data.nameA)}
                 </div>
                 <span className="ml-2 rounded-full bg-white/10 px-2 py-0.5 text-xs text-gray-300">
                   {data.mutualInfluence.bToA.tenGod}
@@ -673,11 +678,11 @@ function CompareTab({ data }: { data: CompatibilityData }) {
             >
               <div className="mb-3 flex items-center gap-2">
                 <div
-                  className="flex h-7 w-7 items-center justify-center rounded-full text-sm font-bold"
+                  className="flex shrink-0 items-center justify-center rounded-full px-2 py-0.5 text-sm font-bold"
                   style={{ background: 'linear-gradient(135deg, #d4af37, #c9a227)', color: '#000' }}
                   title={data.nameA}
                 >
-                  {data.nameA.charAt(0)}
+                  {truncateName(data.nameA)}
                 </div>
                 <span className="font-medium text-white">{data.nameA}의 사주</span>
               </div>
@@ -693,10 +698,10 @@ function CompareTab({ data }: { data: CompatibilityData }) {
             >
               <div className="mb-3 flex items-center gap-2">
                 <div
-                  className="flex h-7 w-7 items-center justify-center rounded-full bg-pink-500 text-sm font-bold text-white"
+                  className="flex shrink-0 items-center justify-center rounded-full bg-pink-500 px-2 py-0.5 text-sm font-bold text-white"
                   title={data.nameB}
                 >
-                  {data.nameB.charAt(0)}
+                  {truncateName(data.nameB)}
                 </div>
                 <span className="font-medium text-white">{data.nameB}의 사주</span>
               </div>

@@ -122,6 +122,11 @@ interface DualScoreBarProps {
   delay?: number;
 }
 
+/** 이름 3글자 제한 (초과 시 말줄임) */
+function truncateName(name: string, maxLength = 3): string {
+  return name.length > maxLength ? name.slice(0, maxLength) + '…' : name;
+}
+
 export function DualScoreBar({
   label,
   scoreA,
@@ -149,14 +154,14 @@ export function DualScoreBar({
       {/* A 점수 */}
       <div className="mb-2 flex items-center gap-3">
         <div
-          className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-xs font-bold"
+          className="flex shrink-0 items-center justify-center rounded-full px-2 py-0.5 text-xs font-bold"
           style={{
             background: 'linear-gradient(135deg, #d4af37, #c9a227)',
             color: '#000',
           }}
           title={nameA}
         >
-          {nameA.charAt(0)}
+          {truncateName(nameA)}
         </div>
         <div className="relative h-2 flex-1 overflow-hidden rounded-full bg-white/5">
           <motion.div
@@ -176,14 +181,14 @@ export function DualScoreBar({
       {/* B 점수 */}
       <div className="flex items-center gap-3">
         <div
-          className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-xs font-bold"
+          className="flex shrink-0 items-center justify-center rounded-full px-2 py-0.5 text-xs font-bold"
           style={{
             background: 'linear-gradient(135deg, #ec4899, #db2777)',
             color: '#fff',
           }}
           title={nameB}
         >
-          {nameB.charAt(0)}
+          {truncateName(nameB)}
         </div>
         <div className="relative h-2 flex-1 overflow-hidden rounded-full bg-white/5">
           <motion.div
