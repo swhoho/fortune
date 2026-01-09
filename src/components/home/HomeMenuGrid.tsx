@@ -47,10 +47,8 @@ const menuSections: MenuSection[] = [
     items: [
       {
         titleKey: 'menu.compatibility',
-        href: '/analysis/compatibility',
+        href: '/compatibility',
         icon: Heart,
-        disabled: true,
-        disabledLabelKey: 'comingSoon',
       },
     ],
   },
