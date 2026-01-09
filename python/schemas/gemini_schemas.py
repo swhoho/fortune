@@ -617,7 +617,7 @@ MUTUAL_INFLUENCE_SCHEMA = {
     "required": ["aToB", "bToA", "synergy"]
 }
 
-# 간지 상호작용 해석 스키마
+# 간지 상호작용 해석 스키마 (v2.1 - 설명 길이 확장)
 INTERACTION_INTERPRETATION_SCHEMA = {
     "type": "object",
     "properties": {
@@ -631,32 +631,32 @@ INTERACTION_INTERPRETATION_SCHEMA = {
                 },
                 "description": {
                     "type": "string",
-                    "description": "도화살이 이 커플에게 미치는 영향 (100-150자)"
+                    "description": "도화살이 이 커플에게 미치는 영향을 구체적으로 설명. 어떤 매력이 발산되는지, 상대방이 어떻게 느끼는지, 관계 초반과 장기적으로 어떤 영향이 있는지 포함. 일반인이 이해할 수 있는 쉬운 표현 사용. (200-400자)"
                 },
                 "advice": {
                     "type": "string",
-                    "description": "도화살 관련 조언 (50-80자)"
+                    "description": "도화살 관련 실생활 조언 (80-150자)"
                 }
             },
             "required": ["title", "description", "advice"]
         },
         "samhapBanghap": {
             "type": "object",
-            "description": "삼합/방합 해석",
+            "description": "삼합/반합/방합 해석",
             "properties": {
                 "formations": {
                     "type": "array",
-                    "description": "형성된 삼합/방합 목록",
+                    "description": "형성된 삼합/반합/방합 목록 (없으면 빈 배열)",
                     "items": {
                         "type": "object",
                         "properties": {
                             "name": {
                                 "type": "string",
-                                "description": "삼합/방합 이름 (예: '해묘미 목국')"
+                                "description": "삼합/반합/방합 이름 (예: '해묘미 목국', '인오 반합', '동방목')"
                             },
                             "description": {
                                 "type": "string",
-                                "description": "이 조합이 커플에게 주는 의미 (80-120자)"
+                                "description": "이 조합이 두 사람에게 주는 구체적 의미. 어떤 영역에서 시너지가 나는지, 함께할 때 어떤 에너지가 생기는지, 실생활에서 어떻게 느껴지는지 설명. (200-400자)"
                             }
                         },
                         "required": ["name", "description"]
@@ -664,7 +664,7 @@ INTERACTION_INTERPRETATION_SCHEMA = {
                 },
                 "emptyMessage": {
                     "type": "string",
-                    "description": "삼합/방합이 없을 때 메시지 (60-100자)"
+                    "description": "삼합/방합이 없을 때 왜 긍정적인지 설명. '없습니다'로 끝내지 말고 서로의 개성을 유지하며 관계를 만들어가는 의미 등 구체적으로. (150-250자)"
                 }
             },
             "required": ["formations", "emptyMessage"]
@@ -675,17 +675,17 @@ INTERACTION_INTERPRETATION_SCHEMA = {
             "properties": {
                 "items": {
                     "type": "array",
-                    "description": "천간합 목록",
+                    "description": "천간합 목록 (없으면 빈 배열)",
                     "items": {
                         "type": "object",
                         "properties": {
                             "name": {
                                 "type": "string",
-                                "description": "천간합 이름 (예: '갑기합토')"
+                                "description": "천간합 이름 (예: '갑기합토', '병신합수')"
                             },
                             "description": {
                                 "type": "string",
-                                "description": "이 천간합의 의미 (80-100자)"
+                                "description": "이 천간합이 두 사람의 의사소통과 표현 방식에 미치는 영향. 처음 만났을 때 느낌, 대화 스타일, 서로를 어떻게 인식하는지 구체적으로. (200-400자)"
                             }
                         },
                         "required": ["name", "description"]
@@ -693,7 +693,7 @@ INTERACTION_INTERPRETATION_SCHEMA = {
                 },
                 "emptyMessage": {
                     "type": "string",
-                    "description": "천간합이 없을 때 메시지 (50-80자)"
+                    "description": "천간합이 없을 때 왜 긍정적인지 또는 어떤 특성이 있는지 설명. 서로 다른 표현 방식이 관계에 다양성을 더하는 측면 등. (150-250자)"
                 }
             },
             "required": ["items", "emptyMessage"]
@@ -704,16 +704,26 @@ INTERACTION_INTERPRETATION_SCHEMA = {
             "properties": {
                 "items": {
                     "type": "array",
+                    "description": "지지합 목록 (없으면 빈 배열)",
                     "items": {
                         "type": "object",
                         "properties": {
-                            "name": {"type": "string"},
-                            "description": {"type": "string"}
+                            "name": {
+                                "type": "string",
+                                "description": "지지합 이름 (예: '자축합토')"
+                            },
+                            "description": {
+                                "type": "string",
+                                "description": "이 지지합이 두 사람의 정서적 친밀감과 일상생활에 미치는 영향. 함께 있을 때 느끼는 편안함, 무의식적 교감 등 구체적으로. (200-400자)"
+                            }
                         },
                         "required": ["name", "description"]
                     }
                 },
-                "emptyMessage": {"type": "string"}
+                "emptyMessage": {
+                    "type": "string",
+                    "description": "지지합이 없을 때 어떤 특성이 있는지 설명. 독립적 공간 유지, 건강한 거리감 등 긍정적 측면 포함. (150-250자)"
+                }
             },
             "required": ["items", "emptyMessage"]
         },
@@ -723,18 +733,25 @@ INTERACTION_INTERPRETATION_SCHEMA = {
             "properties": {
                 "items": {
                     "type": "array",
+                    "description": "지지충 목록 (없으면 빈 배열)",
                     "items": {
                         "type": "object",
                         "properties": {
-                            "name": {"type": "string"},
-                            "description": {"type": "string"}
+                            "name": {
+                                "type": "string",
+                                "description": "지지충 이름 (예: '자오충')"
+                            },
+                            "description": {
+                                "type": "string",
+                                "description": "이 충이 일상에서 어떤 상황에서 갈등을 유발하는지, 어떻게 느껴지는지, 극복 방법은 무엇인지 구체적으로. (200-400자)"
+                            }
                         },
                         "required": ["name", "description"]
                     }
                 },
                 "emptyMessage": {
                     "type": "string",
-                    "description": "충이 없을 때 긍정적 의미 설명 (60-100자)"
+                    "description": "충이 없을 때 왜 좋은지 구체적으로 설명. 감정 충돌 없이 평화롭게 소통할 수 있는 점, 일상의 마찰이 적은 점 등. (150-250자)"
                 }
             },
             "required": ["items", "emptyMessage"]
@@ -745,18 +762,25 @@ INTERACTION_INTERPRETATION_SCHEMA = {
             "properties": {
                 "items": {
                     "type": "array",
+                    "description": "지지형 목록 (없으면 빈 배열)",
                     "items": {
                         "type": "object",
                         "properties": {
-                            "name": {"type": "string"},
-                            "description": {"type": "string"}
+                            "name": {
+                                "type": "string",
+                                "description": "지지형 이름 (예: '인사형', '축술미형')"
+                            },
+                            "description": {
+                                "type": "string",
+                                "description": "이 형이 두 사람 사이에 어떤 마찰을 일으킬 수 있는지, 어떤 상황에서 상처를 줄 수 있는지, 주의할 점은 무엇인지 구체적으로. (200-400자)"
+                            }
                         },
                         "required": ["name", "description"]
                     }
                 },
                 "emptyMessage": {
                     "type": "string",
-                    "description": "형이 없을 때 긍정적 의미 설명 (60-100자)"
+                    "description": "형이 없을 때 왜 좋은지 구체적으로 설명. 서로에게 날카로운 상처를 주는 기운이 없어 편안한 관계 등. (150-250자)"
                 }
             },
             "required": ["items", "emptyMessage"]
@@ -767,6 +791,7 @@ INTERACTION_INTERPRETATION_SCHEMA = {
             "properties": {
                 "items": {
                     "type": "array",
+                    "description": "원진 목록 (없으면 빈 배열)",
                     "items": {
                         "type": "object",
                         "properties": {
@@ -776,7 +801,7 @@ INTERACTION_INTERPRETATION_SCHEMA = {
                             },
                             "description": {
                                 "type": "string",
-                                "description": "이 원진이 커플에게 미치는 심리적 영향 (80-120자)"
+                                "description": "이 원진이 두 사람 사이에 어떤 심리적 거리감을 만드는지, 겉으로 드러나지 않지만 마음속에서 느껴지는 이질감, 극복 방법 등 구체적으로. (200-400자)"
                             }
                         },
                         "required": ["name", "description"]
@@ -784,7 +809,7 @@ INTERACTION_INTERPRETATION_SCHEMA = {
                 },
                 "emptyMessage": {
                     "type": "string",
-                    "description": "원진이 없을 때 긍정적 의미 (60-100자)"
+                    "description": "원진이 없을 때 왜 좋은지 구체적으로 설명. 설명하기 어려운 심리적 거리감 없이 자연스럽게 가까워질 수 있는 점 등. (150-250자)"
                 }
             },
             "required": ["items", "emptyMessage"]
