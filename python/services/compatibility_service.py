@@ -287,11 +287,15 @@ class CompatibilityAnalysisService:
 
             engine = ManseryeokEngine()
 
+            # birth_date와 birth_time을 합쳐서 ISO 8601 datetime 형식으로 변환
+            birth_date = profile.get("birth_date", "1990-01-01")
+            birth_time = profile.get("birth_time", "12:00")
+            birth_datetime_str = f"{birth_date}T{birth_time}:00"
+
             request = CalculateRequest(
-                birth_date=profile.get("birth_date"),
-                birth_time=profile.get("birth_time", "12:00"),
-                timezone="Asia/Seoul",
-                is_lunar=profile.get("calendar_type") == "lunar",
+                birthDatetime=birth_datetime_str,
+                timezone="GMT+9",
+                isLunar=profile.get("calendar_type") == "lunar",
                 gender=profile.get("gender", "male")
             )
 
