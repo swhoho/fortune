@@ -736,6 +736,56 @@ function CompareTab({ data }: { data: CompatibilityData }) {
   );
 }
 
+/** 용어 해설 매핑 (한자 + 음절 + 뜻) */
+const TERM_EXPLANATIONS: Record<string, string> = {
+  // 천간 합 (5합)
+  '갑기합토': '甲(갑)+己(기) → 土(토, 흙) 기운 생성 - 안정과 신뢰의 결합',
+  '을경합금': '乙(을)+庚(경) → 金(금, 쇠) 기운 생성 - 결단과 의리의 결합',
+  '병신합수': '丙(병)+辛(신) → 水(수, 물) 기운 생성 - 지혜와 유연함의 결합',
+  '정임합목': '丁(정)+壬(임) → 木(목, 나무) 기운 생성 - 성장과 발전의 결합',
+  '무계합화': '戊(무)+癸(계) → 火(화, 불) 기운 생성 - 열정과 활력의 결합',
+  // 삼합
+  '인오술 화국': '寅(인)+午(오)+戌(술) → 火局(화국) - 열정적이고 활동적인 에너지',
+  '신자진 수국': '申(신)+子(자)+辰(진) → 水局(수국) - 지혜롭고 유연한 교류',
+  '사유축 금국': '巳(사)+酉(유)+丑(축) → 金局(금국) - 실리적이고 결속력 있는 관계',
+  '해묘미 목국': '亥(해)+卯(묘)+未(미) → 木局(목국) - 성장하고 발전하는 인연',
+  // 방합
+  '인묘진 목방': '寅(인)+卯(묘)+辰(진) → 木方(목방) - 봄의 나무 기운',
+  '사오미 화방': '巳(사)+午(오)+未(미) → 火方(화방) - 여름의 불 기운',
+  '신유술 금방': '申(신)+酉(유)+戌(술) → 金方(금방) - 가을의 쇠 기운',
+  '해자축 수방': '亥(해)+子(자)+丑(축) → 水方(수방) - 겨울의 물 기운',
+  // 지지 합 (6합)
+  '자축합토': '子(자)+丑(축) → 土(토, 흙) - 안정적인 결합',
+  '인해합목': '寅(인)+亥(해) → 木(목, 나무) - 발전하는 관계',
+  '묘술합화': '卯(묘)+戌(술) → 火(화, 불) - 열정적인 만남',
+  '진유합금': '辰(진)+酉(유) → 金(금, 쇠) - 단단한 결속',
+  '사신합수': '巳(사)+申(신) → 水(수, 물) - 원활한 소통',
+  '오미합화': '午(오)+未(미) → 火(화, 불) - 열정적인 교류',
+  // 충 (6충)
+  '자오충': '子(자)↔午(오) 충돌 - 감정적 갈등, 마음이 어긋남',
+  '축미충': '丑(축)↔未(미) 충돌 - 가치관 차이, 고집 충돌',
+  '인신충': '寅(인)↔申(신) 충돌 - 활동 방향 충돌',
+  '묘유충': '卯(묘)↔酉(유) 충돌 - 의견 대립, 날카로운 마찰',
+  '진술충': '辰(진)↔戌(술) 충돌 - 환경 변화로 인한 갈등',
+  '사해충': '巳(사)↔亥(해) 충돌 - 이동/변화 관련 마찰',
+  // 형 (3형)
+  '인사형': '寅(인)+巳(사) 형벌 - 권력 다툼, 경쟁 갈등',
+  '인신형': '寅(인)+申(신) 형벌 - 무은지형, 배신 주의',
+  '사신형': '巳(사)+申(신) 형벌 - 의리 갈등',
+  '축술형': '丑(축)+戌(술) 형벌 - 고집으로 인한 마찰',
+  '축미형': '丑(축)+未(미) 형벌 - 가치관 대립',
+  '술미형': '戌(술)+未(미) 형벌 - 완고함 충돌',
+  '자묘형': '子(자)+卯(묘) 형벌 - 무례지형, 예의 갈등',
+  '오오자형': '午(오)+午(오)+子(자) 무례지형 - 감정 충돌, 예의 문제',
+  // 원진
+  '자유원진': '子(자)↔酉(유) 원진 - 심리적 거리감',
+  '축오원진': '丑(축)↔午(오) 원진 - 서로 밀어내는 기운',
+  '인미원진': '寅(인)↔未(미) 원진 - 뜻이 맞지 않음',
+  '묘신원진': '卯(묘)↔申(신) 원진 - 방향성 차이',
+  '진해원진': '辰(진)↔亥(해) 원진 - 환경적 부조화',
+  '사술원진': '巳(사)↔戌(술) 원진 - 시기적 어긋남',
+};
+
 /** 간지 상호작용 표시 컴포넌트 */
 function InteractionDisplay({ interactions }: { interactions: Record<string, unknown> }) {
   // 타입 정의
@@ -751,165 +801,185 @@ function InteractionDisplay({ interactions }: { interactions: Record<string, unk
   const banghapFormed = (interactions?.banghapFormed || []) as InteractionItem[];
   const peachBlossom = interactions?.peachBlossom as { type: string; description: string; score: number } | undefined;
 
-  const hasAnyInteraction =
-    stemCombinations.length > 0 ||
-    branchCombinations.length > 0 ||
-    branchClashes.length > 0 ||
-    branchPunishments.length > 0 ||
-    branchWonjin.length > 0 ||
-    samhapFormed.length > 0 ||
-    banhapFormed.length > 0 ||
-    banghapFormed.length > 0 ||
-    peachBlossom;
-
-  if (!hasAnyInteraction) {
-    return (
-      <p className="text-center text-sm text-gray-400">
-        특별한 간지 상호작용이 없습니다.
-      </p>
-    );
-  }
+  /** 용어에 대한 설명을 반환 */
+  const getExplanation = (name: string): string => {
+    const key = name.toLowerCase().replace(/\s/g, ' ');
+    return TERM_EXPLANATIONS[key] || '';
+  };
 
   return (
     <div className="space-y-4">
-      {/* 도화살 (있는 경우 강조 표시) */}
-      {peachBlossom && (
-        <motion.div
-          initial={{ opacity: 0, scale: 0.95 }}
-          animate={{ opacity: 1, scale: 1 }}
-          className="rounded-xl border border-pink-500/30 bg-pink-500/10 p-4"
-        >
-          <div className="mb-2 flex items-center gap-2">
-            <Heart className="h-4 w-4 text-pink-400" />
-            <span className="font-medium text-pink-400">도화살 - {peachBlossom.type}</span>
+      {/* 도화살 (항상 표시) */}
+      <div className="rounded-xl border border-pink-500/20 bg-pink-500/5 p-4">
+        <div className="mb-2 flex items-center gap-2">
+          <Heart className="h-4 w-4 text-pink-400" />
+          <span className="font-medium text-pink-400">도화살 (桃花煞, 도화살)</span>
+          {peachBlossom && (
             <span className="ml-auto rounded-full bg-pink-500/20 px-2 py-0.5 text-xs text-pink-300">
               +{peachBlossom.score}점
             </span>
-          </div>
+          )}
+        </div>
+        <p className="mb-2 text-xs text-gray-500">
+          연지/일지 기준으로 특별한 이성 끌림을 나타내는 살(煞)
+        </p>
+        {peachBlossom ? (
           <p className="text-sm text-gray-300">{peachBlossom.description}</p>
-        </motion.div>
-      )}
+        ) : (
+          <p className="text-sm text-gray-400">이 커플에게는 도화살이 없습니다</p>
+        )}
+      </div>
 
-      {/* 삼합/방합 */}
-      {(samhapFormed.length > 0 || banhapFormed.length > 0 || banghapFormed.length > 0) && (
-        <div className="rounded-xl border border-[#d4af37]/20 bg-[#d4af37]/5 p-4">
-          <div className="mb-3 flex items-center gap-2">
-            <Sparkles className="h-4 w-4 text-[#d4af37]" />
-            <span className="font-medium text-[#d4af37]">삼합·방합 형성</span>
-          </div>
-          <div className="flex flex-wrap gap-2">
+      {/* 삼합/방합 (항상 표시) */}
+      <div className="rounded-xl border border-[#d4af37]/20 bg-[#d4af37]/5 p-4">
+        <div className="mb-2 flex items-center gap-2">
+          <Sparkles className="h-4 w-4 text-[#d4af37]" />
+          <span className="font-medium text-[#d4af37]">삼합·방합 (三合·方合)</span>
+        </div>
+        <p className="mb-3 text-xs text-gray-500">
+          세 지지가 모여 강력한 오행 기운을 형성하는 특별한 결합
+        </p>
+        {samhapFormed.length > 0 || banhapFormed.length > 0 || banghapFormed.length > 0 ? (
+          <div className="space-y-2">
             {samhapFormed.map((item, i) => (
-              <span
-                key={`samhap-${i}`}
-                className="rounded-full bg-[#d4af37]/20 px-3 py-1 text-sm text-[#d4af37]"
-              >
-                {item.name}
-              </span>
+              <div key={`samhap-${i}`} className="flex flex-col gap-1">
+                <span className="inline-block w-fit rounded-full bg-[#d4af37]/20 px-3 py-1 text-sm text-[#d4af37]">
+                  {item.name}
+                </span>
+                <span className="text-xs text-gray-500">{getExplanation(item.name)}</span>
+              </div>
             ))}
             {banhapFormed.map((item, i) => (
-              <span
-                key={`banhap-${i}`}
-                className="rounded-full bg-amber-500/20 px-3 py-1 text-sm text-amber-400"
-              >
-                {item.name}
-              </span>
+              <div key={`banhap-${i}`} className="flex flex-col gap-1">
+                <span className="inline-block w-fit rounded-full bg-amber-500/20 px-3 py-1 text-sm text-amber-400">
+                  {item.name}
+                </span>
+                <span className="text-xs text-gray-500">{getExplanation(item.name)}</span>
+              </div>
             ))}
             {banghapFormed.map((item, i) => (
-              <span
-                key={`banghap-${i}`}
-                className="rounded-full bg-yellow-500/20 px-3 py-1 text-sm text-yellow-400"
-              >
-                {item.name}
-              </span>
+              <div key={`banghap-${i}`} className="flex flex-col gap-1">
+                <span className="inline-block w-fit rounded-full bg-yellow-500/20 px-3 py-1 text-sm text-yellow-400">
+                  {item.name}
+                </span>
+                <span className="text-xs text-gray-500">{getExplanation(item.name)}</span>
+              </div>
             ))}
           </div>
-        </div>
-      )}
+        ) : (
+          <p className="text-sm text-gray-400">삼합·방합 형성이 없습니다</p>
+        )}
+      </div>
 
-      {/* 천간 합 */}
-      {stemCombinations.length > 0 && (
-        <div className="rounded-lg border border-green-500/20 bg-green-500/5 p-3">
-          <div className="mb-2 text-xs font-medium text-green-400">천간 합</div>
-          <div className="flex flex-wrap gap-2">
+      {/* 천간 합 (항상 표시) */}
+      <div className="rounded-lg border border-green-500/20 bg-green-500/5 p-3">
+        <div className="mb-2 text-xs font-medium text-green-400">천간 합 (天干合)</div>
+        <p className="mb-2 text-xs text-gray-500">
+          두 천간이 만나 새로운 오행 기운을 생성하는 조화로운 관계
+        </p>
+        {stemCombinations.length > 0 ? (
+          <div className="space-y-2">
             {stemCombinations.map((item, i) => (
-              <span
-                key={i}
-                className="rounded-full bg-green-500/20 px-3 py-1 text-sm text-green-300"
-              >
-                {item.name}
-              </span>
+              <div key={i} className="flex flex-col gap-1">
+                <span className="inline-block w-fit rounded-full bg-green-500/20 px-3 py-1 text-sm text-green-300">
+                  {item.name}
+                </span>
+                <span className="text-xs text-gray-500">{getExplanation(item.name)}</span>
+              </div>
             ))}
           </div>
-        </div>
-      )}
+        ) : (
+          <p className="text-sm text-gray-400">천간 합이 없습니다</p>
+        )}
+      </div>
 
-      {/* 지지 합 */}
-      {branchCombinations.length > 0 && (
-        <div className="rounded-lg border border-blue-500/20 bg-blue-500/5 p-3">
-          <div className="mb-2 text-xs font-medium text-blue-400">지지 합</div>
-          <div className="flex flex-wrap gap-2">
+      {/* 지지 합 (항상 표시) */}
+      <div className="rounded-lg border border-blue-500/20 bg-blue-500/5 p-3">
+        <div className="mb-2 text-xs font-medium text-blue-400">지지 합 (地支合, 6합)</div>
+        <p className="mb-2 text-xs text-gray-500">
+          두 지지가 합쳐져 새로운 오행을 만드는 친밀한 관계
+        </p>
+        {branchCombinations.length > 0 ? (
+          <div className="space-y-2">
             {branchCombinations.map((item, i) => (
-              <span
-                key={i}
-                className="rounded-full bg-blue-500/20 px-3 py-1 text-sm text-blue-300"
-              >
-                {item.name}
-              </span>
+              <div key={i} className="flex flex-col gap-1">
+                <span className="inline-block w-fit rounded-full bg-blue-500/20 px-3 py-1 text-sm text-blue-300">
+                  {item.name}
+                </span>
+                <span className="text-xs text-gray-500">{getExplanation(item.name)}</span>
+              </div>
             ))}
           </div>
-        </div>
-      )}
+        ) : (
+          <p className="text-sm text-gray-400">지지 합이 없습니다</p>
+        )}
+      </div>
 
-      {/* 지지 충 */}
-      {branchClashes.length > 0 && (
-        <div className="rounded-lg border border-red-500/20 bg-red-500/5 p-3">
-          <div className="mb-2 text-xs font-medium text-red-400">지지 충</div>
-          <div className="flex flex-wrap gap-2">
+      {/* 지지 충 (항상 표시) */}
+      <div className="rounded-lg border border-red-500/20 bg-red-500/5 p-3">
+        <div className="mb-2 text-xs font-medium text-red-400">지지 충 (地支冲, 6충)</div>
+        <p className="mb-2 text-xs text-gray-500">
+          서로 반대 방향의 기운이 부딪혀 갈등을 일으키는 관계
+        </p>
+        {branchClashes.length > 0 ? (
+          <div className="space-y-2">
             {branchClashes.map((item, i) => (
-              <span
-                key={i}
-                className="rounded-full bg-red-500/20 px-3 py-1 text-sm text-red-300"
-              >
-                {item.name}
-              </span>
+              <div key={i} className="flex flex-col gap-1">
+                <span className="inline-block w-fit rounded-full bg-red-500/20 px-3 py-1 text-sm text-red-300">
+                  {item.name}
+                </span>
+                <span className="text-xs text-gray-500">{getExplanation(item.name)}</span>
+              </div>
             ))}
           </div>
-        </div>
-      )}
+        ) : (
+          <p className="text-sm text-gray-400">지지 충이 없습니다 (긍정적)</p>
+        )}
+      </div>
 
-      {/* 지지 형 */}
-      {branchPunishments.length > 0 && (
-        <div className="rounded-lg border border-orange-500/20 bg-orange-500/5 p-3">
-          <div className="mb-2 text-xs font-medium text-orange-400">지지 형</div>
-          <div className="flex flex-wrap gap-2">
+      {/* 지지 형 (항상 표시) */}
+      <div className="rounded-lg border border-orange-500/20 bg-orange-500/5 p-3">
+        <div className="mb-2 text-xs font-medium text-orange-400">지지 형 (地支刑, 3형)</div>
+        <p className="mb-2 text-xs text-gray-500">
+          특정 지지들이 만나 형벌처럼 마찰을 일으키는 관계
+        </p>
+        {branchPunishments.length > 0 ? (
+          <div className="space-y-2">
             {branchPunishments.map((item, i) => (
-              <span
-                key={i}
-                className="rounded-full bg-orange-500/20 px-3 py-1 text-sm text-orange-300"
-              >
-                {item.name}
-              </span>
+              <div key={i} className="flex flex-col gap-1">
+                <span className="inline-block w-fit rounded-full bg-orange-500/20 px-3 py-1 text-sm text-orange-300">
+                  {item.name}
+                </span>
+                <span className="text-xs text-gray-500">{getExplanation(item.name)}</span>
+              </div>
             ))}
           </div>
-        </div>
-      )}
+        ) : (
+          <p className="text-sm text-gray-400">지지 형이 없습니다 (긍정적)</p>
+        )}
+      </div>
 
-      {/* 원진 */}
-      {branchWonjin.length > 0 && (
-        <div className="rounded-lg border border-purple-500/20 bg-purple-500/5 p-3">
-          <div className="mb-2 text-xs font-medium text-purple-400">원진 (심리적 갈등)</div>
-          <div className="flex flex-wrap gap-2">
+      {/* 원진 (항상 표시) */}
+      <div className="rounded-lg border border-purple-500/20 bg-purple-500/5 p-3">
+        <div className="mb-2 text-xs font-medium text-purple-400">원진 (元嗔, 원진)</div>
+        <p className="mb-2 text-xs text-gray-500">
+          서로 밀어내는 기운으로 은근한 심리적 갈등을 유발하는 관계
+        </p>
+        {branchWonjin.length > 0 ? (
+          <div className="space-y-2">
             {branchWonjin.map((item, i) => (
-              <span
-                key={i}
-                className="rounded-full bg-purple-500/20 px-3 py-1 text-sm text-purple-300"
-              >
-                {item.name}
-              </span>
+              <div key={i} className="flex flex-col gap-1">
+                <span className="inline-block w-fit rounded-full bg-purple-500/20 px-3 py-1 text-sm text-purple-300">
+                  {item.name}
+                </span>
+                <span className="text-xs text-gray-500">{getExplanation(item.name)}</span>
+              </div>
             ))}
           </div>
-        </div>
-      )}
+        ) : (
+          <p className="text-sm text-gray-400">원진 관계가 없습니다 (긍정적)</p>
+        )}
+      </div>
     </div>
   );
 }
