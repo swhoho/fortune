@@ -27,6 +27,203 @@ from .normalizers import normalize_all_keys
 
 logger = logging.getLogger(__name__)
 
+
+# ============================================================
+# 조후(調候) 색채 시스템 - 궁통보감 기반
+# ============================================================
+
+# 월지별 기후 성질 (寒/暖/燥/濕)
+JOHU_MAP = {
+    '寅': '寒',   # 이월 - 아직 춥다
+    '卯': '濕',   # 삼월 - 봄비, 습함
+    '辰': '濕',   # 사월 - 청명, 습함
+    '巳': '暖',   # 오월 - 따뜻해짐
+    '午': '暖',   # 유월 - 가장 덥다
+    '未': '燥',   # 칠월 - 불볕더위, 건조
+    '申': '燥',   # 팔월 - 가을 건조
+    '酉': '燥',   # 구월 - 서늘, 건조
+    '戌': '燥',   # 시월 - 가을 끝, 건조
+    '亥': '寒',   # 십일월 - 초겨울, 한냉
+    '子': '寒',   # 십이월 - 가장 춥다
+    '丑': '寒',   # 정월 - 극한
+}
+
+# 조후 성질별 분위기 키워드
+JOHU_TUNE_WORDS = {
+    '寒': {
+        'mood': '차분하고 깊은',
+        'energy': '내면 지향적',
+        'need': '따뜻함과 열정',
+        'color': '차가운 블루',
+        'quality': '신중함, 인내심',
+        'caution': '냉담해 보일 수 있음',
+    },
+    '暖': {
+        'mood': '따뜻하고 활력있는',
+        'energy': '외향적이고 적극적',
+        'need': '안정과 휴식',
+        'color': '따뜻한 오렌지',
+        'quality': '열정, 추진력',
+        'caution': '과열되기 쉬움',
+    },
+    '燥': {
+        'mood': '날카롭고 예민한',
+        'energy': '결단력 있는',
+        'need': '유연함과 수분(감정)',
+        'color': '선명한 레드',
+        'quality': '명쾌함, 결단력',
+        'caution': '갈등 유발 가능',
+    },
+    '濕': {
+        'mood': '부드럽고 유연한',
+        'energy': '수용적이고 조화로운',
+        'need': '명확한 방향성',
+        'color': '부드러운 그린',
+        'quality': '적응력, 포용력',
+        'caution': '우유부단해 보일 수 있음',
+    },
+}
+
+# 조후 조합 궁합 (두 조후가 만났을 때)
+JOHU_COMPATIBILITY = {
+    ('寒', '暖'): {
+        'synergy': '상호 보완',
+        'description': '차가운 기운과 따뜻한 기운이 만나 균형을 이룸. 서로에게 필요한 것을 채워줌.',
+        'score_modifier': +5,
+    },
+    ('暖', '寒'): {
+        'synergy': '상호 보완',
+        'description': '따뜻한 기운이 차가운 기운을 녹이고, 차가운 기운이 과열을 식혀줌.',
+        'score_modifier': +5,
+    },
+    ('燥', '濕'): {
+        'synergy': '완벽한 조화',
+        'description': '건조한 기운과 습한 기운이 만나 최적의 균형을 형성. 이상적인 조합.',
+        'score_modifier': +8,
+    },
+    ('濕', '燥'): {
+        'synergy': '완벽한 조화',
+        'description': '습한 기운이 건조함을 촉촉하게, 건조한 기운이 과습을 조절.',
+        'score_modifier': +8,
+    },
+    ('寒', '寒'): {
+        'synergy': '동질 심화',
+        'description': '둘 다 차분하여 안정적이지만, 때로 관계에 열정이 부족할 수 있음.',
+        'score_modifier': -3,
+    },
+    ('暖', '暖'): {
+        'synergy': '열정 과잉',
+        'description': '둘 다 열정적이라 활기차지만, 충돌 시 격해질 수 있음.',
+        'score_modifier': -2,
+    },
+    ('燥', '燥'): {
+        'synergy': '마찰 우려',
+        'description': '둘 다 예민하여 충돌 가능성. 서로 양보하는 지혜 필요.',
+        'score_modifier': -5,
+    },
+    ('濕', '濕'): {
+        'synergy': '답답함 우려',
+        'description': '둘 다 유순하여 결정이 느림. 누군가 주도권을 잡아야 함.',
+        'score_modifier': -3,
+    },
+    ('寒', '燥'): {
+        'synergy': '긴장 관계',
+        'description': '차갑고 건조한 조합은 삭막할 수 있음. 따뜻한 소통 필요.',
+        'score_modifier': -2,
+    },
+    ('燥', '寒'): {
+        'synergy': '긴장 관계',
+        'description': '건조한 예민함과 차가운 신중함이 만나면 냉랭해지기 쉬움.',
+        'score_modifier': -2,
+    },
+    ('暖', '濕'): {
+        'synergy': '조화로움',
+        'description': '따뜻함과 부드러움이 만나 포근한 관계. 다소 느긋할 수 있음.',
+        'score_modifier': +3,
+    },
+    ('濕', '暖'): {
+        'synergy': '조화로움',
+        'description': '부드러운 수용과 따뜻한 열정이 어우러져 편안한 관계 형성.',
+        'score_modifier': +3,
+    },
+    ('寒', '濕'): {
+        'synergy': '침체 우려',
+        'description': '차갑고 습한 조합은 무기력해지기 쉬움. 활력 주입 필요.',
+        'score_modifier': -4,
+    },
+    ('濕', '寒'): {
+        'synergy': '침체 우려',
+        'description': '습하고 차가우면 정체될 수 있음. 서로를 자극하는 노력 필요.',
+        'score_modifier': -4,
+    },
+    ('暖', '燥'): {
+        'synergy': '과열 주의',
+        'description': '둘 다 뜨겁고 건조하면 충돌 시 불이 크게 번짐. 차분함 필요.',
+        'score_modifier': -3,
+    },
+    ('燥', '暖'): {
+        'synergy': '과열 주의',
+        'description': '건조한 예민함에 열정이 더해지면 폭발적. 쿨다운 타임 필요.',
+        'score_modifier': -3,
+    },
+}
+
+
+def determine_johu_tendency(pillars: Dict[str, Any]) -> Dict[str, Any]:
+    """
+    사주의 조후(調候) 성향 판단
+
+    Args:
+        pillars: 사주 정보 (year, month, day, hour)
+
+    Returns:
+        조후 분석 결과 {
+            'month_branch': 월지,
+            'johu_type': 寒/暖/燥/濕,
+            'tune_words': 분위기 키워드,
+            'needs_balance': 필요한 균형
+        }
+    """
+    month_branch = pillars.get('month', {}).get('branch', '')
+    johu_type = JOHU_MAP.get(month_branch, '暖')  # 기본값 暖
+    tune_words = JOHU_TUNE_WORDS.get(johu_type, JOHU_TUNE_WORDS['暖'])
+
+    return {
+        'month_branch': month_branch,
+        'johu_type': johu_type,
+        'tune_words': tune_words,
+        'needs_balance': tune_words.get('need', ''),
+    }
+
+
+def analyze_johu_compatibility(pillars_a: Dict, pillars_b: Dict) -> Dict[str, Any]:
+    """
+    두 사주의 조후 궁합 분석
+
+    Args:
+        pillars_a, pillars_b: 각각의 사주 정보
+
+    Returns:
+        조후 궁합 분석 결과
+    """
+    johu_a = determine_johu_tendency(pillars_a)
+    johu_b = determine_johu_tendency(pillars_b)
+
+    johu_pair = (johu_a['johu_type'], johu_b['johu_type'])
+    compatibility = JOHU_COMPATIBILITY.get(johu_pair, {
+        'synergy': '중립',
+        'description': '특별한 조후 상호작용 없음.',
+        'score_modifier': 0,
+    })
+
+    return {
+        'johu_a': johu_a,
+        'johu_b': johu_b,
+        'synergy': compatibility['synergy'],
+        'description': compatibility['description'],
+        'score_modifier': compatibility['score_modifier'],
+    }
+
 # Supabase 설정
 SUPABASE_URL = os.getenv("SUPABASE_URL", "")
 SUPABASE_SERVICE_ROLE_KEY = os.getenv("SUPABASE_SERVICE_ROLE_KEY", "")
@@ -213,6 +410,9 @@ class CompatibilityAnalysisService:
                     current_step="trait_scores"
                 )
 
+            # 조후(調候) 분석 추가
+            johu_analysis = analyze_johu_compatibility(pillars_a, pillars_b)
+
             # Gemini 분석을 위한 컨텍스트 준비
             analysis_context = {
                 "pillars_a": pillars_a,
@@ -222,6 +422,7 @@ class CompatibilityAnalysisService:
                 "trait_scores_b": scores_result.get("traitScoresB", {}),
                 "interactions": scores_result.get("interactions", {}),
                 "total_score": scores_result.get("totalScore", 50),
+                "johu_analysis": johu_analysis,  # 조후 분석 추가
                 "language": language,
             }
 
@@ -504,6 +705,7 @@ class CompatibilityAnalysisService:
     ) -> str:
         """Gemini 분석용 프롬프트 빌드"""
         language = context.get("language", "ko")
+        johu = context.get("johu_analysis", {})
 
         # 기본 컨텍스트
         base_prompt = f"""당신은 30년 경력의 명리학 거장입니다. 두 사람의 사주를 분석하여 궁합을 판단해주세요.
@@ -527,6 +729,10 @@ class CompatibilityAnalysisService:
 - 오행 균형: {context['scores'].get('elementBalance', {}).get('score', 0)}점
 - 십신 호환성: {context['scores'].get('tenGodCompatibility', {}).get('score', 0)}점
 - 12운성 시너지: {context['scores'].get('wunsengSynergy', {}).get('score', 0)}점
+- 삼합/방합 시너지: {context['scores'].get('combinationSynergy', {}).get('score', 0)}점
+
+[조후(調候) 분석 - 궁통보감 기반]
+{self._format_johu_context(johu)}
 
 [A의 연애 스타일 점수]
 - 표현력: {context['trait_scores_a'].get('expression', 50)}
@@ -565,10 +771,15 @@ class CompatibilityAnalysisService:
 [분석 요청: 인연의 성격]
 두 사람이 만났을 때 형성되는 관계 유형을 분석해주세요.
 
+**중요**: 위의 조후(調候) 분석을 적극 반영하세요!
+- 조후의 '분위기'와 '에너지'가 두 사람의 첫인상에 어떻게 영향을 미치는지
+- 조후 궁합(상호 보완/동질 심화/긴장 관계 등)이 관계 발전에 미치는 영향
+- 각자에게 '필요한 것'을 상대방이 채워줄 수 있는지
+
 응답에 포함할 내용:
-1. keywords: 관계 유형 키워드 3-4개
-2. firstImpression: 첫인상과 끌림의 이유 (150-200자)
-3. developmentPattern: 관계 발전 패턴 (200-300자)
+1. keywords: 관계 유형 키워드 3-4개 (조후 특성 반영)
+2. firstImpression: 첫인상과 끌림의 이유 (150-200자, 조후 분위기 반영)
+3. developmentPattern: 관계 발전 패턴 (200-300자, 조후 궁합 반영)
 """,
             "trait_interpretation": """
 [분석 요청: 연애 스타일 해석]
@@ -581,12 +792,24 @@ class CompatibilityAnalysisService:
 """,
             "conflict_analysis": """
 [분석 요청: 갈등 포인트]
-간지 상호작용(충/형/파/해)을 바탕으로 갈등 요소를 분석해주세요.
+간지 상호작용(충/형/파/해/원진)을 바탕으로 갈등 요소를 분석해주세요.
+
+**6충(六冲) 물상 참고** (해당되는 경우 반드시 반영):
+- 子午冲: 감정 vs 이성 충돌, 집안일 vs 사회활동 갈등
+- 丑未冲: 고집 대 고집, 재산/부동산 관련 분쟁
+- 寅申冲: 목표/방향성 다툼, 커리어 의견 충돌
+- 卯酉冲: 소통 단절, 말투로 인한 상처, 오해 축적
+- 辰戌冲: 가치관/신념 충돌, 가정문화 차이
+- 巳亥冲: 이상과 현실 괴리, 종교/신념 문제
+
+**원진(元辰)이 있는 경우**:
+- 원진은 겉으로는 괜찮아 보이지만 내면의 심리적 갈등을 유발
+- 일지-일지 원진은 결혼 후 권태기로 발전할 수 있음
 
 응답에 포함할 내용:
 1. conflictPoints: 갈등 포인트 목록 (2-4개)
-   - source(명리학적 원인), description(일상 표현), resolution(해결 조언)
-2. avoidBehaviors: 피해야 할 행동 3-4개
+   - source(명리학적 원인, 예: "卯酉冲"), description(구체적 일상 상황), resolution(해결 조언)
+2. avoidBehaviors: 피해야 할 행동 3-4개 (구체적으로)
 3. communicationTips: 효과적인 소통 방법 (100-150자)
 """,
             "marriage_fit": """
@@ -602,17 +825,56 @@ class CompatibilityAnalysisService:
 """,
             "mutual_influence": """
 [분석 요청: 상호 영향]
-서로에게 주는 영향을 분석해주세요.
+서로에게 주는 영향을 십신 관계로 분석해주세요.
+
+**십신별 물상(구체적 사건) 참고**:
+- 비견: 동지이자 경쟁자, 함께하면 강해지지만 이익 앞에서 갈라질 수 있음
+- 겁재: 열정과 추진력, 하지만 충동적 결정으로 손해 볼 수 있음
+- 식신: 함께 있으면 즐겁고 편안, 하지만 나태해질 수 있음
+- 상관: 창의적 영감을 주지만, 직설적 표현으로 상처줄 수 있음
+- 편재: 재물 기회를 주지만, 투기 실패 위험도 있음
+- 정재: 안정적 동반자, 하지만 융통성이 부족할 수 있음
+- 편관: 강력한 버팀목이지만, 통제적이 될 수 있음
+- 정관: 존중과 신뢰의 관계, 하지만 격식에 얽매일 수 있음
+- 편인: 독특한 영감을 주지만, 현실과 동떨어질 수 있음
+- 정인: 성장시키는 관계, 하지만 의존하게 될 수 있음
 
 응답에 포함할 내용:
 1. aToB: A가 B에게 주는 영향
-   - tenGod, meaning, positiveInfluence, caution
+   - tenGod(십신), meaning(의미), positiveInfluence(긍정적 영향 + 구체적 예시), caution(주의점)
 2. bToA: B가 A에게 주는 영향
    - tenGod, meaning, positiveInfluence, caution
-3. synergy: 시너지 요약 (150-200자)
+3. synergy: 시너지 요약 (150-200자, 두 십신 조합의 역학 설명)
 """,
         }
         return instructions.get(step_name, "")
+
+    def _format_johu_context(self, johu: Dict) -> str:
+        """조후 분석 컨텍스트 포맷팅"""
+        if not johu:
+            return "조후 정보 없음"
+
+        johu_a = johu.get('johu_a', {})
+        johu_b = johu.get('johu_b', {})
+        tune_a = johu_a.get('tune_words', {})
+        tune_b = johu_b.get('tune_words', {})
+
+        return f"""- A의 조후: {johu_a.get('johu_type', '불명')} (월지: {johu_a.get('month_branch', '')})
+  - 분위기: {tune_a.get('mood', '')}
+  - 에너지: {tune_a.get('energy', '')}
+  - 필요한 것: {tune_a.get('need', '')}
+  - 장점: {tune_a.get('quality', '')}
+  - 주의점: {tune_a.get('caution', '')}
+
+- B의 조후: {johu_b.get('johu_type', '불명')} (월지: {johu_b.get('month_branch', '')})
+  - 분위기: {tune_b.get('mood', '')}
+  - 에너지: {tune_b.get('energy', '')}
+  - 필요한 것: {tune_b.get('need', '')}
+  - 장점: {tune_b.get('quality', '')}
+  - 주의점: {tune_b.get('caution', '')}
+
+- 조후 궁합: {johu.get('synergy', '중립')}
+  - {johu.get('description', '')}"""
 
     def _format_interactions(self, interactions: Dict) -> str:
         """간지 상호작용 포맷팅"""
@@ -633,6 +895,20 @@ class CompatibilityAnalysisService:
         if interactions.get("branchPunishments"):
             punishments = [f"{c.get('name', '')}" for c in interactions["branchPunishments"]]
             parts.append(f"- 지지 형: {', '.join(punishments)}")
+
+        # 원진 추가
+        if interactions.get("branchWonjin"):
+            wonjins = [f"{w.get('name', '')}" for w in interactions["branchWonjin"]]
+            parts.append(f"- 지지 원진: {', '.join(wonjins)}")
+
+        # 삼합/방합 추가
+        if interactions.get("samhapFormed"):
+            samhaps = [f"{s.get('name', '')}" for s in interactions["samhapFormed"]]
+            parts.append(f"- 삼합 형성: {', '.join(samhaps)}")
+
+        if interactions.get("banghapFormed"):
+            banghaps = [f"{b.get('name', '')}" for b in interactions["banghapFormed"]]
+            parts.append(f"- 방합 형성: {', '.join(banghaps)}")
 
         if not parts:
             return "특이 상호작용 없음"

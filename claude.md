@@ -51,15 +51,18 @@ src/
 └── stores/analysis.ts      # 파이프라인 상태
 
 python/
-├── manseryeok/             # 만세력 엔진 (대운 십신 계산 포함)
-├── prompts/                # AI 프롬프트 (daewun_analysis.py 포함)
+├── manseryeok/             # 만세력 엔진
+│   ├── engine.py                # 만세력 계산
+│   └── compatibility_engine.py  # 궁합 점수 엔진 (v2.0)
+├── prompts/                # AI 프롬프트
 │   ├── classics/           # 고전 명리학 모듈
 │   │   ├── qiongtong_matrix.py  # 조후 매트릭스 (10일간×12월)
 │   │   ├── qiongtong.py         # 궁통보감 프롬프트
 │   │   ├── ziping.py            # 자평진전 프롬프트
 │   │   └── ziping_yongsin.py    # 용신 5원칙 (10격국×3강약)
 │   ├── western/            # 서구권 현대화 프레임워크
-│   │   └── destiny_code.py      # The Destiny Code (십신×강약 조언, 대운 분석)
+│   │   └── destiny_code.py      # The Destiny Code
+│   ├── compatibility_prompts.py # 궁합 물상론 DB (v2.0)
 │   └── mulsangron.py       # 물상론 DB (십신별 길흉 사건 매핑)
 ├── scoring/                # 점수 계산 모듈 (Task 5)
 │   ├── event_score.py      # 사건 강도 점수 (-100 ~ +100)
@@ -302,27 +305,36 @@ cd python && pytest  # Python
 
 ---
 
-**Version**: 1.39.0
-**Last Updated**: 2026-01-09 (궁합 분석 UI 개선)
+**Version**: 1.40.0
+**Last Updated**: 2026-01-09 (궁합 분석 v2.0)
 
 ## Changelog
+
+### v1.40.0 (2026-01-09)
+- **궁합 분석 v2.0 (고전 명리학 고도화)**
+  - 점수 체계: 5개 → 6개 항목 (삼합/방합 시너지 추가)
+  - 원진(元辰) 분석: 심리적 갈등 지표 (-5~-15점 × 0.8)
+  - 삼합/방합 국(局) 형성: 특별한 결합력 (+8~+20점)
+  - 도화살 매력도: 연애 끌림 분석 (+8~+15점)
+  - 조후(調候) 색채: 궁통보감 기반 에너지 조화
+  - 물상론 DB: 십신별 구체적 사건 예시
+  - 6충 물상 강화: 갈등 상황 상세화
+  - UI: 간지 상호작용 시각화 (도화살/삼합/원진)
+  - 상세 문서: `docs/compatibility.md`, `docs/chemistry_prd2.md`
 
 ### v1.39.0 (2026-01-09)
 - **궁합 분석 UI 개선**
   - SAJU_REQUIRED 에러 전용 화면 (yearly 패턴)
   - 버튼 통합: 결과 보기 / 진행 상황 확인 / 무료 재시도 / 궁합 분석 시작
   - 크레딧 섹션 조건부 표시 (완료/진행 중일 때 숨김)
-  - "분석이 진행 중입니다" 메시지 제거 (버튼에 통합)
 - **궁합 분석 중간 저장 구현 (Report 패턴)**
-  - Python 파이프라인 `_update_db_status()` 메서드 추가
+  - Python 파이프라인 `_update_db_status()` 메서드
   - 각 단계 완료 시 DB 저장 (크래시 복구 가능)
-  - Python/Next.js API에 DB fallback 추가
 
 ### v1.38.0 (2026-01-09)
 - **궁합 분석 시스템 구현**
   - Python 점수 엔진: 5개 항목 (천간/지지/오행/십신/12운성)
   - 10단계 파이프라인: 만세력 → 점수 → Gemini 분석 (5단계)
-  - 12운성 교차평가: A의 일간 → B의 일지 (상대방 기준)
   - 3탭 UI: 궁합점수 / 궁합분석 / 사주비교
   - 상세 문서: `docs/compatibility.md`
 

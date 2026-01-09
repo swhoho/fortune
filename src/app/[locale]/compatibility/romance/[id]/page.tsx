@@ -44,6 +44,8 @@ interface CompatibilityData {
   id: string;
   profileIdA: string;
   profileIdB: string;
+  nameA: string;
+  nameB: string;
   analysisType: string;
   totalScore: number;
   scores: {
@@ -52,6 +54,7 @@ interface CompatibilityData {
     elementBalance: { score: number };
     tenGodCompatibility: { score: number };
     wunsengSynergy: { score: number };
+    combinationSynergy?: { score: number };  // 삼합/방합 시너지
   };
   traitScoresA: {
     expression: number;
@@ -340,43 +343,50 @@ function ScoreTab({ data }: { data: CompatibilityData }) {
     {
       label: '천간 조화',
       score: data.scores.stemHarmony?.score ?? 0,
-      weight: '25%',
+      weight: '24%',
       icon: <TrendingUp className="h-4 w-4" />,
       description: '두 사람의 천간이 얼마나 조화롭게 어울리는지',
     },
     {
       label: '지지 조화',
       score: data.scores.branchHarmony?.score ?? 0,
-      weight: '25%',
+      weight: '24%',
       icon: <Users className="h-4 w-4" />,
-      description: '지지의 합, 충, 형 관계 분석',
+      description: '지지의 합, 충, 형, 원진 관계 분석',
     },
     {
       label: '오행 균형',
       score: data.scores.elementBalance?.score ?? 0,
-      weight: '20%',
+      weight: '19%',
       icon: <Compass className="h-4 w-4" />,
       description: '서로의 오행이 보완되는 정도',
     },
     {
       label: '십신 호환성',
       score: data.scores.tenGodCompatibility?.score ?? 0,
-      weight: '20%',
+      weight: '19%',
       icon: <Heart className="h-4 w-4" />,
       description: '십신 관계로 본 궁합',
     },
     {
       label: '12운성 시너지',
       score: data.scores.wunsengSynergy?.score ?? 0,
-      weight: '10%',
+      weight: '9%',
       icon: <Sparkles className="h-4 w-4" />,
       description: '에너지 레벨의 조화',
+    },
+    {
+      label: '삼합/방합 시너지',
+      score: data.scores.combinationSynergy?.score ?? 0,
+      weight: '5%',
+      icon: <Zap className="h-4 w-4" />,
+      description: '삼합·방합으로 형성되는 특별한 결합력',
     },
   ];
 
   return (
     <div className="space-y-6">
-      {/* 5개 항목 점수 */}
+      {/* 6개 항목 점수 */}
       <GlassCard className="p-6">
         <SectionHeader
           title="상세 점수"
@@ -408,30 +418,40 @@ function ScoreTab({ data }: { data: CompatibilityData }) {
             label="표현력"
             scoreA={data.traitScoresA.expression}
             scoreB={data.traitScoresB.expression}
+            nameA={data.nameA}
+            nameB={data.nameB}
             delay={0}
           />
           <DualScoreBar
             label="독점욕"
             scoreA={data.traitScoresA.possessiveness}
             scoreB={data.traitScoresB.possessiveness}
+            nameA={data.nameA}
+            nameB={data.nameB}
             delay={0.1}
           />
           <DualScoreBar
             label="헌신도"
             scoreA={data.traitScoresA.devotion}
             scoreB={data.traitScoresB.devotion}
+            nameA={data.nameA}
+            nameB={data.nameB}
             delay={0.2}
           />
           <DualScoreBar
             label="모험심"
             scoreA={data.traitScoresA.adventure}
             scoreB={data.traitScoresB.adventure}
+            nameA={data.nameA}
+            nameB={data.nameB}
             delay={0.3}
           />
           <DualScoreBar
             label="안정추구"
             scoreA={data.traitScoresA.stability}
             scoreB={data.traitScoresB.stability}
+            nameA={data.nameA}
+            nameB={data.nameB}
             delay={0.4}
           />
         </div>
@@ -572,12 +592,16 @@ function AnalysisTab({ data }: { data: CompatibilityData }) {
                 <div
                   className="flex h-6 w-6 items-center justify-center rounded-full text-xs font-bold"
                   style={{ background: 'linear-gradient(135deg, #d4af37, #c9a227)', color: '#000' }}
+                  title={data.nameA}
                 >
-                  A
+                  {data.nameA.charAt(0)}
                 </div>
                 <ArrowRight className="h-4 w-4 text-gray-500" />
-                <div className="flex h-6 w-6 items-center justify-center rounded-full bg-pink-500 text-xs font-bold text-white">
-                  B
+                <div
+                  className="flex h-6 w-6 items-center justify-center rounded-full bg-pink-500 text-xs font-bold text-white"
+                  title={data.nameB}
+                >
+                  {data.nameB.charAt(0)}
                 </div>
                 <span className="ml-2 rounded-full bg-white/10 px-2 py-0.5 text-xs text-gray-300">
                   {data.mutualInfluence.aToB.tenGod}
@@ -593,15 +617,19 @@ function AnalysisTab({ data }: { data: CompatibilityData }) {
             {/* B → A */}
             <div className="rounded-xl border border-pink-500/20 bg-pink-500/5 p-4">
               <div className="mb-3 flex items-center gap-2">
-                <div className="flex h-6 w-6 items-center justify-center rounded-full bg-pink-500 text-xs font-bold text-white">
-                  B
+                <div
+                  className="flex h-6 w-6 items-center justify-center rounded-full bg-pink-500 text-xs font-bold text-white"
+                  title={data.nameB}
+                >
+                  {data.nameB.charAt(0)}
                 </div>
                 <ArrowRight className="h-4 w-4 text-gray-500" />
                 <div
                   className="flex h-6 w-6 items-center justify-center rounded-full text-xs font-bold"
                   style={{ background: 'linear-gradient(135deg, #d4af37, #c9a227)', color: '#000' }}
+                  title={data.nameA}
                 >
-                  A
+                  {data.nameA.charAt(0)}
                 </div>
                 <span className="ml-2 rounded-full bg-white/10 px-2 py-0.5 text-xs text-gray-300">
                   {data.mutualInfluence.bToA.tenGod}
@@ -647,10 +675,11 @@ function CompareTab({ data }: { data: CompatibilityData }) {
                 <div
                   className="flex h-7 w-7 items-center justify-center rounded-full text-sm font-bold"
                   style={{ background: 'linear-gradient(135deg, #d4af37, #c9a227)', color: '#000' }}
+                  title={data.nameA}
                 >
-                  A
+                  {data.nameA.charAt(0)}
                 </div>
-                <span className="font-medium text-white">A의 사주</span>
+                <span className="font-medium text-white">{data.nameA}의 사주</span>
               </div>
               <PillarDisplay pillars={data.pillarsA} />
             </motion.div>
@@ -663,10 +692,13 @@ function CompareTab({ data }: { data: CompatibilityData }) {
               className="rounded-xl border border-pink-500/20 bg-pink-500/5 p-4"
             >
               <div className="mb-3 flex items-center gap-2">
-                <div className="flex h-7 w-7 items-center justify-center rounded-full bg-pink-500 text-sm font-bold text-white">
-                  B
+                <div
+                  className="flex h-7 w-7 items-center justify-center rounded-full bg-pink-500 text-sm font-bold text-white"
+                  title={data.nameB}
+                >
+                  {data.nameB.charAt(0)}
                 </div>
-                <span className="font-medium text-white">B의 사주</span>
+                <span className="font-medium text-white">{data.nameB}의 사주</span>
               </div>
               <PillarDisplay pillars={data.pillarsB} />
             </motion.div>
@@ -684,10 +716,186 @@ function CompareTab({ data }: { data: CompatibilityData }) {
           title="간지 상호작용"
           icon={<Zap className="h-4 w-4" />}
         />
-        <p className="text-center text-sm text-gray-400">
-          천간합, 지지충 등 상세 분석은 곧 추가될 예정입니다.
-        </p>
+        <InteractionDisplay interactions={data.interactions} />
       </GlassCard>
+    </div>
+  );
+}
+
+/** 간지 상호작용 표시 컴포넌트 */
+function InteractionDisplay({ interactions }: { interactions: Record<string, unknown> }) {
+  // 타입 정의
+  type InteractionItem = { name: string; formed?: boolean };
+
+  const stemCombinations = (interactions?.stemCombinations || []) as InteractionItem[];
+  const branchCombinations = (interactions?.branchCombinations || []) as InteractionItem[];
+  const branchClashes = (interactions?.branchClashes || []) as InteractionItem[];
+  const branchPunishments = (interactions?.branchPunishments || []) as InteractionItem[];
+  const branchWonjin = (interactions?.branchWonjin || []) as InteractionItem[];
+  const samhapFormed = (interactions?.samhapFormed || []) as InteractionItem[];
+  const banhapFormed = (interactions?.banhapFormed || []) as InteractionItem[];
+  const banghapFormed = (interactions?.banghapFormed || []) as InteractionItem[];
+  const peachBlossom = interactions?.peachBlossom as { type: string; description: string; score: number } | undefined;
+
+  const hasAnyInteraction =
+    stemCombinations.length > 0 ||
+    branchCombinations.length > 0 ||
+    branchClashes.length > 0 ||
+    branchPunishments.length > 0 ||
+    branchWonjin.length > 0 ||
+    samhapFormed.length > 0 ||
+    banhapFormed.length > 0 ||
+    banghapFormed.length > 0 ||
+    peachBlossom;
+
+  if (!hasAnyInteraction) {
+    return (
+      <p className="text-center text-sm text-gray-400">
+        특별한 간지 상호작용이 없습니다.
+      </p>
+    );
+  }
+
+  return (
+    <div className="space-y-4">
+      {/* 도화살 (있는 경우 강조 표시) */}
+      {peachBlossom && (
+        <motion.div
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          className="rounded-xl border border-pink-500/30 bg-pink-500/10 p-4"
+        >
+          <div className="mb-2 flex items-center gap-2">
+            <Heart className="h-4 w-4 text-pink-400" />
+            <span className="font-medium text-pink-400">도화살 - {peachBlossom.type}</span>
+            <span className="ml-auto rounded-full bg-pink-500/20 px-2 py-0.5 text-xs text-pink-300">
+              +{peachBlossom.score}점
+            </span>
+          </div>
+          <p className="text-sm text-gray-300">{peachBlossom.description}</p>
+        </motion.div>
+      )}
+
+      {/* 삼합/방합 */}
+      {(samhapFormed.length > 0 || banhapFormed.length > 0 || banghapFormed.length > 0) && (
+        <div className="rounded-xl border border-[#d4af37]/20 bg-[#d4af37]/5 p-4">
+          <div className="mb-3 flex items-center gap-2">
+            <Sparkles className="h-4 w-4 text-[#d4af37]" />
+            <span className="font-medium text-[#d4af37]">삼합·방합 형성</span>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            {samhapFormed.map((item, i) => (
+              <span
+                key={`samhap-${i}`}
+                className="rounded-full bg-[#d4af37]/20 px-3 py-1 text-sm text-[#d4af37]"
+              >
+                {item.name}
+              </span>
+            ))}
+            {banhapFormed.map((item, i) => (
+              <span
+                key={`banhap-${i}`}
+                className="rounded-full bg-amber-500/20 px-3 py-1 text-sm text-amber-400"
+              >
+                {item.name}
+              </span>
+            ))}
+            {banghapFormed.map((item, i) => (
+              <span
+                key={`banghap-${i}`}
+                className="rounded-full bg-yellow-500/20 px-3 py-1 text-sm text-yellow-400"
+              >
+                {item.name}
+              </span>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* 천간 합 */}
+      {stemCombinations.length > 0 && (
+        <div className="rounded-lg border border-green-500/20 bg-green-500/5 p-3">
+          <div className="mb-2 text-xs font-medium text-green-400">천간 합</div>
+          <div className="flex flex-wrap gap-2">
+            {stemCombinations.map((item, i) => (
+              <span
+                key={i}
+                className="rounded-full bg-green-500/20 px-3 py-1 text-sm text-green-300"
+              >
+                {item.name}
+              </span>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* 지지 합 */}
+      {branchCombinations.length > 0 && (
+        <div className="rounded-lg border border-blue-500/20 bg-blue-500/5 p-3">
+          <div className="mb-2 text-xs font-medium text-blue-400">지지 합</div>
+          <div className="flex flex-wrap gap-2">
+            {branchCombinations.map((item, i) => (
+              <span
+                key={i}
+                className="rounded-full bg-blue-500/20 px-3 py-1 text-sm text-blue-300"
+              >
+                {item.name}
+              </span>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* 지지 충 */}
+      {branchClashes.length > 0 && (
+        <div className="rounded-lg border border-red-500/20 bg-red-500/5 p-3">
+          <div className="mb-2 text-xs font-medium text-red-400">지지 충</div>
+          <div className="flex flex-wrap gap-2">
+            {branchClashes.map((item, i) => (
+              <span
+                key={i}
+                className="rounded-full bg-red-500/20 px-3 py-1 text-sm text-red-300"
+              >
+                {item.name}
+              </span>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* 지지 형 */}
+      {branchPunishments.length > 0 && (
+        <div className="rounded-lg border border-orange-500/20 bg-orange-500/5 p-3">
+          <div className="mb-2 text-xs font-medium text-orange-400">지지 형</div>
+          <div className="flex flex-wrap gap-2">
+            {branchPunishments.map((item, i) => (
+              <span
+                key={i}
+                className="rounded-full bg-orange-500/20 px-3 py-1 text-sm text-orange-300"
+              >
+                {item.name}
+              </span>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* 원진 */}
+      {branchWonjin.length > 0 && (
+        <div className="rounded-lg border border-purple-500/20 bg-purple-500/5 p-3">
+          <div className="mb-2 text-xs font-medium text-purple-400">원진 (심리적 갈등)</div>
+          <div className="flex flex-wrap gap-2">
+            {branchWonjin.map((item, i) => (
+              <span
+                key={i}
+                className="rounded-full bg-purple-500/20 px-3 py-1 text-sm text-purple-300"
+              >
+                {item.name}
+              </span>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 }

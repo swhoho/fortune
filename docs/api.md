@@ -406,7 +406,8 @@ v2.0에서 `analyses` 테이블 기반 API가 `profiles` + `profile_reports` 테
 | 신년 분석 | 50C | `POST /api/analysis/yearly` |
 | 신년 섹션 재분석 | 0C | `POST /api/analysis/yearly/:id/reanalyze` |
 | AI 후속 질문 | 10C | `POST /api/profiles/:id/report/question` |
-| **상담 세션** | **10C** | `POST /api/profiles/:id/consultation/sessions` |
+| 상담 세션 | 10C | `POST /api/profiles/:id/consultation/sessions` |
+| **궁합 분석** | **70C** | `POST /api/analysis/compatibility` |
 
 ---
 
@@ -467,7 +468,7 @@ if (!result.success) {
 
 ---
 
-## 궁합 분석 API
+## 궁합 분석 API (v2.0)
 
 ### POST /api/analysis/compatibility
 궁합 분석 시작 | **인증**: 필수 | **크레딧**: 70C
@@ -496,24 +497,58 @@ if (!result.success) {
 }
 ```
 
-**완료 시 응답**:
+**완료 시 응답 (v2.0)**:
 ```json
 {
   "success": true,
   "status": "completed",
-  "progressPercent": 100,
   "data": {
     "totalScore": 72,
-    "scores": { "stemHarmony": {...}, "branchHarmony": {...}, ... },
-    "traitScoresA": { "expression": 80, ... },
-    "traitScoresB": { "expression": 60, ... },
-    "relationshipType": { "keywords": [...], "firstImpression": "...", ... },
-    "conflictAnalysis": { "conflictPoints": [...], ... },
-    "marriageFit": { "score": 75, ... },
-    "mutualInfluence": { "aToB": {...}, "bToA": {...}, ... }
+    "scores": {
+      "stemHarmony": { "score": 75, "weight": 24 },
+      "branchHarmony": { "score": 68, "weight": 24 },
+      "elementBalance": { "score": 70, "weight": 19 },
+      "tenGodCompatibility": { "score": 72, "weight": 19 },
+      "wunsungSynergy": { "score": 65, "weight": 9 },
+      "combinationSynergy": { "score": 80, "weight": 5 }
+    },
+    "interactions": {
+      "wonjin": [{ "pillars": ["일지", "일지"], "penalty": -15 }],
+      "samhapBanghap": [{ "type": "삼합", "branches": ["寅", "午", "戌"], "element": "火" }],
+      "dohwa": { "type": "bilateral", "branches": ["卯", "午"] }
+    },
+    "johu": {
+      "a": { "tendency": "寒", "tuneWords": ["침착", "내성적"] },
+      "b": { "tendency": "暖", "tuneWords": ["열정적", "외향적"] },
+      "compatibility": "보완적"
+    },
+    "relationshipType": { "keywords": [...], "firstImpression": "..." },
+    "conflictAnalysis": { "conflictPoints": [...], "wonjinWarning": "..." },
+    "marriageFit": { "score": 75 },
+    "mutualInfluence": { "aToB": {...}, "bToA": {...} }
   }
 }
 ```
+
+### 점수 항목 (6개)
+
+| 항목 | 가중치 | 설명 |
+|------|--------|------|
+| stemHarmony | 24% | 천간 조화 (합/극) |
+| branchHarmony | 24% | 지지 조화 (합/충/형/원진) |
+| elementBalance | 19% | 오행 균형 |
+| tenGodCompatibility | 19% | 십신 호환성 |
+| wunsungSynergy | 9% | 12운성 시너지 |
+| combinationSynergy | 5% | 삼합/방합 국 형성 |
+
+### v2.0 추가 기능
+
+| 기능 | 설명 |
+|------|------|
+| 원진(元辰) | 일지-일지 -15점, 월지-일지 -10점 |
+| 삼합/방합 | 삼합 +20점, 반합 +8점, 방합 +15점 |
+| 도화살 | 쌍방 +15점, 일방 +8점 |
+| 조후(調候) | 寒/暖/燥/濕 기후 궁합 |
 
 ### Python Backend API
 
@@ -524,4 +559,4 @@ if (!result.success) {
 
 ---
 
-**최종 수정**: 2026-01-09 (궁합 분석 API 추가)
+**최종 수정**: 2026-01-09 (궁합 분석 v2.0)

@@ -117,10 +117,19 @@ interface DualScoreBarProps {
   label: string;
   scoreA: number;
   scoreB: number;
+  nameA?: string;
+  nameB?: string;
   delay?: number;
 }
 
-export function DualScoreBar({ label, scoreA, scoreB, delay = 0 }: DualScoreBarProps) {
+export function DualScoreBar({
+  label,
+  scoreA,
+  scoreB,
+  nameA = 'A',
+  nameB = 'B',
+  delay = 0,
+}: DualScoreBarProps) {
   return (
     <motion.div
       initial={{ opacity: 0, y: 10 }}
@@ -145,8 +154,9 @@ export function DualScoreBar({ label, scoreA, scoreB, delay = 0 }: DualScoreBarP
             background: 'linear-gradient(135deg, #d4af37, #c9a227)',
             color: '#000',
           }}
+          title={nameA}
         >
-          A
+          {nameA.charAt(0)}
         </div>
         <div className="relative h-2 flex-1 overflow-hidden rounded-full bg-white/5">
           <motion.div
@@ -171,8 +181,9 @@ export function DualScoreBar({ label, scoreA, scoreB, delay = 0 }: DualScoreBarP
             background: 'linear-gradient(135deg, #ec4899, #db2777)',
             color: '#fff',
           }}
+          title={nameB}
         >
-          B
+          {nameB.charAt(0)}
         </div>
         <div className="relative h-2 flex-1 overflow-hidden rounded-full bg-white/5">
           <motion.div

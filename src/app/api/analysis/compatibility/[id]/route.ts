@@ -74,6 +74,15 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
       });
     }
 
+    // 2.1 프로필 이름 조회 (병렬)
+    const [{ data: profileA }, { data: profileB }] = await Promise.all([
+      supabase.from('profiles').select('name').eq('id', analysis.profile_id_a).single(),
+      supabase.from('profiles').select('name').eq('id', analysis.profile_id_b).single(),
+    ]);
+
+    const nameA = profileA?.name || 'A';
+    const nameB = profileB?.name || 'B';
+
     // 3. 이미 완료된 경우 바로 반환
     if (analysis.status === 'completed') {
       return NextResponse.json({
@@ -85,6 +94,10 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
           profileIdA: analysis.profile_id_a,
           profileIdB: analysis.profile_id_b,
           analysisType: analysis.analysis_type,
+
+          // 프로필 이름
+          nameA,
+          nameB,
 
           // 만세력 데이터
           pillarsA: analysis.pillars_a,
@@ -156,6 +169,8 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
                   profileIdA: updatedAnalysis.profile_id_a,
                   profileIdB: updatedAnalysis.profile_id_b,
                   analysisType: updatedAnalysis.analysis_type,
+                  nameA,
+                  nameB,
                   pillarsA: updatedAnalysis.pillars_a,
                   pillarsB: updatedAnalysis.pillars_b,
                   daewunA: updatedAnalysis.daewun_a,
@@ -220,6 +235,8 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
                 profileIdA: refreshedAnalysis.profile_id_a,
                 profileIdB: refreshedAnalysis.profile_id_b,
                 analysisType: refreshedAnalysis.analysis_type,
+                nameA,
+                nameB,
                 pillarsA: refreshedAnalysis.pillars_a,
                 pillarsB: refreshedAnalysis.pillars_b,
                 daewunA: refreshedAnalysis.daewun_a,

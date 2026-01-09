@@ -211,42 +211,46 @@ return max(0, min(100, int(round(final_score))))
 
 ---
 
-## 💑 궁합 엔진
+## 💑 궁합 엔진 (v2.0)
 
 **파일**: `python/manseryeok/compatibility_engine.py`
 
 > 상세 문서: [compatibility.md](./compatibility.md)
 
-### 점수 체계 (5개 항목)
+### 점수 체계 (6개 항목)
 
 | 항목 | 가중치 | 계산 로직 |
 |------|--------|----------|
-| 천간 조화 | 25% | 5합 성립률 (갑기합토, 을경합금...) |
-| 지지 조화 | 25% | 6합 - 충×1.4 - 형×1.5 - 파/해 |
-| 오행 균형 | 20% | 보완 오행 +12, 과다 오행 -8 |
-| 십신 호환 | 20% | `TEN_GOD_COMPATIBILITY` 매트릭스 |
-| 12운성 시너지 | 10% | Cross-evaluation (A의 일간 → B의 일지) |
+| 천간 조화 | 24% | 5합 성립률 (갑기합토, 을경합금...) |
+| 지지 조화 | 24% | 6합 - 충×1.4 - 형×1.5 - 원진×0.8 - 파/해 |
+| 오행 균형 | 19% | 보완 오행 +12, 과다 오행 -8 |
+| 십신 호환 | 19% | `TEN_GOD_COMPATIBILITY` 매트릭스 |
+| 12운성 시너지 | 9% | Cross-evaluation (A의 일간 → B의 일지) |
+| 삼합/방합 시너지 | 5% | 삼합 3개 +20, 반합 +8, 방합 +15 |
 
-### 핵심 로직: 12운성 교차 평가
+### v2.0 추가 기능
+
+| 기능 | 상수 | 점수 영향 |
+|------|------|----------|
+| 원진(元辰) | `WONJIN` | -5~-15점 × 0.8 |
+| 삼합(三合) | `SAMHAP` | +8~+20점 |
+| 방합(方合) | `BANGHAP` | +5~+15점 |
+| 도화살 | `DOHWA` | +8~+15점 |
+
+### 조후(調候) 프롬프트 - 궁통보감 기반
+
+**파일**: `python/services/compatibility_service.py`
 
 ```python
-# 일반 사주분석: 본인 일간 → 본인 지지
-wunseong = JIBYEON_12WUNSEONG[day_stem][day_branch]
-
-# 궁합분석: A의 일간 → B의 일지 (상대방 기준)
-wunseong_a = JIBYEON_12WUNSEONG[day_stem_a][day_branch_b]  # A가 B에게서 느끼는 에너지
-wunseong_b = JIBYEON_12WUNSEONG[day_stem_b][day_branch_a]  # B가 A에게서 느끼는 에너지
+JOHU_MAP = {'寅': '寒', '卯': '濕', '辰': '濕', '巳': '暖', '午': '暖', ...}
 ```
 
-### 연애 스타일 5항목
+### 물상론 DB
 
-| 항목 | 영문 키 | 십신 매핑 |
-|------|---------|----------|
-| 표현력 | expression | 식신×1.5, 상관×1.3 |
-| 독점욕 | possessiveness | 편관×1.5, 겁재×1.3 |
-| 헌신도 | devotion | 정인×1.5, 정재×1.3 |
-| 모험심 | adventure | 편재×1.5, 상관×1.3 |
-| 안정추구 | stability | 정관×1.5, 정인×1.3 |
+**파일**: `python/prompts/compatibility_prompts.py`
+
+- `MUSANG_DATABASE`: 십신 10개 × 길흉 물상
+- `CHUNG_MUSANG`: 6충별 갈등 상황
 
 ---
 

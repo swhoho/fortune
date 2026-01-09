@@ -1,15 +1,21 @@
 """
-궁합 분석 점수 엔진
-두 사람의 사주를 비교하여 5개 항목의 점수 계산
+궁합 분석 점수 엔진 v2.0
+두 사람의 사주를 비교하여 6개 항목의 점수 계산
 
-점수 항목 및 가중치:
-- 천간 조화 (25%): 5합 성립률
-- 지지 조화 (25%): 6합 - 충/형/파/해
-- 오행 균형 (20%): 오행 분포 보완/과다
-- 십신 호환성 (20%): 상호 십신 관계
-- 12운성 시너지 (10%): 12운성 조합
+점수 항목 및 가중치 (v2.0):
+- 천간 조화 (24%): 5합 성립률
+- 지지 조화 (24%): 6합 - 충/형/파/해/원진
+- 오행 균형 (19%): 오행 분포 보완/과다
+- 십신 호환성 (19%): 상호 십신 관계
+- 12운성 시너지 (9%): 12운성 조합
+- 삼합/방합 시너지 (5%): 국(局) 형성
 
-PRD 기준 구현 (docs/chemistry_prd.md)
+추가 분석 (v2.0):
+- 원진(元辰): 심리적 불화 감점 (지지 조화에 포함)
+- 삼합/방합: 3개 지지 완성 시 가점
+- 도화살: 연애 매력도 보너스
+
+PRD 기준 구현 (docs/chemistry_prd2.md)
 """
 from typing import Dict, List, Any, Optional, Tuple
 from .constants import (
@@ -27,6 +33,82 @@ from scoring.calculator import (
     JIBYEON_12WUNSEONG, WUNSEONG_WEIGHTS,
     INTERACTION_WEIGHTS,
 )
+
+
+# ============================================
+# 원진 (元辰) - 심리적 불화, 속마음 갈등
+# 사주분석마스터.txt 기반
+# ============================================
+
+WONJIN = {
+    '子': '酉', '丑': '午', '寅': '未', '卯': '申',
+    '辰': '亥', '巳': '戌', '午': '丑', '未': '寅',
+    '申': '卯', '酉': '子', '戌': '巳', '亥': '辰',
+}
+
+# 원진 감점 배수 (사주분석마스터 v8.0 기준)
+WONJIN_WEIGHT = 0.8
+
+
+# ============================================
+# 삼합 (三合) - 3개 완성 시 국(局) 형성
+# ============================================
+
+SAMHAP = {
+    ('寅', '午', '戌'): ('火局', '인오술 화국'),
+    ('申', '子', '辰'): ('水局', '신자진 수국'),
+    ('巳', '酉', '丑'): ('金局', '사유축 금국'),
+    ('亥', '卯', '未'): ('木局', '해묘미 목국'),
+}
+
+# 반합 (2개 조합) - 삼합의 부분
+BANHAP = {
+    # 인오술 화국
+    ('寅', '午'): ('火局', '인오 반합'),
+    ('午', '戌'): ('火局', '오술 반합'),
+    ('寅', '戌'): ('火局', '인술 반합'),
+    # 신자진 수국
+    ('申', '子'): ('水局', '신자 반합'),
+    ('子', '辰'): ('水局', '자진 반합'),
+    ('申', '辰'): ('水局', '신진 반합'),
+    # 사유축 금국
+    ('巳', '酉'): ('金局', '사유 반합'),
+    ('酉', '丑'): ('金局', '유축 반합'),
+    ('巳', '丑'): ('金局', '사축 반합'),
+    # 해묘미 목국
+    ('亥', '卯'): ('木局', '해묘 반합'),
+    ('卯', '未'): ('木局', '묘미 반합'),
+    ('亥', '未'): ('木局', '해미 반합'),
+}
+
+
+# ============================================
+# 방합 (方合) - 같은 방향 3개
+# ============================================
+
+BANGHAP = {
+    ('寅', '卯', '辰'): ('東方木', '동방목'),
+    ('巳', '午', '未'): ('南方火', '남방화'),
+    ('申', '酉', '戌'): ('西方金', '서방금'),
+    ('亥', '子', '丑'): ('北方水', '북방수'),
+}
+
+
+# ============================================
+# 도화살 (桃花殺) - 연지/일지 기준
+# Destiny Code 기반
+# ============================================
+
+DOHWA = {
+    # 인오술 삼합 기준 → 卯
+    '寅': '卯', '午': '卯', '戌': '卯',
+    # 신자진 삼합 기준 → 酉
+    '申': '酉', '子': '酉', '辰': '酉',
+    # 사유축 삼합 기준 → 午
+    '巳': '午', '酉': '午', '丑': '午',
+    # 해묘미 삼합 기준 → 子
+    '亥': '子', '卯': '子', '未': '子',
+}
 
 
 # ============================================
@@ -181,21 +263,31 @@ def calculate_all_scores(
             'error': 'Invalid input: pillars data is missing',
         }
 
-    # 5개 항목 점수 계산
+    # 6개 항목 점수 계산 (v2.0 확장)
     stem_harmony = calculate_stem_harmony(pillars_a, pillars_b)
     branch_harmony = calculate_branch_harmony(pillars_a, pillars_b)
     element_balance = calculate_element_balance(pillars_a, pillars_b)
     ten_god_compat = calculate_ten_god_compatibility(pillars_a, pillars_b)
     wunseong_synergy = calculate_wunseong_synergy(pillars_a, pillars_b)
+    combination_synergy = calculate_combination_synergy(pillars_a, pillars_b)
 
-    # 가중치 적용 총점 계산
+    # 도화살 분석
+    peach_blossom = analyze_peach_blossom(pillars_a, pillars_b)
+
+    # 가중치 적용 총점 계산 (v2.0: 6개 항목)
+    # 삼합/방합 5% 추가, 기존 항목 비율 조정
     total_score = int(
-        stem_harmony['score'] * 0.25 +
-        branch_harmony['score'] * 0.25 +
-        element_balance['score'] * 0.20 +
-        ten_god_compat['score'] * 0.20 +
-        wunseong_synergy['score'] * 0.10
+        stem_harmony['score'] * 0.24 +
+        branch_harmony['score'] * 0.24 +
+        element_balance['score'] * 0.19 +
+        ten_god_compat['score'] * 0.19 +
+        wunseong_synergy['score'] * 0.09 +
+        combination_synergy['score'] * 0.05
     )
+
+    # 도화살 보너스 추가 (최대 +10점)
+    attraction_bonus = min(10, peach_blossom.get('attractionBonus', 0) // 2)
+    total_score += attraction_bonus
 
     # 0-100 범위로 클램프
     total_score = max(0, min(100, total_score))
@@ -204,7 +296,7 @@ def calculate_all_scores(
     trait_scores_a = calculate_romance_traits(pillars_a, jijanggan_a)
     trait_scores_b = calculate_romance_traits(pillars_b, jijanggan_b)
 
-    # 간지 상호작용 상세 정보
+    # 간지 상호작용 상세 정보 (v2.0: 원진 추가)
     interactions = {
         'stemCombinations': stem_harmony.get('combinations', []),
         'branchCombinations': branch_harmony.get('combinations', []),
@@ -212,6 +304,10 @@ def calculate_all_scores(
         'branchPunishments': branch_harmony.get('punishments', []),
         'branchHarms': branch_harmony.get('harms', []),
         'branchDestructions': branch_harmony.get('destructions', []),
+        'branchWonjin': branch_harmony.get('wonjin', []),
+        'samhapFormed': combination_synergy.get('samhapFormed', []),
+        'banhapFormed': combination_synergy.get('banhapFormed', []),
+        'banghapFormed': combination_synergy.get('banghapFormed', []),
     }
 
     return {
@@ -222,10 +318,12 @@ def calculate_all_scores(
             'elementBalance': element_balance,
             'tenGodCompatibility': ten_god_compat,
             'wunsengSynergy': wunseong_synergy,
+            'combinationSynergy': combination_synergy,
         },
         'traitScoresA': trait_scores_a,
         'traitScoresB': trait_scores_b,
         'interactions': interactions,
+        'peachBlossom': peach_blossom,
     }
 
 
@@ -293,17 +391,270 @@ def calculate_stem_harmony(pillars_a: Dict, pillars_b: Dict) -> Dict:
     }
 
 
+def calculate_wonjin_penalty(pillars_a: Dict, pillars_b: Dict) -> Dict:
+    """
+    원진(元辰) 관계 분석 - 심리적 불화 감점 요소
+
+    Returns:
+        {
+            'count': int,
+            'pairs': List[Dict],  # 발견된 원진 쌍
+            'penalty': int,       # 총 감점 (음수)
+            'details': str
+        }
+    """
+    pairs = []
+    total_penalty = 0
+
+    pillar_names = ['year', 'month', 'day', 'hour']
+
+    for pa_name in pillar_names:
+        branch_a = pillars_a.get(pa_name, {}).get('branch', '')
+        if not branch_a:
+            continue
+
+        for pb_name in pillar_names:
+            branch_b = pillars_b.get(pb_name, {}).get('branch', '')
+            if not branch_b:
+                continue
+
+            # 원진 체크 (양방향)
+            if WONJIN.get(branch_a) == branch_b or WONJIN.get(branch_b) == branch_a:
+                # 일지-일지 원진이 가장 치명적
+                if pa_name == 'day' and pb_name == 'day':
+                    penalty = int(-15 * WONJIN_WEIGHT)
+                    severity = 'high'
+                # 월지-일지 원진
+                elif (pa_name == 'month' and pb_name == 'day') or (pa_name == 'day' and pb_name == 'month'):
+                    penalty = int(-10 * WONJIN_WEIGHT)
+                    severity = 'medium'
+                # 기타 원진
+                else:
+                    penalty = int(-5 * WONJIN_WEIGHT)
+                    severity = 'low'
+
+                pairs.append({
+                    'branches': [branch_a, branch_b],
+                    'positions': [f'A.{pa_name}.branch', f'B.{pb_name}.branch'],
+                    'penalty': penalty,
+                    'severity': severity,
+                })
+                total_penalty += penalty
+
+    details = ''
+    if pairs:
+        details = f"원진 {len(pairs)}쌍 발견: 심리적 갈등 가능성"
+
+    return {
+        'count': len(pairs),
+        'pairs': pairs,
+        'penalty': total_penalty,
+        'details': details,
+    }
+
+
+def calculate_combination_synergy(pillars_a: Dict, pillars_b: Dict) -> Dict:
+    """
+    삼합/방합 국(局) 형성 분석
+
+    두 사람의 지지를 합쳐서 삼합/방합 완성 여부 확인
+
+    Returns:
+        {
+            'score': int,           # 0-100
+            'samhapFormed': List,   # 형성된 삼합 목록
+            'banhapFormed': List,   # 형성된 반합 목록
+            'banghapFormed': List,  # 형성된 방합 목록
+            'details': str
+        }
+    """
+    # 두 사람의 모든 지지 수집
+    branches_a = set()
+    branches_b = set()
+
+    for pillar_name in ['year', 'month', 'day', 'hour']:
+        branch_a = pillars_a.get(pillar_name, {}).get('branch', '')
+        branch_b = pillars_b.get(pillar_name, {}).get('branch', '')
+        if branch_a:
+            branches_a.add(branch_a)
+        if branch_b:
+            branches_b.add(branch_b)
+
+    all_branches = branches_a | branches_b
+    base_score = 50
+
+    samhap_formed = []
+    banhap_formed = []
+    banghap_formed = []
+
+    # 삼합 체크 (3개 완성)
+    for branches_tuple, (result, name) in SAMHAP.items():
+        branches_set = set(branches_tuple)
+        if branches_set.issubset(all_branches):
+            # 두 사람이 각각 기여했는지 확인
+            a_contrib = branches_a & branches_set
+            b_contrib = branches_b & branches_set
+            if a_contrib and b_contrib:  # 둘 다 기여해야 함
+                samhap_formed.append({
+                    'branches': list(branches_tuple),
+                    'result': result,
+                    'name': name,
+                    'a_contribution': list(a_contrib),
+                    'b_contribution': list(b_contrib),
+                })
+                base_score += 20
+
+    # 반합 체크 (2개 조합) - 삼합이 이미 형성된 경우 제외
+    for branches_tuple, (result, name) in BANHAP.items():
+        branches_set = set(branches_tuple)
+        if branches_set.issubset(all_branches):
+            # 이미 삼합에 포함된 경우 스킵
+            already_in_samhap = any(
+                branches_set.issubset(set(s['branches']))
+                for s in samhap_formed
+            )
+            if not already_in_samhap:
+                a_contrib = branches_a & branches_set
+                b_contrib = branches_b & branches_set
+                if a_contrib and b_contrib:
+                    banhap_formed.append({
+                        'branches': list(branches_tuple),
+                        'result': result,
+                        'name': name,
+                    })
+                    base_score += 8
+
+    # 방합 체크 (3개 완성)
+    for branches_tuple, (result, name) in BANGHAP.items():
+        branches_set = set(branches_tuple)
+        if branches_set.issubset(all_branches):
+            a_contrib = branches_a & branches_set
+            b_contrib = branches_b & branches_set
+            if a_contrib and b_contrib:
+                banghap_formed.append({
+                    'branches': list(branches_tuple),
+                    'result': result,
+                    'name': name,
+                })
+                base_score += 15
+
+    score = max(0, min(100, base_score))
+
+    details = ''
+    if samhap_formed:
+        details += f"삼합 {len(samhap_formed)}개 형성. "
+    if banhap_formed:
+        details += f"반합 {len(banhap_formed)}개 형성. "
+    if banghap_formed:
+        details += f"방합 {len(banghap_formed)}개 형성. "
+
+    return {
+        'score': score,
+        'samhapFormed': samhap_formed,
+        'banhapFormed': banhap_formed,
+        'banghapFormed': banghap_formed,
+        'details': details.strip(),
+    }
+
+
+def analyze_peach_blossom(pillars_a: Dict, pillars_b: Dict) -> Dict:
+    """
+    도화살(桃花殺) 분석 - 연애 매력도
+
+    Returns:
+        {
+            'aHasDohwa': bool,
+            'bHasDohwa': bool,
+            'aDowhaBranch': str,      # A의 도화 지지
+            'bDohwaBranch': str,      # B의 도화 지지
+            'mutualAttraction': int,  # 상호 끌림 점수 (0-100)
+            'attractionBonus': int,   # 가산 점수
+            'description': str
+        }
+    """
+    # A의 연지/일지 기준 도화
+    year_branch_a = pillars_a.get('year', {}).get('branch', '')
+    day_branch_a = pillars_a.get('day', {}).get('branch', '')
+    a_dohwa_from_year = DOHWA.get(year_branch_a, '')
+    a_dohwa_from_day = DOHWA.get(day_branch_a, '')
+
+    # B의 연지/일지 기준 도화
+    year_branch_b = pillars_b.get('year', {}).get('branch', '')
+    day_branch_b = pillars_b.get('day', {}).get('branch', '')
+    b_dohwa_from_year = DOHWA.get(year_branch_b, '')
+    b_dohwa_from_day = DOHWA.get(day_branch_b, '')
+
+    # A가 도화를 가지고 있는지 (사주 내에 도화 지지가 있는지)
+    a_branches = {
+        pillars_a.get(p, {}).get('branch', '')
+        for p in ['year', 'month', 'day', 'hour']
+    }
+    a_has_dohwa = a_dohwa_from_year in a_branches or a_dohwa_from_day in a_branches
+    a_dohwa_branch = a_dohwa_from_year or a_dohwa_from_day
+
+    # B가 도화를 가지고 있는지
+    b_branches = {
+        pillars_b.get(p, {}).get('branch', '')
+        for p in ['year', 'month', 'day', 'hour']
+    }
+    b_has_dohwa = b_dohwa_from_year in b_branches or b_dohwa_from_day in b_branches
+    b_dohwa_branch = b_dohwa_from_year or b_dohwa_from_day
+
+    # 상호 끌림 점수 계산
+    attraction_bonus = 0
+    mutual_attraction = 50  # 기본 점수
+
+    # 쌍방 도화
+    if a_has_dohwa and b_has_dohwa:
+        attraction_bonus = 15
+        mutual_attraction = 85
+        description = "쌍방 도화: 서로에게 강한 매력을 느끼는 관계"
+    # 일방 도화
+    elif a_has_dohwa or b_has_dohwa:
+        attraction_bonus = 8
+        mutual_attraction = 70
+        if a_has_dohwa:
+            description = "A의 도화: A가 B에게 강한 매력을 발산"
+        else:
+            description = "B의 도화: B가 A에게 강한 매력을 발산"
+    else:
+        description = "도화 없음: 안정적인 끌림"
+
+    # A의 도화가 B의 일지에 해당하면 추가 끌림
+    if a_dohwa_branch and a_dohwa_branch == day_branch_b:
+        attraction_bonus += 10
+        mutual_attraction = min(100, mutual_attraction + 10)
+        description += " (A→B 특별 끌림)"
+
+    # B의 도화가 A의 일지에 해당하면 추가 끌림
+    if b_dohwa_branch and b_dohwa_branch == day_branch_a:
+        attraction_bonus += 10
+        mutual_attraction = min(100, mutual_attraction + 10)
+        description += " (B→A 특별 끌림)"
+
+    return {
+        'aHasDohwa': a_has_dohwa,
+        'bHasDohwa': b_has_dohwa,
+        'aDohwaBranch': a_dohwa_branch,
+        'bDohwaBranch': b_dohwa_branch,
+        'mutualAttraction': mutual_attraction,
+        'attractionBonus': attraction_bonus,
+        'description': description,
+    }
+
+
 def calculate_branch_harmony(pillars_a: Dict, pillars_b: Dict) -> Dict:
     """
     지지 조화 점수 계산 (25% 가중치)
 
-    두 사람의 지지 간 6합/충/형/파/해 관계 분석
+    두 사람의 지지 간 6합/충/형/파/해/원진 관계 분석
     """
     combinations = []
     clashes = []
     punishments = []
     harms = []        # 해(害) 관계
     destructions = [] # 파(破) 관계
+    wonjin_list = []  # 원진(元辰) 관계
     base_score = 50
 
     pillar_names = ['year', 'month', 'day', 'hour']
@@ -381,6 +732,29 @@ def calculate_branch_harmony(pillars_a: Dict, pillars_b: Dict) -> Dict:
                 })
                 base_score -= int(10 * weight)
 
+            # 원진 체크
+            if WONJIN.get(branch_a) == branch_b or WONJIN.get(branch_b) == branch_a:
+                # 일지-일지 원진이 가장 치명적
+                if pa_name == 'day' and pb_name == 'day':
+                    penalty = int(15 * WONJIN_WEIGHT)
+                    severity = 'high'
+                # 월지-일지 원진
+                elif (pa_name == 'month' and pb_name == 'day') or (pa_name == 'day' and pb_name == 'month'):
+                    penalty = int(10 * WONJIN_WEIGHT)
+                    severity = 'medium'
+                # 기타 원진
+                else:
+                    penalty = int(5 * WONJIN_WEIGHT)
+                    severity = 'low'
+
+                wonjin_list.append({
+                    'branches': [branch_a, branch_b],
+                    'type': '원진',
+                    'positions': positions,
+                    'severity': severity,
+                })
+                base_score -= penalty
+
     # 점수 클램프
     score = max(0, min(100, base_score))
 
@@ -391,6 +765,7 @@ def calculate_branch_harmony(pillars_a: Dict, pillars_b: Dict) -> Dict:
         'punishments': punishments,
         'harms': harms,
         'destructions': destructions,
+        'wonjin': wonjin_list,
     }
 
 
