@@ -86,31 +86,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // 3. 사용자 크레딧 확인
-    const { data: userData, error: userError } = await supabase
-      .from('users')
-      .select('credits')
-      .eq('id', userId)
-      .single();
-
-    if (userError || !userData) {
-      console.error('[API] 사용자 조회 실패:', userError);
-      return NextResponse.json(createErrorResponse(API_ERRORS.NOT_FOUND), {
-        status: getStatusCode(API_ERRORS.NOT_FOUND),
-      });
-    }
-
-    if (userData.credits < COMPATIBILITY_ANALYSIS_CREDIT_COST) {
-      return NextResponse.json(
-        createErrorResponse(CREDIT_ERRORS.INSUFFICIENT, {
-          required: COMPATIBILITY_ANALYSIS_CREDIT_COST,
-          current: userData.credits,
-        }),
-        { status: getStatusCode(CREDIT_ERRORS.INSUFFICIENT) }
-      );
-    }
-
-    // 4. 프로필 조회 (두 프로필 모두 사용자 소유인지 확인)
+    // 3. 프로필 조회 (두 프로필 모두 사용자 소유인지 확인)
     const { data: profiles, error: profileError } = await supabase
       .from('profiles')
       .select('id, name, gender, birth_date, birth_time, calendar_type')
@@ -135,10 +111,10 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // 5. 기존 분석 확인 (동일 조합의 완료/진행중 분석)
+    // 4. 기존 분석 확인 (동일 조합의 완료/진행중/실패 분석)
     const { data: existingAnalysis } = await supabase
       .from('compatibility_analyses')
-      .select('id, status')
+      .select('id, status, credits_used')
       .eq('user_id', userId)
       .eq('profile_id_a', data.profileIdA)
       .eq('profile_id_b', data.profileIdB)
@@ -169,48 +145,109 @@ export async function POST(request: NextRequest) {
       });
     }
 
-    // 6. 크레딧 먼저 차감
-    const newCredits = userData.credits - COMPATIBILITY_ANALYSIS_CREDIT_COST;
-    await supabase
-      .from('users')
-      .update({
-        credits: newCredits,
-        updated_at: new Date().toISOString(),
-      })
-      .eq('id', userId);
+    // 5. 크레딧 무료 재시도 조건 확인
+    // 이미 크레딧을 사용한 failed 분석은 무료로 재시도
+    const isRetryWithCredits =
+      existingAnalysis &&
+      existingAnalysis.credits_used > 0 &&
+      existingAnalysis.status === 'failed';
 
-    // 7. DB에 분석 레코드 먼저 생성 (pending 상태)
-    const { data: savedAnalysis, error: insertError } = await supabase
-      .from('compatibility_analyses')
-      .insert({
-        user_id: userId,
-        profile_id_a: data.profileIdA,
-        profile_id_b: data.profileIdB,
-        analysis_type: data.analysisType,
-        language: data.language,
-        credits_used: COMPATIBILITY_ANALYSIS_CREDIT_COST,
-        status: 'pending',
-      })
-      .select('id')
+    const shouldDeductCredits = !isRetryWithCredits;
+
+    // 6. 사용자 크레딧 확인
+    const { data: userData, error: userError } = await supabase
+      .from('users')
+      .select('credits')
+      .eq('id', userId)
       .single();
 
-    if (insertError || !savedAnalysis) {
-      console.error('[API] 분석 레코드 생성 실패:', insertError);
-      // 크레딧 환불
-      await supabase
-        .from('users')
-        .update({
-          credits: userData.credits,
-          updated_at: new Date().toISOString(),
-        })
-        .eq('id', userId);
-
-      return NextResponse.json(createErrorResponse(API_ERRORS.SERVER_ERROR), {
-        status: getStatusCode(API_ERRORS.SERVER_ERROR),
+    if (userError || !userData) {
+      console.error('[API] 사용자 조회 실패:', userError);
+      return NextResponse.json(createErrorResponse(API_ERRORS.NOT_FOUND), {
+        status: getStatusCode(API_ERRORS.NOT_FOUND),
       });
     }
 
-    // 8. Python API에 분석 작업 시작 요청
+    // 크레딧 부족 체크 (신규 생성인 경우만)
+    if (shouldDeductCredits && userData.credits < COMPATIBILITY_ANALYSIS_CREDIT_COST) {
+      return NextResponse.json(
+        createErrorResponse(CREDIT_ERRORS.INSUFFICIENT, {
+          required: COMPATIBILITY_ANALYSIS_CREDIT_COST,
+          current: userData.credits,
+        }),
+        { status: getStatusCode(CREDIT_ERRORS.INSUFFICIENT) }
+      );
+    }
+
+    // 7. 크레딧 차감 (신규 생성인 경우에만)
+    if (shouldDeductCredits) {
+      const newCredits = userData.credits - COMPATIBILITY_ANALYSIS_CREDIT_COST;
+      await supabase
+        .from('users')
+        .update({
+          credits: newCredits,
+          updated_at: new Date().toISOString(),
+        })
+        .eq('id', userId);
+    } else {
+      console.log(`[API] 궁합 분석 무료 재시도: ${existingAnalysis?.id}`);
+    }
+
+    // 8. DB에 분석 레코드 생성 또는 업데이트
+    let analysisId: string;
+
+    if (existingAnalysis && existingAnalysis.status === 'failed') {
+      // 재시도: 기존 레코드 상태 업데이트
+      analysisId = existingAnalysis.id;
+      await supabase
+        .from('compatibility_analyses')
+        .update({
+          status: 'pending',
+          progress_percent: 0,
+          failed_steps: [],
+          updated_at: new Date().toISOString(),
+        })
+        .eq('id', analysisId);
+
+      console.log(`[API] 궁합 분석 재시도 (무료): ${analysisId}`);
+    } else {
+      // 신규 생성
+      const { data: savedAnalysis, error: insertError } = await supabase
+        .from('compatibility_analyses')
+        .insert({
+          user_id: userId,
+          profile_id_a: data.profileIdA,
+          profile_id_b: data.profileIdB,
+          analysis_type: data.analysisType,
+          language: data.language,
+          credits_used: COMPATIBILITY_ANALYSIS_CREDIT_COST,
+          status: 'pending',
+        })
+        .select('id')
+        .single();
+
+      if (insertError || !savedAnalysis) {
+        console.error('[API] 분석 레코드 생성 실패:', insertError);
+        // 크레딧 환불
+        if (shouldDeductCredits) {
+          await supabase
+            .from('users')
+            .update({
+              credits: userData.credits,
+              updated_at: new Date().toISOString(),
+            })
+            .eq('id', userId);
+        }
+
+        return NextResponse.json(createErrorResponse(API_ERRORS.SERVER_ERROR), {
+          status: getStatusCode(API_ERRORS.SERVER_ERROR),
+        });
+      }
+
+      analysisId = savedAnalysis.id;
+    }
+
+    // 9. Python API에 분석 작업 시작 요청
     const pythonApiUrl = getPythonApiUrl();
     console.log('[API] Python 백엔드에 궁합 분석 요청');
 
@@ -218,7 +255,7 @@ export async function POST(request: NextRequest) {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        analysis_id: savedAnalysis.id,
+        analysis_id: analysisId,
         profile_id_a: data.profileIdA,
         profile_id_b: data.profileIdB,
         profile_a: {
@@ -244,16 +281,25 @@ export async function POST(request: NextRequest) {
     });
 
     if (!pythonResponse.ok) {
-      // Python 호출 실패 시 크레딧 환불 및 레코드 삭제
+      // Python 호출 실패 시 크레딧 환불 (신규 생성인 경우만) 및 상태 업데이트
+      if (shouldDeductCredits) {
+        await supabase
+          .from('users')
+          .update({
+            credits: userData.credits,
+            updated_at: new Date().toISOString(),
+          })
+          .eq('id', userId);
+      }
+
+      // 레코드 삭제 대신 failed 상태로 업데이트 (재시도 가능하도록)
       await supabase
-        .from('users')
+        .from('compatibility_analyses')
         .update({
-          credits: userData.credits,
+          status: 'failed',
           updated_at: new Date().toISOString(),
         })
-        .eq('id', userId);
-
-      await supabase.from('compatibility_analyses').delete().eq('id', savedAnalysis.id);
+        .eq('id', analysisId);
 
       const errorData = await pythonResponse.json().catch(() => ({}));
       console.error('[API] Python API 호출 실패:', errorData);
@@ -265,7 +311,7 @@ export async function POST(request: NextRequest) {
 
     const pythonResult = await pythonResponse.json();
 
-    // 9. job_id 업데이트
+    // 10. job_id 업데이트
     await supabase
       .from('compatibility_analyses')
       .update({
@@ -273,22 +319,22 @@ export async function POST(request: NextRequest) {
         status: 'processing',
         updated_at: new Date().toISOString(),
       })
-      .eq('id', savedAnalysis.id);
+      .eq('id', analysisId);
 
     console.log('[API] 궁합 분석 시작됨', {
       userId,
-      analysisId: savedAnalysis.id,
+      analysisId,
       jobId: pythonResult.job_id,
     });
 
-    // 10. 즉시 응답 반환
+    // 11. 즉시 응답 반환
     return NextResponse.json({
       success: true,
       message: '분석이 시작되었습니다',
-      analysisId: savedAnalysis.id,
+      analysisId,
       jobId: pythonResult.job_id,
       status: 'processing',
-      pollUrl: `/api/analysis/compatibility/${savedAnalysis.id}`,
+      pollUrl: `/api/analysis/compatibility/${analysisId}`,
     });
   } catch (error) {
     console.error('[API] /api/analysis/compatibility 에러:', error);
