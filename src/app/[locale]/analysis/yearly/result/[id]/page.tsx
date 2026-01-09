@@ -153,40 +153,22 @@ export default function YearlyResultPage() {
   return (
     <div className="min-h-screen bg-[#0a0a0a]">
       {/* 헤더 */}
-      <motion.header
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="sticky top-0 z-10 border-b border-[#333] bg-[#0a0a0a]/80 px-4 py-4 backdrop-blur-sm"
-      >
-        <div className="mx-auto flex max-w-4xl items-center justify-between">
-          <div className="flex items-center gap-1 sm:gap-2">
-            <button
-              onClick={() => router.push('/home')}
-              className="flex h-10 w-10 items-center justify-center rounded-lg text-gray-400 hover:bg-[#242424] hover:text-white"
-              title="홈으로"
-            >
-              <Home className="h-5 w-5" />
-            </button>
-            <button
-              onClick={handleBack}
-              className="flex h-10 w-10 items-center justify-center rounded-lg text-gray-400 hover:bg-[#242424] hover:text-white"
-              title="돌아가기"
-            >
-              <ArrowLeft className="h-5 w-5" />
-            </button>
-          </div>
-          <h1 className="font-serif text-lg font-semibold text-white">{result.year}년 신년 운세</h1>
-          <div className="flex gap-2">
-            <button
-              onClick={handleShare}
-              className="rounded-full p-2 hover:bg-[#242424]"
-              title="공유하기"
-            >
-              <Share2 className="h-5 w-5 text-gray-400" />
-            </button>
-          </div>
-        </div>
-      </motion.header>
+      <AppHeader
+        showBack
+        backHref="/mypage"
+        title={`${result.year}년 신년 운세`}
+        rightSlot={
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={handleShare}
+            title="공유하기"
+            className="h-9 w-9 rounded-xl text-gray-400 hover:bg-white/[0.06] hover:text-white"
+          >
+            <Share2 className="h-5 w-5" />
+          </Button>
+        }
+      />
 
       {/* 메인 콘텐츠 */}
       <main className="px-4 py-8">

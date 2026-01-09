@@ -9,7 +9,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { useTranslations } from 'next-intl';
-import { Sparkles, Home, Eye, Loader2 } from 'lucide-react';
+import { Sparkles, Eye, Loader2 } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 import { YearSelector } from '@/components/analysis/yearly';

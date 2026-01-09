@@ -8,7 +8,7 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useUserProfile } from '@/hooks/use-user';
-import Link from 'next/link';
+import { AppHeader } from '@/components/layout';
 import {
   MypageSidebar,
   AnalysisHistory,
@@ -120,45 +120,16 @@ export default function MyPage() {
 
   return (
     <div className="min-h-screen bg-[#0a0a0a]">
+      {/* 헤더 */}
+      <AppHeader title="마이페이지" />
+
       {/* 장식적 배경 요소 */}
       <div className="pointer-events-none fixed inset-0 overflow-hidden">
         <div className="absolute -right-40 -top-40 h-96 w-96 rounded-full bg-gradient-to-br from-[#d4af37]/10 to-transparent blur-3xl" />
         <div className="absolute -bottom-40 -left-40 h-96 w-96 rounded-full bg-gradient-to-tr from-[#d4af37]/10 to-transparent blur-3xl" />
       </div>
 
-      <div className="relative mx-auto max-w-6xl px-6 py-24">
-        {/* 페이지 타이틀 */}
-        <motion.div
-          initial={{ opacity: 0, y: -10 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="mb-8"
-        >
-          <div className="flex items-center gap-4">
-            <Link
-              href="/home"
-              className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#1a1a1a] text-gray-400 transition-all hover:bg-[#242424] hover:text-white"
-              title="홈으로"
-            >
-              <svg
-                className="h-5 w-5"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-                strokeWidth={1.5}
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M2.25 12l8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25"
-                />
-              </svg>
-            </Link>
-            <div>
-              <h1 className="font-serif text-2xl font-bold text-white md:text-3xl">마이페이지</h1>
-              <p className="mt-1 text-gray-400">분석 기록과 계정 설정을 관리하세요</p>
-            </div>
-          </div>
-        </motion.div>
+      <div className="relative mx-auto max-w-6xl px-6 py-8">
 
         {/* 메인 레이아웃 */}
         <div className="flex flex-col gap-8 md:flex-row">

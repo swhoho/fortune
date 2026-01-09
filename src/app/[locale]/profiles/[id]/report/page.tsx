@@ -14,7 +14,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Share2, Loader2, Sparkles } from 'lucide-react';
+import { Share2, Loader2, Sparkles, ChevronLeft } from 'lucide-react';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { AppHeader } from '@/components/layout';

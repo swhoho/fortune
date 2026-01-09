@@ -30,7 +30,7 @@ import {
   SocialProofSection,
 } from '@/components/payment/PaymentSections';
 import { ExampleCarousel } from '@/components/payment/ExampleCarousel';
-import { Footer } from '@/components/layout/Footer';
+import { AppHeader, Footer } from '@/components/layout';
 
 /** Analysis Includes */
 const analysisIncludes = [
@@ -163,6 +163,9 @@ export default function PaymentPage({ params: { locale } }: { params: { locale: 
 
   return (
     <div className="flex min-h-screen flex-col bg-[#0a0a0a]">
+      {/* 헤더 */}
+      <AppHeader title="크레딧 충전" />
+
       {/* 1. Hero Content */}
       <HeroSection currentLocale={locale} />
 
