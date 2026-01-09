@@ -526,7 +526,7 @@ export default function ProfileReportPage({ params }: PageProps) {
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: -20 }}
               transition={{ duration: 0.3 }}
-              className="fixed inset-0 z-50 flex flex-col bg-[#0a0a0a] md:relative md:inset-auto md:z-auto md:block"
+              className="fixed inset-x-0 top-0 z-50 flex h-[var(--vh,100vh)] flex-col bg-[#0a0a0a] md:relative md:inset-auto md:z-auto md:block md:h-auto"
             >
               {/* 모바일 헤더 (뒤로가기) */}
               <div className="flex items-center gap-3 border-b border-[#333] px-4 py-3 md:hidden">

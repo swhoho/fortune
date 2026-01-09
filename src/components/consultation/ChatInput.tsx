@@ -47,6 +47,15 @@ export function ChatInput({
   }, [content]);
 
   /**
+   * 모바일 키보드 올라올 때 입력창 보이게 스크롤
+   */
+  const handleFocus = () => {
+    setTimeout(() => {
+      textareaRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }, 300);
+  };
+
+  /**
    * 전송 핸들러
    */
   const handleSubmit = (e?: React.FormEvent, skipClarification = false) => {
@@ -113,6 +122,7 @@ export function ChatInput({
             value={content}
             onChange={(e) => setContent(e.target.value)}
             onKeyDown={handleKeyDown}
+            onFocus={handleFocus}
             placeholder={placeholder}
             disabled={disabled || isLoading}
             rows={1}
