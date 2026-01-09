@@ -56,6 +56,39 @@ MUSANG_DATABASE, TENSHIN_COMPATIBILITY_MUSANG, CHUNG_MUSANG
 - Step 5 (relationship_type): 조후 색채 컨텍스트
 - Step 7 (conflict_analysis): 6충 물상 + 원진 정보
 - Step 9 (mutual_influence): 십신 물상론
+- Step 10 (interaction_interpretation): 간지 상호작용 동적 해석 **(v2.1)**
+
+---
+
+## v2.1 업데이트 - 간지 상호작용 동적 해석
+
+### 추가된 Gemini 단계
+
+| 단계 | 내용 | 파일 |
+|------|------|------|
+| Step 10 | `interaction_interpretation` | `compatibility_service.py`, `gemini_schemas.py` |
+
+### 주요 변경사항
+
+1. **실제 프로필 이름 사용**: A/B 대신 "민지", "철수" 등
+2. **한자 한글 음독 포함**: 卯申원진 → 묘신(卯申)원진
+3. **긍정적 빈 메시지**: "없습니다" → "왜 좋은지" 구체적 설명
+4. **7개 카테고리 동적 생성**: peachBlossom, samhapBanghap, stemCombinations, branchCombinations, branchClashes, branchPunishments, branchWonjin
+
+### 스키마
+
+```python
+# gemini_schemas.py
+INTERACTION_INTERPRETATION_SCHEMA = {
+    "peachBlossom": { "title", "description", "advice" },
+    "samhapBanghap": { "formations", "overallMeaning", "emptyMessage" },
+    "stemCombinations": { "items", "emptyMessage" },
+    "branchCombinations": { "items", "emptyMessage" },
+    "branchClashes": { "items", "emptyMessage" },
+    "branchPunishments": { "items", "emptyMessage" },
+    "branchWonjin": { "items", "emptyMessage" }
+}
+```
 
 ---
 
@@ -66,4 +99,4 @@ MUSANG_DATABASE, TENSHIN_COMPATIBILITY_MUSANG, CHUNG_MUSANG
 
 ---
 
-**최종 수정**: 2026-01-09 (v2.0 구현 완료)
+**최종 수정**: 2026-01-09 (v2.1 구현 완료)

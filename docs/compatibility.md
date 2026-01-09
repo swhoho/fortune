@@ -32,7 +32,7 @@ Python 백엔드 (Railway)
 
 ---
 
-## 파이프라인 (10단계)
+## 파이프라인 (11단계)
 
 | 단계 | 이름 | 엔진 | 설명 | 진행률 |
 |------|------|------|------|--------|
@@ -43,14 +43,15 @@ Python 백엔드 (Railway)
 | 5 | `relationship_type` | Gemini | 인연의 성격 분석 | 50% |
 | 6 | `trait_interpretation` | Gemini | 연애 스타일 해석 | 60% |
 | 7 | `conflict_analysis` | Gemini | 갈등 포인트 분석 | 70% |
-| 8 | `marriage_fit` | Gemini | 결혼 적합도 분석 | 80% |
-| 9 | `mutual_influence` | Gemini | 상호 영향 분석 | 90% |
-| 10 | `saving` | DB | 결과 저장 | 97% |
+| 8 | `marriage_fit` | Gemini | 결혼 적합도 분석 | 78% |
+| 9 | `mutual_influence` | Gemini | 상호 영향 분석 | 82% |
+| 10 | `interaction_interpretation` | Gemini | 간지 상호작용 해석 | 90% |
+| 11 | `saving` | DB | 결과 저장 | 97% |
 | - | `complete` | - | 완료 | 100% |
 
 **에러 처리**:
 - Step 1-4 (Python): 실패 시 파이프라인 중단
-- Step 5-9 (Gemini): 3회 재시도 후 실패해도 계속 진행, `failed_steps`에 기록
+- Step 5-10 (Gemini): 3회 재시도 후 실패해도 계속 진행, `failed_steps`에 기록
 
 ---
 
@@ -249,6 +250,51 @@ DOHWA = {
 }
 ```
 
+### Step 10: 간지 상호작용 해석 (`interaction_interpretation`) - v2.1
+
+**목적**: 간지 상호작용(도화살, 삼합/반합/방합, 천간합, 지지합, 지지충, 지지형, 원진)을 실제 프로필 이름과 함께 동적으로 해석
+
+**입력 강조**:
+- 프로필 이름 (A/B 대신 실제 이름 사용)
+- 간지 상호작용 데이터 (삼합, 반합, 방합, 원진 등)
+
+**출력**:
+```json
+{
+  "peachBlossom": {
+    "title": "민지의 도화",
+    "description": "민지는 연애에 있어 자연스러운 매력을 가진 타입입니다... (100-150자)",
+    "advice": "외적 매력에만 의존하지 말고 진솔한 대화로 신뢰를 쌓으세요. (50-80자)"
+  },
+  "samhapBanghap": {
+    "formations": [
+      { "name": "인오술 화국", "description": "민지와 철수가 함께할 때 열정적인 에너지가... (80-120자)" }
+    ],
+    "overallMeaning": "둘이 함께하면 활동적인 영역에서 시너지가 납니다. (50-80자)",
+    "emptyMessage": "삼합·방합이 없어 각자의 개성을 유지하며... (60-100자)"
+  },
+  "stemCombinations": {
+    "items": [{ "name": "갑기합토", "description": "..." }],
+    "emptyMessage": "천간 합이 없어 서로 다른 방식으로 생각하지만..."
+  },
+  "branchCombinations": { "items": [...], "emptyMessage": "..." },
+  "branchClashes": { "items": [...], "emptyMessage": "..." },
+  "branchPunishments": { "items": [...], "emptyMessage": "..." },
+  "branchWonjin": {
+    "items": [
+      { "name": "묘신(卯申)원진", "description": "민지와 철수 사이에는 겉으로 드러나지 않지만... (80-120자)" }
+    ],
+    "emptyMessage": "원진 관계가 없어 마음속 깊은 곳에서 느껴지는 거리감 없이..."
+  }
+}
+```
+
+**특징**:
+- 실제 프로필 이름 사용 (A/B 대신 "민지", "철수")
+- 한자에 한글 음독 포함 (卯申원진 → 묘신(卯申)원진)
+- "없습니다" 대신 왜 긍정적인지 구체적 설명
+- 일반 유저가 이해할 수 있는 쉬운 표현
+
 ---
 
 ## API 엔드포인트
@@ -360,12 +406,13 @@ scores JSONB,  -- 5개 항목 상세
 trait_scores_a JSONB, trait_scores_b JSONB,
 interactions JSONB,  -- 간지 상호작용
 
--- Gemini 결과 (Step 5-9)
+-- Gemini 결과 (Step 5-10)
 relationship_type JSONB,
 trait_interpretation JSONB,
 conflict_analysis JSONB,
 marriage_fit JSONB,
 mutual_influence JSONB,
+interaction_interpretation JSONB,  -- v2.1: 간지 상호작용 동적 해석
 
 -- 메타
 failed_steps TEXT[] DEFAULT '{}',
@@ -556,6 +603,7 @@ src/
 
 | 날짜 | 버전 | 변경 내용 |
 |------|------|----------|
+| 2026-01-09 | v2.1.0 | 간지 상호작용 Gemini 동적 해석 (interaction_interpretation 단계 추가, 11단계 파이프라인) |
 | 2026-01-09 | v2.0.0 | 고전 명리학 고도화 (원진/삼합/방합/도화살/조후/물상론) |
 | 2026-01-09 | v1.1.0 | 만세력 예외 처리 추가 (SAJU_REQUIRED), 무료 재시도 로직, 기존 분석 확인 API |
 | 2026-01-09 | v1.0.0 | 초기 버전 - 10단계 파이프라인 |
@@ -590,4 +638,4 @@ src/
 
 ---
 
-**최종 수정**: 2026-01-09 (v2.0.0)
+**최종 수정**: 2026-01-09 (v2.1.0)
