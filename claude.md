@@ -302,10 +302,21 @@ cd python && pytest  # Python
 
 ---
 
-**Version**: 1.38.0
-**Last Updated**: 2026-01-09 (궁합 분석 시스템)
+**Version**: 1.39.0
+**Last Updated**: 2026-01-09 (궁합 분석 UI 개선)
 
 ## Changelog
+
+### v1.39.0 (2026-01-09)
+- **궁합 분석 UI 개선**
+  - SAJU_REQUIRED 에러 전용 화면 (yearly 패턴)
+  - 버튼 통합: 결과 보기 / 진행 상황 확인 / 무료 재시도 / 궁합 분석 시작
+  - 크레딧 섹션 조건부 표시 (완료/진행 중일 때 숨김)
+  - "분석이 진행 중입니다" 메시지 제거 (버튼에 통합)
+- **궁합 분석 중간 저장 구현 (Report 패턴)**
+  - Python 파이프라인 `_update_db_status()` 메서드 추가
+  - 각 단계 완료 시 DB 저장 (크래시 복구 가능)
+  - Python/Next.js API에 DB fallback 추가
 
 ### v1.38.0 (2026-01-09)
 - **궁합 분석 시스템 구현**
