@@ -9,6 +9,7 @@ import { useTranslations } from 'next-intl';
 import { useRouter } from 'next/navigation';
 import { HomeMenuGrid } from '@/components/home/HomeMenuGrid';
 import { AppHeader, Footer } from '@/components/layout';
+import { DailyFortuneCard } from '@/components/daily-fortune';
 import { BRAND_COLORS } from '@/lib/constants/colors';
 import { useAuth } from '@/hooks/use-user';
 
@@ -104,6 +105,16 @@ export function HomePageClient() {
               </div>
             </div>
           </motion.div>
+
+          {/* 오늘의 운세 카드 - 최상단 */}
+          <motion.section
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.3 }}
+            className="px-6 pb-6"
+          >
+            <DailyFortuneCard />
+          </motion.section>
 
           {/* 메뉴 그리드 */}
           <HomeMenuGrid />

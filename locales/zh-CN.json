@@ -948,6 +948,35 @@
     "currentPeriodEnd": "下次扣费日：{date}",
     "canceledNotice": "订阅已取消。可使用至 {date}。"
   },
+  "dailyFortune": {
+    "title": "今日运势",
+    "overallScore": "综合运势",
+    "todayPillar": "今日干支",
+    "luckyColor": "幸运色",
+    "luckyNumber": "幸运数字",
+    "luckyDirection": "幸运方位",
+    "viewDetail": "查看详情",
+    "trialBadge": "剩余{days}天",
+    "areas": {
+      "career": "事业运",
+      "wealth": "财运",
+      "love": "爱情运",
+      "health": "健康运",
+      "relationship": "人际运"
+    },
+    "subscriptionPrompt": {
+      "description": "基于您的八字和今日干支，提供个性化运势分析。",
+      "benefit1": "个性化每日运势分析",
+      "benefit2": "6大领域详细指南",
+      "startTrial": "开始3天免费试用",
+      "subscribe": "订阅高级版"
+    },
+    "history": {
+      "title": "运势历史",
+      "subtitle": "过去一年的运势记录",
+      "noData": "暂无运势记录"
+    }
+  },
   "profile": {
     "pageTitle": {
       "new": "添加档案",

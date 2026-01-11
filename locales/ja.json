@@ -948,6 +948,35 @@
     "currentPeriodEnd": "次回請求日: {date}",
     "canceledNotice": "サブスクリプションが解約されました。{date}までご利用いただけます。"
   },
+  "dailyFortune": {
+    "title": "今日の運勢",
+    "overallScore": "総合運",
+    "todayPillar": "今日の干支",
+    "luckyColor": "ラッキーカラー",
+    "luckyNumber": "ラッキーナンバー",
+    "luckyDirection": "ラッキー方角",
+    "viewDetail": "詳細を見る",
+    "trialBadge": "残り{days}日",
+    "areas": {
+      "career": "仕事運",
+      "wealth": "金運",
+      "love": "恋愛運",
+      "health": "健康運",
+      "relationship": "対人運"
+    },
+    "subscriptionPrompt": {
+      "description": "あなたの四柱推命と今日の干支から、パーソナライズされた運勢をお届けします。",
+      "benefit1": "パーソナライズされた毎日の運勢分析",
+      "benefit2": "6つの分野の詳細ガイド",
+      "startTrial": "3日間無料お試し",
+      "subscribe": "プレミアム登録"
+    },
+    "history": {
+      "title": "運勢履歴",
+      "subtitle": "過去1年間の運勢記録",
+      "noData": "まだ運勢の記録がありません"
+    }
+  },
   "profile": {
     "pageTitle": {
       "new": "プロフィール登録",

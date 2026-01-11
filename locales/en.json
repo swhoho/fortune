@@ -1045,6 +1045,35 @@
     "currentPeriodEnd": "Next billing: {date}",
     "canceledNotice": "Subscription canceled. Access until {date}."
   },
+  "dailyFortune": {
+    "title": "Today's Fortune",
+    "overallScore": "Overall Score",
+    "todayPillar": "Today's Energy",
+    "luckyColor": "Lucky Color",
+    "luckyNumber": "Lucky Number",
+    "luckyDirection": "Lucky Direction",
+    "viewDetail": "View Details",
+    "trialBadge": "{days} days left",
+    "areas": {
+      "career": "Career",
+      "wealth": "Wealth",
+      "love": "Love",
+      "health": "Health",
+      "relationship": "Relationships"
+    },
+    "subscriptionPrompt": {
+      "description": "Get personalized daily fortune based on your Four Pillars and today's energy.",
+      "benefit1": "Personalized daily fortune analysis",
+      "benefit2": "Detailed guidance for 6 life areas",
+      "startTrial": "Start 3-Day Free Trial",
+      "subscribe": "Subscribe to Premium"
+    },
+    "history": {
+      "title": "Fortune History",
+      "subtitle": "Your fortune records for the past year",
+      "noData": "No fortune records yet"
+    }
+  },
   "errors": {
     "AUTH_UNAUTHORIZED": "Please sign in to continue",
     "AUTH_SESSION_EXPIRED": "Your session has expired. Please sign in again",

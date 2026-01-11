@@ -33,6 +33,11 @@ from schemas.compatibility import (
     CompatibilityAnalysisStatusResponse,
     CompatibilityJobStatus,
 )
+from schemas.daily import (
+    DailyFortuneRequest,
+    DailyFortuneStartResponse,
+    DailyFortuneResponse,
+)
 from manseryeok.engine import ManseryeokEngine
 from visualization import SajuVisualizer
 from prompts.builder import (
@@ -841,6 +846,52 @@ async def get_compatibility_analysis_status(job_id: str) -> CompatibilityAnalysi
         status_code=404,
         detail="작업을 찾을 수 없습니다"
     )
+
+
+# ============================================
+# 오늘의 운세 API
+# ============================================
+
+@app.post("/api/daily-fortune", response_model=DailyFortuneStartResponse)
+async def generate_daily_fortune(request: DailyFortuneRequest) -> DailyFortuneStartResponse:
+    """
+    오늘의 운세 생성
+
+    구독자 전용 서비스로, 당일 간지와 사주 원국의 상호작용을 분석합니다.
+
+    - **user_id**: 사용자 ID
+    - **profile_id**: 프로필 ID
+    - **target_date**: 대상 날짜 (YYYY-MM-DD)
+    - **pillars**: 사주 팔자 데이터
+    - **daewun**: 대운 목록 (선택)
+    - **language**: 언어 (ko, en, ja, zh-CN, zh-TW)
+
+    Returns:
+        성공 여부, 운세 ID, 상태, 메시지
+    """
+    from services.daily_fortune_service import daily_fortune_service
+
+    try:
+        result = await daily_fortune_service.generate_fortune(
+            user_id=request.user_id,
+            profile_id=request.profile_id,
+            target_date=request.target_date,
+            pillars=request.pillars,
+            daewun=request.daewun,
+            language=request.language
+        )
+
+        return DailyFortuneStartResponse(
+            success=True,
+            fortune_id=result.get("id"),
+            status="completed",
+            message="오늘의 운세 생성이 완료되었습니다."
+        )
+    except Exception as e:
+        raise HTTPException(
+            status_code=500,
+            detail=f"오늘의 운세 생성 실패: {str(e)}"
+        )
 
 
 @app.exception_handler(ValueError)

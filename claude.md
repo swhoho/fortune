@@ -80,6 +80,7 @@ python/
 | `docs/yearly_analysis.md` | 신년 분석 파이프라인 |
 | `docs/compatibility.md` | 궁합 분석 시스템 (Python 점수 엔진 + Gemini 해석) |
 | `docs/consultation.md` | AI 상담 시스템 |
+| `docs/daily_analysis.md` | 오늘의 운세 시스템 |
 | `docs/payment.md` | 결제, 크레딧 유효기간, 구독 시스템 |
 | `docs/app.md` | Android 앱 출시 가이드 (Capacitor, Google Play Billing) |
 
@@ -102,6 +103,7 @@ python/
 | 섹션 재분석 | 5C |
 | AI 질문 | 10C |
 | 상담 세션 | 10C (2라운드) |
+| 오늘의 운세 | 무료 (구독/무료체험) |
 
 **크레딧 유효기간**:
 | 유형 | 유효기간 |
@@ -332,10 +334,24 @@ cd python && pytest  # Python
 
 ---
 
-**Version**: 1.42.0
-**Last Updated**: 2026-01-12 (크레딧 유효기간, 구독 시스템)
+**Version**: 1.43.0
+**Last Updated**: 2026-01-12 (오늘의 운세 시스템)
 
 ## Changelog
+
+### v1.43.0 (2026-01-12)
+- **오늘의 운세 시스템 (PRD v4.0 Group 3 Task 6)**
+  - `daily_fortunes` 테이블 신규 생성
+  - `users.daily_fortune_trial_started_at` 컬럼 추가
+  - 3일 무료체험 (계정당 최초 1회)
+  - Python 3단계 파이프라인 (일진계산 → Gemini분석 → DB저장)
+  - `/api/daily-fortune` - 조회/생성 API
+  - `/api/daily-fortune/history` - 히스토리 조회 (최대 1년)
+  - `src/components/daily-fortune/` 컴포넌트
+  - 홈 화면 최상단 DailyFortuneCard 배치
+  - 다국어 메시지 추가 (5개 언어)
+- **문서 추가**
+  - `docs/daily_analysis.md` 신규 생성
 
 ### v1.42.0 (2026-01-12)
 - **크레딧 유효기간 시스템 (PRD v4.0 Task 4)**

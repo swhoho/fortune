@@ -380,6 +380,64 @@ Mock 구독 시작 | **인증**: 필수
 
 ---
 
+## 오늘의 운세 API (v1.0)
+
+### GET /api/daily-fortune
+오늘의 운세 조회 | **인증**: 필수 | **접근**: 구독자 또는 무료체험
+
+캐시된 운세 조회. 없으면 `needsGeneration: true` 반환.
+
+**응답 (캐시 있음)**:
+```json
+{
+  "success": true,
+  "cached": true,
+  "data": {
+    "fortune_date": "2026-01-12",
+    "day_stem": "甲",
+    "day_branch": "子",
+    "day_element": "木",
+    "overall_score": 75,
+    "summary": "오늘은...",
+    "lucky_color": "녹색",
+    "lucky_number": 3,
+    "career_fortune": { "score": 80, "title": "...", "description": "...", "tip": "..." }
+  },
+  "subscription": { "isSubscribed": true, "isTrialActive": false, "trialRemainingDays": 0 }
+}
+```
+
+**응답 (구독 필요)**:
+```json
+{ "success": false, "requireSubscription": true, "canStartTrial": true }
+```
+
+### POST /api/daily-fortune
+오늘의 운세 생성 | **인증**: 필수 | **접근**: 구독자 또는 무료체험
+
+무료체험 미사용 시 자동으로 무료체험 시작.
+
+```json
+{ "profileId": "uuid", "pillars": {...}, "daewun": [...] }
+```
+→ `{ "success": true, "data": {...} }`
+
+### GET /api/daily-fortune/history
+운세 히스토리 조회 | **인증**: 필수 | **최대**: 1년
+
+**쿼리**: `?limit=30&offset=0&month=2026-01`
+
+```json
+{
+  "success": true,
+  "data": [...],
+  "pagination": { "total": 100, "limit": 30, "offset": 0, "hasMore": true },
+  "stats": { "totalCount": 100, "averageScore": 65, "highestScore": 92, "lowestScore": 38 }
+}
+```
+
+---
+
 ## Cron API
 
 ### GET /api/cron/expire-credits

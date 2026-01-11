@@ -665,9 +665,9 @@ export async function POST(req: Request) {
 
 ---
 
-# Group 3: 오늘의 운세 시스템 (순차)
+# Group 3: 오늘의 운세 시스템 (순차) ✅ 완료
 
-## Task 6: 오늘의 운세 시스템
+## Task 6: 오늘의 운세 시스템 ✅
 
 ### 요구사항
 - 홈 화면 최상단에 배치

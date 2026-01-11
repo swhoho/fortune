@@ -1088,6 +1088,35 @@
     "currentPeriodEnd": "다음 결제일: {date}",
     "canceledNotice": "구독이 취소되었습니다. {date}까지 사용 가능합니다."
   },
+  "dailyFortune": {
+    "title": "오늘의 운세",
+    "overallScore": "종합 운세",
+    "todayPillar": "오늘의 일진",
+    "luckyColor": "행운의 색",
+    "luckyNumber": "행운의 숫자",
+    "luckyDirection": "행운의 방향",
+    "viewDetail": "상세 운세 보기",
+    "trialBadge": "무료체험 {days}일 남음",
+    "areas": {
+      "career": "직장/사업운",
+      "wealth": "재물운",
+      "love": "연애운",
+      "health": "건강운",
+      "relationship": "대인관계운"
+    },
+    "subscriptionPrompt": {
+      "description": "매일 당신의 사주와 오늘의 간지를 분석하여 맞춤형 운세를 제공합니다.",
+      "benefit1": "개인화된 일일 운세 분석",
+      "benefit2": "6개 영역별 상세 가이드",
+      "startTrial": "3일 무료체험 시작",
+      "subscribe": "프리미엄 구독하기"
+    },
+    "history": {
+      "title": "운세 히스토리",
+      "subtitle": "지난 1년간의 운세 기록",
+      "noData": "아직 기록된 운세가 없습니다"
+    }
+  },
   "compatibility": {
     "title": "궁합 분석",
     "subtitle": "두 사람의 사주로 궁합을 분석합니다",
