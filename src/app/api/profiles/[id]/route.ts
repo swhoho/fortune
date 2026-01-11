@@ -32,6 +32,7 @@ function toProfileResponse(record: {
   calendar_type: string;
   created_at: string;
   updated_at: string;
+  is_primary?: boolean;
 }): ProfileResponse {
   return {
     id: record.id,
@@ -42,6 +43,7 @@ function toProfileResponse(record: {
     calendarType: record.calendar_type as 'solar' | 'lunar' | 'lunar_leap',
     createdAt: record.created_at,
     updatedAt: record.updated_at,
+    isPrimary: record.is_primary ?? false,
   };
 }
 
@@ -65,7 +67,9 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
     const supabase = getSupabaseAdmin();
     const { data: profile, error } = await supabase
       .from('profiles')
-      .select('id, name, gender, birth_date, birth_time, calendar_type, created_at, updated_at')
+      .select(
+        'id, name, gender, birth_date, birth_time, calendar_type, created_at, updated_at, is_primary'
+      )
       .eq('id', id)
       .eq('user_id', user.id)
       .single();
@@ -144,7 +148,9 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
       .update(updateData)
       .eq('id', id)
       .eq('user_id', user.id)
-      .select('id, name, gender, birth_date, birth_time, calendar_type, created_at, updated_at')
+      .select(
+        'id, name, gender, birth_date, birth_time, calendar_type, created_at, updated_at, is_primary'
+      )
       .single();
 
     if (error || !profile) {
@@ -168,7 +174,7 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
 
 /**
  * DELETE /api/profiles/:id
- * 프로필 삭제
+ * 프로필 삭제 (대표 프로필 삭제 시 자동 전환)
  */
 export async function DELETE(
   request: NextRequest,
@@ -185,8 +191,39 @@ export async function DELETE(
       });
     }
 
-    // 2. 프로필 삭제 (소유권 확인 포함)
     const supabase = getSupabaseAdmin();
+
+    // 2. 삭제할 프로필 조회 (대표 여부 확인)
+    const { data: targetProfile } = await supabase
+      .from('profiles')
+      .select('id, is_primary')
+      .eq('id', id)
+      .eq('user_id', user.id)
+      .single();
+
+    if (!targetProfile) {
+      return NextResponse.json(createErrorResponse(PROFILE_ERRORS.NOT_FOUND), {
+        status: getStatusCode(PROFILE_ERRORS.NOT_FOUND),
+      });
+    }
+
+    // 3. 대표 프로필 삭제 시 다음 프로필을 대표로 설정
+    if (targetProfile.is_primary) {
+      const { data: nextPrimary } = await supabase
+        .from('profiles')
+        .select('id')
+        .eq('user_id', user.id)
+        .neq('id', id)
+        .order('created_at', { ascending: true })
+        .limit(1)
+        .single();
+
+      if (nextPrimary) {
+        await supabase.from('profiles').update({ is_primary: true }).eq('id', nextPrimary.id);
+      }
+    }
+
+    // 4. 프로필 삭제
     const { data, error } = await supabase
       .from('profiles')
       .delete()
@@ -201,7 +238,7 @@ export async function DELETE(
       });
     }
 
-    // 3. 응답
+    // 5. 응답
     return NextResponse.json({
       success: true,
       message: '프로필이 삭제되었습니다',

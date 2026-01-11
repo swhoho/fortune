@@ -18,11 +18,18 @@ interface CreditCheckResponse {
   shortfall?: number;
 }
 
+/** 무료 분석 자격 응답 타입 */
+interface FreeAnalysisCheckResponse {
+  success: boolean;
+  eligible: boolean;
+}
+
 /** Query Keys */
 export const creditKeys = {
   all: ['credits'] as const,
   balance: () => [...creditKeys.all, 'balance'] as const,
   check: (required?: number) => [...creditKeys.all, 'check', required] as const,
+  freeCheck: () => [...creditKeys.all, 'freeCheck'] as const,
 };
 
 /**
@@ -76,6 +83,24 @@ export function useReportCreditsCheck() {
  */
 export function useSectionReanalysisCreditsCheck() {
   return useCreditsCheck(SERVICE_CREDITS.sectionReanalysis);
+}
+
+/**
+ * 최초 무료 분석 자격 확인 훅
+ * user_id당 최초 1회 무료 분석 자격 확인
+ */
+export function useFreeAnalysisCheck() {
+  return useQuery<FreeAnalysisCheckResponse>({
+    queryKey: creditKeys.freeCheck(),
+    queryFn: async () => {
+      const res = await fetch('/api/user/free-analysis-check');
+      if (!res.ok) {
+        await handleApiError(res, '무료 분석 자격 확인 실패');
+      }
+      return res.json();
+    },
+    staleTime: 60 * 1000, // 1분간 캐시
+  });
 }
 
 /**

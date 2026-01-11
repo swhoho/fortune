@@ -910,6 +910,11 @@
       "afterDeduction": "扣除后余额",
       "cancel": "取消",
       "confirm": "开始分析"
+    },
+    "freeAnalysis": {
+      "title": "免费八字分析",
+      "message": "首次分析免费提供。后续分析将消耗积分。",
+      "confirm": "开始免费分析"
     }
   },
   "profile": {
@@ -981,9 +986,15 @@
       "delete": "删除",
       "complete": "完成"
     },
+    "primary": {
+      "badge": "主档案",
+      "setAsPrimary": "设为主档案",
+      "setSuccess": "主档案已更改"
+    },
     "delete": {
       "title": "删除档案",
       "message": "确定要删除「{name}」吗？",
+      "dataWarning": "该档案的所有分析报告、年度分析、合盘分析和咨询记录都将被删除。",
       "warning": "此操作无法撤销。",
       "confirm": "删除",
       "cancel": "取消"

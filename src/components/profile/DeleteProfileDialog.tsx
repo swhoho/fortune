@@ -46,13 +46,16 @@ export function DeleteProfileDialog({
     <AlertDialog open={open} onOpenChange={onOpenChange}>
       <AlertDialogContent className="max-w-md">
         <AlertDialogHeader>
-          <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-red-100">
-            <AlertTriangle className="h-6 w-6 text-red-600" />
+          <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-red-950/50">
+            <AlertTriangle className="h-6 w-6 text-red-400" />
           </div>
           <AlertDialogTitle className="text-center">{t('delete.title')}</AlertDialogTitle>
           <AlertDialogDescription className="text-center">
-            <span className="block">{t('delete.message', { name: profileName })}</span>
-            <span className="mt-2 block text-sm text-red-500">{t('delete.warning')}</span>
+            <span className="block text-gray-300">
+              {t('delete.message', { name: profileName })}
+            </span>
+            <span className="mt-3 block text-sm text-red-400">{t('delete.dataWarning')}</span>
+            <span className="mt-1 block text-xs text-gray-500">{t('delete.warning')}</span>
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter className="sm:justify-center">

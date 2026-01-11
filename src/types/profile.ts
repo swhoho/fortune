@@ -41,6 +41,8 @@ export interface ProfileResponse {
   updatedAt: string;
   /** 리포트 상태 (목록 조회 시 포함) */
   reportStatus?: ReportStatus;
+  /** 대표 프로필 여부 */
+  isPrimary?: boolean;
 }
 
 /**

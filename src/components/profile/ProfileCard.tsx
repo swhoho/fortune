@@ -6,7 +6,7 @@
  */
 import { memo, useCallback } from 'react';
 import { motion } from 'framer-motion';
-import { User, ChevronRight, AlertTriangle, CheckCircle, Loader2 } from 'lucide-react';
+import { User, ChevronRight, AlertTriangle, CheckCircle, Loader2, Crown } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import type { ProfileResponse } from '@/types/profile';
 import { calculateAge } from '@/lib/date';
@@ -97,7 +97,16 @@ function ProfileCardComponent({ profile, index, onSelect }: ProfileCardProps) {
 
           {/* 이름 + 메타 정보 */}
           <div>
-            <h3 className="font-serif text-lg font-semibold text-white">{profile.name}</h3>
+            <div className="flex items-center gap-2">
+              <h3 className="font-serif text-lg font-semibold text-white">{profile.name}</h3>
+              {/* 대표 프로필 배지 */}
+              {profile.isPrimary && (
+                <span className="inline-flex items-center gap-1 rounded-full bg-[#d4af37]/20 px-2 py-0.5 text-xs font-medium text-[#d4af37]">
+                  <Crown className="h-3 w-3" />
+                  {t('primary.badge')}
+                </span>
+              )}
+            </div>
             <p className="text-sm text-gray-400">
               {formattedDate} ({t('detail.age', { age })}) ·{' '}
               {profile.gender === 'male' ? t('form.male') : t('form.female')}

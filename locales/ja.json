@@ -910,6 +910,11 @@
       "afterDeduction": "差引後の残高",
       "cancel": "キャンセル",
       "confirm": "分析開始"
+    },
+    "freeAnalysis": {
+      "title": "無料四柱推命分析",
+      "message": "初回に限り無料でご利用いただけます。次回以降はクレジットが消費されます。",
+      "confirm": "無料分析を開始"
     }
   },
   "profile": {
@@ -981,9 +986,15 @@
       "delete": "削除",
       "complete": "完了"
     },
+    "primary": {
+      "badge": "メイン",
+      "setAsPrimary": "メインプロフィールに設定",
+      "setSuccess": "メインプロフィールが変更されました"
+    },
     "delete": {
       "title": "プロフィール削除",
       "message": "「{name}」を削除しますか？",
+      "dataWarning": "このプロフィールに関連するすべてのレポート、年間分析、相性分析、相談記録が削除されます。",
       "warning": "この操作は取り消せません。",
       "confirm": "削除",
       "cancel": "キャンセル"

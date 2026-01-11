@@ -305,10 +305,27 @@ cd python && pytest  # Python
 
 ---
 
-**Version**: 1.40.0
-**Last Updated**: 2026-01-09 (궁합 분석 v2.0)
+**Version**: 1.41.0
+**Last Updated**: 2026-01-12 (대표 프로필 시스템, 최초 무료 분석)
 
 ## Changelog
+
+### v1.41.0 (2026-01-12)
+- **대표 프로필 시스템**
+  - `profiles.is_primary` 컬럼 추가
+  - 첫 프로필 생성 시 자동 대표 설정
+  - 대표 삭제 시 가장 오래된 다음 프로필로 자동 전환
+  - `POST /api/profiles/:id/set-primary` API 추가
+  - ProfileCard에 Crown 아이콘 대표 배지 표시
+- **최초 무료 사주 분석**
+  - `users.first_free_used` 컬럼 추가
+  - user_id당 최초 1회 전체 사주 분석(70C) 무료
+  - `GET /api/user/free-analysis-check` API 추가
+  - CreditDeductionDialog 무료 분석 UI 분기
+- **프로필 삭제 CASCADE**
+  - `yearly_analyses` FK: SET NULL → CASCADE
+  - `compatibility_analyses` FK: NO ACTION → CASCADE
+  - 삭제 경고 다이얼로그 문구 강화
 
 ### v1.40.0 (2026-01-09)
 - **궁합 분석 v2.0 (고전 명리학 고도화)**

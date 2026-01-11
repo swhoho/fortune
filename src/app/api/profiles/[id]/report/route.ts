@@ -2,7 +2,7 @@
  * /api/profiles/[id]/report API
  * Task 22-23: 리포트 생성 및 조회
  *
- * POST: 리포트 생성 시작 (70C 크레딧 차감)
+ * POST: 리포트 생성 시작 (70C 크레딧 차감, FIFO)
  * GET: 완료된 리포트 조회
  */
 import { NextRequest, NextResponse } from 'next/server';
@@ -21,6 +21,7 @@ import {
   getStatusCode,
 } from '@/lib/errors/codes';
 import { normalizeKeys } from '@/lib/utils/normalize-keys';
+import { deductCredits, refundCredits } from '@/lib/credits';
 
 /**
  * 재시도 시 단계 상태 생성
@@ -1098,44 +1099,60 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
       existingReport.credits_used > 0 &&
       (existingReport.status === 'failed' || existingReport.status === 'pending');
 
-    const shouldDeductCredits = !retryFromStep && !isRetryWithCredits;
+    // 3.5 최초 무료 분석 자격 확인 (user_id당 최초 1회)
+    const { data: userData, error: userError } = await supabase
+      .from('users')
+      .select('credits, first_free_used')
+      .eq('id', userId)
+      .single();
 
-    // 4. 크레딧 확인 및 차감 (신규 생성인 경우에만)
-    let currentUserCredits = 0;
+    if (userError || !userData) {
+      return NextResponse.json(createErrorResponse(API_ERRORS.NOT_FOUND), {
+        status: getStatusCode(API_ERRORS.NOT_FOUND),
+      });
+    }
+
+    const isFreeEligible = userData.first_free_used === false;
+    const shouldDeductCredits = !retryFromStep && !isRetryWithCredits && !isFreeEligible;
+
+    // 4. 크레딧 확인 및 차감 (신규 생성이고 무료 대상이 아닌 경우에만, FIFO)
+    let creditsDeducted = false;
     if (shouldDeductCredits) {
-      const { data: userData, error: userError } = await supabase
-        .from('users')
-        .select('credits')
-        .eq('id', userId)
-        .single();
+      const deductResult = await deductCredits({
+        userId,
+        amount: SERVICE_CREDITS.profileReport,
+        serviceType: 'report',
+        description: '프로필 리포트 생성',
+        supabase,
+      });
 
-      if (userError || !userData) {
-        return NextResponse.json(createErrorResponse(API_ERRORS.NOT_FOUND), {
-          status: getStatusCode(API_ERRORS.NOT_FOUND),
+      if (!deductResult.success) {
+        if (deductResult.error === 'INSUFFICIENT_CREDITS') {
+          return NextResponse.json(
+            createErrorResponse(CREDIT_ERRORS.INSUFFICIENT, {
+              required: SERVICE_CREDITS.profileReport,
+              current: deductResult.newCredits,
+            }),
+            { status: getStatusCode(CREDIT_ERRORS.INSUFFICIENT) }
+          );
+        }
+        return NextResponse.json(createErrorResponse(API_ERRORS.SERVER_ERROR), {
+          status: getStatusCode(API_ERRORS.SERVER_ERROR),
         });
       }
+      creditsDeducted = true;
+    }
 
-      currentUserCredits = userData.credits;
-
-      if (userData.credits < SERVICE_CREDITS.profileReport) {
-        return NextResponse.json(
-          createErrorResponse(CREDIT_ERRORS.INSUFFICIENT, {
-            required: SERVICE_CREDITS.profileReport,
-            current: userData.credits,
-          }),
-          { status: getStatusCode(CREDIT_ERRORS.INSUFFICIENT) }
-        );
-      }
-
-      // 크레딧 차감
-      const newCredits = userData.credits - SERVICE_CREDITS.profileReport;
+    // 4.5 최초 무료 분석 사용 시 플래그 업데이트
+    if (isFreeEligible && !retryFromStep && !isRetryWithCredits) {
       await supabase
         .from('users')
         .update({
-          credits: newCredits,
+          first_free_used: true,
           updated_at: new Date().toISOString(),
         })
         .eq('id', userId);
+      console.log(`[API] 최초 무료 분석 사용: userId=${userId}`);
     }
 
     // 5. 리포트 레코드 생성/업데이트
@@ -1191,11 +1208,14 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
       if (insertError || !newReport) {
         console.error('[API] 리포트 생성 실패:', insertError);
         // 크레딧 환불
-        if (shouldDeductCredits) {
-          await supabase
-            .from('users')
-            .update({ credits: currentUserCredits, updated_at: new Date().toISOString() })
-            .eq('id', userId);
+        if (creditsDeducted) {
+          await refundCredits({
+            userId,
+            amount: SERVICE_CREDITS.profileReport,
+            serviceType: 'report',
+            description: '리포트 생성 실패 환불',
+            supabase,
+          });
         }
         return NextResponse.json(createErrorResponse(API_ERRORS.SERVER_ERROR), {
           status: getStatusCode(API_ERRORS.SERVER_ERROR),
@@ -1236,11 +1256,14 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
         console.error('[API] Python API 호출 실패:', errorData);
 
         // 실패 시 크레딧 환불
-        if (shouldDeductCredits) {
-          await supabase
-            .from('users')
-            .update({ credits: currentUserCredits, updated_at: new Date().toISOString() })
-            .eq('id', userId);
+        if (creditsDeducted) {
+          await refundCredits({
+            userId,
+            amount: SERVICE_CREDITS.profileReport,
+            serviceType: 'report',
+            description: 'Python API 호출 실패 환불',
+            supabase,
+          });
         }
 
         // DB에 실패 상태 저장
@@ -1276,11 +1299,14 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
       console.error('[API] Python API 연결 실패:', pythonError);
 
       // 실패 시 크레딧 환불
-      if (shouldDeductCredits) {
-        await supabase
-          .from('users')
-          .update({ credits: currentUserCredits, updated_at: new Date().toISOString() })
-          .eq('id', userId);
+      if (creditsDeducted) {
+        await refundCredits({
+          userId,
+          amount: SERVICE_CREDITS.profileReport,
+          serviceType: 'report',
+          description: 'Python 백엔드 연결 실패 환불',
+          supabase,
+        });
       }
 
       // DB에 실패 상태 저장

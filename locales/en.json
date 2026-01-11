@@ -906,9 +906,15 @@
       "delete": "Delete",
       "complete": "Done"
     },
+    "primary": {
+      "badge": "Primary",
+      "setAsPrimary": "Set as Primary",
+      "setSuccess": "Primary profile changed"
+    },
     "delete": {
       "title": "Delete Profile",
       "message": "Are you sure you want to delete ''{name}''?",
+      "dataWarning": "All reports, yearly analyses, compatibility analyses, and consultation records for this profile will be deleted.",
       "warning": "This action cannot be undone.",
       "confirm": "Delete",
       "cancel": "Cancel"
@@ -1001,6 +1007,11 @@
       "afterDeduction": "After Deduction",
       "cancel": "Cancel",
       "confirm": "Start Analysis"
+    },
+    "freeAnalysis": {
+      "title": "Free Destiny Analysis",
+      "message": "Your first analysis is free! Credits will be used for subsequent analyses.",
+      "confirm": "Start Free Analysis"
     }
   },
   "errors": {

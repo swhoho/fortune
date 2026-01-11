@@ -32,6 +32,7 @@ function toProfileResponse(
     calendar_type: string;
     created_at: string;
     updated_at: string;
+    is_primary?: boolean;
   },
   reportStatus?: ReportStatus
 ): ProfileResponse {
@@ -45,6 +46,7 @@ function toProfileResponse(
     createdAt: record.created_at,
     updatedAt: record.updated_at,
     reportStatus,
+    isPrimary: record.is_primary ?? false,
   };
 }
 
@@ -80,8 +82,17 @@ export async function POST(request: NextRequest) {
 
     const { name, gender, birthDate, birthTime, calendarType } = validation.data;
 
-    // 3. 프로필 생성
+    // 3. 첫 프로필인지 확인 (대표 프로필 자동 설정용)
     const supabase = getSupabaseAdmin();
+    const { data: existingProfiles } = await supabase
+      .from('profiles')
+      .select('id')
+      .eq('user_id', userId)
+      .limit(1);
+
+    const isFirstProfile = !existingProfiles || existingProfiles.length === 0;
+
+    // 4. 프로필 생성 (첫 프로필이면 대표로 설정)
     const { data: profile, error } = await supabase
       .from('profiles')
       .insert({
@@ -91,8 +102,11 @@ export async function POST(request: NextRequest) {
         birth_date: birthDate,
         birth_time: birthTime || null,
         calendar_type: calendarType,
+        is_primary: isFirstProfile,
       })
-      .select('id, name, gender, birth_date, birth_time, calendar_type, created_at, updated_at')
+      .select(
+        'id, name, gender, birth_date, birth_time, calendar_type, created_at, updated_at, is_primary'
+      )
       .single();
 
     if (error) {
@@ -102,7 +116,7 @@ export async function POST(request: NextRequest) {
       });
     }
 
-    // 4. 응답
+    // 5. 응답
     return NextResponse.json({
       success: true,
       data: toProfileResponse(profile),
@@ -131,11 +145,14 @@ export async function GET() {
 
     const supabase = getSupabaseAdmin();
 
-    // 2. 프로필 목록 조회
+    // 2. 프로필 목록 조회 (대표 프로필 우선, 그 다음 최신순)
     const { data, error } = await supabase
       .from('profiles')
-      .select('id, name, gender, birth_date, birth_time, calendar_type, created_at, updated_at')
+      .select(
+        'id, name, gender, birth_date, birth_time, calendar_type, created_at, updated_at, is_primary'
+      )
       .eq('user_id', user.id)
+      .order('is_primary', { ascending: false })
       .order('created_at', { ascending: false });
 
     if (error) {

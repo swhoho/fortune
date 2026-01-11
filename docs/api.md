@@ -35,6 +35,21 @@ Supabase Auth 사용 (`@supabase/ssr`)
 ### DELETE /api/profiles/:id
 프로필 삭제 | **인증**: 필수
 
+**주의**: 프로필 삭제 시 연결된 모든 데이터가 CASCADE 삭제됩니다:
+- `profile_reports` (사주 분석 리포트)
+- `consultation_sessions` (상담 세션)
+- `yearly_analyses` (신년 분석)
+- `compatibility_analyses` (궁합 분석)
+
+**대표 프로필 삭제 시**: 가장 오래된 다음 프로필이 자동으로 대표로 지정됩니다.
+
+### POST /api/profiles/:id/set-primary
+대표 프로필 설정 | **인증**: 필수
+
+해당 프로필을 대표 프로필로 설정합니다. 기존 대표 프로필은 자동으로 해제됩니다.
+
+→ `{ "success": true, "data": { "id": "uuid", "isPrimary": true } }`
+
 ---
 
 ## 프로필 리포트 API
@@ -269,6 +284,19 @@ AI 후속 질문 | **인증**: 필수 | **크레딧**: 10C
 { "current": 50, "required": 30, "sufficient": true }
 ```
 
+### GET /api/user/free-analysis-check
+최초 무료 분석 자격 확인 | **인증**: 필수
+
+user_id당 최초 1회 전체 사주 분석은 무료입니다. 이 API로 자격 여부를 확인할 수 있습니다.
+
+```json
+{ "eligible": true }
+```
+
+**비즈니스 로직**:
+- `users.first_free_used === false` → eligible: true (무료 분석 가능)
+- `users.first_free_used === true` → eligible: false (이미 사용)
+
 ### GET /api/user/questions
 사용자의 전체 질문 히스토리 조회 | **인증**: 필수
 
@@ -399,15 +427,17 @@ v2.0에서 `analyses` 테이블 기반 API가 `profiles` + `profile_reports` 테
 
 ### 크레딧 비용 (v2.0)
 
-| 서비스 | 크레딧 | API |
-|--------|--------|-----|
-| 리포트 생성 | 70C | `POST /api/profiles/:id/report` |
-| 섹션 재분석 | 5C | `POST /api/profiles/:id/report/reanalyze` |
-| 신년 분석 | 50C | `POST /api/analysis/yearly` |
-| 신년 섹션 재분석 | 0C | `POST /api/analysis/yearly/:id/reanalyze` |
-| AI 후속 질문 | 10C | `POST /api/profiles/:id/report/question` |
-| 상담 세션 | 10C | `POST /api/profiles/:id/consultation/sessions` |
-| **궁합 분석** | **70C** | `POST /api/analysis/compatibility` |
+| 서비스 | 크레딧 | API | 비고 |
+|--------|--------|-----|------|
+| 리포트 생성 | 70C | `POST /api/profiles/:id/report` | **최초 1회 무료** |
+| 섹션 재분석 | 5C | `POST /api/profiles/:id/report/reanalyze` | |
+| 신년 분석 | 50C | `POST /api/analysis/yearly` | |
+| 신년 섹션 재분석 | 0C | `POST /api/analysis/yearly/:id/reanalyze` | |
+| AI 후속 질문 | 10C | `POST /api/profiles/:id/report/question` | |
+| 상담 세션 | 10C | `POST /api/profiles/:id/consultation/sessions` | |
+| **궁합 분석** | **70C** | `POST /api/analysis/compatibility` | |
+
+**최초 무료 분석**: user_id당 최초 1회 전체 사주 분석(리포트 생성)은 무료입니다. `GET /api/user/free-analysis-check`로 자격 확인 가능.
 
 ---
 
@@ -559,4 +589,4 @@ if (!result.success) {
 
 ---
 
-**최종 수정**: 2026-01-09 (궁합 분석 v2.0)
+**최종 수정**: 2026-01-12 (대표 프로필 시스템, 최초 무료 분석, CASCADE 삭제)

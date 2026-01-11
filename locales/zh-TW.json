@@ -910,6 +910,11 @@
       "afterDeduction": "扣除後餘額",
       "cancel": "取消",
       "confirm": "開始分析"
+    },
+    "freeAnalysis": {
+      "title": "免費八字分析",
+      "message": "首次分析免費提供。後續分析將消耗積分。",
+      "confirm": "開始免費分析"
     }
   },
   "profile": {
@@ -981,9 +986,15 @@
       "delete": "刪除",
       "complete": "完成"
     },
+    "primary": {
+      "badge": "主檔案",
+      "setAsPrimary": "設為主檔案",
+      "setSuccess": "主檔案已變更"
+    },
     "delete": {
       "title": "刪除檔案",
       "message": "確定要刪除「{name}」嗎？",
+      "dataWarning": "該檔案的所有分析報告、年度分析、合盤分析和諮詢記錄都將被刪除。",
       "warning": "此操作無法復原。",
       "confirm": "刪除",
       "cancel": "取消"

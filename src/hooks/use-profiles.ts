@@ -139,3 +139,27 @@ export function useDeleteProfile() {
     },
   });
 }
+
+/**
+ * 대표 프로필 설정 훅
+ */
+export function useSetPrimaryProfile() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (id: string) => {
+      const res = await fetch(`/api/profiles/${id}/set-primary`, {
+        method: 'POST',
+      });
+
+      if (!res.ok) {
+        await handleApiError(res, '대표 프로필 설정 실패');
+      }
+
+      return res.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: profileKeys.lists() });
+    },
+  });
+}
