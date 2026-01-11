@@ -1,14 +1,15 @@
 /**
  * POST /api/profiles/[id]/report/reanalyze
  * Task 23: 섹션 재분석 API (v2.1 - 비동기/폴링 방식, 5C 크레딧 차감)
+ * 크레딧 FIFO 차감
  *
  * 허용된 섹션: personality, aptitude, fortune
  */
 import { NextRequest, NextResponse } from 'next/server';
 import { getAuthenticatedUser } from '@/lib/supabase/server';
-
 import { getSupabaseAdmin } from '@/lib/supabase/client';
 import { SERVICE_CREDITS, REANALYZABLE_SECTIONS } from '@/lib/stripe';
+import { deductCredits, refundCredits } from '@/lib/credits';
 import { z } from 'zod';
 
 /** 재분석 요청 스키마 */
@@ -86,40 +87,34 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
       return NextResponse.json({ error: '재분석할 리포트가 없습니다' }, { status: 404 });
     }
 
-    // 4. 크레딧 확인 및 차감 (원자적 연산)
-    const { data: creditResult, error: creditError } = await supabase.rpc('deduct_credits', {
-      p_user_id: userId,
-      p_amount: SERVICE_CREDITS.sectionReanalysis,
+    // 4. 크레딧 확인 및 차감 (FIFO)
+    const deductResult = await deductCredits({
+      userId,
+      amount: SERVICE_CREDITS.sectionReanalysis,
+      serviceType: 'reanalysis',
+      description: `${sectionType} 섹션 재분석`,
+      supabase,
     });
 
-    if (creditError) {
-      console.error('[API] 크레딧 차감 RPC 오류:', creditError);
+    if (!deductResult.success) {
+      if (deductResult.error === 'INSUFFICIENT_CREDITS') {
+        return NextResponse.json(
+          {
+            error: '크레딧이 부족합니다',
+            code: 'INSUFFICIENT_CREDITS',
+            required: SERVICE_CREDITS.sectionReanalysis,
+            current: deductResult.newCredits,
+          },
+          { status: 402 }
+        );
+      }
       return NextResponse.json(
         { error: '크레딧 처리 중 오류가 발생했습니다', code: 'CREDIT_ERROR' },
         { status: 500 }
       );
     }
 
-    const deductResult = creditResult?.[0];
-    if (!deductResult?.success) {
-      if (deductResult?.error_message === 'INSUFFICIENT_CREDITS') {
-        return NextResponse.json(
-          {
-            error: '크레딧이 부족합니다',
-            code: 'INSUFFICIENT_CREDITS',
-            required: SERVICE_CREDITS.sectionReanalysis,
-            current: deductResult.new_credits,
-          },
-          { status: 402 }
-        );
-      }
-      return NextResponse.json(
-        { error: '사용자 정보를 찾을 수 없습니다', code: 'USER_NOT_FOUND' },
-        { status: 404 }
-      );
-    }
-
-    const newCredits = deductResult.new_credits;
+    const newCredits = deductResult.newCredits;
 
     // 5. 재분석 로그 생성 (status: processing)
     const { data: reanalysisLog, error: logError } = await supabase
@@ -138,9 +133,12 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
     if (logError || !reanalysisLog) {
       console.error('[API] 재분석 로그 저장 실패:', logError);
       // 크레딧 환불
-      await supabase.rpc('deduct_credits', {
-        p_user_id: userId,
-        p_amount: -SERVICE_CREDITS.sectionReanalysis,
+      await refundCredits({
+        userId,
+        amount: SERVICE_CREDITS.sectionReanalysis,
+        serviceType: 'reanalysis',
+        description: '재분석 로그 저장 실패 환불',
+        supabase,
       });
       return NextResponse.json({ error: '재분석 시작에 실패했습니다' }, { status: 500 });
     }

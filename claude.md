@@ -80,6 +80,7 @@ python/
 | `docs/yearly_analysis.md` | 신년 분석 파이프라인 |
 | `docs/compatibility.md` | 궁합 분석 시스템 (Python 점수 엔진 + Gemini 해석) |
 | `docs/consultation.md` | AI 상담 시스템 |
+| `docs/payment.md` | 결제, 크레딧 유효기간, 구독 시스템 |
 | `docs/app.md` | Android 앱 출시 가이드 (Capacitor, Google Play Billing) |
 
 ## 핵심 기능
@@ -91,7 +92,7 @@ python/
   Python    Python     Gemini        Gemini (병렬)     TypeScript   Python
 ```
 
-### 크레딧 시스템
+### 크레딧 시스템 (v2.0)
 
 | 서비스 | 크레딧 |
 |--------|--------|
@@ -101,6 +102,32 @@ python/
 | 섹션 재분석 | 5C |
 | AI 질문 | 10C |
 | 상담 세션 | 10C (2라운드) |
+
+**크레딧 유효기간**:
+| 유형 | 유효기간 |
+|------|----------|
+| 구매 | 2년 |
+| 구독 | 1개월 |
+| 보너스 | 2년 |
+
+**FIFO 차감**: 만료일 가까운 순서로 차감
+
+**관련 모듈**:
+- `src/lib/credits/deduct.ts` - FIFO 차감
+- `src/lib/credits/add.ts` - 크레딧 충전
+- `/api/cron/expire-credits` - 만료 처리 (매일 자정)
+
+### 구독 시스템 (Mock)
+
+| 플랜 | 가격 | 혜택 |
+|------|------|------|
+| 프리미엄 | ₩3,900/월 | 오늘의 운세 + 월 50C |
+
+**API**:
+- `POST /api/subscription/start` - 구독 시작
+- `GET /api/subscription/status` - 상태 조회
+- `POST /api/subscription/cancel` - 취소
+- `/api/cron/expire-subscriptions` - 만료 처리
 
 ### 점수 계산 (v4.0)
 
@@ -305,10 +332,33 @@ cd python && pytest  # Python
 
 ---
 
-**Version**: 1.41.0
-**Last Updated**: 2026-01-12 (대표 프로필 시스템, 최초 무료 분석)
+**Version**: 1.42.0
+**Last Updated**: 2026-01-12 (크레딧 유효기간, 구독 시스템)
 
 ## Changelog
+
+### v1.42.0 (2026-01-12)
+- **크레딧 유효기간 시스템 (PRD v4.0 Task 4)**
+  - `credit_transactions` 테이블 신규 생성
+  - FIFO 차감 방식 (만료일 가까운 순서)
+  - 유효기간: 구매/보너스 2년, 구독 1개월
+  - `deduct_credits_fifo` / `add_credits` RPC 함수
+  - `src/lib/credits/` 모듈 (deduct.ts, add.ts)
+  - 크레딧 차감 API 5개 FIFO 적용
+  - `/api/user/credits/check` 만료 정보 추가
+  - CreditHistory UI credit_transactions 기반 + 만료 경고 표시
+  - `/api/cron/expire-credits` Vercel Cron Job
+- **구독 시스템 Mock (PRD v4.0 Task 5)**
+  - `subscriptions` 테이블 신규 생성
+  - `users.subscription_status`, `subscription_id` 컬럼 추가
+  - `/api/subscription/start` - Mock 구독 시작 (50C 지급)
+  - `/api/subscription/status` - 상태 조회
+  - `/api/subscription/cancel` - 취소
+  - `/api/cron/expire-subscriptions` Vercel Cron Job
+  - 다국어 메시지 추가 (5개 언어)
+- **문서 업데이트**
+  - `docs/payment.md` v2.0 (크레딧 유효기간, 구독 시스템)
+  - `docs/api.md` 신규 API 추가
 
 ### v1.41.0 (2026-01-12)
 - **대표 프로필 시스템**

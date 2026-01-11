@@ -2,6 +2,7 @@
  * POST /api/analysis/yearly
  * 신년 사주 분석 API (폴링 방식)
  * Python Railway 백엔드에서 Gemini 분석 실행
+ * 크레딧 FIFO 차감
  */
 import { NextRequest, NextResponse } from 'next/server';
 import { getAuthenticatedUser } from '@/lib/supabase/server';
@@ -16,6 +17,7 @@ import {
   createErrorResponse,
   getStatusCode,
 } from '@/lib/errors/codes';
+import { deductCredits, refundCredits } from '@/lib/credits';
 
 /** 신년 분석 크레딧 비용 */
 const YEARLY_ANALYSIS_CREDIT_COST = 50;
@@ -308,15 +310,29 @@ export async function POST(request: NextRequest) {
       birthYear = 1990;
     }
 
-    // 5. 크레딧 먼저 차감 (실패 시 환불 가능)
-    const newCredits = userData.credits - YEARLY_ANALYSIS_CREDIT_COST;
-    await supabase
-      .from('users')
-      .update({
-        credits: newCredits,
-        updated_at: new Date().toISOString(),
-      })
-      .eq('id', userId);
+    // 5. 크레딧 먼저 차감 (FIFO, 실패 시 환불 가능)
+    const deductResult = await deductCredits({
+      userId,
+      amount: YEARLY_ANALYSIS_CREDIT_COST,
+      serviceType: 'yearly',
+      description: `${data.targetYear}년 신년 분석`,
+      supabase,
+    });
+
+    if (!deductResult.success) {
+      if (deductResult.error === 'INSUFFICIENT_CREDITS') {
+        return NextResponse.json(
+          createErrorResponse(CREDIT_ERRORS.INSUFFICIENT, {
+            required: YEARLY_ANALYSIS_CREDIT_COST,
+            current: deductResult.newCredits,
+          }),
+          { status: getStatusCode(CREDIT_ERRORS.INSUFFICIENT) }
+        );
+      }
+      return NextResponse.json(createErrorResponse(API_ERRORS.SERVER_ERROR), {
+        status: getStatusCode(API_ERRORS.SERVER_ERROR),
+      });
+    }
 
     // 6. Python API에 분석 작업 시작 요청
     console.log('[API] Python 백엔드에 신년 분석 요청');
@@ -338,13 +354,13 @@ export async function POST(request: NextRequest) {
 
     if (!pythonResponse.ok) {
       // 실패 시 크레딧 환불
-      await supabase
-        .from('users')
-        .update({
-          credits: userData.credits,
-          updated_at: new Date().toISOString(),
-        })
-        .eq('id', userId);
+      await refundCredits({
+        userId,
+        amount: YEARLY_ANALYSIS_CREDIT_COST,
+        serviceType: 'yearly',
+        description: 'Python API 호출 실패 환불',
+        supabase,
+      });
 
       const errorData = await pythonResponse.json().catch(() => ({}));
       console.error('[API] Python API 호출 실패:', errorData);
@@ -377,13 +393,13 @@ export async function POST(request: NextRequest) {
     if (insertError || !savedAnalysis) {
       console.error('[API] 분석 레코드 생성 실패:', insertError);
       // 크레딧 환불
-      await supabase
-        .from('users')
-        .update({
-          credits: userData.credits,
-          updated_at: new Date().toISOString(),
-        })
-        .eq('id', userId);
+      await refundCredits({
+        userId,
+        amount: YEARLY_ANALYSIS_CREDIT_COST,
+        serviceType: 'yearly',
+        description: '분석 레코드 생성 실패 환불',
+        supabase,
+      });
 
       return NextResponse.json(createErrorResponse(ANALYSIS_ERRORS.SAVE_FAILED), {
         status: getStatusCode(API_ERRORS.SERVER_ERROR),

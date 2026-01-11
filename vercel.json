@@ -3,5 +3,15 @@
     "src/app/api/profiles/[id]/report/route.ts": {
       "maxDuration": 300
     }
-  }
+  },
+  "crons": [
+    {
+      "path": "/api/cron/expire-credits",
+      "schedule": "0 0 * * *"
+    },
+    {
+      "path": "/api/cron/expire-subscriptions",
+      "schedule": "0 0 * * *"
+    }
+  ]
 }

@@ -1,11 +1,13 @@
 /**
  * 상담 세션 API
  * GET: 세션 목록 조회
- * POST: 새 세션 생성 (크레딧 10C 차감)
+ * POST: 새 세션 생성 (크레딧 10C 차감, FIFO)
  */
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient, getAuthenticatedUser } from '@/lib/supabase/server';
+import { getSupabaseAdmin } from '@/lib/supabase/client';
 import { SERVICE_CREDITS } from '@/lib/stripe';
+import { deductCredits, refundCredits } from '@/lib/credits';
 import {
   AUTH_ERRORS,
   API_ERRORS,
@@ -181,43 +183,26 @@ export async function POST(request: NextRequest, context: RouteContext) {
       );
     }
 
-    // 5. 크레딧 확인 및 차감
-    const { data: userData, error: userError } = await supabase
-      .from('users')
-      .select('credits')
-      .eq('id', user.id)
-      .single();
-
-    if (userError || !userData) {
-      return NextResponse.json(
-        { success: false, ...createErrorResponse(API_ERRORS.SERVER_ERROR) },
-        { status: getStatusCode(API_ERRORS.SERVER_ERROR) }
-      );
-    }
-
+    // 5. 크레딧 확인 및 차감 (FIFO)
+    const supabaseAdmin = getSupabaseAdmin();
     const creditsRequired = SERVICE_CREDITS.question; // 10C
-    if (userData.credits < creditsRequired) {
-      return NextResponse.json(
-        { success: false, ...createErrorResponse(CREDIT_ERRORS.INSUFFICIENT) },
-        { status: getStatusCode(CREDIT_ERRORS.INSUFFICIENT) }
-      );
-    }
 
-    // 6. 크레딧 차감 (RPC 사용 - TABLE 반환이므로 배열)
-    const { data: deductResult, error: deductError } = await supabase.rpc('deduct_credits', {
-      p_user_id: user.id,
-      p_amount: creditsRequired,
+    const deductResult = await deductCredits({
+      userId: user.id,
+      amount: creditsRequired,
+      serviceType: 'consultation',
+      description: '상담 세션 생성',
+      supabase: supabaseAdmin,
     });
 
-    const deductRow = deductResult?.[0];
-    if (deductError || !deductRow?.success) {
-      if (deductRow?.error_message === 'INSUFFICIENT_CREDITS') {
+    if (!deductResult.success) {
+      if (deductResult.error === 'INSUFFICIENT_CREDITS') {
         return NextResponse.json(
           { success: false, ...createErrorResponse(CREDIT_ERRORS.INSUFFICIENT) },
           { status: getStatusCode(CREDIT_ERRORS.INSUFFICIENT) }
         );
       }
-      console.error('[ConsultationSessions] 크레딧 차감 오류:', deductError, deductRow);
+      console.error('[ConsultationSessions] 크레딧 차감 오류:', deductResult.error);
       return NextResponse.json(
         { success: false, ...createErrorResponse(CREDIT_ERRORS.DEDUCTION_FAILED) },
         { status: getStatusCode(CREDIT_ERRORS.DEDUCTION_FAILED) }
@@ -243,9 +228,12 @@ export async function POST(request: NextRequest, context: RouteContext) {
 
     if (createError || !newSession) {
       // 세션 생성 실패 시 크레딧 환불
-      await supabase.rpc('deduct_credits', {
-        p_user_id: user.id,
-        p_amount: -creditsRequired,
+      await refundCredits({
+        userId: user.id,
+        amount: creditsRequired,
+        serviceType: 'consultation',
+        description: '세션 생성 실패 환불',
+        supabase: supabaseAdmin,
       });
 
       console.error('[ConsultationSessions] 세션 생성 오류:', createError);
@@ -261,7 +249,7 @@ export async function POST(request: NextRequest, context: RouteContext) {
         sessionId: newSession.id,
         title: newSession.title,
         creditsUsed: creditsRequired,
-        remainingCredits: deductRow.new_credits,
+        remainingCredits: deductResult.newCredits,
       },
     };
 

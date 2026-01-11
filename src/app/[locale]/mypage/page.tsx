@@ -13,7 +13,6 @@ import {
   MypageSidebar,
   AnalysisHistory,
   CreditHistory,
-  QuestionHistory,
   NotificationSettings,
   ProfileSettings,
   type MypageTab,
@@ -86,7 +85,6 @@ function TabContent({ tab }: { tab: MypageTab }) {
       >
         {tab === 'analysis' && <AnalysisHistory />}
         {tab === 'credits' && <CreditHistory />}
-        {tab === 'questions' && <QuestionHistory />}
         {tab === 'notifications' && <NotificationSettings />}
         {tab === 'settings' && <ProfileSettings />}
       </motion.div>

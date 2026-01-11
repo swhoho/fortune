@@ -4,10 +4,12 @@
  *
  * 처리 이벤트:
  * - checkout.session.completed: 결제 완료 시 크레딧 충전
+ * credit_transactions 테이블에 기록 (2년 만료)
  */
 import { NextRequest, NextResponse } from 'next/server';
 import { getStripeServer } from '@/lib/stripe';
 import { getSupabaseAdmin } from '@/lib/supabase/client';
+import { addCredits } from '@/lib/credits';
 import type Stripe from 'stripe';
 
 export async function POST(request: NextRequest) {
@@ -49,8 +51,9 @@ export async function POST(request: NextRequest) {
 
 /**
  * 결제 완료 처리
- * - 사용자 크레딧 충전
  * - Purchase 레코드 생성
+ * - credit_transactions 기록 (2년 만료)
+ * - users.credits 동기화
  */
 async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
   const supabase = getSupabaseAdmin();
@@ -67,45 +70,41 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
 
   try {
     // 1. Purchase 레코드 생성
-    const { error: purchaseError } = await supabase.from('purchases').insert({
-      user_id: userId,
-      amount: amountPaid,
-      credits: creditsToAdd,
-      stripe_session_id: session.id,
-      status: 'completed',
-    });
+    const { data: purchase, error: purchaseError } = await supabase
+      .from('purchases')
+      .insert({
+        user_id: userId,
+        amount: amountPaid,
+        credits: creditsToAdd,
+        stripe_session_id: session.id,
+        status: 'completed',
+      })
+      .select('id')
+      .single();
 
     if (purchaseError) {
       console.error('Failed to create purchase record:', purchaseError);
       throw purchaseError;
     }
 
-    // 2. 사용자 크레딧 업데이트
-    const { data: user, error: getUserError } = await supabase
-      .from('users')
-      .select('credits')
-      .eq('id', userId)
-      .single();
+    // 2. credit_transactions 기록 + users.credits 동기화 (2년 만료)
+    const { success, newBalance } = await addCredits({
+      userId,
+      amount: creditsToAdd,
+      type: 'purchase',
+      purchaseId: purchase.id,
+      expiresInMonths: 24, // 2년
+      description: 'Stripe 결제',
+      supabase,
+    });
 
-    if (getUserError) {
-      console.error('Failed to get user:', getUserError);
-      throw getUserError;
-    }
-
-    const newCredits = (user?.credits || 0) + creditsToAdd;
-
-    const { error: updateError } = await supabase
-      .from('users')
-      .update({ credits: newCredits, updated_at: new Date().toISOString() })
-      .eq('id', userId);
-
-    if (updateError) {
-      console.error('Failed to update user credits:', updateError);
-      throw updateError;
+    if (!success) {
+      console.error('Failed to add credits to credit_transactions');
+      throw new Error('Failed to add credits');
     }
 
     console.log(
-      `Successfully added ${creditsToAdd} credits to user ${userId}. New balance: ${newCredits}`
+      `Successfully added ${creditsToAdd} credits to user ${userId}. New balance: ${newBalance}`
     );
   } catch (error) {
     console.error('Error processing checkout completion:', error);

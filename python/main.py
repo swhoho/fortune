@@ -645,49 +645,6 @@ async def reanalyze_report_step(
 
 
 # ============================================
-# 후속 질문 API (비동기 작업)
-# ============================================
-
-@app.post("/api/analysis/question")
-async def start_question_processing(request: dict):
-    """
-    후속 질문 처리 시작 (비동기)
-
-    백그라운드에서 Gemini AI로 질문 응답을 생성합니다.
-    상태 확인은 Next.js에서 DB를 폴링합니다.
-
-    - **question_id**: 질문 레코드 ID
-    - **profile_id**: 프로필 ID
-    - **user_id**: 사용자 ID
-    - **report_id**: 리포트 ID
-    - **question**: 사용자 질문
-    - **pillars**: 사주 팔자 데이터
-    - **previous_analysis**: 기존 분석 결과
-    - **question_history**: 이전 질문 히스토리
-    - **language**: 언어
-
-    Returns:
-        처리 시작 확인
-    """
-    from schemas.analysis import FollowUpQuestionRequest, FollowUpQuestionStartResponse
-    from services.question_service import question_service
-
-    try:
-        # dict를 Pydantic 모델로 변환
-        req = FollowUpQuestionRequest(**request)
-        await question_service.start_question_processing(req)
-        return FollowUpQuestionStartResponse(
-            status="accepted",
-            message="질문 처리가 시작되었습니다."
-        )
-    except Exception as e:
-        raise HTTPException(
-            status_code=500,
-            detail=f"질문 처리 시작 실패: {str(e)}"
-        )
-
-
-# ============================================
 # 섹션 재분석 API (비동기 작업)
 # ============================================
 

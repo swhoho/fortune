@@ -882,6 +882,18 @@
       "totalCharge": "総充電",
       "totalUsage": "総使用",
       "charge": "クレジット充電",
+      "type": {
+        "purchase": "クレジット購入",
+        "subscription": "サブスクリプションクレジット",
+        "usage": "クレジット使用",
+        "expiry": "クレジット期限切れ",
+        "bonus": "ボーナスクレジット",
+        "refund": "返金",
+        "unknown": "その他"
+      },
+      "expiringSoon": "{days}日後に期限切れ",
+      "expiresOn": "期限 {date}",
+      "balance": "残高 {amount}C",
       "usage": {
         "report": "{name} 総合分析",
         "session": "相談セッション",
@@ -916,6 +928,25 @@
       "message": "初回に限り無料でご利用いただけます。次回以降はクレジットが消費されます。",
       "confirm": "無料分析を開始"
     }
+  },
+  "subscription": {
+    "title": "プレミアムサブスクリプション",
+    "price": "月額390円",
+    "benefits": {
+      "dailyFortune": "毎日の運勢確認",
+      "monthlyCredits": "毎月50Cクレジット付与"
+    },
+    "startButton": "サブスクリプション開始",
+    "cancelButton": "サブスクリプション解約",
+    "mockNotice": "テストモード：実際の決済なしで体験",
+    "status": {
+      "active": "有効",
+      "canceled": "解約済み",
+      "expired": "期限切れ",
+      "none": "未加入"
+    },
+    "currentPeriodEnd": "次回請求日: {date}",
+    "canceledNotice": "サブスクリプションが解約されました。{date}までご利用いただけます。"
   },
   "profile": {
     "pageTitle": {

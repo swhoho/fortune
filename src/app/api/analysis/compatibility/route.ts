@@ -2,6 +2,7 @@
  * POST /api/analysis/compatibility
  * 궁합 분석 시작 API (폴링 방식)
  * Python Railway 백엔드에서 분석 실행
+ * 크레딧 FIFO 차감
  */
 import { NextRequest, NextResponse } from 'next/server';
 import { getAuthenticatedUser } from '@/lib/supabase/server';
@@ -15,6 +16,7 @@ import {
   createErrorResponse,
   getStatusCode,
 } from '@/lib/errors/codes';
+import { deductCredits, refundCredits } from '@/lib/credits';
 
 /** 궁합 분석 크레딧 비용 */
 const COMPATIBILITY_ANALYSIS_CREDIT_COST = 70;
@@ -200,29 +202,34 @@ export async function POST(request: NextRequest) {
       });
     }
 
-    // 크레딧 부족 체크 (신규 생성인 경우만)
-    if (shouldDeductCredits && userData.credits < COMPATIBILITY_ANALYSIS_CREDIT_COST) {
-      return NextResponse.json(
-        createErrorResponse(CREDIT_ERRORS.INSUFFICIENT, {
-          required: COMPATIBILITY_ANALYSIS_CREDIT_COST,
-          current: userData.credits,
-        }),
-        { status: getStatusCode(CREDIT_ERRORS.INSUFFICIENT) }
-      );
-    }
-
-    // 7. 크레딧 차감 (신규 생성인 경우에만)
+    // 7. 크레딧 차감 (신규 생성인 경우에만, FIFO)
+    let creditsDeducted = false;
     if (shouldDeductCredits) {
-      const newCredits = userData.credits - COMPATIBILITY_ANALYSIS_CREDIT_COST;
-      await supabase
-        .from('users')
-        .update({
-          credits: newCredits,
-          updated_at: new Date().toISOString(),
-        })
-        .eq('id', userId);
+      const deductResult = await deductCredits({
+        userId,
+        amount: COMPATIBILITY_ANALYSIS_CREDIT_COST,
+        serviceType: 'compatibility',
+        description: '궁합 분석',
+        supabase,
+      });
 
-      // 크레딧 사용 기록 (ai_usage_logs)
+      if (!deductResult.success) {
+        if (deductResult.error === 'INSUFFICIENT_CREDITS') {
+          return NextResponse.json(
+            createErrorResponse(CREDIT_ERRORS.INSUFFICIENT, {
+              required: COMPATIBILITY_ANALYSIS_CREDIT_COST,
+              current: deductResult.newCredits,
+            }),
+            { status: getStatusCode(CREDIT_ERRORS.INSUFFICIENT) }
+          );
+        }
+        return NextResponse.json(createErrorResponse(API_ERRORS.SERVER_ERROR), {
+          status: getStatusCode(API_ERRORS.SERVER_ERROR),
+        });
+      }
+      creditsDeducted = true;
+
+      // 크레딧 사용 기록 (ai_usage_logs) - 레거시 호환
       await supabase.from('ai_usage_logs').insert({
         user_id: userId,
         feature_type: 'compatibility_analysis',
@@ -275,14 +282,14 @@ export async function POST(request: NextRequest) {
       if (insertError || !savedAnalysis) {
         console.error('[API] 분석 레코드 생성 실패:', insertError);
         // 크레딧 환불
-        if (shouldDeductCredits) {
-          await supabase
-            .from('users')
-            .update({
-              credits: userData.credits,
-              updated_at: new Date().toISOString(),
-            })
-            .eq('id', userId);
+        if (creditsDeducted) {
+          await refundCredits({
+            userId,
+            amount: COMPATIBILITY_ANALYSIS_CREDIT_COST,
+            serviceType: 'compatibility',
+            description: '분석 레코드 생성 실패 환불',
+            supabase,
+          });
         }
 
         return NextResponse.json(createErrorResponse(API_ERRORS.SERVER_ERROR), {
@@ -328,14 +335,14 @@ export async function POST(request: NextRequest) {
 
     if (!pythonResponse.ok) {
       // Python 호출 실패 시 크레딧 환불 (신규 생성인 경우만) 및 상태 업데이트
-      if (shouldDeductCredits) {
-        await supabase
-          .from('users')
-          .update({
-            credits: userData.credits,
-            updated_at: new Date().toISOString(),
-          })
-          .eq('id', userId);
+      if (creditsDeducted) {
+        await refundCredits({
+          userId,
+          amount: COMPATIBILITY_ANALYSIS_CREDIT_COST,
+          serviceType: 'compatibility',
+          description: 'Python API 호출 실패 환불',
+          supabase,
+        });
       }
 
       // 레코드 삭제 대신 failed 상태로 업데이트 (재시도 가능하도록)

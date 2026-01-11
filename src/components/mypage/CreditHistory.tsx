@@ -3,217 +3,92 @@
 /**
  * 크레딧 충전/사용 기록 컴포넌트
  * 마이페이지 - 크레딧 기록 탭
- * 프로필 이름, 연도 등 상세 정보 포함
+ * v2.0: credit_transactions 테이블 기반, 만료 정보 표시
  */
 import { useQuery } from '@tanstack/react-query';
 import { motion } from 'framer-motion';
-import { format } from 'date-fns';
-import { ArrowUpCircle, ArrowDownCircle, Loader2 } from 'lucide-react';
+import { format, differenceInDays } from 'date-fns';
+import { ArrowUpCircle, ArrowDownCircle, Loader2, Clock, AlertTriangle } from 'lucide-react';
 import { useTranslations, useLocale } from 'next-intl';
 import { supabase } from '@/lib/supabase/client';
 import { cn } from '@/lib/utils';
 import { getDateLocale } from '@/lib/date-locale';
 
+/** 크레딧 트랜잭션 타입 */
+type TransactionType = 'purchase' | 'subscription' | 'usage' | 'expiry' | 'bonus' | 'refund';
+
 /** 크레딧 기록 아이템 타입 */
 interface CreditHistoryItem {
   id: string;
-  type: 'charge' | 'usage';
+  type: TransactionType;
   amount: number;
-  /** 번역 키 */
-  descriptionKey: string;
-  /** 동적 설명 (프로필 이름 등 포함) */
-  description?: string;
-  /** 충전 금액 (달러) - 충전 기록에만 존재 */
-  chargeAmount?: string;
+  balanceAfter: number;
+  /** 설명 텍스트 */
+  description: string | null;
+  /** 만료일 (충전 기록에만) */
+  expiresAt: string | null;
+  /** 잔여 크레딧 (충전 기록에만) */
+  remaining: number;
   createdAt: string;
 }
 
-/** 충전 기록 조회 */
-async function fetchPurchases(userId: string) {
+/**
+ * credit_transactions에서 기록 조회
+ * v2.0: 통합 테이블에서 모든 기록 조회
+ */
+async function fetchCreditTransactions(userId: string): Promise<CreditHistoryItem[]> {
   const { data, error } = await supabase
-    .from('purchases')
-    .select('id, credits, amount, created_at, status')
+    .from('credit_transactions')
+    .select('id, type, amount, balance_after, description, expires_at, remaining, created_at')
     .eq('user_id', userId)
-    .eq('status', 'completed')
     .order('created_at', { ascending: false })
-    .limit(50);
+    .limit(100);
 
-  if (error) throw error;
-  return data || [];
+  if (error) {
+    console.error('[CreditHistory] 조회 오류:', error);
+    return [];
+  }
+
+  return (data || []).map((t) => ({
+    id: t.id,
+    type: t.type as TransactionType,
+    amount: t.amount,
+    balanceAfter: t.balance_after,
+    description: t.description,
+    expiresAt: t.expires_at,
+    remaining: t.remaining || 0,
+    createdAt: t.created_at,
+  }));
 }
 
-/** 프로필 이름 추출 헬퍼 */
-function getProfileName(profile: { name: string } | { name: string }[] | null): string {
-  if (!profile) return '';
-  if (Array.isArray(profile)) return profile[0]?.name || '';
-  return profile.name || '';
-}
+/** 만료 경고 배지 컴포넌트 */
+function ExpiryBadge({
+  expiresAt,
+  remaining,
+  t,
+}: {
+  expiresAt: string | null;
+  remaining: number;
+  t: (key: string, params?: Record<string, string | number>) => string;
+}) {
+  if (!expiresAt || remaining <= 0) return null;
 
-/** 모든 크레딧 사용 기록 조회 (여러 테이블에서) */
-async function fetchAllUsageLogs(
-  userId: string,
-  t: (key: string, params?: Record<string, string | number>) => string
-) {
-  const results: CreditHistoryItem[] = [];
+  const daysLeft = differenceInDays(new Date(expiresAt), new Date());
 
-  // 1. 리포트 생성 (profile_reports) - 프로필 이름 조인
-  const { data: reports } = await supabase
-    .from('profile_reports')
-    .select('id, credits_used, created_at, status, profiles(name)')
-    .eq('user_id', userId)
-    .eq('status', 'completed')
-    .gt('credits_used', 0)
-    .order('created_at', { ascending: false })
-    .limit(50);
+  // 이미 만료
+  if (daysLeft < 0) return null;
 
-  if (reports) {
-    results.push(
-      ...reports.map((r) => {
-        const profileName = getProfileName(
-          r.profiles as { name: string } | { name: string }[] | null
-        );
-        return {
-          id: `report-${r.id}`,
-          type: 'usage' as const,
-          amount: r.credits_used,
-          descriptionKey: 'report',
-          description: profileName ? t('usage.report', { name: profileName }) : undefined,
-          createdAt: r.created_at,
-        };
-      })
+  // 30일 이내 만료 예정
+  if (daysLeft <= 30) {
+    return (
+      <span className="ml-2 inline-flex items-center gap-1 rounded-full bg-amber-900/40 px-2 py-0.5 text-xs text-amber-400">
+        <AlertTriangle className="h-3 w-3" />
+        {t('expiringSoon', { days: daysLeft })}
+      </span>
     );
   }
 
-  // 2. 상담 세션 (consultation_sessions)
-  const { data: sessions } = await supabase
-    .from('consultation_sessions')
-    .select('id, credits_used, created_at')
-    .eq('user_id', userId)
-    .gt('credits_used', 0)
-    .order('created_at', { ascending: false })
-    .limit(50);
-
-  if (sessions) {
-    results.push(
-      ...sessions.map((s) => ({
-        id: `session-${s.id}`,
-        type: 'usage' as const,
-        amount: s.credits_used,
-        descriptionKey: 'session',
-        createdAt: s.created_at,
-      }))
-    );
-  }
-
-  // 3. 신년 분석 (yearly_analyses) - 프로필 이름 + 연도 조인
-  const { data: yearly } = await supabase
-    .from('yearly_analyses')
-    .select('id, credits_used, created_at, status, target_year, profiles(name)')
-    .eq('user_id', userId)
-    .eq('status', 'completed')
-    .gt('credits_used', 0)
-    .order('created_at', { ascending: false })
-    .limit(50);
-
-  if (yearly) {
-    results.push(
-      ...yearly.map((y) => {
-        const profileName = getProfileName(
-          y.profiles as { name: string } | { name: string }[] | null
-        );
-        return {
-          id: `yearly-${y.id}`,
-          type: 'usage' as const,
-          amount: y.credits_used,
-          descriptionKey: 'yearly',
-          description:
-            profileName && y.target_year
-              ? t('usage.yearly', { year: y.target_year, name: profileName })
-              : undefined,
-          createdAt: y.created_at,
-        };
-      })
-    );
-  }
-
-  // 4. 섹션 재분석 (reanalysis_logs)
-  const { data: reanalysis } = await supabase
-    .from('reanalysis_logs')
-    .select('id, credits_used, created_at, status')
-    .eq('user_id', userId)
-    .eq('status', 'completed')
-    .gt('credits_used', 0)
-    .order('created_at', { ascending: false })
-    .limit(50);
-
-  if (reanalysis) {
-    results.push(
-      ...reanalysis.map((r) => ({
-        id: `reanalysis-${r.id}`,
-        type: 'usage' as const,
-        amount: r.credits_used,
-        descriptionKey: 'reanalysis',
-        createdAt: r.created_at,
-      }))
-    );
-  }
-
-  // 5. 후속 질문 (report_questions)
-  const { data: questions } = await supabase
-    .from('report_questions')
-    .select('id, credits_used, created_at, status')
-    .eq('user_id', userId)
-    .eq('status', 'completed')
-    .gt('credits_used', 0)
-    .order('created_at', { ascending: false })
-    .limit(50);
-
-  if (questions) {
-    results.push(
-      ...questions.map((q) => ({
-        id: `question-${q.id}`,
-        type: 'usage' as const,
-        amount: q.credits_used,
-        descriptionKey: 'question',
-        createdAt: q.created_at,
-      }))
-    );
-  }
-
-  // 6. 궁합 분석 (compatibility_analyses) - 두 프로필 이름 조인
-  const { data: compatibility } = await supabase
-    .from('compatibility_analyses')
-    .select(
-      `
-      id, credits_used, created_at, status,
-      profile_a:profiles!compatibility_analyses_profile_id_a_fkey(name),
-      profile_b:profiles!compatibility_analyses_profile_id_b_fkey(name)
-    `
-    )
-    .eq('user_id', userId)
-    .eq('status', 'completed')
-    .gt('credits_used', 0)
-    .order('created_at', { ascending: false })
-    .limit(50);
-
-  if (compatibility) {
-    results.push(
-      ...compatibility.map((c) => {
-        const nameA = getProfileName(c.profile_a as { name: string } | { name: string }[] | null);
-        const nameB = getProfileName(c.profile_b as { name: string } | { name: string }[] | null);
-        return {
-          id: `compatibility-${c.id}`,
-          type: 'usage' as const,
-          amount: c.credits_used,
-          descriptionKey: 'compatibility',
-          description: nameA && nameB ? t('usage.compatibility', { nameA, nameB }) : undefined,
-          createdAt: c.created_at,
-        };
-      })
-    );
-  }
-
-  return results;
+  return null;
 }
 
 export function CreditHistory() {
@@ -232,46 +107,50 @@ export function CreditHistory() {
     },
   });
 
-  // 충전 기록 조회
-  const { data: purchases = [], isLoading: isPurchasesLoading } = useQuery({
-    queryKey: ['purchases', userId],
-    queryFn: () => fetchPurchases(userId!),
+  // credit_transactions에서 기록 조회
+  const { data: historyItems = [], isLoading } = useQuery({
+    queryKey: ['creditTransactions', userId],
+    queryFn: () => fetchCreditTransactions(userId!),
     enabled: !!userId,
   });
 
-  // 사용 기록 조회 (모든 테이블에서)
-  const { data: usageLogs = [], isLoading: isUsageLoading } = useQuery({
-    queryKey: ['allUsageLogs', userId],
-    queryFn: () => fetchAllUsageLogs(userId!, t),
-    enabled: !!userId,
-  });
-
-  // 기록 통합 및 정렬
-  const historyItems: CreditHistoryItem[] = [
-    ...purchases.map((p) => ({
-      id: p.id,
-      type: 'charge' as const,
-      amount: p.credits,
-      descriptionKey: 'charge',
-      chargeAmount: `$${(p.amount / 100).toFixed(2)}`,
-      createdAt: p.created_at,
-    })),
-    ...usageLogs,
-  ].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
-
-  /** 아이템 설명 (동적 설명 우선) */
+  /** 트랜잭션 유형에 따른 설명 */
   const getItemDescription = (item: CreditHistoryItem): string => {
-    if (item.type === 'charge') {
-      return `${t('charge')} (${item.chargeAmount})`;
+    // DB에 저장된 설명이 있으면 우선 사용
+    if (item.description) return item.description;
+
+    // 유형별 기본 설명
+    switch (item.type) {
+      case 'purchase':
+        return t('type.purchase');
+      case 'subscription':
+        return t('type.subscription');
+      case 'usage':
+        return t('type.usage');
+      case 'expiry':
+        return t('type.expiry');
+      case 'bonus':
+        return t('type.bonus');
+      case 'refund':
+        return t('type.refund');
+      default:
+        return t('type.unknown');
     }
-    // 동적 설명이 있으면 사용, 없으면 기본 번역
-    if (item.description) {
-      return item.description;
-    }
-    return t(`usage.${item.descriptionKey}`);
   };
 
-  const isLoading = isPurchasesLoading || isUsageLoading;
+  /** 양수/음수 판별 (충전 vs 사용) */
+  const isPositive = (item: CreditHistoryItem): boolean => {
+    return item.amount > 0;
+  };
+
+  // 통계 계산
+  const totalCharge = historyItems
+    .filter((item) => item.amount > 0)
+    .reduce((sum, item) => sum + item.amount, 0);
+
+  const totalUsage = historyItems
+    .filter((item) => item.amount < 0)
+    .reduce((sum, item) => sum + Math.abs(item.amount), 0);
 
   if (isLoading) {
     return (
@@ -315,18 +194,14 @@ export function CreditHistory() {
             <ArrowUpCircle className="h-5 w-5 text-green-400" />
             <span className="text-sm text-green-400">{t('totalCharge')}</span>
           </div>
-          <p className="mt-2 text-2xl font-bold text-green-400">
-            {purchases.reduce((sum, p) => sum + p.credits, 0)}C
-          </p>
+          <p className="mt-2 text-2xl font-bold text-green-400">{totalCharge}C</p>
         </div>
         <div className="rounded-xl bg-red-900/30 p-4">
           <div className="flex items-center gap-2">
             <ArrowDownCircle className="h-5 w-5 text-red-400" />
             <span className="text-sm text-red-400">{t('totalUsage')}</span>
           </div>
-          <p className="mt-2 text-2xl font-bold text-red-400">
-            {usageLogs.reduce((sum, u) => sum + u.amount, 0)}C
-          </p>
+          <p className="mt-2 text-2xl font-bold text-red-400">{totalUsage}C</p>
         </div>
       </div>
 
@@ -345,31 +220,51 @@ export function CreditHistory() {
                 <div
                   className={cn(
                     'flex h-8 w-8 items-center justify-center rounded-full',
-                    item.type === 'charge' ? 'bg-green-900/30' : 'bg-red-900/30'
+                    isPositive(item) ? 'bg-green-900/30' : 'bg-red-900/30'
                   )}
                 >
-                  {item.type === 'charge' ? (
+                  {isPositive(item) ? (
                     <ArrowUpCircle className="h-4 w-4 text-green-400" />
                   ) : (
                     <ArrowDownCircle className="h-4 w-4 text-red-400" />
                   )}
                 </div>
                 <div>
-                  <p className="font-medium text-white">{getItemDescription(item)}</p>
-                  <p className="text-xs text-gray-500">
-                    {format(new Date(item.createdAt), 'yyyy.MM.dd HH:mm', { locale: dateLocale })}
-                  </p>
+                  <div className="flex items-center">
+                    <p className="font-medium text-white">{getItemDescription(item)}</p>
+                    {/* 충전 타입에만 만료 경고 표시 */}
+                    {['purchase', 'subscription', 'bonus', 'refund'].includes(item.type) && (
+                      <ExpiryBadge expiresAt={item.expiresAt} remaining={item.remaining} t={t} />
+                    )}
+                  </div>
+                  <div className="flex items-center gap-2 text-xs text-gray-500">
+                    <span>
+                      {format(new Date(item.createdAt), 'yyyy.MM.dd HH:mm', { locale: dateLocale })}
+                    </span>
+                    {/* 만료일 표시 (충전 기록에만) */}
+                    {item.expiresAt && ['purchase', 'subscription', 'bonus'].includes(item.type) && (
+                      <span className="flex items-center gap-1 text-gray-600">
+                        <Clock className="h-3 w-3" />
+                        {t('expiresOn', {
+                          date: format(new Date(item.expiresAt), 'yyyy.MM.dd', {
+                            locale: dateLocale,
+                          }),
+                        })}
+                      </span>
+                    )}
+                  </div>
                 </div>
               </div>
-              <span
-                className={cn(
-                  'font-semibold',
-                  item.type === 'charge' ? 'text-green-400' : 'text-red-400'
-                )}
-              >
-                {item.type === 'charge' ? '+' : '-'}
-                {item.amount}C
-              </span>
+              <div className="text-right">
+                <span
+                  className={cn('font-semibold', isPositive(item) ? 'text-green-400' : 'text-red-400')}
+                >
+                  {isPositive(item) ? '+' : ''}
+                  {item.amount}C
+                </span>
+                {/* 잔액 표시 */}
+                <p className="text-xs text-gray-500">{t('balance', { amount: item.balanceAfter })}</p>
+              </div>
             </motion.div>
           ))}
         </div>

@@ -278,11 +278,28 @@ AI 후속 질문 | **인증**: 필수 | **크레딧**: 10C
 사용자 정보 수정 | **인증**: 필수
 
 ### GET /api/user/credits/check
-크레딧 잔액 확인 | **인증**: 필수
+크레딧 잔액 확인 | **인증**: 필수 | **v2.0**: 만료 정보 추가
 
+**Query Params**:
+- `required` (optional): 필요한 크레딧 양
+
+**Response (v2.0)**:
 ```json
-{ "current": 50, "required": 30, "sufficient": true }
+{
+  "current": 150,
+  "sufficient": true,
+  "required": 70,
+  "remaining": 80,
+  "shortfall": 0,
+  "expiringSoon": 30,
+  "nearestExpiry": "2026-02-15T00:00:00Z"
+}
 ```
+
+| 필드 | 설명 |
+|------|------|
+| expiringSoon | 30일 이내 만료 예정 크레딧 |
+| nearestExpiry | 가장 가까운 만료일 (ISO 문자열)
 
 ### GET /api/user/free-analysis-check
 최초 무료 분석 자격 확인 | **인증**: 필수
@@ -319,6 +336,61 @@ Stripe 결제 세션 생성
 
 ### POST /api/payment/webhook
 Stripe 웹훅 (checkout.session.completed 처리)
+
+### POST /api/payment/portone/verify
+PortOne 결제 검증 | **인증**: 필수
+
+```json
+{ "paymentId": "payment_xxx", "packageId": "popular" }
+```
+
+---
+
+## 구독 API (v2.0 Mock)
+
+### POST /api/subscription/start
+Mock 구독 시작 | **인증**: 필수
+
+구독 시작 시 50C 크레딧 지급 (1개월 만료)
+
+```json
+→ {
+  "success": true,
+  "subscription": { "id": "uuid", "status": "active", "periodEnd": "2026-02-12" },
+  "creditsGranted": 50
+}
+```
+
+### GET /api/subscription/status
+구독 상태 조회 | **인증**: 필수
+
+```json
+→ {
+  "hasSubscription": true,
+  "subscription": { "id": "uuid", "status": "active", "periodStart": "...", "periodEnd": "..." }
+}
+```
+
+### POST /api/subscription/cancel
+구독 취소 | **인증**: 필수
+
+```json
+→ { "success": true, "message": "구독이 취소되었습니다 (테스트 모드)" }
+```
+
+---
+
+## Cron API
+
+### GET /api/cron/expire-credits
+만료된 크레딧 처리 | **인증**: Vercel Cron (CRON_SECRET)
+
+매일 자정 실행. 만료된 크레딧 remaining=0 처리, expiry 기록 생성.
+
+### GET /api/cron/expire-subscriptions
+만료된 구독 처리 | **인증**: Vercel Cron (CRON_SECRET)
+
+매일 자정 실행. 만료된 구독 status='expired' 처리.
 
 ---
 

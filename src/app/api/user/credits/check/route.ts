@@ -2,6 +2,7 @@
  * GET /api/user/credits/check
  * 사용자 크레딧 확인 API
  * Task 23: 크레딧 연동
+ * v2.0: 만료 정보 추가 (credit_transactions 기반)
  */
 import { NextRequest, NextResponse } from 'next/server';
 import { getAuthenticatedUser } from '@/lib/supabase/server';
@@ -14,6 +15,7 @@ import {
   createErrorResponse,
   getStatusCode,
 } from '@/lib/errors/codes';
+import { getExpiringCredits } from '@/lib/credits';
 
 /**
  * 쿼리 파라미터 스키마
@@ -30,11 +32,13 @@ const querySchema = z.object({
  * - required: 필요한 크레딧 양 (optional)
  *
  * Response:
- * - sufficient: 크레딧 충분 여부
+ * - sufficient: 크레딧 충분 여부 (required 지정 시)
  * - current: 현재 보유 크레딧
  * - required: 필요 크레딧 (요청 시)
  * - remaining: 사용 후 남는 크레딧
  * - shortfall: 부족한 크레딧 (부족 시)
+ * - expiringSoon: 30일 이내 만료 예정 크레딧 (v2.0)
+ * - nearestExpiry: 가장 가까운 만료일 ISO 문자열 (v2.0)
  */
 export async function GET(request: NextRequest) {
   try {
@@ -71,7 +75,10 @@ export async function GET(request: NextRequest) {
 
     const currentCredits = userData.credits ?? 0;
 
-    // 4. 필요 크레딧이 지정된 경우 충분 여부 계산
+    // 4. 만료 예정 크레딧 조회 (30일 이내)
+    const expiringInfo = await getExpiringCredits(userId, 30, supabase);
+
+    // 5. 필요 크레딧이 지정된 경우 충분 여부 계산
     if (requiredCredits !== undefined) {
       const sufficient = currentCredits >= requiredCredits;
       const remaining = currentCredits - requiredCredits;
@@ -83,12 +90,16 @@ export async function GET(request: NextRequest) {
         required: requiredCredits,
         remaining: sufficient ? remaining : 0,
         shortfall,
+        expiringSoon: expiringInfo.total,
+        nearestExpiry: expiringInfo.nearestExpiry,
       });
     }
 
-    // 5. 필요 크레딧 미지정 시 현재 잔액만 반환
+    // 6. 필요 크레딧 미지정 시 현재 잔액 + 만료 정보 반환
     return NextResponse.json({
       current: currentCredits,
+      expiringSoon: expiringInfo.total,
+      nearestExpiry: expiringInfo.nearestExpiry,
     });
   } catch (error) {
     console.error('[API] /api/user/credits/check 에러:', error);

@@ -979,6 +979,18 @@
       "totalCharge": "Total Charged",
       "totalUsage": "Total Used",
       "charge": "Credit Charge",
+      "type": {
+        "purchase": "Credit Purchase",
+        "subscription": "Subscription Credits",
+        "usage": "Credit Usage",
+        "expiry": "Credit Expired",
+        "bonus": "Bonus Credits",
+        "refund": "Refund",
+        "unknown": "Other"
+      },
+      "expiringSoon": "Expires in {days} days",
+      "expiresOn": "Expires {date}",
+      "balance": "Balance {amount}C",
       "usage": {
         "report": "{name} Full Analysis",
         "session": "Consultation Session",
@@ -1013,6 +1025,25 @@
       "message": "Your first analysis is free! Credits will be used for subsequent analyses.",
       "confirm": "Start Free Analysis"
     }
+  },
+  "subscription": {
+    "title": "Premium Subscription",
+    "price": "$2.99/month",
+    "benefits": {
+      "dailyFortune": "Daily fortune reading",
+      "monthlyCredits": "50C credits every month"
+    },
+    "startButton": "Start Subscription",
+    "cancelButton": "Cancel Subscription",
+    "mockNotice": "Test mode: Experience subscription without payment",
+    "status": {
+      "active": "Active",
+      "canceled": "Canceled",
+      "expired": "Expired",
+      "none": "Not subscribed"
+    },
+    "currentPeriodEnd": "Next billing: {date}",
+    "canceledNotice": "Subscription canceled. Access until {date}."
   },
   "errors": {
     "AUTH_UNAUTHORIZED": "Please sign in to continue",

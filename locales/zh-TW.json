@@ -882,6 +882,18 @@
       "totalCharge": "總充值",
       "totalUsage": "總使用",
       "charge": "積分充值",
+      "type": {
+        "purchase": "積分購買",
+        "subscription": "訂閱積分",
+        "usage": "積分使用",
+        "expiry": "積分過期",
+        "bonus": "獎勵積分",
+        "refund": "退款",
+        "unknown": "其他"
+      },
+      "expiringSoon": "{days}天後過期",
+      "expiresOn": "過期日期 {date}",
+      "balance": "餘額 {amount}C",
       "usage": {
         "report": "{name} 全面分析",
         "session": "諮詢會話",
@@ -916,6 +928,25 @@
       "message": "首次分析免費提供。後續分析將消耗積分。",
       "confirm": "開始免費分析"
     }
+  },
+  "subscription": {
+    "title": "高級訂閱",
+    "price": "每月NT$99",
+    "benefits": {
+      "dailyFortune": "每日運勢查看",
+      "monthlyCredits": "每月50積分"
+    },
+    "startButton": "開始訂閱",
+    "cancelButton": "取消訂閱",
+    "mockNotice": "測試模式：無需支付即可體驗",
+    "status": {
+      "active": "已訂閱",
+      "canceled": "已取消",
+      "expired": "已過期",
+      "none": "未訂閱"
+    },
+    "currentPeriodEnd": "下次扣費日：{date}",
+    "canceledNotice": "訂閱已取消。可使用至 {date}。"
   },
   "profile": {
     "pageTitle": {

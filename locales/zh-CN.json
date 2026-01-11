@@ -882,6 +882,18 @@
       "totalCharge": "总充值",
       "totalUsage": "总使用",
       "charge": "积分充值",
+      "type": {
+        "purchase": "积分购买",
+        "subscription": "订阅积分",
+        "usage": "积分使用",
+        "expiry": "积分过期",
+        "bonus": "奖励积分",
+        "refund": "退款",
+        "unknown": "其他"
+      },
+      "expiringSoon": "{days}天后过期",
+      "expiresOn": "过期日期 {date}",
+      "balance": "余额 {amount}C",
       "usage": {
         "report": "{name} 全面分析",
         "session": "咨询会话",
@@ -916,6 +928,25 @@
       "message": "首次分析免费提供。后续分析将消耗积分。",
       "confirm": "开始免费分析"
     }
+  },
+  "subscription": {
+    "title": "高级订阅",
+    "price": "每月19.9元",
+    "benefits": {
+      "dailyFortune": "每日运势查看",
+      "monthlyCredits": "每月50积分"
+    },
+    "startButton": "开始订阅",
+    "cancelButton": "取消订阅",
+    "mockNotice": "测试模式：无需支付即可体验",
+    "status": {
+      "active": "已订阅",
+      "canceled": "已取消",
+      "expired": "已过期",
+      "none": "未订阅"
+    },
+    "currentPeriodEnd": "下次扣费日：{date}",
+    "canceledNotice": "订阅已取消。可使用至 {date}。"
   },
   "profile": {
     "pageTitle": {

@@ -3,6 +3,7 @@
  * POST /api/payment/portone/verify
  *
  * 결제 완료 후 클라이언트에서 호출하여 결제 검증 및 크레딧 지급
+ * credit_transactions 테이블에 기록 (2년 만료)
  */
 import { NextRequest, NextResponse } from 'next/server';
 import { getPackageById, verifyPaymentWithPortOne } from '@/lib/portone';
@@ -14,6 +15,7 @@ import {
   createErrorResponse,
   getStatusCode,
 } from '@/lib/errors/codes';
+import { addCredits } from '@/lib/credits';
 
 interface VerifyPaymentRequest {
   paymentId: string;
@@ -108,13 +110,17 @@ export async function POST(request: NextRequest) {
     const creditsToAdd = selectedPackage.credits + (selectedPackage.bonus || 0);
 
     // 8. Purchase 레코드 생성 (stripe_session_id에 포트원 paymentId 저장)
-    const { error: purchaseError } = await supabase.from('purchases').insert({
-      user_id: user.id,
-      amount: selectedPackage.price,
-      credits: creditsToAdd,
-      stripe_session_id: paymentId, // 포트원 payment_id 저장
-      status: 'completed',
-    });
+    const { data: purchase, error: purchaseError } = await supabase
+      .from('purchases')
+      .insert({
+        user_id: user.id,
+        amount: selectedPackage.price,
+        credits: creditsToAdd,
+        stripe_session_id: paymentId, // 포트원 payment_id 저장
+        status: 'completed',
+      })
+      .select('id')
+      .single();
 
     if (purchaseError) {
       console.error('Failed to create purchase record:', purchaseError);
@@ -125,31 +131,19 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // 9. 사용자 크레딧 업데이트
-    const { data: userData, error: getUserError } = await supabase
-      .from('users')
-      .select('credits')
-      .eq('id', user.id)
-      .single();
+    // 9. credit_transactions 기록 + users.credits 동기화 (2년 만료)
+    const { success: addSuccess, newBalance } = await addCredits({
+      userId: user.id,
+      amount: creditsToAdd,
+      type: 'purchase',
+      purchaseId: purchase.id,
+      expiresInMonths: 24, // 2년
+      description: `${packageId} 패키지 구매`,
+      supabase,
+    });
 
-    if (getUserError) {
-      console.error('Failed to get user:', getUserError);
-      const errorResponse = createErrorResponse(PAYMENT_ERRORS.USER_FETCH_FAILED);
-      return NextResponse.json(
-        { success: false, ...errorResponse },
-        { status: getStatusCode(PAYMENT_ERRORS.USER_FETCH_FAILED) }
-      );
-    }
-
-    const newCredits = (userData?.credits || 0) + creditsToAdd;
-
-    const { error: updateError } = await supabase
-      .from('users')
-      .update({ credits: newCredits, updated_at: new Date().toISOString() })
-      .eq('id', user.id);
-
-    if (updateError) {
-      console.error('Failed to update user credits:', updateError);
+    if (!addSuccess) {
+      console.error('Failed to add credits to credit_transactions');
       const errorResponse = createErrorResponse(PAYMENT_ERRORS.CREDIT_UPDATE_FAILED);
       return NextResponse.json(
         { success: false, ...errorResponse },
@@ -158,13 +152,13 @@ export async function POST(request: NextRequest) {
     }
 
     console.log(
-      `Successfully added ${creditsToAdd} credits to user ${user.id}. New balance: ${newCredits}`
+      `Successfully added ${creditsToAdd} credits to user ${user.id}. New balance: ${newBalance}`
     );
 
     return NextResponse.json({
       success: true,
       credits: creditsToAdd,
-      newBalance: newCredits,
+      newBalance,
     });
   } catch (error) {
     console.error('Payment verification error:', error);
