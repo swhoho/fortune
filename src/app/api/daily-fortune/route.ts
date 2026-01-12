@@ -17,22 +17,28 @@ function getPythonApiUrl(): string {
   return pythonApiUrl;
 }
 
-/** 무료체험 유효 여부 확인 (3일) */
+/** 날짜만 비교 (시간 제거) */
+function getDateOnly(date: Date): Date {
+  return new Date(date.getFullYear(), date.getMonth(), date.getDate());
+}
+
+/** 무료체험 유효 여부 확인 (시작일 포함 3일) */
 function isTrialValid(trialStartedAt: string | null): boolean {
   if (!trialStartedAt) return false;
-  const trialStart = new Date(trialStartedAt);
-  const now = new Date();
-  const diffDays = (now.getTime() - trialStart.getTime()) / (1000 * 60 * 60 * 24);
+  const trialStart = getDateOnly(new Date(trialStartedAt));
+  const today = getDateOnly(new Date());
+  const diffDays = Math.floor((today.getTime() - trialStart.getTime()) / (1000 * 60 * 60 * 24));
+  // 시작일(0일차), 1일차, 2일차까지 유효 (3일간)
   return diffDays < 3;
 }
 
-/** 무료체험 남은 일수 */
+/** 무료체험 남은 일수 (시작일=3일, 다음날=2일, 그 다음=1일) */
 function getTrialRemainingDays(trialStartedAt: string | null): number {
   if (!trialStartedAt) return 0;
-  const trialStart = new Date(trialStartedAt);
-  const now = new Date();
-  const diffDays = (now.getTime() - trialStart.getTime()) / (1000 * 60 * 60 * 24);
-  return Math.max(0, Math.ceil(3 - diffDays));
+  const trialStart = getDateOnly(new Date(trialStartedAt));
+  const today = getDateOnly(new Date());
+  const diffDays = Math.floor((today.getTime() - trialStart.getTime()) / (1000 * 60 * 60 * 24));
+  return Math.max(0, 3 - diffDays);
 }
 
 /**
@@ -124,27 +130,37 @@ export async function GET() {
       );
     }
 
-    // 6. 오늘 날짜 운세 캐시 확인
+    // 6. 오늘 날짜 운세 캐시 확인 (user_id 기준으로 변경)
     const today = new Date().toISOString().split('T')[0];
     const { data: cachedFortune } = await supabase
       .from('daily_fortunes')
       .select('*')
-      .eq('profile_id', primaryProfile.id)
+      .eq('user_id', user.id)
       .eq('fortune_date', today)
       .single();
 
     if (cachedFortune) {
+      // 프로필이 다르고 regenerated_at이 NULL이면 재생성 가능
+      const canRegenerate =
+        cachedFortune.profile_id !== primaryProfile.id && cachedFortune.regenerated_at === null;
+
       return NextResponse.json({
         success: true,
         cached: true,
         fortuneId: cachedFortune.id,
         data: cachedFortune,
+        canRegenerate,
+        currentProfileId: primaryProfile.id,
+        fortuneProfileId: cachedFortune.profile_id,
         profile: {
           id: primaryProfile.id,
           name: primaryProfile.name,
           gender: primaryProfile.gender,
           birthDate: primaryProfile.birth_date,
         },
+        // 재생성 시 필요한 정보 (캐시되어 있어도 프로필 변경 시 재생성용)
+        pillars: report.pillars,
+        daewun: report.daewun,
         subscription: {
           isSubscribed,
           isTrialActive,
@@ -159,6 +175,8 @@ export async function GET() {
       cached: false,
       data: null,
       needsGeneration: true,
+      canRegenerate: false,
+      currentProfileId: primaryProfile.id,
       profile: {
         id: primaryProfile.id,
         name: primaryProfile.name,
@@ -236,34 +254,73 @@ export async function POST(request: NextRequest) {
 
     // 5. 요청 본문 파싱
     const body = await request.json();
-    const { profileId, pillars, daewun, language = 'ko' } = body;
+    const { profileId, pillars, daewun, language = 'ko', forceRegenerate = false } = body;
 
     if (!profileId || !pillars) {
       return NextResponse.json({ error: '프로필 ID와 사주 정보가 필요합니다' }, { status: 400 });
     }
 
-    // 6. 오늘 날짜 운세 중복 확인
+    // 6. 오늘 날짜 운세 확인 (user_id 기준으로 변경)
     const today = new Date().toISOString().split('T')[0];
     const { data: existingFortune } = await supabase
       .from('daily_fortunes')
       .select('*')
-      .eq('profile_id', profileId)
+      .eq('user_id', user.id)
       .eq('fortune_date', today)
       .single();
 
     if (existingFortune) {
-      return NextResponse.json({
-        success: true,
-        cached: true,
-        fortuneId: existingFortune.id,
-        data: existingFortune,
-        message: '이미 오늘의 운세가 있습니다.',
-      });
+      // 6-1. 같은 프로필이면 기존 운세 반환
+      if (existingFortune.profile_id === profileId) {
+        return NextResponse.json({
+          success: true,
+          cached: true,
+          fortuneId: existingFortune.id,
+          data: existingFortune,
+          message: '이미 오늘의 운세가 있습니다.',
+        });
+      }
+
+      // 6-2. 다른 프로필이고 재생성 요청이 아니면 기존 운세 반환
+      if (!forceRegenerate) {
+        const canRegenerate = existingFortune.regenerated_at === null;
+        return NextResponse.json({
+          success: true,
+          cached: true,
+          fortuneId: existingFortune.id,
+          data: existingFortune,
+          canRegenerate,
+          message: canRegenerate
+            ? '프로필이 변경되었습니다. 재생성을 원하시면 forceRegenerate를 true로 설정하세요.'
+            : '오늘은 이미 재생성했습니다.',
+        });
+      }
+
+      // 6-3. 재생성 요청인데 이미 재생성함 → 거부
+      if (existingFortune.regenerated_at !== null) {
+        return NextResponse.json(
+          {
+            success: false,
+            error: 'REGENERATION_LIMIT_REACHED',
+            message: '오늘은 이미 재생성했습니다. 내일 다시 시도해주세요.',
+          },
+          { status: 400 }
+        );
+      }
+
+      // 6-4. 재생성 허용 → 기존 운세 삭제
+      console.log(
+        `[DailyFortune] 재생성 시작: user=${user.id}, oldProfile=${existingFortune.profile_id}, newProfile=${profileId}`
+      );
+      await supabase.from('daily_fortunes').delete().eq('id', existingFortune.id);
     }
 
     // 7. Python API 호출
     const pythonApiUrl = getPythonApiUrl();
-    console.log(`[DailyFortune] Python API 호출: ${pythonApiUrl}/api/daily-fortune`);
+    const isRegeneration = existingFortune && existingFortune.profile_id !== profileId;
+    console.log(
+      `[DailyFortune] Python API 호출: ${pythonApiUrl}/api/daily-fortune (재생성: ${isRegeneration})`
+    );
 
     const pythonResponse = await fetch(`${pythonApiUrl}/api/daily-fortune`, {
       method: 'POST',
@@ -296,16 +353,29 @@ export async function POST(request: NextRequest) {
     const { data: savedFortune } = await supabase
       .from('daily_fortunes')
       .select('*')
-      .eq('profile_id', profileId)
+      .eq('user_id', user.id)
       .eq('fortune_date', today)
       .single();
+
+    // 9. 재생성인 경우 regenerated_at 설정
+    if (isRegeneration && savedFortune) {
+      await supabase
+        .from('daily_fortunes')
+        .update({ regenerated_at: new Date().toISOString() })
+        .eq('id', savedFortune.id);
+
+      savedFortune.regenerated_at = new Date().toISOString();
+    }
 
     return NextResponse.json({
       success: true,
       cached: false,
+      regenerated: isRegeneration,
       fortuneId: savedFortune?.id,
       data: savedFortune,
-      message: pythonResult.message || '오늘의 운세가 생성되었습니다.',
+      message: isRegeneration
+        ? '새 프로필로 운세가 재생성되었습니다.'
+        : pythonResult.message || '오늘의 운세가 생성되었습니다.',
     });
   } catch (error) {
     console.error('[DailyFortune] POST 오류:', error);
