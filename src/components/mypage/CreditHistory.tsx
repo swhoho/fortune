@@ -242,28 +242,34 @@ export function CreditHistory() {
                       {format(new Date(item.createdAt), 'yyyy.MM.dd HH:mm', { locale: dateLocale })}
                     </span>
                     {/* 만료일 표시 (충전 기록에만) */}
-                    {item.expiresAt && ['purchase', 'subscription', 'bonus'].includes(item.type) && (
-                      <span className="flex items-center gap-1 text-gray-600">
-                        <Clock className="h-3 w-3" />
-                        {t('expiresOn', {
-                          date: format(new Date(item.expiresAt), 'yyyy.MM.dd', {
-                            locale: dateLocale,
-                          }),
-                        })}
-                      </span>
-                    )}
+                    {item.expiresAt &&
+                      ['purchase', 'subscription', 'bonus'].includes(item.type) && (
+                        <span className="flex items-center gap-1 text-gray-600">
+                          <Clock className="h-3 w-3" />
+                          {t('expiresOn', {
+                            date: format(new Date(item.expiresAt), 'yyyy.MM.dd', {
+                              locale: dateLocale,
+                            }),
+                          })}
+                        </span>
+                      )}
                   </div>
                 </div>
               </div>
               <div className="text-right">
                 <span
-                  className={cn('font-semibold', isPositive(item) ? 'text-green-400' : 'text-red-400')}
+                  className={cn(
+                    'font-semibold',
+                    isPositive(item) ? 'text-green-400' : 'text-red-400'
+                  )}
                 >
                   {isPositive(item) ? '+' : ''}
                   {item.amount}C
                 </span>
                 {/* 잔액 표시 */}
-                <p className="text-xs text-gray-500">{t('balance', { amount: item.balanceAfter })}</p>
+                <p className="text-xs text-gray-500">
+                  {t('balance', { amount: item.balanceAfter })}
+                </p>
               </div>
             </motion.div>
           ))}

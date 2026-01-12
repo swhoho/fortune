@@ -12,7 +12,11 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { addCredits } from '@/lib/credits/add';
-import { verifyPayAppRebillFeedback, SUBSCRIPTION_PLAN, type PayAppRebillFeedbackData } from '@/lib/payapp';
+import {
+  verifyPayAppRebillFeedback,
+  SUBSCRIPTION_PLAN,
+  type PayAppRebillFeedbackData,
+} from '@/lib/payapp';
 
 // Service role 클라이언트 (webhook에서는 auth 세션 없음)
 const supabaseAdmin = createClient(

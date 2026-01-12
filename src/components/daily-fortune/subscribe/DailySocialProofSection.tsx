@@ -11,7 +11,7 @@ interface DailySocialProofSectionProps {
 /**
  * Social Proof Section - 신뢰 지표
  */
-export function DailySocialProofSection({ locale }: DailySocialProofSectionProps) {
+export function DailySocialProofSection({ locale: _locale }: DailySocialProofSectionProps) {
   const t = useTranslations('dailyFortune.subscribe.socialProof');
 
   const stats = [

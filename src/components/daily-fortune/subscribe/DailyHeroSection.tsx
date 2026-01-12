@@ -11,7 +11,7 @@ interface DailyHeroSectionProps {
 /**
  * Hero Section - 오늘의 운세 구독 랜딩 페이지 스토리텔링
  */
-export function DailyHeroSection({ locale }: DailyHeroSectionProps) {
+export function DailyHeroSection({ locale: _locale }: DailyHeroSectionProps) {
   const t = useTranslations('dailyFortune.subscribe.hero');
 
   return (

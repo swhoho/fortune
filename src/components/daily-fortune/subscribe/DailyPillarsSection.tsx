@@ -21,7 +21,7 @@ const PILLAR_COLORS: Record<string, string> = {
 /**
  * Pillars Section - 5권 고전 명리학 분석 모듈 시각화
  */
-export function DailyPillarsSection({ locale }: DailyPillarsSectionProps) {
+export function DailyPillarsSection({ locale: _locale }: DailyPillarsSectionProps) {
   const t = useTranslations('dailyFortune.subscribe.pillars');
 
   return (

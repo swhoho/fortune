@@ -18,10 +18,7 @@ import {
  * 해당 프로필을 대표 프로필로 설정
  * (DB 트리거가 기존 대표 해제 처리)
  */
-export async function POST(
-  request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function POST(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const { id } = await params;
 

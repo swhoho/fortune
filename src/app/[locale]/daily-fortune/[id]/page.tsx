@@ -5,7 +5,7 @@
  * URL: /daily-fortune/[id]
  * 탭: 운세 / 상담 (본인만 상담 접근 가능)
  */
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useTranslations, useLocale } from 'next-intl';
 import { useParams, useSearchParams, useRouter, usePathname } from 'next/navigation';
@@ -19,7 +19,7 @@ import {
   Lightbulb,
   Sparkles,
   RefreshCw,
-  Share2
+  Share2,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { FortuneScoreGauge, DailyFortuneNavigation } from '@/components/daily-fortune';
@@ -32,11 +32,11 @@ import { toast } from 'sonner';
 
 /** 오행 색상 매핑 */
 const ELEMENT_COLORS: Record<string, string> = {
-  '木': '#4ade80',
-  '火': '#ef4444',
-  '土': '#f59e0b',
-  '金': '#e5e7eb',
-  '水': '#1e3a8a',
+  木: '#4ade80',
+  火: '#ef4444',
+  土: '#f59e0b',
+  金: '#e5e7eb',
+  水: '#1e3a8a',
 };
 
 /** 영역 아이콘 매핑 */
@@ -96,7 +96,7 @@ type PageState = 'loading' | 'ready' | 'error';
 function AreaFortuneCard({
   areaKey,
   fortune,
-  t
+  t,
 }: {
   areaKey: string;
   fortune: AreaFortune | undefined;
@@ -121,7 +121,7 @@ function AreaFortuneCard({
       className="rounded-xl border border-[#333] bg-[#1a1a1a] p-4"
     >
       {/* 헤더 */}
-      <div className="flex items-center justify-between mb-3">
+      <div className="mb-3 flex items-center justify-between">
         <div className="flex items-center gap-3">
           <div
             className="flex h-10 w-10 items-center justify-center rounded-lg"
@@ -130,32 +130,25 @@ function AreaFortuneCard({
             <Icon className="h-5 w-5" style={{ color: BRAND_COLORS.primary }} />
           </div>
           <div>
-            <h3 className="font-medium text-white">
-              {t(`areas.${areaKey}`)}
-            </h3>
+            <h3 className="font-medium text-white">{t(`areas.${areaKey}`)}</h3>
             {/* 타이틀이 영역명과 다를 때만 표시 (중복 방지) */}
             {fortune.title && fortune.title !== t(`areas.${areaKey}`) && (
               <p className="text-xs text-gray-500">{fortune.title}</p>
             )}
           </div>
         </div>
-        <div
-          className="text-lg font-bold"
-          style={{ color: getScoreColor(fortune.score) }}
-        >
+        <div className="text-lg font-bold" style={{ color: getScoreColor(fortune.score) }}>
           {fortune.score}점
         </div>
       </div>
 
       {/* 설명 */}
-      <p className="text-sm leading-relaxed text-gray-300 mb-3">
-        {fortune.description}
-      </p>
+      <p className="mb-3 text-sm leading-relaxed text-gray-300">{fortune.description}</p>
 
       {/* 팁 */}
       {fortune.tip && (
         <div className="flex items-start gap-2 rounded-lg bg-[#242424] p-3">
-          <Lightbulb className="h-4 w-4 mt-0.5 text-[#d4af37] flex-shrink-0" />
+          <Lightbulb className="mt-0.5 h-4 w-4 flex-shrink-0 text-[#d4af37]" />
           <p className="text-xs text-gray-400">
             <span className="font-medium text-[#d4af37]">{t('tip')}: </span>
             {fortune.tip}
@@ -177,7 +170,7 @@ export default function DailyFortuneDetailPage() {
   const searchParams = useSearchParams();
   const fortuneId = params.id as string;
 
-  const { user, isLoading: isAuthLoading } = useAuth();
+  const { user } = useAuth();
 
   const [state, setState] = useState<PageState>('loading');
   const [data, setData] = useState<DailyFortuneResponse | null>(null);
@@ -186,10 +179,12 @@ export default function DailyFortuneDetailPage() {
 
   // 탭 상태 (URL 파라미터 연동)
   const tabParam = searchParams.get('tab') as DailyFortuneTabType | null;
-  const [activeTab, setActiveTab] = useState<DailyFortuneTabType>(tabParam === 'consultation' ? 'consultation' : 'fortune');
+  const [activeTab, setActiveTab] = useState<DailyFortuneTabType>(
+    tabParam === 'consultation' ? 'consultation' : 'fortune'
+  );
 
   /** 데이터 조회 */
-  const fetchFortune = async () => {
+  const fetchFortune = useCallback(async () => {
     setState('loading');
     setError(null);
 
@@ -208,14 +203,12 @@ export default function DailyFortuneDetailPage() {
       setError(err instanceof Error ? err.message : '오류가 발생했습니다');
       setState('error');
     }
-  };
+  }, [fortuneId]);
 
   /** 공유 핸들러 */
   const handleShare = async () => {
     const shareUrl = `${window.location.origin}/${locale}/daily-fortune/${fortuneId}`;
-    const shareTitle = data?.profile?.name
-      ? `${data.profile.name}님의 ${t('title')}`
-      : t('title');
+    const shareTitle = data?.profile?.name ? `${data.profile.name}님의 ${t('title')}` : t('title');
 
     try {
       if (navigator.share) {
@@ -269,11 +262,10 @@ export default function DailyFortuneDetailPage() {
     // 클라이언트에서만 날짜 설정
     const today = new Date();
     setDateStr(`${today.getFullYear()}년 ${today.getMonth() + 1}월 ${today.getDate()}일`);
-  }, [fortuneId]);
+  }, [fortuneId, fetchFortune]);
 
   const fortune = data?.data;
   const profileId = data?.profile?.id || fortune?.profile_id;
-  const isOwner = user && data?.profile?.user_id === user.id;
 
   // 운세 날짜 포맷팅
   const fortuneDateStr = fortune?.fortune_date
@@ -284,17 +276,15 @@ export default function DailyFortuneDetailPage() {
     : dateStr;
 
   return (
-    <div
-      className="min-h-screen pb-20"
-      style={{ backgroundColor: BRAND_COLORS.secondary }}
-    >
+    <div className="min-h-screen pb-20" style={{ backgroundColor: BRAND_COLORS.secondary }}>
       {/* AppHeader */}
       <AppHeader
         showBack
         backHref="/home"
         title={t('title')}
         rightSlot={
-          state === 'ready' && activeTab === 'fortune' && (
+          state === 'ready' &&
+          activeTab === 'fortune' && (
             <Button
               variant="ghost"
               size="icon"
@@ -309,10 +299,7 @@ export default function DailyFortuneDetailPage() {
 
       {/* 탭 네비게이션 (로딩 완료 후 표시) */}
       {state === 'ready' && (
-        <DailyFortuneNavigation
-          activeTab={activeTab}
-          onTabChange={handleTabChange}
-        />
+        <DailyFortuneNavigation activeTab={activeTab} onTabChange={handleTabChange} />
       )}
 
       {/* 탭 컨텐츠 */}
@@ -379,7 +366,7 @@ export default function DailyFortuneDetailPage() {
                     className="text-center"
                   >
                     <p className="text-sm text-gray-400">
-                      <span className="text-white font-medium">{data.profile.name}</span>
+                      <span className="font-medium text-white">{data.profile.name}</span>
                       님의 운세
                     </p>
                   </motion.div>
@@ -392,7 +379,7 @@ export default function DailyFortuneDetailPage() {
                   className="rounded-2xl border border-[#333] bg-gradient-to-br from-[#1a1a1a] to-[#111111] p-6"
                 >
                   {/* 날짜 */}
-                  <div className="flex items-center gap-2 mb-4">
+                  <div className="mb-4 flex items-center gap-2">
                     <Calendar className="h-4 w-4 text-[#d4af37]" />
                     <span className="text-sm text-gray-400">{fortuneDateStr}</span>
                   </div>
@@ -440,9 +427,7 @@ export default function DailyFortuneDetailPage() {
                   transition={{ delay: 0.1 }}
                   className="rounded-xl border border-[#333] bg-[#1a1a1a] p-5"
                 >
-                  <p className="text-sm leading-relaxed text-gray-300">
-                    {fortune.summary}
-                  </p>
+                  <p className="text-sm leading-relaxed text-gray-300">{fortune.summary}</p>
                 </motion.section>
 
                 {/* 행운 정보 */}
@@ -453,26 +438,26 @@ export default function DailyFortuneDetailPage() {
                     transition={{ delay: 0.15 }}
                     className="rounded-xl border border-[#333] bg-[#1a1a1a] p-5"
                   >
-                    <h2 className="flex items-center gap-2 text-sm font-medium text-white mb-4">
+                    <h2 className="mb-4 flex items-center gap-2 text-sm font-medium text-white">
                       <Sparkles className="h-4 w-4 text-[#d4af37]" />
                       {t('luckyInfo')}
                     </h2>
                     <div className="grid grid-cols-3 gap-4 text-center">
                       {fortune.lucky_color && (
                         <div className="rounded-lg bg-[#242424] p-3">
-                          <p className="text-xs text-gray-500 mb-1">{t('luckyColor')}</p>
+                          <p className="mb-1 text-xs text-gray-500">{t('luckyColor')}</p>
                           <p className="font-medium text-white">{fortune.lucky_color}</p>
                         </div>
                       )}
                       {fortune.lucky_number && (
                         <div className="rounded-lg bg-[#242424] p-3">
-                          <p className="text-xs text-gray-500 mb-1">{t('luckyNumber')}</p>
+                          <p className="mb-1 text-xs text-gray-500">{t('luckyNumber')}</p>
                           <p className="font-medium text-[#d4af37]">{fortune.lucky_number}</p>
                         </div>
                       )}
                       {fortune.lucky_direction && (
                         <div className="rounded-lg bg-[#242424] p-3">
-                          <p className="text-xs text-gray-500 mb-1">{t('luckyDirection')}</p>
+                          <p className="mb-1 text-xs text-gray-500">{t('luckyDirection')}</p>
                           <p className="font-medium text-white">{fortune.lucky_direction}</p>
                         </div>
                       )}
@@ -486,13 +471,17 @@ export default function DailyFortuneDetailPage() {
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.2 }}
                 >
-                  <h2 className="text-sm font-medium text-white mb-4">{t('areaFortunes')}</h2>
+                  <h2 className="mb-4 text-sm font-medium text-white">{t('areaFortunes')}</h2>
                   <div className="space-y-3">
                     <AreaFortuneCard areaKey="career" fortune={fortune.career_fortune} t={t} />
                     <AreaFortuneCard areaKey="wealth" fortune={fortune.wealth_fortune} t={t} />
                     <AreaFortuneCard areaKey="love" fortune={fortune.love_fortune} t={t} />
                     <AreaFortuneCard areaKey="health" fortune={fortune.health_fortune} t={t} />
-                    <AreaFortuneCard areaKey="relationship" fortune={fortune.relationship_fortune} t={t} />
+                    <AreaFortuneCard
+                      areaKey="relationship"
+                      fortune={fortune.relationship_fortune}
+                      t={t}
+                    />
                   </div>
                 </motion.section>
 
@@ -504,13 +493,11 @@ export default function DailyFortuneDetailPage() {
                     transition={{ delay: 0.25 }}
                     className="rounded-xl border border-[#d4af37]/30 bg-[#d4af37]/10 p-5"
                   >
-                    <h2 className="flex items-center gap-2 text-sm font-medium text-[#d4af37] mb-3">
+                    <h2 className="mb-3 flex items-center gap-2 text-sm font-medium text-[#d4af37]">
                       <Lightbulb className="h-4 w-4" />
                       {t('todayAdvice')}
                     </h2>
-                    <p className="text-sm leading-relaxed text-gray-300">
-                      {fortune.advice}
-                    </p>
+                    <p className="text-sm leading-relaxed text-gray-300">{fortune.advice}</p>
                   </motion.section>
                 )}
               </motion.div>

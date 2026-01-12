@@ -57,11 +57,7 @@ export function FortuneScoreGauge({
     <div className="flex flex-col items-center gap-2">
       <div className="relative" style={{ width: config.width, height: config.width }}>
         {/* 배경 원 */}
-        <svg
-          width={config.width}
-          height={config.width}
-          className="rotate-[-90deg]"
-        >
+        <svg width={config.width} height={config.width} className="rotate-[-90deg]">
           <circle
             cx={config.width / 2}
             cy={config.width / 2}
@@ -95,16 +91,11 @@ export function FortuneScoreGauge({
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.5, delay: 0.3 }}
         >
-          <span
-            className={`font-bold ${config.fontSize}`}
-            style={{ color }}
-          >
+          <span className={`font-bold ${config.fontSize}`} style={{ color }}>
             {score}
           </span>
           {showLabel && (
-            <span className="text-xs text-gray-400">
-              {label || getScoreLabel(score)}
-            </span>
+            <span className="text-xs text-gray-400">{label || getScoreLabel(score)}</span>
           )}
         </motion.div>
       </div>

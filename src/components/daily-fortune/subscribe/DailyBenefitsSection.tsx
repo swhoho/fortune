@@ -21,7 +21,7 @@ const BENEFIT_ITEMS = [
 /**
  * Benefits Section - 6개 분석 영역 그리드
  */
-export function DailyBenefitsSection({ locale }: DailyBenefitsSectionProps) {
+export function DailyBenefitsSection({ locale: _locale }: DailyBenefitsSectionProps) {
   const t = useTranslations('dailyFortune.subscribe.benefits');
 
   return (

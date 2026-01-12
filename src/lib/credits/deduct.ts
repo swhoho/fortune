@@ -7,12 +7,7 @@
 import { SupabaseClient } from '@supabase/supabase-js';
 
 /** 서비스 유형 */
-export type ServiceType =
-  | 'report'
-  | 'yearly'
-  | 'compatibility'
-  | 'reanalysis'
-  | 'consultation';
+export type ServiceType = 'report' | 'yearly' | 'compatibility' | 'reanalysis' | 'consultation';
 
 /** 크레딧 차감 파라미터 */
 interface DeductCreditsParams {

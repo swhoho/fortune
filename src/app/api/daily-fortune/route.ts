@@ -70,14 +70,17 @@ export async function GET() {
       // 무료체험을 아직 사용하지 않았으면 시작 가능
       const canStartTrial = !userData.daily_fortune_trial_started_at;
 
-      return NextResponse.json({
-        success: false,
-        requireSubscription: true,
-        canStartTrial,
-        message: canStartTrial
-          ? '3일 무료체험을 시작해보세요!'
-          : '무료체험이 종료되었습니다. 구독을 시작해주세요.',
-      }, { status: 403 });
+      return NextResponse.json(
+        {
+          success: false,
+          requireSubscription: true,
+          canStartTrial,
+          message: canStartTrial
+            ? '3일 무료체험을 시작해보세요!'
+            : '무료체험이 종료되었습니다. 구독을 시작해주세요.',
+        },
+        { status: 403 }
+      );
     }
 
     // 4. 대표 프로필 조회
@@ -89,11 +92,14 @@ export async function GET() {
       .single();
 
     if (profileError || !primaryProfile) {
-      return NextResponse.json({
-        success: false,
-        error: 'NO_PRIMARY_PROFILE',
-        message: '대표 프로필을 먼저 설정해주세요.',
-      }, { status: 400 });
+      return NextResponse.json(
+        {
+          success: false,
+          error: 'NO_PRIMARY_PROFILE',
+          message: '대표 프로필을 먼저 설정해주세요.',
+        },
+        { status: 400 }
+      );
     }
 
     // 5. 대표 프로필의 사주 리포트 확인
@@ -107,12 +113,15 @@ export async function GET() {
       .single();
 
     if (!isValidPillars(report?.pillars)) {
-      return NextResponse.json({
-        success: false,
-        error: 'SAJU_REQUIRED',
-        message: '기본 사주 분석을 먼저 완료해주세요.',
-        profileId: primaryProfile.id,
-      }, { status: 400 });
+      return NextResponse.json(
+        {
+          success: false,
+          error: 'SAJU_REQUIRED',
+          message: '기본 사주 분석을 먼저 완료해주세요.',
+          profileId: primaryProfile.id,
+        },
+        { status: 400 }
+      );
     }
 
     // 6. 오늘 날짜 운세 캐시 확인
@@ -215,11 +224,14 @@ export async function POST(request: NextRequest) {
 
     // 4. 접근 권한 확인
     if (!isSubscribed && !isTrialActive) {
-      return NextResponse.json({
-        success: false,
-        requireSubscription: true,
-        message: '무료체험이 종료되었습니다. 구독을 시작해주세요.',
-      }, { status: 403 });
+      return NextResponse.json(
+        {
+          success: false,
+          requireSubscription: true,
+          message: '무료체험이 종료되었습니다. 구독을 시작해주세요.',
+        },
+        { status: 403 }
+      );
     }
 
     // 5. 요청 본문 파싱
@@ -269,10 +281,13 @@ export async function POST(request: NextRequest) {
     if (!pythonResponse.ok) {
       const errorData = await pythonResponse.json().catch(() => ({}));
       console.error('[DailyFortune] Python API 오류:', errorData);
-      return NextResponse.json({
-        success: false,
-        error: errorData.detail || '운세 생성에 실패했습니다',
-      }, { status: 500 });
+      return NextResponse.json(
+        {
+          success: false,
+          error: errorData.detail || '운세 생성에 실패했습니다',
+        },
+        { status: 500 }
+      );
     }
 
     const pythonResult = await pythonResponse.json();

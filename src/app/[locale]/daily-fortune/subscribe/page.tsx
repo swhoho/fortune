@@ -60,7 +60,9 @@ export default function DailyFortuneSubscribePage({
           setSubscriptionStatus({
             isSubscribed: data.subscription.isSubscribed,
             isTrialActive: data.subscription.isTrialActive,
-            canStartTrial: data.canStartTrial ?? (!data.subscription.isSubscribed && !data.subscription.isTrialActive),
+            canStartTrial:
+              data.canStartTrial ??
+              (!data.subscription.isSubscribed && !data.subscription.isTrialActive),
             trialRemainingDays: data.subscription.trialRemainingDays ?? 0,
           });
         } else {

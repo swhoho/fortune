@@ -16,7 +16,12 @@ import { Button } from '@/components/ui/button';
 import { ProfileInfoCard, DeleteProfileDialog } from '@/components/profile';
 import { InsufficientCreditsDialog, CreditDeductionDialog } from '@/components/credits';
 import { AppHeader } from '@/components/layout';
-import { useProfile, useUpdateProfile, useDeleteProfile, useSetPrimaryProfile } from '@/hooks/use-profiles';
+import {
+  useProfile,
+  useUpdateProfile,
+  useDeleteProfile,
+  useSetPrimaryProfile,
+} from '@/hooks/use-profiles';
 import { useReportCreditsCheck } from '@/hooks/use-credits';
 import { Link, useRouter } from '@/i18n/routing';
 import type { CreateProfileInput } from '@/lib/validations/profile';

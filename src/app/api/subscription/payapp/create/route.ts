@@ -4,11 +4,7 @@
  */
 import { NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
-import {
-  createPayAppRebill,
-  calculateRebillExpireDate,
-  SUBSCRIPTION_PLAN,
-} from '@/lib/payapp';
+import { createPayAppRebill, calculateRebillExpireDate, SUBSCRIPTION_PLAN } from '@/lib/payapp';
 
 export async function POST(request: Request) {
   try {

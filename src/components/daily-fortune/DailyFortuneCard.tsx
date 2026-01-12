@@ -63,14 +63,62 @@ type CardState = 'loading' | 'subscription' | 'generating' | 'ready' | 'error';
 
 /** 단계별 라벨 (다국어) */
 const STEP_LABELS: Record<string, Record<string, string>> = {
-  day_calculation: { ko: '일진 계산 중...', en: 'Calculating day pillar...', ja: '日柱計算中...', 'zh-CN': '计算日柱中...', 'zh-TW': '計算日柱中...' },
-  wunseong: { ko: '12운성 분석 중...', en: 'Analyzing 12 stages...', ja: '十二運星分析中...', 'zh-CN': '分析十二运星中...', 'zh-TW': '分析十二運星中...' },
-  timing: { ko: '복음/반음 감지 중...', en: 'Detecting patterns...', ja: 'パターン検出中...', 'zh-CN': '检测模式中...', 'zh-TW': '檢測模式中...' },
-  johu: { ko: '조후용신 분석 중...', en: 'Analyzing seasonal needs...', ja: '調候分析中...', 'zh-CN': '分析调候中...', 'zh-TW': '分析調候中...' },
-  combination: { ko: '삼합/방합 감지 중...', en: 'Detecting combinations...', ja: '三合検出中...', 'zh-CN': '检测三合中...', 'zh-TW': '檢測三合中...' },
-  useful_god: { ko: '용신 정보 조회 중...', en: 'Looking up useful god...', ja: '用神照会中...', 'zh-CN': '查询用神中...', 'zh-TW': '查詢用神中...' },
-  gemini_analysis: { ko: 'AI 분석 중...', en: 'AI analyzing...', ja: 'AI分析中...', 'zh-CN': 'AI分析中...', 'zh-TW': 'AI分析中...' },
-  score_adjustment: { ko: '점수 계산 중...', en: 'Calculating scores...', ja: 'スコア計算中...', 'zh-CN': '计算分数中...', 'zh-TW': '計算分數中...' },
+  day_calculation: {
+    ko: '일진 계산 중...',
+    en: 'Calculating day pillar...',
+    ja: '日柱計算中...',
+    'zh-CN': '计算日柱中...',
+    'zh-TW': '計算日柱中...',
+  },
+  wunseong: {
+    ko: '12운성 분석 중...',
+    en: 'Analyzing 12 stages...',
+    ja: '十二運星分析中...',
+    'zh-CN': '分析十二运星中...',
+    'zh-TW': '分析十二運星中...',
+  },
+  timing: {
+    ko: '복음/반음 감지 중...',
+    en: 'Detecting patterns...',
+    ja: 'パターン検出中...',
+    'zh-CN': '检测模式中...',
+    'zh-TW': '檢測模式中...',
+  },
+  johu: {
+    ko: '조후용신 분석 중...',
+    en: 'Analyzing seasonal needs...',
+    ja: '調候分析中...',
+    'zh-CN': '分析调候中...',
+    'zh-TW': '分析調候中...',
+  },
+  combination: {
+    ko: '삼합/방합 감지 중...',
+    en: 'Detecting combinations...',
+    ja: '三合検出中...',
+    'zh-CN': '检测三合中...',
+    'zh-TW': '檢測三合中...',
+  },
+  useful_god: {
+    ko: '용신 정보 조회 중...',
+    en: 'Looking up useful god...',
+    ja: '用神照会中...',
+    'zh-CN': '查询用神中...',
+    'zh-TW': '查詢用神中...',
+  },
+  gemini_analysis: {
+    ko: 'AI 분석 중...',
+    en: 'AI analyzing...',
+    ja: 'AI分析中...',
+    'zh-CN': 'AI分析中...',
+    'zh-TW': 'AI分析中...',
+  },
+  score_adjustment: {
+    ko: '점수 계산 중...',
+    en: 'Calculating scores...',
+    ja: 'スコア計算中...',
+    'zh-CN': '计算分数中...',
+    'zh-TW': '計算分數中...',
+  },
   complete: { ko: '완료!', en: 'Complete!', ja: '完了！', 'zh-CN': '完成！', 'zh-TW': '完成！' },
 };
 
@@ -145,7 +193,7 @@ export function DailyFortuneCard() {
       if (postRes.ok) {
         const json: DailyFortuneResponse = await postRes.json();
         if (json.data) {
-          setData(prev => prev ? { ...prev, data: json.data, cached: false } : json);
+          setData((prev) => (prev ? { ...prev, data: json.data, cached: false } : json));
           setProgress(100);
           setState('ready');
           return;
@@ -172,7 +220,11 @@ export function DailyFortuneCard() {
           }
 
           if (statusJson.status === 'completed' && statusJson.result) {
-            setData(prev => prev ? { ...prev, data: statusJson.result, cached: false } : { success: true, data: statusJson.result });
+            setData((prev) =>
+              prev
+                ? { ...prev, data: statusJson.result, cached: false }
+                : { success: true, data: statusJson.result }
+            );
             setProgress(100);
             setState('ready');
             return true;
@@ -192,14 +244,13 @@ export function DailyFortuneCard() {
       // 3. 1초 간격으로 폴링 (최대 60초)
       let completed = false;
       for (let i = 0; i < 60 && !completed; i++) {
-        await new Promise(resolve => setTimeout(resolve, 1000));
+        await new Promise((resolve) => setTimeout(resolve, 1000));
         completed = await pollStatus();
       }
 
       if (!completed) {
         throw new Error('운세 생성 시간이 초과되었습니다');
       }
-
     } catch (err) {
       console.error('[DailyFortune] 생성 오류:', err);
       setError(err instanceof Error ? err.message : '운세 생성 오류');
@@ -306,10 +357,7 @@ export function DailyFortuneCard() {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
             >
-              <SubscriptionPrompt
-                canStartTrial={data?.canStartTrial}
-                onStartTrial={startTrial}
-              />
+              <SubscriptionPrompt canStartTrial={data?.canStartTrial} onStartTrial={startTrial} />
             </motion.div>
           )}
 
@@ -346,9 +394,7 @@ export function DailyFortuneCard() {
                     transition={{ duration: 0.3, ease: 'easeOut' }}
                   />
                 </div>
-                <p className="mt-2 text-center text-xs text-gray-500">
-                  {progress}%
-                </p>
+                <p className="mt-2 text-center text-xs text-gray-500">{progress}%</p>
               </div>
             </motion.div>
           )}
@@ -420,9 +466,7 @@ export function DailyFortuneCard() {
 
               {/* 요약 */}
               <div className="rounded-xl bg-[#242424] p-4">
-                <p className="text-sm leading-relaxed text-gray-300">
-                  {data.data.summary}
-                </p>
+                <p className="text-sm leading-relaxed text-gray-300">{data.data.summary}</p>
               </div>
 
               {/* 행운 정보 */}
@@ -437,13 +481,17 @@ export function DailyFortuneCard() {
                   {data.data.lucky_number && (
                     <div>
                       <p className="text-xs text-gray-500">{t('luckyNumber')}</p>
-                      <p className="mt-1 text-sm font-medium text-[#d4af37]">{data.data.lucky_number}</p>
+                      <p className="mt-1 text-sm font-medium text-[#d4af37]">
+                        {data.data.lucky_number}
+                      </p>
                     </div>
                   )}
                   {data.data.lucky_direction && (
                     <div>
                       <p className="text-xs text-gray-500">{t('luckyDirection')}</p>
-                      <p className="mt-1 text-sm font-medium text-white">{data.data.lucky_direction}</p>
+                      <p className="mt-1 text-sm font-medium text-white">
+                        {data.data.lucky_direction}
+                      </p>
                     </div>
                   )}
                 </div>

@@ -40,11 +40,14 @@ export async function GET(request: NextRequest) {
       .single();
 
     if (!primaryProfile) {
-      return NextResponse.json({
-        success: false,
-        error: 'NO_PRIMARY_PROFILE',
-        message: '대표 프로필이 없습니다.',
-      }, { status: 400 });
+      return NextResponse.json(
+        {
+          success: false,
+          error: 'NO_PRIMARY_PROFILE',
+          message: '대표 프로필이 없습니다.',
+        },
+        { status: 400 }
+      );
     }
 
     // 4. 1년 전 날짜 계산
@@ -67,9 +70,7 @@ export async function GET(request: NextRequest) {
       const monthNum = parts[1] || '';
       if (year && monthNum) {
         const startDate = `${year}-${monthNum}-01`;
-        const endDate = new Date(parseInt(year), parseInt(monthNum), 0)
-          .toISOString()
-          .split('T')[0];
+        const endDate = new Date(parseInt(year), parseInt(monthNum), 0).toISOString().split('T')[0];
         query = query.gte('fortune_date', startDate).lte('fortune_date', endDate);
       }
     }
@@ -90,8 +91,14 @@ export async function GET(request: NextRequest) {
               fortunes.reduce((sum, f) => sum + (f.overall_score || 0), 0) / fortunes.length
             )
           : 0,
-      highestScore: fortunes && fortunes.length > 0 ? Math.max(...fortunes.map((f) => f.overall_score || 0)) : 0,
-      lowestScore: fortunes && fortunes.length > 0 ? Math.min(...fortunes.map((f) => f.overall_score || 0)) : 0,
+      highestScore:
+        fortunes && fortunes.length > 0
+          ? Math.max(...fortunes.map((f) => f.overall_score || 0))
+          : 0,
+      lowestScore:
+        fortunes && fortunes.length > 0
+          ? Math.min(...fortunes.map((f) => f.overall_score || 0))
+          : 0,
     };
 
     return NextResponse.json({

@@ -44,10 +44,7 @@ export function isValidPillars(pillars: unknown): pillars is PillarsData {
   const p = pillars as Record<string, unknown>;
 
   return (
-    isValidPillar(p.year) &&
-    isValidPillar(p.month) &&
-    isValidPillar(p.day) &&
-    isValidPillar(p.hour)
+    isValidPillar(p.year) && isValidPillar(p.month) && isValidPillar(p.day) && isValidPillar(p.hour)
   );
 }
 

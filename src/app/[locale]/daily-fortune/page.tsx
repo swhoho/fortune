@@ -44,14 +44,62 @@ type PageState = 'loading' | 'subscription' | 'generating' | 'error';
 
 /** 단계별 라벨 (다국어) */
 const STEP_LABELS: Record<string, Record<string, string>> = {
-  day_calculation: { ko: '일진 계산 중...', en: 'Calculating day pillar...', ja: '日柱計算中...', 'zh-CN': '计算日柱中...', 'zh-TW': '計算日柱中...' },
-  wunseong: { ko: '12운성 분석 중...', en: 'Analyzing 12 stages...', ja: '十二運星分析中...', 'zh-CN': '分析十二运星中...', 'zh-TW': '分析十二運星中...' },
-  timing: { ko: '복음/반음 감지 중...', en: 'Detecting patterns...', ja: 'パターン検出中...', 'zh-CN': '检测模式中...', 'zh-TW': '檢測模式中...' },
-  johu: { ko: '조후용신 분석 중...', en: 'Analyzing seasonal needs...', ja: '調候分析中...', 'zh-CN': '分析调候中...', 'zh-TW': '分析調候中...' },
-  combination: { ko: '삼합/방합 감지 중...', en: 'Detecting combinations...', ja: '三合検出中...', 'zh-CN': '检测三合中...', 'zh-TW': '檢測三合中...' },
-  useful_god: { ko: '용신 정보 조회 중...', en: 'Looking up useful god...', ja: '用神照会中...', 'zh-CN': '查询用神中...', 'zh-TW': '查詢用神中...' },
-  gemini_analysis: { ko: 'AI 분석 중...', en: 'AI analyzing...', ja: 'AI分析中...', 'zh-CN': 'AI分析中...', 'zh-TW': 'AI分析中...' },
-  score_adjustment: { ko: '점수 계산 중...', en: 'Calculating scores...', ja: 'スコア計算中...', 'zh-CN': '计算分数中...', 'zh-TW': '計算分數中...' },
+  day_calculation: {
+    ko: '일진 계산 중...',
+    en: 'Calculating day pillar...',
+    ja: '日柱計算中...',
+    'zh-CN': '计算日柱中...',
+    'zh-TW': '計算日柱中...',
+  },
+  wunseong: {
+    ko: '12운성 분석 중...',
+    en: 'Analyzing 12 stages...',
+    ja: '十二運星分析中...',
+    'zh-CN': '分析十二运星中...',
+    'zh-TW': '分析十二運星中...',
+  },
+  timing: {
+    ko: '복음/반음 감지 중...',
+    en: 'Detecting patterns...',
+    ja: 'パターン検出中...',
+    'zh-CN': '检测模式中...',
+    'zh-TW': '檢測模式中...',
+  },
+  johu: {
+    ko: '조후용신 분석 중...',
+    en: 'Analyzing seasonal needs...',
+    ja: '調候分析中...',
+    'zh-CN': '分析调候中...',
+    'zh-TW': '分析調候中...',
+  },
+  combination: {
+    ko: '삼합/방합 감지 중...',
+    en: 'Detecting combinations...',
+    ja: '三合検出中...',
+    'zh-CN': '检测三合中...',
+    'zh-TW': '檢測三合中...',
+  },
+  useful_god: {
+    ko: '용신 정보 조회 중...',
+    en: 'Looking up useful god...',
+    ja: '用神照会中...',
+    'zh-CN': '查询用神中...',
+    'zh-TW': '查詢用神中...',
+  },
+  gemini_analysis: {
+    ko: 'AI 분석 중...',
+    en: 'AI analyzing...',
+    ja: 'AI分析中...',
+    'zh-CN': 'AI分析中...',
+    'zh-TW': 'AI分析中...',
+  },
+  score_adjustment: {
+    ko: '점수 계산 중...',
+    en: 'Calculating scores...',
+    ja: 'スコア計算中...',
+    'zh-CN': '计算分数中...',
+    'zh-TW': '計算分數中...',
+  },
   complete: { ko: '완료!', en: 'Complete!', ja: '完了！', 'zh-CN': '完成！', 'zh-TW': '完成！' },
 };
 
@@ -68,6 +116,96 @@ export default function DailyFortuneRedirectPage() {
   // 진행률 상태
   const [progress, setProgress] = useState(0);
   const [currentStep, setCurrentStep] = useState('');
+
+  /** 운세 생성 */
+  const generateFortune = useCallback(
+    async (fetchedData: DailyFortuneResponse) => {
+      setState('generating');
+      setProgress(0);
+      setCurrentStep('');
+
+      const profileId = fetchedData.profile?.id;
+      const today = new Date().toISOString().slice(0, 10);
+
+      try {
+        // 1. POST 요청으로 운세 생성 시작
+        const postRes = await fetch('/api/daily-fortune', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            profileId: profileId,
+            pillars: fetchedData.pillars,
+            daewun: fetchedData.daewun,
+            language: locale,
+          }),
+        });
+
+        // 즉시 완료된 경우
+        if (postRes.ok) {
+          const json: DailyFortuneResponse = await postRes.json();
+          const fortuneId = json.fortuneId || json.data?.id;
+          if (fortuneId) {
+            setProgress(100);
+            router.replace(`/${locale}/daily-fortune/${fortuneId}`);
+            return;
+          }
+        }
+
+        // 2. 진행률 폴링 시작
+        const pollStatus = async (): Promise<string | null> => {
+          try {
+            const statusRes = await fetch(
+              `/api/daily-fortune/status?profile_id=${profileId}&date=${today}`
+            );
+            const statusJson = await statusRes.json();
+
+            setProgress(statusJson.progress_percent || 0);
+
+            // 현재 진행 중인 단계 찾기
+            const stepStatuses = statusJson.step_statuses || {};
+            const inProgressStep = Object.entries(stepStatuses).find(
+              ([, status]) => status === 'in_progress'
+            );
+            if (inProgressStep) {
+              setCurrentStep(inProgressStep[0]);
+            }
+
+            if (statusJson.status === 'completed' && statusJson.result?.id) {
+              setProgress(100);
+              return statusJson.result.id;
+            }
+
+            if (statusJson.status === 'failed') {
+              throw new Error(statusJson.error?.message || t('errors.generateFailed'));
+            }
+
+            return null;
+          } catch (e) {
+            console.error('[DailyFortune] 폴링 오류:', e);
+            return null;
+          }
+        };
+
+        // 3. 1초 간격으로 폴링 (최대 60초)
+        let fortuneId: string | null = null;
+        for (let i = 0; i < 60 && !fortuneId; i++) {
+          await new Promise((resolve) => setTimeout(resolve, 1000));
+          fortuneId = await pollStatus();
+        }
+
+        if (fortuneId) {
+          router.replace(`/${locale}/daily-fortune/${fortuneId}`);
+        } else {
+          throw new Error(t('errors.timeout'));
+        }
+      } catch (err) {
+        console.error('[DailyFortune] 생성 오류:', err);
+        setError(err instanceof Error ? err.message : t('errors.generateFailed'));
+        setState('error');
+      }
+    },
+    [locale, router, t]
+  );
 
   /** 데이터 조회 */
   const fetchFortune = useCallback(async () => {
@@ -105,95 +243,7 @@ export default function DailyFortuneRedirectPage() {
       setError(err instanceof Error ? err.message : t('errors.generic'));
       setState('error');
     }
-  }, [locale, router, t]);
-
-  /** 운세 생성 */
-  const generateFortune = async (fetchedData: DailyFortuneResponse) => {
-    setState('generating');
-    setProgress(0);
-    setCurrentStep('');
-
-    const profileId = fetchedData.profile?.id;
-    const today = new Date().toISOString().split('T')[0];
-
-    try {
-      // 1. POST 요청으로 운세 생성 시작
-      const postRes = await fetch('/api/daily-fortune', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          profileId: profileId,
-          pillars: fetchedData.pillars,
-          daewun: fetchedData.daewun,
-          language: locale,
-        }),
-      });
-
-      // 즉시 완료된 경우
-      if (postRes.ok) {
-        const json: DailyFortuneResponse = await postRes.json();
-        const fortuneId = json.fortuneId || json.data?.id;
-        if (fortuneId) {
-          setProgress(100);
-          router.replace(`/${locale}/daily-fortune/${fortuneId}`);
-          return;
-        }
-      }
-
-      // 2. 진행률 폴링 시작
-      const pollStatus = async (): Promise<string | null> => {
-        try {
-          const statusRes = await fetch(
-            `/api/daily-fortune/status?profile_id=${profileId}&date=${today}`
-          );
-          const statusJson = await statusRes.json();
-
-          setProgress(statusJson.progress_percent || 0);
-
-          // 현재 진행 중인 단계 찾기
-          const stepStatuses = statusJson.step_statuses || {};
-          const inProgressStep = Object.entries(stepStatuses).find(
-            ([, status]) => status === 'in_progress'
-          );
-          if (inProgressStep) {
-            setCurrentStep(inProgressStep[0]);
-          }
-
-          if (statusJson.status === 'completed' && statusJson.result?.id) {
-            setProgress(100);
-            return statusJson.result.id;
-          }
-
-          if (statusJson.status === 'failed') {
-            throw new Error(statusJson.error?.message || t('errors.generateFailed'));
-          }
-
-          return null;
-        } catch (e) {
-          console.error('[DailyFortune] 폴링 오류:', e);
-          return null;
-        }
-      };
-
-      // 3. 1초 간격으로 폴링 (최대 60초)
-      let fortuneId: string | null = null;
-      for (let i = 0; i < 60 && !fortuneId; i++) {
-        await new Promise(resolve => setTimeout(resolve, 1000));
-        fortuneId = await pollStatus();
-      }
-
-      if (fortuneId) {
-        router.replace(`/${locale}/daily-fortune/${fortuneId}`);
-      } else {
-        throw new Error(t('errors.timeout'));
-      }
-
-    } catch (err) {
-      console.error('[DailyFortune] 생성 오류:', err);
-      setError(err instanceof Error ? err.message : t('errors.generateFailed'));
-      setState('error');
-    }
-  };
+  }, [locale, router, t, generateFortune]);
 
   /** 무료체험 시작 */
   const startTrial = async () => {
@@ -230,16 +280,9 @@ export default function DailyFortuneRedirectPage() {
   }, [fetchFortune]);
 
   return (
-    <div
-      className="min-h-screen pb-20"
-      style={{ backgroundColor: BRAND_COLORS.secondary }}
-    >
+    <div className="min-h-screen pb-20" style={{ backgroundColor: BRAND_COLORS.secondary }}>
       {/* AppHeader */}
-      <AppHeader
-        showBack
-        backHref="/home"
-        title={t('title')}
-      />
+      <AppHeader showBack backHref="/home" title={t('title')} />
 
       <div className="mx-auto max-w-3xl px-4 py-6">
         <AnimatePresence mode="wait">
@@ -266,10 +309,7 @@ export default function DailyFortuneRedirectPage() {
               exit={{ opacity: 0 }}
               className="py-10"
             >
-              <SubscriptionPrompt
-                canStartTrial={data?.canStartTrial}
-                onStartTrial={startTrial}
-              />
+              <SubscriptionPrompt canStartTrial={data?.canStartTrial} onStartTrial={startTrial} />
             </motion.div>
           )}
 
@@ -306,9 +346,7 @@ export default function DailyFortuneRedirectPage() {
                     transition={{ duration: 0.3, ease: 'easeOut' }}
                   />
                 </div>
-                <p className="mt-2 text-center text-xs text-gray-500">
-                  {progress}%
-                </p>
+                <p className="mt-2 text-center text-xs text-gray-500">{progress}%</p>
               </div>
             </motion.div>
           )}

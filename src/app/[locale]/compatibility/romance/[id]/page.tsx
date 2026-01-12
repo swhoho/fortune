@@ -443,7 +443,7 @@ function ScoreTab({ data }: { data: CompatibilityData }) {
       weight: '5%',
       icon: <Zap className="h-4 w-4" />,
       description:
-        "삼합(三合)은 세 개의 지지가 모여 하나의 강력한 오행 기운을 형성하는 특별한 조합입니다. 두 사람의 사주가 합쳐져 삼합이 완성되면, 따로 있을 때보다 함께 있을 때 훨씬 더 큰 에너지와 시너지가 생깁니다. 마치 \"둘이 만나니까 일이 술술 풀린다\"는 느낌이 드는 운명적 인연입니다. 방합(方合)은 같은 계절의 세 지지가 모여 그 계절의 기운을 극대화하는 조합으로, 함께하면 특정 분야에서 놀라운 성과를 낼 수 있습니다. 반합(半合)은 삼합의 두 요소만 갖춘 상태로, 완전한 삼합보다는 약하지만 여전히 긍정적인 시너지를 제공합니다. 이 점수가 높으면 두 사람이 만나 새로운 가능성을 여는 '창조적 궁합'입니다.",
+        '삼합(三合)은 세 개의 지지가 모여 하나의 강력한 오행 기운을 형성하는 특별한 조합입니다. 두 사람의 사주가 합쳐져 삼합이 완성되면, 따로 있을 때보다 함께 있을 때 훨씬 더 큰 에너지와 시너지가 생깁니다. 마치 "둘이 만나니까 일이 술술 풀린다"는 느낌이 드는 운명적 인연입니다. 방합(方合)은 같은 계절의 세 지지가 모여 그 계절의 기운을 극대화하는 조합으로, 함께하면 특정 분야에서 놀라운 성과를 낼 수 있습니다. 반합(半合)은 삼합의 두 요소만 갖춘 상태로, 완전한 삼합보다는 약하지만 여전히 긍정적인 시너지를 제공합니다. 이 점수가 높으면 두 사람이 만나 새로운 가능성을 여는 \'창조적 궁합\'입니다.',
     },
   ];
 
@@ -945,16 +945,16 @@ function InteractionDisplay({
         {samhapFormed.length > 0 || banhapFormed.length > 0 || banghapFormed.length > 0 ? (
           <div className="space-y-3">
             {/* Gemini interpretation 우선 사용 (빈 배열 체크) */}
-            {(interpretation?.samhapBanghap?.formations?.length ?? 0) > 0
-              ? interpretation!.samhapBanghap!.formations!.map((item, i) => (
-                  <div key={`formation-${i}`} className="flex flex-col gap-1">
-                    <span className="inline-block w-fit rounded-full bg-[#d4af37]/20 px-3 py-1 text-sm text-[#d4af37]">
-                      {item.name}
-                    </span>
-                    <p className="text-sm text-gray-300">{item.description}</p>
-                  </div>
-                ))
-              : (
+            {(interpretation?.samhapBanghap?.formations?.length ?? 0) > 0 ? (
+              interpretation!.samhapBanghap!.formations!.map((item, i) => (
+                <div key={`formation-${i}`} className="flex flex-col gap-1">
+                  <span className="inline-block w-fit rounded-full bg-[#d4af37]/20 px-3 py-1 text-sm text-[#d4af37]">
+                    {item.name}
+                  </span>
+                  <p className="text-sm text-gray-300">{item.description}</p>
+                </div>
+              ))
+            ) : (
               <>
                 {samhapFormed.map((item, i) => (
                   <div key={`samhap-${i}`} className="flex flex-col gap-1">
@@ -1155,7 +1155,9 @@ function InteractionDisplay({
                       {item.name || `${(item as { branches?: string[] }).branches?.join('')}원진`}
                     </span>
                     <ExplanationText
-                      name={item.name || `${(item as { branches?: string[] }).branches?.join('')}원진`}
+                      name={
+                        item.name || `${(item as { branches?: string[] }).branches?.join('')}원진`
+                      }
                     />
                   </div>
                 ))}

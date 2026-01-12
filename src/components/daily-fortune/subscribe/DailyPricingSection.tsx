@@ -20,13 +20,19 @@ interface DailyPricingSectionProps {
   isLoading?: boolean;
 }
 
-const INCLUDES_KEYS = ['dailyFortune', 'credits', 'sixAreas', 'personalized', 'consultation'] as const;
+const INCLUDES_KEYS = [
+  'dailyFortune',
+  'credits',
+  'sixAreas',
+  'personalized',
+  'consultation',
+] as const;
 
 /**
  * Pricing Section - 가격 정보 및 CTA 버튼
  */
 export function DailyPricingSection({
-  locale,
+  locale: _locale,
   subscriptionStatus,
   onStartTrial,
   onSubscribe,

@@ -18,8 +18,8 @@ interface SubscriptionPromptProps {
 
 export function SubscriptionPrompt({
   canStartTrial = false,
-  onStartTrial,
-  isLoading = false,
+  onStartTrial: _onStartTrial,
+  isLoading: _isLoading = false,
 }: SubscriptionPromptProps) {
   const t = useTranslations('dailyFortune');
   const router = useRouter();
@@ -64,9 +64,7 @@ export function SubscriptionPrompt({
         </div>
 
         {/* 제목 */}
-        <h3 className="mb-2 text-center text-lg font-bold text-white">
-          {t('title')}
-        </h3>
+        <h3 className="mb-2 text-center text-lg font-bold text-white">{t('title')}</h3>
 
         {/* 설명 */}
         <p className="mb-6 text-center text-sm text-gray-400">
