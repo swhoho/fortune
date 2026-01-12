@@ -263,7 +263,7 @@ export function verifyPayAppRebillFeedback(data: PayAppRebillFeedbackData): bool
 export function calculateRebillExpireDate(): string {
   const expireDate = new Date();
   expireDate.setFullYear(expireDate.getFullYear() + 1);
-  return expireDate.toISOString().split('T')[0]; // yyyy-mm-dd
+  return expireDate.toISOString().slice(0, 10); // yyyy-mm-dd
 }
 
 /**
