@@ -2,10 +2,11 @@
 
 /**
  * 결제 성공 페이지
- * - redirectUrl로 이동 시 자동으로 결제 검증 수행
+ * - PortOne 결제: redirectUrl로 이동 시 자동으로 결제 검증 수행
+ * - PayApp 결제: 콜백 완료 대기 후 성공 표시
  * - 이미 처리된 결제는 중복 처리하지 않음
  */
-import { Suspense, useEffect, useState } from 'react';
+import { Suspense, useEffect, useState, useRef } from 'react';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
@@ -23,6 +24,28 @@ function PaymentSuccessContent() {
   const [verifyStatus, setVerifyStatus] = useState<VerifyStatus>('idle');
   const [credits, setCredits] = useState<string | null>(creditsParam);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const pollingRef = useRef<NodeJS.Timeout | null>(null);
+  const pollingCountRef = useRef(0);
+
+  // PayApp 결제 상태 확인 (폴링)
+  const checkPayAppStatus = async (pid: string, pkgId: string): Promise<boolean> => {
+    try {
+      const response = await fetch(
+        `/api/payment/payapp/status?paymentId=${pid}&packageId=${pkgId}`
+      );
+      const result = await response.json();
+
+      if (result.success && result.status === 'completed') {
+        setCredits(String(result.credits));
+        setVerifyStatus('success');
+        return true;
+      }
+      return false;
+    } catch (err) {
+      console.error('PayApp status check error:', err);
+      return false;
+    }
+  };
 
   // 결제 검증 (redirectUrl로 이동한 경우)
   useEffect(() => {
@@ -50,6 +73,36 @@ function PaymentSuccessContent() {
 
       setVerifyStatus('verifying');
 
+      // PayApp 결제인 경우 (paymentId가 'payapp-'로 시작)
+      if (paymentId.startsWith('payapp-')) {
+        // 즉시 한 번 확인
+        const isCompleted = await checkPayAppStatus(paymentId, packageId);
+        if (isCompleted) return;
+
+        // 3초 간격으로 최대 10회 폴링 (30초)
+        pollingRef.current = setInterval(async () => {
+          pollingCountRef.current += 1;
+
+          const completed = await checkPayAppStatus(paymentId, packageId);
+
+          if (completed || pollingCountRef.current >= 10) {
+            if (pollingRef.current) {
+              clearInterval(pollingRef.current);
+              pollingRef.current = null;
+            }
+
+            if (!completed && pollingCountRef.current >= 10) {
+              // 타임아웃 - 그래도 성공으로 처리 (콜백이 늦게 올 수 있음)
+              setCredits(String(selectedPackage.credits + (selectedPackage.bonus || 0)));
+              setVerifyStatus('success');
+            }
+          }
+        }, 3000);
+
+        return;
+      }
+
+      // PortOne 결제 검증
       try {
         const response = await fetch('/api/payment/portone/verify', {
           method: 'POST',
@@ -82,6 +135,14 @@ function PaymentSuccessContent() {
     }
 
     verifyPayment();
+
+    // 클린업: 폴링 정리
+    return () => {
+      if (pollingRef.current) {
+        clearInterval(pollingRef.current);
+        pollingRef.current = null;
+      }
+    };
   }, [paymentId, packageId, creditsParam]);
 
   // 검증 중 로딩 UI

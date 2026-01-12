@@ -40,7 +40,7 @@ export async function POST(request: Request) {
     }
 
     // 4. PayApp 결제 요청 생성
-    const orderId = generatePayAppOrderId();
+    const paymentId = generatePayAppOrderId();
     const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
 
     const result = await createPayAppPayment({
@@ -48,7 +48,7 @@ export async function POST(request: Request) {
       price: pkg.price,
       recvphone: '01000000000', // SMS 미사용 (smsuse='n')으로 플레이스홀더 사용
       feedbackurl: `${appUrl}/api/payment/payapp/callback`,
-      returnurl: `${appUrl}/ko/payment/success?orderId=${orderId}&packageId=${packageId}`,
+      returnurl: `${appUrl}/ko/payment/success?paymentId=${paymentId}&packageId=${packageId}`,
       userId: user.id,
       packageId: packageId,
     });
@@ -72,7 +72,7 @@ export async function POST(request: Request) {
     return NextResponse.json({
       success: true,
       payUrl: result.payurl,
-      orderId,
+      paymentId,
       mulNo: result.mul_no,
     });
   } catch (error) {
