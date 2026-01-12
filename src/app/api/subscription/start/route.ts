@@ -30,13 +30,26 @@ export async function POST() {
     // 2. 이미 구독 중인지 확인
     const { data: existingSub } = await supabase
       .from('subscriptions')
-      .select('id')
+      .select('id, status, current_period_start, current_period_end, price')
       .eq('user_id', user.id)
       .eq('status', 'active')
       .single();
 
     if (existingSub) {
-      return NextResponse.json({ error: '이미 구독 중입니다' }, { status: 400 });
+      // 이미 구독 중이면 에러 대신 성공으로 반환 (크레딧 추가 지급 없음)
+      return NextResponse.json({
+        success: true,
+        subscription: {
+          id: existingSub.id,
+          status: 'active',
+          periodStart: existingSub.current_period_start,
+          periodEnd: existingSub.current_period_end,
+          price: existingSub.price,
+        },
+        alreadySubscribed: true,
+        creditsAdded: 0,
+        message: '이미 구독 중입니다',
+      });
     }
 
     // 3. 구독 기간 계산 (1개월)
