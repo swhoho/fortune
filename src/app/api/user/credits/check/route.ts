@@ -15,7 +15,7 @@ import {
   createErrorResponse,
   getStatusCode,
 } from '@/lib/errors/codes';
-import { getExpiringCredits } from '@/lib/credits';
+import { getExpiringCredits, getNearestExpiringCredits } from '@/lib/credits';
 
 /**
  * 쿼리 파라미터 스키마
@@ -78,7 +78,10 @@ export async function GET(request: NextRequest) {
     // 4. 만료 예정 크레딧 조회 (30일 이내)
     const expiringInfo = await getExpiringCredits(userId, 30, supabase);
 
-    // 5. 필요 크레딧이 지정된 경우 충분 여부 계산
+    // 5. 가장 가까운 만료 크레딧 조회 (기간 제한 없음)
+    const nearestExpiring = await getNearestExpiringCredits(userId, supabase);
+
+    // 6. 필요 크레딧이 지정된 경우 충분 여부 계산
     if (requiredCredits !== undefined) {
       const sufficient = currentCredits >= requiredCredits;
       const remaining = currentCredits - requiredCredits;
@@ -91,15 +94,17 @@ export async function GET(request: NextRequest) {
         remaining: sufficient ? remaining : 0,
         shortfall,
         expiringSoon: expiringInfo.total,
-        nearestExpiry: expiringInfo.nearestExpiry,
+        nearestExpiry: nearestExpiring.expiresAt,
+        nearestExpiryAmount: nearestExpiring.amount,
       });
     }
 
-    // 6. 필요 크레딧 미지정 시 현재 잔액 + 만료 정보 반환
+    // 7. 필요 크레딧 미지정 시 현재 잔액 + 만료 정보 반환
     return NextResponse.json({
       current: currentCredits,
       expiringSoon: expiringInfo.total,
-      nearestExpiry: expiringInfo.nearestExpiry,
+      nearestExpiry: nearestExpiring.expiresAt,
+      nearestExpiryAmount: nearestExpiring.amount,
     });
   } catch (error) {
     console.error('[API] /api/user/credits/check 에러:', error);

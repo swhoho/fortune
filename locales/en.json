@@ -302,7 +302,8 @@
       "title": "My Profile",
       "user": "User",
       "credits": "Credits",
-      "chargeCredits": "Recharge Credits"
+      "chargeCredits": "Recharge Credits",
+      "expires": "expires"
     },
     "noProfiles": "No profiles registered",
     "noProfilesDesc": "Register a profile to generate Saju reports",
@@ -971,7 +972,12 @@
     "primary": {
       "badge": "Primary",
       "setAsPrimary": "Set as Primary",
-      "setSuccess": "Primary profile changed"
+      "setSuccess": "Primary profile changed",
+      "fortuneWarningTitle": "Change Primary Profile",
+      "fortuneWarningMessage": "Daily fortune analysis can only be regenerated once per day when changing primary profile.",
+      "fortuneWarningNote": "The existing daily fortune data will be deleted. Do you want to proceed?",
+      "fortuneWarningConfirm": "Change",
+      "fortuneWarningCancel": "Cancel"
     },
     "delete": {
       "title": "Delete Profile",

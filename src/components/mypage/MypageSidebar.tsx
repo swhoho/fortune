@@ -7,9 +7,21 @@
 import { motion } from 'framer-motion';
 import Link from 'next/link';
 import { Crisp } from 'crisp-sdk-web';
-import { useTranslations } from 'next-intl';
+import { useTranslations, useLocale } from 'next-intl';
+import { format, type Locale } from 'date-fns';
+import { ko, enUS, ja, zhCN, zhTW } from 'date-fns/locale';
 import { cn } from '@/lib/utils';
 import type { UserProfile } from '@/hooks/use-user';
+import { useCreditsBalance } from '@/hooks/use-credits';
+
+/** 로케일별 date-fns locale 매핑 */
+const DATE_LOCALES: Record<string, Locale> = {
+  ko,
+  en: enUS,
+  ja,
+  'zh-CN': zhCN,
+  'zh-TW': zhTW,
+};
 
 /** 사이드바 탭 타입 */
 export type MypageTab = 'analysis' | 'credits' | 'notifications' | 'settings';
@@ -111,6 +123,14 @@ interface MypageSidebarProps {
 export function MypageSidebar({ profile, activeTab, onTabChange }: MypageSidebarProps) {
   const t = useTranslations('mypage');
   const tNav = useTranslations('nav');
+  const locale = useLocale();
+  const { data: creditsData } = useCreditsBalance();
+
+  /** 만료일 포맷 (1월 30일 형식) */
+  const formatExpiryDate = (isoDate: string) => {
+    const dateLocale = DATE_LOCALES[locale] || enUS;
+    return format(new Date(isoDate), 'M월 d일', { locale: dateLocale });
+  };
 
   return (
     <aside className="w-full shrink-0 md:w-64">
@@ -138,14 +158,29 @@ export function MypageSidebar({ profile, activeTab, onTabChange }: MypageSidebar
         </div>
 
         {/* 크레딧 표시 */}
-        <div className="relative flex items-center justify-between rounded-xl bg-[#242424] px-4 py-3">
-          <span className="text-sm text-gray-400">{t('profile.credits')}</span>
-          <div className="flex items-baseline gap-1">
-            <span className="font-serif text-2xl font-bold text-[#d4af37]">
-              {profile?.credits || 0}
-            </span>
-            <span className="text-sm font-medium text-[#d4af37]">C</span>
+        <div className="relative rounded-xl bg-[#242424] px-4 py-3">
+          {/* 보유 크레딧 */}
+          <div className="flex items-center justify-between">
+            <span className="text-sm text-gray-400">{t('profile.credits')}</span>
+            <div className="flex items-baseline gap-1">
+              <span className="font-serif text-2xl font-bold text-[#d4af37]">
+                {profile?.credits || 0}
+              </span>
+              <span className="text-sm font-medium text-[#d4af37]">C</span>
+            </div>
           </div>
+
+          {/* 만료 예정 크레딧 */}
+          {creditsData?.nearestExpiryAmount &&
+            creditsData.nearestExpiryAmount > 0 &&
+            creditsData?.nearestExpiry && (
+              <div className="mt-2 flex items-center justify-between border-t border-[#333] pt-2 text-xs">
+                <span className="text-amber-400">C {creditsData.nearestExpiryAmount}</span>
+                <span className="text-gray-500">
+                  {formatExpiryDate(creditsData.nearestExpiry)} {t('profile.expires')}
+                </span>
+              </div>
+            )}
         </div>
 
         {/* 크레딧 충전 버튼 */}

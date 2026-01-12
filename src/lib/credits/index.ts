@@ -6,5 +6,5 @@
 export { deductCredits, refundCredits, getAvailableCredits } from './deduct';
 export type { ServiceType } from './deduct';
 
-export { addCredits, getExpiringCredits } from './add';
+export { addCredits, getExpiringCredits, getNearestExpiringCredits } from './add';
 export type { CreditType } from './add';

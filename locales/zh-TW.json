@@ -292,7 +292,8 @@
       "title": "我的資料",
       "user": "用戶",
       "credits": "持有積分",
-      "chargeCredits": "充值積分"
+      "chargeCredits": "充值積分",
+      "expires": "到期"
     },
     "sidebar": {
       "analysis": "分析記錄",
@@ -1221,7 +1222,12 @@
     "primary": {
       "badge": "主檔案",
       "setAsPrimary": "設為主檔案",
-      "setSuccess": "主檔案已變更"
+      "setSuccess": "主檔案已變更",
+      "fortuneWarningTitle": "更改主檔案",
+      "fortuneWarningMessage": "更改主檔案後的每日運勢分析每天只能重新生成一次。",
+      "fortuneWarningNote": "現有的每日運勢數據將被刪除。確定要繼續嗎？",
+      "fortuneWarningConfirm": "更改",
+      "fortuneWarningCancel": "取消"
     },
     "delete": {
       "title": "刪除檔案",

@@ -16,6 +16,12 @@ interface CreditCheckResponse {
   required?: number;
   remaining?: number;
   shortfall?: number;
+  /** 30일 이내 만료 예정 크레딧 */
+  expiringSoon?: number;
+  /** 가장 가까운 만료일 ISO 문자열 */
+  nearestExpiry?: string | null;
+  /** 가장 가까운 만료 크레딧 양 */
+  nearestExpiryAmount?: number;
 }
 
 /** 무료 분석 자격 응답 타입 */

@@ -292,7 +292,8 @@
       "title": "我的资料",
       "user": "用户",
       "credits": "持有积分",
-      "chargeCredits": "充值积分"
+      "chargeCredits": "充值积分",
+      "expires": "到期"
     },
     "sidebar": {
       "analysis": "分析记录",
@@ -1221,7 +1222,12 @@
     "primary": {
       "badge": "主档案",
       "setAsPrimary": "设为主档案",
-      "setSuccess": "主档案已更改"
+      "setSuccess": "主档案已更改",
+      "fortuneWarningTitle": "更改主档案",
+      "fortuneWarningMessage": "更改主档案后的每日运势分析每天只能重新生成一次。",
+      "fortuneWarningNote": "现有的每日运势数据将被删除。确定要继续吗？",
+      "fortuneWarningConfirm": "更改",
+      "fortuneWarningCancel": "取消"
     },
     "delete": {
       "title": "删除档案",

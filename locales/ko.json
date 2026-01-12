@@ -302,7 +302,8 @@
       "title": "내 프로필",
       "user": "사용자",
       "credits": "보유 크레딧",
-      "chargeCredits": "크레딧 충전"
+      "chargeCredits": "크레딧 충전",
+      "expires": "만료"
     },
     "noProfiles": "등록된 프로필이 없습니다",
     "noProfilesDesc": "프로필을 등록하고 사주 리포트를 생성해보세요",
@@ -965,7 +966,12 @@
     "primary": {
       "badge": "대표",
       "setAsPrimary": "대표 프로필로 설정",
-      "setSuccess": "대표 프로필이 변경되었습니다"
+      "setSuccess": "대표 프로필이 변경되었습니다",
+      "fortuneWarningTitle": "대표 프로필 변경",
+      "fortuneWarningMessage": "대표 프로필 변경으로 인한 일간 운세 분석은 하루에 한 번만 가능합니다.",
+      "fortuneWarningNote": "기존 대표자의 일간 운세 분석 데이터는 삭제됩니다. 그래도 진행하시겠습니까?",
+      "fortuneWarningConfirm": "변경",
+      "fortuneWarningCancel": "취소"
     },
     "delete": {
       "title": "프로필 삭제",

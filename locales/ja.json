@@ -292,7 +292,8 @@
       "title": "マイプロフィール",
       "user": "ユーザー",
       "credits": "保有クレジット",
-      "chargeCredits": "クレジットチャージ"
+      "chargeCredits": "クレジットチャージ",
+      "expires": "に失効"
     },
     "sidebar": {
       "analysis": "分析履歴",
@@ -1221,7 +1222,12 @@
     "primary": {
       "badge": "メイン",
       "setAsPrimary": "メインプロフィールに設定",
-      "setSuccess": "メインプロフィールが変更されました"
+      "setSuccess": "メインプロフィールが変更されました",
+      "fortuneWarningTitle": "メインプロフィールの変更",
+      "fortuneWarningMessage": "メインプロフィール変更による毎日の運勢分析は1日1回のみ再生成可能です。",
+      "fortuneWarningNote": "既存の毎日の運勢データは削除されます。続行しますか？",
+      "fortuneWarningConfirm": "変更",
+      "fortuneWarningCancel": "キャンセル"
     },
     "delete": {
       "title": "プロフィール削除",

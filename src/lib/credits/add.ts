@@ -136,3 +136,34 @@ export async function getExpiringCredits(
 
   return { total, nearestExpiry, items };
 }
+
+/**
+ * 가장 가까운 만료 예정 크레딧 조회
+ * 기간 제한 없이 가장 가까운 만료일의 크레딧 반환
+ */
+export async function getNearestExpiringCredits(
+  userId: string,
+  supabase: SupabaseClient
+): Promise<{ amount: number; expiresAt: string | null }> {
+  const { data, error } = await supabase
+    .from('credit_transactions')
+    .select('remaining, expires_at')
+    .eq('user_id', userId)
+    .gt('remaining', 0)
+    .in('type', ['purchase', 'subscription', 'bonus', 'refund'])
+    .not('expires_at', 'is', null)
+    .gt('expires_at', new Date().toISOString())
+    .order('expires_at', { ascending: true })
+    .limit(1);
+
+  if (error) {
+    console.error('[getNearestExpiringCredits] 조회 오류:', error);
+    return { amount: 0, expiresAt: null };
+  }
+
+  const item = data?.[0];
+  return {
+    amount: item?.remaining || 0,
+    expiresAt: item?.expires_at || null,
+  };
+}
