@@ -27,6 +27,8 @@ from prompts.daily_prompts import (
     STEM_ELEMENT,
 )
 from .gemini import get_gemini_service
+from .normalizers import normalize_all_keys, normalize_response
+from schemas.daily_fortune import validate_daily_fortune
 
 # 점수 계산 모듈에서 기존 상수 가져오기
 from scoring.calculator import (
@@ -2225,14 +2227,12 @@ class DailyFortuneService:
                     previous_error=last_error if attempt > 1 else None
                 )
 
-                # 필수 필드 검증
-                required = ["overallScore", "summary", "careerFortune", "wealthFortune",
-                           "loveFortune", "healthFortune", "relationshipFortune", "advice"]
-                missing = [f for f in required if f not in result]
-                if missing:
-                    raise ValueError(f"필수 필드 누락: {missing}")
+                # v4.0: 정규화 + Pydantic 검증
+                normalized = normalize_all_keys(normalize_response("daily_fortune", result))
+                validated = validate_daily_fortune(normalized, raise_on_error=True)
 
-                return result
+                logger.info("[DailyFortune] 정규화 + 검증 완료")
+                return validated
 
             except Exception as e:
                 last_error = str(e)

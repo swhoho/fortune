@@ -511,6 +511,87 @@ def normalize_yearly_advice(raw: Dict[str, Any]) -> Dict[str, Any]:
     return result
 
 
+# ============================================
+# Daily Fortune 정규화 (v4.0)
+# ============================================
+
+DAILY_FORTUNE_KEY_MAPPING = {
+    # snake_case → camelCase
+    'overall_score': 'overallScore',
+    'career_fortune': 'careerFortune',
+    'wealth_fortune': 'wealthFortune',
+    'love_fortune': 'loveFortune',
+    'health_fortune': 'healthFortune',
+    'relationship_fortune': 'relationshipFortune',
+    'lucky_color': 'luckyColor',
+    'lucky_number': 'luckyNumber',
+    'lucky_direction': 'luckyDirection',
+    # 한글 키
+    '종합점수': 'overallScore',
+    '요약': 'summary',
+    '직업운': 'careerFortune',
+    '재물운': 'wealthFortune',
+    '연애운': 'loveFortune',
+    '건강운': 'healthFortune',
+    '인간관계운': 'relationshipFortune',
+    '조언': 'advice',
+    '행운의색': 'luckyColor',
+    '행운의숫자': 'luckyNumber',
+    '행운의방향': 'luckyDirection',
+}
+
+AREA_FORTUNE_KEY_MAPPING = {
+    '점수': 'score',
+    '제목': 'title',
+    '설명': 'description',
+    '팁': 'tip',
+}
+
+
+def normalize_daily_fortune(raw: Dict[str, Any]) -> Dict[str, Any]:
+    """
+    오늘의 운세 응답 정규화
+
+    - snake_case/한글 키 → camelCase
+    - 영역별 운세 내부 정규화
+    - 기본값 보장
+    """
+    if raw is None:
+        return raw
+
+    result = _normalize_dict(raw, DAILY_FORTUNE_KEY_MAPPING)
+
+    # 영역별 운세 정규화
+    area_keys = ['careerFortune', 'wealthFortune', 'loveFortune',
+                 'healthFortune', 'relationshipFortune']
+
+    for key in area_keys:
+        if key in result and isinstance(result[key], dict):
+            result[key] = _normalize_dict(result[key], AREA_FORTUNE_KEY_MAPPING)
+            # 기본값 보장
+            if 'score' not in result[key]:
+                result[key]['score'] = 50
+            if 'title' not in result[key]:
+                result[key]['title'] = ''
+            if 'description' not in result[key]:
+                result[key]['description'] = ''
+            if 'tip' not in result[key]:
+                result[key]['tip'] = ''
+        else:
+            # 누락된 영역 기본값
+            result[key] = {'score': 50, 'title': '', 'description': '', 'tip': ''}
+
+    # 최상위 필드 기본값
+    if 'overallScore' not in result:
+        result['overallScore'] = 50
+    if 'summary' not in result:
+        result['summary'] = ''
+    if 'advice' not in result:
+        result['advice'] = ''
+
+    return result
+
+
 def normalize_response(step_name: str, raw_response: Dict[str, Any]) -> Dict[str, Any]:
     """단계별 응답 정규화 라우터"""
     normalizers = {
@@ -520,6 +601,7 @@ def normalize_response(step_name: str, raw_response: Dict[str, Any]) -> Dict[str
         'aptitude': normalize_aptitude,
         'fortune': normalize_fortune,
         'yearly_advice': normalize_yearly_advice,
+        'daily_fortune': normalize_daily_fortune,
     }
 
     normalizer = normalizers.get(step_name)
