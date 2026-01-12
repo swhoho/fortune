@@ -1047,6 +1047,7 @@
   },
   "dailyFortune": {
     "title": "Today's Fortune",
+    "generating": "Analyzing today's fortune...",
     "overallScore": "Overall Score",
     "todayPillar": "Today's Energy",
     "luckyColor": "Lucky Color",

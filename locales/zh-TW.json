@@ -950,6 +950,7 @@
   },
   "dailyFortune": {
     "title": "今日運勢",
+    "generating": "正在分析今日運勢...",
     "overallScore": "綜合運勢",
     "todayPillar": "今日干支",
     "luckyColor": "幸運色",

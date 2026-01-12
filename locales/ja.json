@@ -950,6 +950,7 @@
   },
   "dailyFortune": {
     "title": "今日の運勢",
+    "generating": "今日の運勢を分析しています...",
     "overallScore": "総合運",
     "todayPillar": "今日の干支",
     "luckyColor": "ラッキーカラー",

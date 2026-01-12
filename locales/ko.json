@@ -43,7 +43,14 @@
     "home": "홈으로",
     "profile": "프로필",
     "pdfDownload": "PDF 다운로드",
-    "unknownError": "알 수 없는 오류"
+    "unknownError": "알 수 없는 오류",
+    "loadingFortune": "운세를 불러오는 중...",
+    "loadingReport": "리포트를 불러오는 중...",
+    "loadingResult": "궁합 결과를 불러오는 중...",
+    "backToProfile": "프로필로 돌아가기",
+    "backToList": "목록으로 돌아가기",
+    "free": "0C (무료)",
+    "login": "로그인"
   },
   "nav": {
     "login": "로그인",
@@ -180,7 +187,10 @@
       "placeholder": "예: 올해 이직해도 괜찮을까요?",
       "exampleTitle": "예시 질문",
       "skipButton": "건너뛰기",
-      "nextButton": "결제 페이지로"
+      "nextButton": "결제 페이지로",
+      "inputConcern": "고민 입력",
+      "exampleQuestions": "예시 질문 (클릭하여 추가)",
+      "noQuestionNeeded": "고민 사항 없이 종합 분석만 원해요"
     },
     "processing": {
       "error": "분석 중 오류가 발생했습니다",
@@ -196,7 +206,20 @@
       "health": "건강",
       "overallFortune": "종합 운세",
       "classicalInterpretation": "고전 해석"
-    }
+    },
+    "element": {
+      "distribution": "오행 분포",
+      "relations": "오행 상생상극 관계도"
+    },
+    "pillar": {
+      "order": "시주 · 일주 · 월주 · 연주",
+      "heavenlyStem": "천간 (天干)",
+      "earthlyBranch": "지지 (地支)",
+      "hiddenStems": "지장간",
+      "detailDesc": "사주팔자의 {pillarName} 상세 정보"
+    },
+    "score": "운세 점수",
+    "advice": "조언"
   },
   "focusArea": {
     "wealth": "재물운",
@@ -280,6 +303,11 @@
       "credits": "보유 크레딧",
       "chargeCredits": "크레딧 충전"
     },
+    "noProfiles": "등록된 프로필이 없습니다",
+    "noProfilesDesc": "프로필을 등록하고 사주 리포트를 생성해보세요",
+    "profileReports": "프로필 리포트",
+    "profileReportsDesc": "등록된 프로필과 사주 리포트를 확인하세요",
+    "retryLater": "잠시 후 다시 시도해주세요",
     "sidebar": {
       "analysis": "분석 기록",
       "credits": "크레딧 기록",
@@ -589,6 +617,7 @@
       "avgScore": "평균 점수",
       "luckyDays": "길일",
       "unluckyDays": "주의일",
+      "monthlyAdvice": "이달의 조언",
       "calendar": {
         "title": "길흉일 캘린더",
         "subtitle": "중요한 날들을 미리 확인하세요",
@@ -664,6 +693,8 @@
     "zh-TW": "繁體中文"
   },
   "report": {
+    "empty": "표시할 특성이 없습니다",
+    "noData": "분석 데이터를 불러올 수 없습니다",
     "navigation": {
       "saju": "사주",
       "daewun": "대운"
@@ -686,10 +717,15 @@
     },
     "daewun": {
       "title": "대운",
+      "subtitle": "10년 주기의 운세 흐름",
       "current": "현재 대운",
       "scrollHint": "좌우로 스크롤하세요",
       "previous": "이전 대운",
-      "next": "다음 대운"
+      "next": "다음 대운",
+      "whatIs": "대운이란?",
+      "description": "인생 흥망성쇠의 나침반",
+      "startDate": "시작시기: {date}",
+      "scoreBasis": "점수 근거"
     },
     "personality": {
       "title": "성격과 특징",
@@ -718,7 +754,9 @@
       "partnerInfluenceDesc": "내안에 있는 이성의 존재형태",
       "traits": "재물특성",
       "traitsDesc": "나의 재물 성향을 나타내는 특성",
-      "score": "재물운"
+      "score": "재물운",
+      "pattern": "재물 패턴",
+      "advice": "재물 조언"
     },
     "romance": {
       "title": "연애와 결혼",
@@ -731,6 +769,8 @@
       "traits": "특징그래프",
       "traitsDesc": "연애적성을 파악하는 특징 10개",
       "score": "연애운",
+      "style": "연애 스타일",
+      "advice": "연애 조언",
       "traitLabels": {
         "consideration": "배려심",
         "humor": "유머감각",
@@ -750,6 +790,10 @@
       "workAbilityDesc": "각 단계별 능력 비율",
       "traits": "특징그래프",
       "traitsDesc": "적성을 파악하는 특징 10개",
+      "keywords": "당신의 적성을 표시하는 키워드",
+      "talentBasis": "각 재능의 근거와 수준",
+      "currentLevel": "현재 수준",
+      "potential": "잠재력",
       "workLabels": {
         "planning": "기획/연구",
         "perseverance": "끈기/정력",
@@ -857,6 +901,8 @@
     }
   },
   "profile": {
+    "analysisFailed": "사주 분석이 실패했습니다",
+    "notFound": "프로필을 찾을 수 없습니다.",
     "pageTitle": {
       "new": "프로필 등록",
       "list": "프로필 목록",
@@ -967,7 +1013,12 @@
     "roundLimit": "이 세션의 질문 한도(2라운드)에 도달했습니다.",
     "newSessionCost": "새 상담 시작 (10C)",
     "inputPlaceholder": "질문을 입력하세요... (최대 500자)",
-    "clarificationPlaceholder": "추가 정보를 입력해주세요..."
+    "clarificationPlaceholder": "추가 정보를 입력해주세요...",
+    "needMoreInfo": "추가 정보가 필요해요",
+    "questionCount": "질문 {current}/{max}",
+    "charsRemaining": "{count}자 남음",
+    "skipInfo": "추가 정보 없이 답변받기",
+    "roundLimitDesc": "세션당 2라운드 질문 가능"
   },
   "pipeline": {
     "steps": {
@@ -1090,6 +1141,7 @@
   },
   "dailyFortune": {
     "title": "오늘의 운세",
+    "generating": "오늘의 운세를 분석하고 있습니다...",
     "overallScore": "종합 운세",
     "todayPillar": "오늘의 일진",
     "luckyColor": "행운의 색",
@@ -1115,6 +1167,30 @@
       "title": "운세 히스토리",
       "subtitle": "지난 1년간의 운세 기록",
       "noData": "아직 기록된 운세가 없습니다"
+    },
+    "steps": {
+      "day_calculation": "일진 계산 중...",
+      "wunseong": "12운성 분석 중...",
+      "bokeum_baneum": "복음/반음 감지 중...",
+      "johu": "조후용신 적용 중...",
+      "samhap_banghap": "삼합/방합 분석 중...",
+      "lucky_info": "행운 정보 계산 중...",
+      "gemini_analysis": "AI 분석 중...",
+      "complete": "분석 완료"
+    },
+    "scoreLabels": {
+      "great": "대길",
+      "good": "길",
+      "normal": "보통",
+      "bad": "흉",
+      "terrible": "대흉"
+    },
+    "errors": {
+      "fetchFailed": "운세 조회에 실패했습니다",
+      "generateFailed": "운세 생성에 실패했습니다",
+      "timeout": "운세 생성 시간이 초과되었습니다",
+      "trialFailed": "무료체험 시작 실패",
+      "generic": "오류가 발생했습니다"
     }
   },
   "compatibility": {
@@ -1144,7 +1220,28 @@
     },
     "result": {
       "title": "궁합 결과"
-    }
+    },
+    "interactions": {
+      "samhapBanghap": "삼합·방합 (三合·方合)",
+      "heavenlyCombine": "천간 합 (天干合)",
+      "earthlyCombine": "지지 합 (地支合, 6합)",
+      "earthlyClash": "지지 충 (地支冲, 6충)",
+      "earthlyPunish": "지지 형 (地支刑, 3형)",
+      "wonjin": "원진 (元嗔, 원진)"
+    },
+    "errors": {
+      "needSaju": "기본 사주 분석이 필요합니다",
+      "analysisFailed": "분석에 실패했습니다",
+      "partialMissing": "분석 일부 누락",
+      "noSajuInfo": "사주 정보가 없습니다."
+    },
+    "progress": "진행률",
+    "tips": "분석 팁",
+    "credits": "보유 크레딧",
+    "selectDifferent": "서로 다른 두 프로필을 선택해주세요.",
+    "checkingExisting": "기존 분석 확인 중...",
+    "noProfiles": "등록된 프로필이 없습니다",
+    "communicationTips": "소통 팁"
   },
   "errors": {
     "AUTH_UNAUTHORIZED": "로그인이 필요합니다",
