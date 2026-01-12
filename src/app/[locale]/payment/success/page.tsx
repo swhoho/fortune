@@ -127,9 +127,7 @@ function PaymentSuccessContent() {
           </div>
         )}
         <p className="text-sm text-gray-400">
-          결제가 완료되었다면 고객센터로 문의해주세요.
-          <br />
-          support@mastersinsight.ai
+          결제가 완료되었다면 마이페이지 → 고객센터로 연락 부탁드립니다.
         </p>
         <Button asChild size="lg" className="mt-6 w-full" variant="outline">
           <Link href="/home">홈으로 이동</Link>
