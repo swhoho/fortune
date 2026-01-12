@@ -3,8 +3,7 @@
 /**
  * Payment Page
  * 결제 연동
- * - PayApp 신용카드1 (실연동)
- * - 신용카드2 (준비중)
+ * - PayApp 신용카드 (실연동)
  * - 카카오페이 (준비중)
  */
 import { useState } from 'react';
@@ -35,7 +34,7 @@ import { ExampleCarousel } from '@/components/payment/ExampleCarousel';
 import { AppHeader, Footer } from '@/components/layout';
 
 /** 결제 수단 목록 (순서대로 표시) */
-const PAYMENT_METHODS: PaymentMethod[] = ['payapp_card', 'card', 'kakaopay'];
+const PAYMENT_METHODS: PaymentMethod[] = ['payapp_card', 'kakaopay'];
 
 /** Analysis Includes */
 const analysisIncludes = [
@@ -56,7 +55,6 @@ export default function PaymentPage({ params: { locale } }: { params: { locale: 
     CREDIT_PACKAGES.find((p) => p.popular) || null
   );
   const [selectedMethod, setSelectedMethod] = useState<PaymentMethod>('payapp_card');
-  const [phoneNumber, setPhoneNumber] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -68,15 +66,6 @@ export default function PaymentPage({ params: { locale } }: { params: { locale: 
   const handlePayAppCheckout = async () => {
     if (!selectedPackage) return;
 
-    // 휴대폰 번호 필수
-    if (!phoneNumber.trim()) {
-      setError('신용카드 결제 시 휴대폰 번호를 입력해주세요.');
-      setIsLoading(false);
-      return;
-    }
-
-    const formattedPhone = phoneNumber.replace(/[^0-9]/g, '');
-
     try {
       // 서버에서 PayApp 결제 요청 생성
       const response = await fetch('/api/payment/payapp/create', {
@@ -84,7 +73,6 @@ export default function PaymentPage({ params: { locale } }: { params: { locale: 
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           packageId: selectedPackage.id,
-          phoneNumber: formattedPhone,
         }),
       });
 
@@ -103,7 +91,7 @@ export default function PaymentPage({ params: { locale } }: { params: { locale: 
   };
 
   /**
-   * PortOne 결제 요청 (card, kakaopay용 - 현재 미사용)
+   * PortOne 결제 요청 (kakaopay용 - 현재 미사용)
    */
   const handlePortOneCheckout = async () => {
     if (!selectedPackage) return;
@@ -135,16 +123,6 @@ export default function PaymentPage({ params: { locale } }: { params: { locale: 
       user?.email?.split('@')[0] ||
       '구매자';
 
-    // 신용카드 결제 시 휴대폰 번호 필수
-    if (selectedMethod === 'card' && !phoneNumber.trim()) {
-      setError('신용카드 결제 시 휴대폰 번호를 입력해주세요.');
-      setIsLoading(false);
-      return;
-    }
-
-    // 전화번호 형식 정리 (숫자만)
-    const formattedPhone = phoneNumber.replace(/[^0-9]/g, '');
-
     // PortOne SDK 결제 요청
     const response = await PortOne.requestPayment({
       storeId,
@@ -157,7 +135,6 @@ export default function PaymentPage({ params: { locale } }: { params: { locale: 
       customer: {
         email: customerEmail,
         fullName: customerName,
-        phoneNumber: formattedPhone || undefined,
       },
       redirectUrl: `${window.location.origin}/${locale}/payment/success?paymentId=${paymentId}&packageId=${selectedPackage.id}`,
     });
@@ -213,7 +190,7 @@ export default function PaymentPage({ params: { locale } }: { params: { locale: 
         return;
       }
 
-      // PortOne 결제 (신용카드2, 카카오페이 - 현재 disabled)
+      // PortOne 결제 (카카오페이 - 현재 disabled)
       await handlePortOneCheckout();
     } catch (err) {
       console.error('Checkout error:', err);
@@ -342,7 +319,7 @@ export default function PaymentPage({ params: { locale } }: { params: { locale: 
                 {/* 결제 수단 선택 */}
                 <div className="mb-6">
                   <p className="mb-3 text-sm font-medium text-gray-400">결제 수단</p>
-                  <div className="grid grid-cols-3 gap-2">
+                  <div className="grid grid-cols-2 gap-2">
                     {PAYMENT_METHODS.map((method) => {
                       const label = PAYMENT_METHOD_LABELS[method];
                       const isDisabled = label.disabled;
@@ -371,23 +348,6 @@ export default function PaymentPage({ params: { locale } }: { params: { locale: 
                     })}
                   </div>
                 </div>
-
-                {/* 신용카드 결제 시 휴대폰 번호 입력 */}
-                {(selectedMethod === 'payapp_card' || selectedMethod === 'card') && (
-                  <div className="mb-6">
-                    <label className="mb-2 block text-sm font-medium text-gray-400">
-                      휴대폰 번호 <span className="text-red-400">*</span>
-                    </label>
-                    <input
-                      type="tel"
-                      value={phoneNumber}
-                      onChange={(e) => setPhoneNumber(e.target.value)}
-                      placeholder="01012345678"
-                      className="w-full rounded-lg border-2 border-[#333] bg-[#1a1a1a] px-4 py-3 text-white placeholder-gray-500 focus:border-[#d4af37] focus:outline-none"
-                    />
-                    <p className="mt-1 text-xs text-gray-500">신용카드 결제 시 필수 입력</p>
-                  </div>
-                )}
 
                 {/* Summary & CTA */}
                 <div className="mt-auto rounded-xl border border-white/5 bg-[#1a1a1a] p-6">
@@ -425,7 +385,7 @@ export default function PaymentPage({ params: { locale } }: { params: { locale: 
                       <p className="mt-3 text-center text-xs text-gray-500">
                         {selectedMethod === 'payapp_card'
                           ? 'PayApp 안전결제'
-                          : `PortOne 안전결제 • ${selectedMethod === 'card' ? 'KG이니시스' : '카카오페이'}`}
+                          : 'PortOne 안전결제 • 카카오페이'}
                       </p>
                     </>
                   ) : (

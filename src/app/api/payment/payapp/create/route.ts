@@ -21,11 +21,11 @@ export async function POST(request: Request) {
 
     // 2. 요청 데이터 파싱
     const body = await request.json();
-    const { packageId, phoneNumber } = body;
+    const { packageId } = body;
 
-    if (!packageId || !phoneNumber) {
+    if (!packageId) {
       return NextResponse.json(
-        { success: false, error: '패키지 ID와 휴대폰 번호가 필요합니다.' },
+        { success: false, error: '패키지 ID가 필요합니다.' },
         { status: 400 }
       );
     }
@@ -46,7 +46,7 @@ export async function POST(request: Request) {
     const result = await createPayAppPayment({
       goodname: `${pkg.credits}C 크레딧${pkg.bonus ? ` (+${pkg.bonus}C 보너스)` : ''}`,
       price: pkg.price,
-      recvphone: phoneNumber,
+      recvphone: '01000000000', // SMS 미사용 (smsuse='n')으로 플레이스홀더 사용
       feedbackurl: `${appUrl}/api/payment/payapp/callback`,
       returnurl: `${appUrl}/ko/payment/success?orderId=${orderId}&packageId=${packageId}`,
       userId: user.id,
