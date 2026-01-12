@@ -16,7 +16,7 @@ import { Button } from '@/components/ui/button';
 import { ProfileInfoCard, DeleteProfileDialog } from '@/components/profile';
 import { InsufficientCreditsDialog, CreditDeductionDialog } from '@/components/credits';
 import { AppHeader } from '@/components/layout';
-import { useProfile, useUpdateProfile, useDeleteProfile } from '@/hooks/use-profiles';
+import { useProfile, useUpdateProfile, useDeleteProfile, useSetPrimaryProfile } from '@/hooks/use-profiles';
 import { useReportCreditsCheck } from '@/hooks/use-credits';
 import { Link, useRouter } from '@/i18n/routing';
 import type { CreateProfileInput } from '@/lib/validations/profile';
@@ -56,6 +56,7 @@ export default function ProfileDetailPage({ params }: PageProps) {
   const { data: profile, isLoading } = useProfile(id);
   const { mutate: updateProfile, isPending: isUpdating } = useUpdateProfile();
   const { mutate: deleteProfile, isPending: isDeleting } = useDeleteProfile();
+  const { mutate: setPrimary, isPending: isSettingPrimary } = useSetPrimaryProfile();
 
   // 크레딧 확인
   const { data: creditsData } = useReportCreditsCheck();
@@ -163,6 +164,22 @@ export default function ProfileDetailPage({ params }: PageProps) {
     router.push(`/profiles/${id}/generating`);
   };
 
+  /**
+   * 대표 프로필 설정 핸들러
+   */
+  const handleSetPrimary = () => {
+    if (!id) return;
+
+    setPrimary(id, {
+      onSuccess: () => {
+        toast.success(t('primary.setSuccess'));
+      },
+      onError: (error) => {
+        toast.error(error.message || t('toast.error'));
+      },
+    });
+  };
+
   // 로딩 상태
   if (isLoading || !id) {
     return (
@@ -203,6 +220,8 @@ export default function ProfileDetailPage({ params }: PageProps) {
             onGenerateReport={handleGenerateReport}
             onViewReport={handleViewReport}
             onRetryReport={handleRetryReport}
+            onSetPrimary={handleSetPrimary}
+            isSettingPrimary={isSettingPrimary}
             onSave={handleSave}
             onDelete={() => setShowDeleteDialog(true)}
             isSaving={isUpdating}

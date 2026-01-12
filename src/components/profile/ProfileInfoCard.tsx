@@ -9,6 +9,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import {
   Calendar,
   Clock,
+  Crown,
   Edit2,
   Trash2,
   FileText,
@@ -36,6 +37,10 @@ interface ProfileInfoCardProps {
   onViewReport?: () => void;
   /** 실패한 리포트 재시작 핸들러 */
   onRetryReport?: () => void;
+  /** 대표 프로필 설정 핸들러 */
+  onSetPrimary?: () => void;
+  /** 대표 프로필 설정 중 여부 */
+  isSettingPrimary?: boolean;
   /** 저장 핸들러 */
   onSave?: (data: CreateProfileInput) => void;
   /** 삭제 핸들러 */
@@ -61,6 +66,8 @@ export function ProfileInfoCard({
   onGenerateReport,
   onViewReport,
   onRetryReport,
+  onSetPrimary,
+  isSettingPrimary = false,
   onSave,
   onDelete,
   isSaving = false,
@@ -244,6 +251,19 @@ export function ProfileInfoCard({
                     {t('detail.generateReport')}
                   </Button>
                 </div>
+              )}
+
+              {/* 대표 프로필 설정 버튼 (대표가 아닐 때만 표시) */}
+              {!profile.isPrimary && onSetPrimary && (
+                <Button
+                  variant="outline"
+                  onClick={onSetPrimary}
+                  disabled={isSettingPrimary}
+                  className="mt-3 w-full border-[#333] bg-transparent text-gray-300 hover:border-[#d4af37] hover:text-[#d4af37]"
+                >
+                  <Crown className="mr-2 h-4 w-4" />
+                  {t('primary.setAsPrimary')}
+                </Button>
               )}
             </div>
           </motion.div>
