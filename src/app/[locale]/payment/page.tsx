@@ -2,9 +2,10 @@
 
 /**
  * Payment Page
- * PortOne V2 결제 연동
- * - KG이니시스 (신용카드)
- * - 카카오페이 (간편결제)
+ * 결제 연동
+ * - PayApp 신용카드1 (실연동)
+ * - 신용카드2 (준비중)
+ * - 카카오페이 (준비중)
  */
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
@@ -24,6 +25,7 @@ import {
   type CreditPackage,
   type PaymentMethod,
 } from '@/lib/portone';
+
 import {
   HeroSection,
   PillarsSection,
@@ -31,6 +33,9 @@ import {
 } from '@/components/payment/PaymentSections';
 import { ExampleCarousel } from '@/components/payment/ExampleCarousel';
 import { AppHeader, Footer } from '@/components/layout';
+
+/** 결제 수단 목록 (순서대로 표시) */
+const PAYMENT_METHODS: PaymentMethod[] = ['payapp_card', 'card', 'kakaopay'];
 
 /** Analysis Includes */
 const analysisIncludes = [
@@ -50,7 +55,7 @@ export default function PaymentPage({ params: { locale } }: { params: { locale: 
   const [selectedPackage, setSelectedPackage] = useState<CreditPackage | null>(
     CREDIT_PACKAGES.find((p) => p.popular) || null
   );
-  const [selectedMethod, setSelectedMethod] = useState<PaymentMethod>('kakaopay');
+  const [selectedMethod, setSelectedMethod] = useState<PaymentMethod>('payapp_card');
   const [phoneNumber, setPhoneNumber] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -58,13 +63,50 @@ export default function PaymentPage({ params: { locale } }: { params: { locale: 
   const requiredCredits = SERVICE_CREDITS.fullAnalysis;
 
   /**
-   * PortOne 결제 요청
+   * PayApp 결제 요청
    */
-  const handleCheckout = async () => {
+  const handlePayAppCheckout = async () => {
     if (!selectedPackage) return;
 
-    setIsLoading(true);
-    setError(null);
+    // 휴대폰 번호 필수
+    if (!phoneNumber.trim()) {
+      setError('신용카드 결제 시 휴대폰 번호를 입력해주세요.');
+      setIsLoading(false);
+      return;
+    }
+
+    const formattedPhone = phoneNumber.replace(/[^0-9]/g, '');
+
+    try {
+      // 서버에서 PayApp 결제 요청 생성
+      const response = await fetch('/api/payment/payapp/create', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          packageId: selectedPackage.id,
+          phoneNumber: formattedPhone,
+        }),
+      });
+
+      const result = await response.json();
+
+      if (!result.success) {
+        throw new Error(result.error || '결제 요청 생성에 실패했습니다');
+      }
+
+      // PayApp 결제 페이지로 리다이렉트
+      window.location.href = result.payUrl;
+    } catch (err) {
+      console.error('PayApp checkout error:', err);
+      throw err;
+    }
+  };
+
+  /**
+   * PortOne 결제 요청 (card, kakaopay용 - 현재 미사용)
+   */
+  const handlePortOneCheckout = async () => {
+    if (!selectedPackage) return;
 
     const paymentId = generatePaymentId();
     const storeId = PORTONE_CONFIG.storeId;
@@ -85,74 +127,94 @@ export default function PaymentPage({ params: { locale } }: { params: { locale: 
       return;
     }
 
-    try {
-      // 구매자 정보 (KG이니시스 V2 필수)
-      const customerEmail = user?.email || '';
-      const customerName =
-        user?.user_metadata?.full_name ||
-        user?.user_metadata?.name ||
-        user?.email?.split('@')[0] ||
-        '구매자';
+    // 구매자 정보 (KG이니시스 V2 필수)
+    const customerEmail = user?.email || '';
+    const customerName =
+      user?.user_metadata?.full_name ||
+      user?.user_metadata?.name ||
+      user?.email?.split('@')[0] ||
+      '구매자';
 
-      if (!customerEmail) {
+    // 신용카드 결제 시 휴대폰 번호 필수
+    if (selectedMethod === 'card' && !phoneNumber.trim()) {
+      setError('신용카드 결제 시 휴대폰 번호를 입력해주세요.');
+      setIsLoading(false);
+      return;
+    }
+
+    // 전화번호 형식 정리 (숫자만)
+    const formattedPhone = phoneNumber.replace(/[^0-9]/g, '');
+
+    // PortOne SDK 결제 요청
+    const response = await PortOne.requestPayment({
+      storeId,
+      channelKey,
+      paymentId,
+      orderName: `${selectedPackage.credits}C 크레딧`,
+      totalAmount: selectedPackage.price,
+      currency: 'CURRENCY_KRW',
+      payMethod: selectedMethod === 'kakaopay' ? 'EASY_PAY' : 'CARD',
+      customer: {
+        email: customerEmail,
+        fullName: customerName,
+        phoneNumber: formattedPhone || undefined,
+      },
+      redirectUrl: `${window.location.origin}/${locale}/payment/success?paymentId=${paymentId}&packageId=${selectedPackage.id}`,
+    });
+
+    // 결제 오류 확인
+    if (response?.code) {
+      throw new Error(response.message || '결제가 취소되었습니다');
+    }
+
+    // 결제 성공 - 서버에서 검증
+    const verifyResponse = await fetch('/api/payment/portone/verify', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        paymentId,
+        packageId: selectedPackage.id,
+        expectedAmount: selectedPackage.price,
+      }),
+    });
+
+    const verifyResult = await verifyResponse.json();
+
+    if (!verifyResult.success) {
+      throw new Error(verifyResult.error?.message || '결제 검증에 실패했습니다');
+    }
+
+    // 성공 페이지로 이동
+    router.push(
+      `/${locale}/payment/success?paymentId=${paymentId}&credits=${verifyResult.credits}`
+    );
+  };
+
+  /**
+   * 결제 요청 (수단별 분기)
+   */
+  const handleCheckout = async () => {
+    if (!selectedPackage) return;
+
+    setIsLoading(true);
+    setError(null);
+
+    try {
+      // 로그인 확인
+      if (!user?.email) {
         setError('로그인이 필요합니다.');
         setIsLoading(false);
         return;
       }
 
-      // 신용카드 결제 시 휴대폰 번호 필수
-      if (selectedMethod === 'card' && !phoneNumber.trim()) {
-        setError('신용카드 결제 시 휴대폰 번호를 입력해주세요.');
-        setIsLoading(false);
+      // PayApp 결제 (신용카드1)
+      if (selectedMethod === 'payapp_card') {
+        await handlePayAppCheckout();
         return;
       }
 
-      // 전화번호 형식 정리 (숫자만)
-      const formattedPhone = phoneNumber.replace(/[^0-9]/g, '');
-
-      // PortOne SDK 결제 요청
-      const response = await PortOne.requestPayment({
-        storeId,
-        channelKey,
-        paymentId,
-        orderName: `${selectedPackage.credits}C 크레딧`,
-        totalAmount: selectedPackage.price,
-        currency: 'CURRENCY_KRW',
-        payMethod: selectedMethod === 'kakaopay' ? 'EASY_PAY' : 'CARD',
-        customer: {
-          email: customerEmail,
-          fullName: customerName,
-          phoneNumber: formattedPhone || undefined,
-        },
-        redirectUrl: `${window.location.origin}/${locale}/payment/success?paymentId=${paymentId}&packageId=${selectedPackage.id}`,
-      });
-
-      // 결제 오류 확인
-      if (response?.code) {
-        throw new Error(response.message || '결제가 취소되었습니다');
-      }
-
-      // 결제 성공 - 서버에서 검증
-      const verifyResponse = await fetch('/api/payment/portone/verify', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          paymentId,
-          packageId: selectedPackage.id,
-          expectedAmount: selectedPackage.price,
-        }),
-      });
-
-      const verifyResult = await verifyResponse.json();
-
-      if (!verifyResult.success) {
-        throw new Error(verifyResult.error?.message || '결제 검증에 실패했습니다');
-      }
-
-      // 성공 페이지로 이동
-      router.push(
-        `/${locale}/payment/success?paymentId=${paymentId}&credits=${verifyResult.credits}`
-      );
+      // PortOne 결제 (신용카드2, 카카오페이 - 현재 disabled)
+      await handlePortOneCheckout();
     } catch (err) {
       console.error('Checkout error:', err);
       setError(err instanceof Error ? err.message : '결제 중 오류가 발생했습니다');
@@ -280,26 +342,38 @@ export default function PaymentPage({ params: { locale } }: { params: { locale: 
                 {/* 결제 수단 선택 */}
                 <div className="mb-6">
                   <p className="mb-3 text-sm font-medium text-gray-400">결제 수단</p>
-                  <div className="grid grid-cols-2 gap-3">
-                    {(Object.keys(PORTONE_CHANNELS) as PaymentMethod[]).map((method) => (
-                      <button
-                        key={method}
-                        onClick={() => setSelectedMethod(method)}
-                        className={`flex items-center justify-center gap-2 rounded-lg border-2 px-4 py-3 text-sm font-medium transition-all ${
-                          selectedMethod === method
-                            ? 'border-[#d4af37] bg-[#d4af37]/10 text-white'
-                            : 'border-[#333] bg-[#1a1a1a] text-gray-400 hover:border-[#444]'
-                        }`}
-                      >
-                        <span>{PAYMENT_METHOD_LABELS[method].icon}</span>
-                        <span>{PAYMENT_METHOD_LABELS[method].ko}</span>
-                      </button>
-                    ))}
+                  <div className="grid grid-cols-3 gap-2">
+                    {PAYMENT_METHODS.map((method) => {
+                      const label = PAYMENT_METHOD_LABELS[method];
+                      const isDisabled = label.disabled;
+                      return (
+                        <button
+                          key={method}
+                          onClick={() => !isDisabled && setSelectedMethod(method)}
+                          disabled={isDisabled}
+                          className={`relative flex flex-col items-center justify-center gap-1 rounded-lg border-2 px-3 py-3 text-sm font-medium transition-all ${
+                            isDisabled
+                              ? 'cursor-not-allowed border-[#222] bg-[#111] text-gray-600'
+                              : selectedMethod === method
+                                ? 'border-[#d4af37] bg-[#d4af37]/10 text-white'
+                                : 'border-[#333] bg-[#1a1a1a] text-gray-400 hover:border-[#444]'
+                          }`}
+                        >
+                          <span className="text-lg">{label.icon}</span>
+                          <span className="text-xs">{label.ko}</span>
+                          {isDisabled && (
+                            <span className="absolute -top-2 right-1 rounded bg-gray-700 px-1.5 py-0.5 text-[10px] text-gray-400">
+                              준비중
+                            </span>
+                          )}
+                        </button>
+                      );
+                    })}
                   </div>
                 </div>
 
                 {/* 신용카드 결제 시 휴대폰 번호 입력 */}
-                {selectedMethod === 'card' && (
+                {(selectedMethod === 'payapp_card' || selectedMethod === 'card') && (
                   <div className="mb-6">
                     <label className="mb-2 block text-sm font-medium text-gray-400">
                       휴대폰 번호 <span className="text-red-400">*</span>
@@ -311,7 +385,7 @@ export default function PaymentPage({ params: { locale } }: { params: { locale: 
                       placeholder="01012345678"
                       className="w-full rounded-lg border-2 border-[#333] bg-[#1a1a1a] px-4 py-3 text-white placeholder-gray-500 focus:border-[#d4af37] focus:outline-none"
                     />
-                    <p className="mt-1 text-xs text-gray-500">KG이니시스 결제 시 필수 입력</p>
+                    <p className="mt-1 text-xs text-gray-500">신용카드 결제 시 필수 입력</p>
                   </div>
                 )}
 
@@ -349,7 +423,9 @@ export default function PaymentPage({ params: { locale } }: { params: { locale: 
                           : `${PAYMENT_METHOD_LABELS[selectedMethod].ko}로 결제`}
                       </Button>
                       <p className="mt-3 text-center text-xs text-gray-500">
-                        PortOne 안전결제 • {selectedMethod === 'card' ? 'KG이니시스' : '카카오페이'}
+                        {selectedMethod === 'payapp_card'
+                          ? 'PayApp 안전결제'
+                          : `PortOne 안전결제 • ${selectedMethod === 'card' ? 'KG이니시스' : '카카오페이'}`}
                       </p>
                     </>
                   ) : (

@@ -66,8 +66,11 @@ export type ReanalyzableSection = (typeof REANALYZABLE_SECTIONS)[number];
 
 /**
  * 결제 수단 타입
+ * - payapp_card: PayApp 신용카드 (실제 연동)
+ * - card: 신용카드2 (준비중)
+ * - kakaopay: 카카오페이 (준비중)
  */
-export type PaymentMethod = 'card' | 'kakaopay';
+export type PaymentMethod = 'payapp_card' | 'card' | 'kakaopay';
 
 /**
  * PortOne 설정
@@ -78,10 +81,9 @@ export const PORTONE_CONFIG = {
 };
 
 /**
- * 결제 수단별 채널 키
- * 환경변수가 없을 경우 테스트용 기본값 사용
+ * PortOne 결제 수단별 채널 키 (card, kakaopay용)
  */
-export const PORTONE_CHANNELS: Record<PaymentMethod, string> = {
+export const PORTONE_CHANNELS: Partial<Record<PaymentMethod, string>> = {
   card:
     process.env.NEXT_PUBLIC_PORTONE_CHANNEL_KEY_CARD ||
     'channel-key-713a2e03-fb68-40c3-8ef2-e05aaab2d9e2',
@@ -93,9 +95,13 @@ export const PORTONE_CHANNELS: Record<PaymentMethod, string> = {
 /**
  * 결제 수단 라벨 (UI 표시용)
  */
-export const PAYMENT_METHOD_LABELS: Record<PaymentMethod, { ko: string; icon: string }> = {
-  card: { ko: '신용카드', icon: '💳' },
-  kakaopay: { ko: '카카오페이', icon: '🟡' },
+export const PAYMENT_METHOD_LABELS: Record<
+  PaymentMethod,
+  { ko: string; icon: string; disabled?: boolean }
+> = {
+  payapp_card: { ko: '신용카드1', icon: '💳' },
+  card: { ko: '신용카드2', icon: '💳', disabled: true },
+  kakaopay: { ko: '카카오페이', icon: '🟡', disabled: true },
 };
 
 /**
