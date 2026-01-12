@@ -43,7 +43,14 @@
     "home": "Home",
     "profile": "Profile",
     "pdfDownload": "Download PDF",
-    "unknownError": "Unknown error"
+    "unknownError": "Unknown error",
+    "loadingFortune": "Loading fortune...",
+    "loadingReport": "Loading report...",
+    "loadingResult": "Loading compatibility results...",
+    "backToProfile": "Back to Profile",
+    "backToList": "Back to List",
+    "free": "0C (Free)",
+    "login": "Sign In"
   },
   "nav": {
     "login": "Sign In",
@@ -180,8 +187,39 @@
       "placeholder": "e.g., Is it a good time to change jobs this year?",
       "exampleTitle": "Example Questions",
       "skipButton": "Skip",
-      "nextButton": "Go to Payment"
-    }
+      "nextButton": "Go to Payment",
+      "inputConcern": "Enter Your Concerns",
+      "exampleQuestions": "Example Questions (Click to add)",
+      "noQuestionNeeded": "Skip concerns, just do general analysis"
+    },
+    "processing": {
+      "error": "An error occurred during analysis",
+      "analyzing": "Analyzing your destiny...",
+      "completed": "Complete"
+    },
+    "tabs": {
+      "summary": "Summary",
+      "personality": "Personality",
+      "wealth": "Wealth",
+      "love": "Love",
+      "career": "Career",
+      "health": "Health",
+      "overallFortune": "Overall Fortune",
+      "classicalInterpretation": "Classical Interpretation"
+    },
+    "element": {
+      "distribution": "Five Elements Distribution",
+      "relations": "Five Elements Interaction Chart"
+    },
+    "pillar": {
+      "order": "Hour · Day · Month · Year",
+      "heavenlyStem": "Heavenly Stem",
+      "earthlyBranch": "Earthly Branch",
+      "hiddenStems": "Hidden Stems",
+      "detailDesc": "Detailed information of the {pillarName} pillar"
+    },
+    "score": "Fortune Score",
+    "advice": "Advice"
   },
   "focusArea": {
     "wealth": "Wealth Fortune",
@@ -265,6 +303,11 @@
       "credits": "Credits",
       "chargeCredits": "Recharge Credits"
     },
+    "noProfiles": "No profiles registered",
+    "noProfilesDesc": "Register a profile to generate Saju reports",
+    "profileReports": "Profile Reports",
+    "profileReportsDesc": "View your registered profiles and Saju reports",
+    "retryLater": "Please try again later",
     "sidebar": {
       "analysis": "Analysis History",
       "questions": "Question History",
@@ -570,6 +613,7 @@
       "avgScore": "Average Score",
       "luckyDays": "Lucky Days",
       "unluckyDays": "Caution Days",
+      "monthlyAdvice": "Monthly Advice",
       "calendar": {
         "title": "Lucky Days Calendar",
         "subtitle": "Check important dates in advance",
@@ -645,6 +689,8 @@
     "zh-TW": "繁體中文"
   },
   "report": {
+    "empty": "No traits to display",
+    "noData": "Unable to load analysis data",
     "navigation": {
       "saju": "Four Pillars",
       "daewun": "Luck Cycles"
@@ -667,10 +713,15 @@
     },
     "daewun": {
       "title": "Major Luck Cycles",
+      "subtitle": "10-year fortune cycle",
       "current": "Current Cycle",
       "scrollHint": "Scroll left and right",
       "previous": "Previous cycle",
-      "next": "Next cycle"
+      "next": "Next cycle",
+      "whatIs": "What are Major Luck Cycles?",
+      "description": "Your life's compass of rise and fall",
+      "startDate": "Start: {date}",
+      "scoreBasis": "Score Basis"
     },
     "personality": {
       "title": "Personality & Traits",
@@ -699,7 +750,9 @@
       "partnerInfluenceDesc": "The form of romantic presence within you",
       "traits": "Wealth Traits",
       "traitsDesc": "Traits representing your wealth tendency",
-      "score": "Wealth Score"
+      "score": "Wealth Score",
+      "pattern": "Wealth Pattern",
+      "advice": "Wealth Advice"
     },
     "romance": {
       "title": "Romance & Marriage",
@@ -712,6 +765,8 @@
       "traits": "Trait Graph",
       "traitsDesc": "10 traits to understand your romantic aptitude",
       "score": "Romance Score",
+      "style": "Romance Style",
+      "advice": "Romance Advice",
       "traitLabels": {
         "consideration": "Consideration",
         "humor": "Humor",
@@ -731,6 +786,10 @@
       "workAbilityDesc": "Ability ratio by stage",
       "traits": "Trait Graph",
       "traitsDesc": "10 traits to understand your aptitude",
+      "keywords": "Keywords for your aptitude",
+      "talentBasis": "Talent basis and levels",
+      "currentLevel": "Current Level",
+      "potential": "Potential",
       "workLabels": {
         "planning": "Planning/Research",
         "perseverance": "Perseverance",
@@ -838,6 +897,8 @@
     }
   },
   "profile": {
+    "analysisFailed": "Saju analysis failed",
+    "notFound": "Profile not found.",
     "pageTitle": {
       "new": "New Profile",
       "list": "Profiles",
@@ -968,6 +1029,35 @@
       "completedSteps": "Completed steps"
     }
   },
+  "consultation": {
+    "history": "Consultation History",
+    "newSession": "New Session",
+    "yesterday": "Yesterday",
+    "daysAgo": "{days} days ago",
+    "empty": "No consultation history yet",
+    "noSession": "Select a session or start a new consultation",
+    "loadError": "Could not load messages",
+    "askAnything": "Ask Anything",
+    "askAnythingDesc": "Based on your analyzed destiny and fortune,\nask about career, love, wealth, health, and more.",
+    "question": "Question",
+    "generating": "Generating answer...",
+    "timeout": "Response timeout",
+    "timeoutMessage": "Response generation timed out. Please try again.",
+    "failed": "Response generation failed",
+    "failedDefault": "Failed to generate AI response",
+    "regenerating": "Regenerating...",
+    "regenerate": "Regenerate",
+    "complete": "Complete",
+    "roundLimit": "You've reached the question limit (2 rounds) for this session.",
+    "newSessionCost": "New Session (10C)",
+    "inputPlaceholder": "Enter your question... (max 500 characters)",
+    "clarificationPlaceholder": "Please provide additional information...",
+    "needMoreInfo": "Need more information",
+    "questionCount": "Question {current}/{max}",
+    "charsRemaining": "{count} characters left",
+    "skipInfo": "Answer without additional info",
+    "roundLimitDesc": "2 rounds per session"
+  },
   "credits": {
     "balance": "Credit Balance",
     "required": "Required Credits",
@@ -1048,6 +1138,98 @@
   "dailyFortune": {
     "title": "Today's Fortune",
     "generating": "Analyzing today's fortune...",
+    "subscribe": {
+      "hero": {
+        "headline": "Every Morning, A Fortune\nPrepared Just For You",
+        "subHeadline": "AI trained on 5 classical texts\nanalyzes your day in 14 steps"
+      },
+      "pillars": {
+        "sectionTitle": "14-Step Classical Analysis",
+        "wunseong": {
+          "title": "12 Stages Analysis",
+          "hanja": "十二運星",
+          "source": "Ziping Zhenquan",
+          "description": "Predicts daily vitality by analyzing 12 energy stages"
+        },
+        "johu": {
+          "title": "Seasonal Balance",
+          "hanja": "調候",
+          "source": "Qiong Tong Bao Jian",
+          "description": "Finds lucky elements by analyzing birth season and today's energy"
+        },
+        "samhap": {
+          "title": "Element Combinations",
+          "hanja": "三合方合",
+          "source": "Di Tian Sui",
+          "description": "Detects special energy flows through element combinations"
+        },
+        "mulsang": {
+          "title": "Ten Gods Imagery",
+          "hanja": "十神物象",
+          "source": "Myeongni Yogang",
+          "description": "Predicts specific events through daily stem relationships"
+        },
+        "yongsin": {
+          "title": "Personal Lucky God",
+          "hanja": "用神",
+          "source": "The Destiny Code",
+          "description": "Personalizes lucky color/number/direction based on your elements"
+        }
+      },
+      "benefits": {
+        "sectionTitle": "6 Areas Analyzed Daily",
+        "career": {
+          "title": "Career",
+          "description": "Today's work opportunities and cautions"
+        },
+        "wealth": {
+          "title": "Wealth",
+          "description": "Financial decisions and timing"
+        },
+        "love": {
+          "title": "Love",
+          "description": "Relationship opportunities and advice"
+        },
+        "health": {
+          "title": "Health",
+          "description": "Health management and precautions"
+        },
+        "relationship": {
+          "title": "Relationships",
+          "description": "Social interactions guidance"
+        },
+        "overall": {
+          "title": "Overall Score",
+          "description": "Daily fortune score (0-100)"
+        }
+      },
+      "socialProof": {
+        "quote": "Not just horoscopes.\nYour Four Pillars and daily energy analyzed in 14 steps.",
+        "stats": {
+          "steps": "14-Step Analysis",
+          "classics": "5 Classical Texts",
+          "areas": "6 Life Areas"
+        }
+      },
+      "pricing": {
+        "title": "Premium Subscription",
+        "price": "$2.99",
+        "period": "/month",
+        "includes": {
+          "dailyFortune": "Unlimited daily fortune readings",
+          "credits": "50C credits every month",
+          "sixAreas": "Detailed 6-area analysis",
+          "personalized": "Personalized lucky information"
+        },
+        "cta": {
+          "startTrial": "Start 3-Day Free Trial",
+          "trialNotice": "No auto-charge after trial",
+          "subscribe": "Start Subscription",
+          "trialActive": "{days} days left",
+          "mockNotice": "Test mode: Experience subscription without payment"
+        }
+      }
+    },
     "overallScore": "Overall Score",
     "todayPillar": "Today's Energy",
     "luckyColor": "Lucky Color",
@@ -1055,6 +1237,10 @@
     "luckyDirection": "Lucky Direction",
     "viewDetail": "View Details",
     "trialBadge": "{days} days left",
+    "luckyInfo": "Lucky Info",
+    "areaFortunes": "Fortune by Area",
+    "todayAdvice": "Today's Advice",
+    "tip": "Tip",
     "areas": {
       "career": "Career",
       "wealth": "Wealth",
@@ -1073,6 +1259,30 @@
       "title": "Fortune History",
       "subtitle": "Your fortune records for the past year",
       "noData": "No fortune records yet"
+    },
+    "steps": {
+      "day_calculation": "Calculating day pillar...",
+      "wunseong": "Analyzing 12 stages...",
+      "bokeum_baneum": "Detecting echo patterns...",
+      "johu": "Applying seasonal balance...",
+      "samhap_banghap": "Analyzing element combinations...",
+      "lucky_info": "Calculating lucky info...",
+      "gemini_analysis": "AI analysis...",
+      "complete": "Analysis complete"
+    },
+    "scoreLabels": {
+      "great": "Excellent",
+      "good": "Good",
+      "normal": "Normal",
+      "bad": "Caution",
+      "terrible": "Difficult"
+    },
+    "errors": {
+      "fetchFailed": "Failed to fetch fortune",
+      "generateFailed": "Failed to generate fortune",
+      "timeout": "Fortune generation timed out",
+      "trialFailed": "Failed to start free trial",
+      "generic": "An error occurred"
     }
   },
   "errors": {
@@ -1150,6 +1360,27 @@
     },
     "result": {
       "title": "Compatibility Results"
-    }
+    },
+    "interactions": {
+      "samhapBanghap": "Triple & Directional Harmony",
+      "heavenlyCombine": "Heavenly Stem Combination",
+      "earthlyCombine": "Earthly Branch Combination (6 Harmonies)",
+      "earthlyClash": "Earthly Branch Clash (6 Clashes)",
+      "earthlyPunish": "Earthly Branch Punishment (3 Punishments)",
+      "wonjin": "Fundamental Opposition"
+    },
+    "errors": {
+      "needSaju": "Basic Saju analysis is required",
+      "analysisFailed": "Analysis failed",
+      "partialMissing": "Partial analysis missing",
+      "noSajuInfo": "No Saju information available."
+    },
+    "progress": "Progress",
+    "tips": "Analysis Tips",
+    "credits": "Available Credits",
+    "selectDifferent": "Please select two different profiles.",
+    "checkingExisting": "Checking existing analysis...",
+    "noProfiles": "No profiles registered",
+    "communicationTips": "Communication Tips"
   }
 }

@@ -1142,6 +1142,98 @@
   "dailyFortune": {
     "title": "오늘의 운세",
     "generating": "오늘의 운세를 분석하고 있습니다...",
+    "subscribe": {
+      "hero": {
+        "headline": "매일 아침, 당신만을 위한\n운세가 준비됩니다",
+        "subHeadline": "5권의 고전 명리학을 학습한 AI가\n14단계 분석으로 오늘 하루를 예측합니다"
+      },
+      "pillars": {
+        "sectionTitle": "14단계 고전 명리학 분석",
+        "wunseong": {
+          "title": "12운성 분석",
+          "hanja": "十二運星",
+          "source": "자평진전",
+          "description": "일간의 에너지 상태를 12단계로 파악하여 하루의 활력을 예측합니다"
+        },
+        "johu": {
+          "title": "조후용신",
+          "hanja": "調候",
+          "source": "궁통보감",
+          "description": "태어난 계절과 오늘의 기운 조화를 분석하여 행운의 요소를 찾습니다"
+        },
+        "samhap": {
+          "title": "삼합방합",
+          "hanja": "三合方合",
+          "source": "적천수",
+          "description": "지지의 결합을 감지하여 특별한 에너지 흐름을 발견합니다"
+        },
+        "mulsang": {
+          "title": "십신물상",
+          "hanja": "十神物象",
+          "source": "명리요강",
+          "description": "당일 천간과 일간의 관계로 구체적인 사건을 예측합니다"
+        },
+        "yongsin": {
+          "title": "개인 용신",
+          "hanja": "用神",
+          "source": "The Destiny Code",
+          "description": "당신만의 용신을 기반으로 행운 색상/숫자/방향을 개인화합니다"
+        }
+      },
+      "benefits": {
+        "sectionTitle": "매일 분석되는 6개 영역",
+        "career": {
+          "title": "직장/사업운",
+          "description": "오늘 업무에서 주의할 점과 기회"
+        },
+        "wealth": {
+          "title": "재물운",
+          "description": "금전 운용과 투자 타이밍"
+        },
+        "love": {
+          "title": "연애운",
+          "description": "인연의 기회와 관계 조언"
+        },
+        "health": {
+          "title": "건강운",
+          "description": "컨디션 관리와 주의 사항"
+        },
+        "relationship": {
+          "title": "대인관계운",
+          "description": "만남과 소통의 길흉"
+        },
+        "overall": {
+          "title": "종합 점수",
+          "description": "0-100점 오늘의 운세 점수"
+        }
+      },
+      "socialProof": {
+        "quote": "단순 띠 운세가 아닙니다.\n당신의 사주팔자와 오늘의 일진을 14단계로 분석합니다.",
+        "stats": {
+          "steps": "14단계 분석",
+          "classics": "5권 고전",
+          "areas": "6개 영역"
+        }
+      },
+      "pricing": {
+        "title": "프리미엄 구독",
+        "price": "₩3,900",
+        "period": "/월",
+        "includes": {
+          "dailyFortune": "매일 오늘의 운세 무제한",
+          "credits": "월 50C 크레딧 지급",
+          "sixAreas": "6개 영역 상세 분석",
+          "personalized": "개인 용신 기반 행운 정보"
+        },
+        "cta": {
+          "startTrial": "3일 무료체험 시작하기",
+          "trialNotice": "무료체험 후 자동 결제 없음",
+          "subscribe": "구독 시작하기",
+          "trialActive": "무료체험 {days}일 남음",
+          "mockNotice": "테스트 모드: 실제 결제 없이 구독 체험"
+        }
+      }
+    },
     "overallScore": "종합 운세",
     "todayPillar": "오늘의 일진",
     "luckyColor": "행운의 색",
@@ -1149,6 +1241,10 @@
     "luckyDirection": "행운의 방향",
     "viewDetail": "상세 운세 보기",
     "trialBadge": "무료체험 {days}일 남음",
+    "luckyInfo": "행운 정보",
+    "areaFortunes": "영역별 운세",
+    "todayAdvice": "오늘의 조언",
+    "tip": "Tip",
     "areas": {
       "career": "직장/사업운",
       "wealth": "재물운",

@@ -29,6 +29,9 @@
   "common": {
     "appName": "Master's Insight",
     "loading": "載入中...",
+    "loadingFortune": "正在載入運勢...",
+    "loadingReport": "正在載入報告...",
+    "loadingResult": "正在載入合婚結果...",
     "error": "發生錯誤",
     "retry": "重試",
     "next": "下一步",
@@ -39,11 +42,15 @@
     "delete": "刪除",
     "credits": "積分",
     "back": "返回",
+    "backToProfile": "返回檔案",
+    "backToList": "返回列表",
     "share": "分享",
     "home": "首頁",
     "profile": "個人檔案",
     "pdfDownload": "下載PDF",
-    "unknownError": "未知錯誤"
+    "unknownError": "未知錯誤",
+    "free": "0積分（免費）",
+    "login": "登入"
   },
   "nav": {
     "login": "登入",
@@ -180,8 +187,24 @@
       "placeholder": "例：今年換工作可以嗎？",
       "exampleTitle": "示例問題",
       "skipButton": "跳過",
-      "nextButton": "前往付款頁面"
-    }
+      "nextButton": "前往付款頁面",
+      "inputConcern": "輸入問題",
+      "exampleQuestions": "示例問題（點擊新增）",
+      "noQuestionNeeded": "無問題，只需要綜合分析"
+    },
+    "element": {
+      "distribution": "五行分佈",
+      "relations": "五行相生相剋關係圖"
+    },
+    "pillar": {
+      "order": "時柱 · 日柱 · 月柱 · 年柱",
+      "heavenlyStem": "天干",
+      "earthlyBranch": "地支",
+      "hiddenStems": "藏干",
+      "detailDesc": "四柱的{pillarName}詳細資訊"
+    },
+    "score": "運勢分數",
+    "advice": "建議"
   },
   "focusArea": {
     "wealth": "財運",
@@ -259,6 +282,11 @@
   "mypage": {
     "title": "我的頁面",
     "subtitle": "管理分析記錄和帳戶設定",
+    "noProfiles": "暫無檔案",
+    "noProfilesDesc": "新增檔案並生成八字報告",
+    "profileReports": "檔案報告",
+    "profileReportsDesc": "查看已註冊的檔案和八字報告",
+    "retryLater": "請稍後再試",
     "profile": {
       "title": "我的資料",
       "user": "用戶",
@@ -616,7 +644,8 @@
         "loadFailed": "無法載入結果",
         "fetchFailed": "取得分析結果失敗。"
       },
-      "yearlyFortune": "{year}年新年運勢"
+      "yearlyFortune": "{year}年新年運勢",
+      "monthlyAdvice": "月度建議"
     }
   },
   "home": {
@@ -667,6 +696,11 @@
     },
     "daewun": {
       "title": "大運",
+      "subtitle": "十年週期的運勢走向",
+      "whatIs": "什麼是大運？",
+      "description": "人生盛衰的指南針",
+      "startDate": "開始時間：{date}",
+      "scoreBasis": "評分依據",
       "current": "目前大運",
       "scrollHint": "左右滑動查看",
       "previous": "上一個大運",
@@ -699,7 +733,9 @@
       "partnerInfluenceDesc": "您內心深處異性的存在形態",
       "traits": "財運特性",
       "traitsDesc": "與財運相關的5個特性",
-      "score": "財運分數"
+      "score": "財運分數",
+      "pattern": "財運模式",
+      "advice": "財運建議"
     },
     "romance": {
       "title": "戀愛與婚姻",
@@ -723,7 +759,9 @@
         "financial": "理財能力",
         "reliability": "可靠性",
         "expression": "表達力"
-      }
+      },
+      "style": "戀愛風格",
+      "advice": "戀愛建議"
     },
     "aptitude": {
       "title": "工作能力與適性",
@@ -749,8 +787,14 @@
         "adventure": "冒險心",
         "business": "商業感覺",
         "reliability": "可靠性"
-      }
+      },
+      "keywords": "表示您適性的關鍵詞",
+      "talentBasis": "各才能的依據和水準",
+      "currentLevel": "目前水準",
+      "potential": "潛力"
     },
+    "empty": "沒有可顯示的特性",
+    "noData": "無法載入分析資料",
     "navigation": {
       "saju": "八字",
       "personality": "性格",
@@ -951,6 +995,98 @@
   "dailyFortune": {
     "title": "今日運勢",
     "generating": "正在分析今日運勢...",
+    "subscribe": {
+      "hero": {
+        "headline": "每天早晨，專屬於您的\n運勢已準備就緒",
+        "subHeadline": "學習了5本古典命理書籍的AI\n透過14步分析預測您的一天"
+      },
+      "pillars": {
+        "sectionTitle": "14步古典命理分析",
+        "wunseong": {
+          "title": "12運星分析",
+          "hanja": "十二運星",
+          "source": "子平真詮",
+          "description": "透過12個階段掌握日干的能量狀態，預測一天的活力"
+        },
+        "johu": {
+          "title": "調候用神",
+          "hanja": "調候",
+          "source": "窮通寶鑑",
+          "description": "分析出生季節與今日氣運的調和，找出幸運元素"
+        },
+        "samhap": {
+          "title": "三合方合",
+          "hanja": "三合方合",
+          "source": "滴天髓",
+          "description": "檢測地支的結合，發現特殊的能量流動"
+        },
+        "mulsang": {
+          "title": "十神物象",
+          "hanja": "十神物象",
+          "source": "命理要綱",
+          "description": "透過當日天干與日干的關係預測具體事件"
+        },
+        "yongsin": {
+          "title": "個人用神",
+          "hanja": "用神",
+          "source": "The Destiny Code",
+          "description": "基於您專屬的用神個人化幸運顏色/數字/方位"
+        }
+      },
+      "benefits": {
+        "sectionTitle": "每日分析的6個領域",
+        "career": {
+          "title": "事業運",
+          "description": "今日工作中的注意事項和機會"
+        },
+        "wealth": {
+          "title": "財運",
+          "description": "金錢運用和投資時機"
+        },
+        "love": {
+          "title": "愛情運",
+          "description": "緣分機會和關係建議"
+        },
+        "health": {
+          "title": "健康運",
+          "description": "身體狀況管理和注意事項"
+        },
+        "relationship": {
+          "title": "人際關係運",
+          "description": "社交互動的吉凶"
+        },
+        "overall": {
+          "title": "綜合得分",
+          "description": "今日運勢得分(0-100)"
+        }
+      },
+      "socialProof": {
+        "quote": "不是簡單的星座運勢。\n用14步分析您的八字和今日日柱。",
+        "stats": {
+          "steps": "14步分析",
+          "classics": "5本古典",
+          "areas": "6個領域"
+        }
+      },
+      "pricing": {
+        "title": "高級訂閱",
+        "price": "NT$99",
+        "period": "/月",
+        "includes": {
+          "dailyFortune": "每日運勢無限查看",
+          "credits": "每月贈送50C積分",
+          "sixAreas": "6個領域詳細分析",
+          "personalized": "基於個人用神的幸運資訊"
+        },
+        "cta": {
+          "startTrial": "開始3天免費試用",
+          "trialNotice": "試用後無自動扣費",
+          "subscribe": "開始訂閱",
+          "trialActive": "剩餘{days}天",
+          "mockNotice": "測試模式：無需付費體驗訂閱"
+        }
+      }
+    },
     "overallScore": "綜合運勢",
     "todayPillar": "今日干支",
     "luckyColor": "幸運色",
@@ -958,6 +1094,10 @@
     "luckyDirection": "幸運方位",
     "viewDetail": "查看詳情",
     "trialBadge": "剩餘{days}天",
+    "luckyInfo": "幸運資訊",
+    "areaFortunes": "領域運勢",
+    "todayAdvice": "今日建議",
+    "tip": "提示",
     "areas": {
       "career": "事業運",
       "wealth": "財運",
@@ -976,7 +1116,32 @@
       "title": "運勢歷史",
       "subtitle": "過去一年的運勢記錄",
       "noData": "暫無運勢記錄"
-    }
+    },
+    "steps": {
+      "day_calculation": "正在計算日干支...",
+      "wunseong": "正在分析十二運星...",
+      "bokeum_baneum": "正在檢測伏吟/反吟...",
+      "johu": "正在應用調候用神...",
+      "samhap_banghap": "正在分析三合/方合...",
+      "lucky_info": "正在計算幸運資訊...",
+      "gemini_analysis": "AI分析中...",
+      "complete": "分析完成"
+    },
+    "scoreLabels": {
+      "great": "大吉",
+      "good": "吉",
+      "normal": "平",
+      "bad": "凶",
+      "terrible": "大凶"
+    },
+    "errors": {
+      "fetchFailed": "取得運勢失敗",
+      "generateFailed": "生成運勢失敗",
+      "timeout": "運勢生成逾時",
+      "trialFailed": "開始免費試用失敗",
+      "generic": "發生錯誤"
+    },
+    "retry": "重試"
   },
   "profile": {
     "pageTitle": {
@@ -1065,7 +1230,18 @@
       "updateSuccess": "檔案更新成功",
       "deleteSuccess": "檔案刪除成功",
       "error": "發生錯誤"
-    }
+    },
+    "analysisFailed": "八字分析失敗",
+    "notFound": "找不到檔案"
+  },
+  "consultation": {
+    "history": "諮詢記錄",
+    "newSession": "新會話",
+    "needMoreInfo": "需要更多資訊",
+    "questionCount": "問題 {current}/{max}",
+    "charsRemaining": "剩餘{count}字",
+    "skipInfo": "不提供額外資訊直接回答",
+    "roundLimitDesc": "每次會話可進行2輪提問"
   },
   "errors": {
     "AUTH_UNAUTHORIZED": "請登入後繼續",
@@ -1142,6 +1318,27 @@
     },
     "result": {
       "title": "合婚結果"
-    }
+    },
+    "interactions": {
+      "samhapBanghap": "三合·方合",
+      "heavenlyCombine": "天干合",
+      "earthlyCombine": "地支合（六合）",
+      "earthlyClash": "地支沖（六沖）",
+      "earthlyPunish": "地支刑（三刑）",
+      "wonjin": "元嗔"
+    },
+    "errors": {
+      "needSaju": "需要先進行基本八字分析",
+      "analysisFailed": "分析失敗",
+      "partialMissing": "分析部分缺失",
+      "noSajuInfo": "沒有八字資訊"
+    },
+    "progress": "進度",
+    "tips": "分析提示",
+    "credits": "持有積分",
+    "selectDifferent": "請選擇兩個不同的檔案",
+    "checkingExisting": "正在檢查現有分析...",
+    "noProfiles": "暫無檔案",
+    "communicationTips": "溝通技巧"
   }
 }

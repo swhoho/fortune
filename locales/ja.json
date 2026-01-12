@@ -29,6 +29,9 @@
   "common": {
     "appName": "Master's Insight",
     "loading": "読み込み中...",
+    "loadingFortune": "運勢を読み込んでいます...",
+    "loadingReport": "レポートを読み込んでいます...",
+    "loadingResult": "相性結果を読み込んでいます...",
     "error": "エラーが発生しました",
     "retry": "再試行",
     "next": "次へ",
@@ -39,11 +42,15 @@
     "delete": "削除",
     "credits": "クレジット",
     "back": "戻る",
+    "backToProfile": "プロフィールに戻る",
+    "backToList": "一覧に戻る",
     "share": "共有",
     "home": "ホームへ",
     "profile": "プロフィール",
     "pdfDownload": "PDFダウンロード",
-    "unknownError": "不明なエラー"
+    "unknownError": "不明なエラー",
+    "free": "0C (無料)",
+    "login": "ログイン"
   },
   "nav": {
     "login": "ログイン",
@@ -180,8 +187,24 @@
       "placeholder": "例：今年転職しても大丈夫ですか？",
       "exampleTitle": "質問例",
       "skipButton": "スキップ",
-      "nextButton": "決済ページへ"
-    }
+      "nextButton": "決済ページへ",
+      "inputConcern": "お悩み入力",
+      "exampleQuestions": "質問例（クリックで追加）",
+      "noQuestionNeeded": "お悩みなしで総合分析のみ希望"
+    },
+    "element": {
+      "distribution": "五行分布",
+      "relations": "五行相生相克関係図"
+    },
+    "pillar": {
+      "order": "時柱 · 日柱 · 月柱 · 年柱",
+      "heavenlyStem": "天干",
+      "earthlyBranch": "地支",
+      "hiddenStems": "蔵干",
+      "detailDesc": "四柱の{pillarName}詳細情報"
+    },
+    "score": "運勢スコア",
+    "advice": "アドバイス"
   },
   "focusArea": {
     "wealth": "財運",
@@ -259,6 +282,11 @@
   "mypage": {
     "title": "マイページ",
     "subtitle": "分析履歴とアカウント設定を管理してください",
+    "noProfiles": "登録されたプロフィールがありません",
+    "noProfilesDesc": "プロフィールを登録して四柱レポートを生成しましょう",
+    "profileReports": "プロフィールレポート",
+    "profileReportsDesc": "登録されたプロフィールと四柱レポートを確認",
+    "retryLater": "しばらくしてから再試行してください",
     "profile": {
       "title": "マイプロフィール",
       "user": "ユーザー",
@@ -616,7 +644,8 @@
         "loadFailed": "結果を読み込めませんでした",
         "fetchFailed": "分析結果の取得に失敗しました。"
       },
-      "yearlyFortune": "{year}年新年運勢"
+      "yearlyFortune": "{year}年新年運勢",
+      "monthlyAdvice": "月別アドバイス"
     }
   },
   "home": {
@@ -667,6 +696,11 @@
     },
     "daewun": {
       "title": "大運",
+      "subtitle": "10年周期の運勢の流れ",
+      "whatIs": "大運とは？",
+      "description": "人生の盛衰を示す羅針盤",
+      "startDate": "開始時期: {date}",
+      "scoreBasis": "スコアの根拠",
       "current": "現在の大運",
       "scrollHint": "左右にスクロールしてください",
       "previous": "前の大運",
@@ -699,7 +733,9 @@
       "partnerInfluenceDesc": "あなたの中にある異性の存在形態",
       "traits": "財運特性",
       "traitsDesc": "財運に関する特性5つ",
-      "score": "財運点数"
+      "score": "財運点数",
+      "pattern": "財運パターン",
+      "advice": "財運アドバイス"
     },
     "romance": {
       "title": "恋愛と結婚",
@@ -723,7 +759,9 @@
         "financial": "財テク",
         "reliability": "信頼性",
         "expression": "表現力"
-      }
+      },
+      "style": "恋愛スタイル",
+      "advice": "恋愛アドバイス"
     },
     "aptitude": {
       "title": "業務能力と適性",
@@ -749,8 +787,14 @@
         "adventure": "冒険心",
         "business": "ビジネス感覚",
         "reliability": "信頼性"
-      }
+      },
+      "keywords": "あなたの適性を表すキーワード",
+      "talentBasis": "各才能の根拠とレベル",
+      "currentLevel": "現在のレベル",
+      "potential": "潜在力"
     },
+    "empty": "表示する特性がありません",
+    "noData": "分析データを読み込めません",
     "navigation": {
       "saju": "四柱",
       "personality": "性格",
@@ -951,6 +995,98 @@
   "dailyFortune": {
     "title": "今日の運勢",
     "generating": "今日の運勢を分析しています...",
+    "subscribe": {
+      "hero": {
+        "headline": "毎朝、あなただけのために\n運勢が用意されます",
+        "subHeadline": "5冊の古典命理学を学習したAIが\n14段階分析で今日を予測します"
+      },
+      "pillars": {
+        "sectionTitle": "14段階の古典命理学分析",
+        "wunseong": {
+          "title": "12運星分析",
+          "hanja": "十二運星",
+          "source": "子平真詮",
+          "description": "日干のエネルギー状態を12段階で把握し、一日の活力を予測します"
+        },
+        "johu": {
+          "title": "調候用神",
+          "hanja": "調候",
+          "source": "窮通宝鑑",
+          "description": "生まれた季節と今日の気運の調和を分析し、幸運の要素を見つけます"
+        },
+        "samhap": {
+          "title": "三合方合",
+          "hanja": "三合方合",
+          "source": "滴天髄",
+          "description": "地支の結合を検知し、特別なエネルギーの流れを発見します"
+        },
+        "mulsang": {
+          "title": "十神物象",
+          "hanja": "十神物象",
+          "source": "命理要綱",
+          "description": "当日の天干と日干の関係から具体的な出来事を予測します"
+        },
+        "yongsin": {
+          "title": "個人用神",
+          "hanja": "用神",
+          "source": "The Destiny Code",
+          "description": "あなただけの用神に基づいてラッキーカラー/数字/方角をパーソナライズします"
+        }
+      },
+      "benefits": {
+        "sectionTitle": "毎日分析される6つの領域",
+        "career": {
+          "title": "仕事運",
+          "description": "今日の仕事で注意すべき点とチャンス"
+        },
+        "wealth": {
+          "title": "財運",
+          "description": "金銭運用と投資のタイミング"
+        },
+        "love": {
+          "title": "恋愛運",
+          "description": "出会いの機会と関係のアドバイス"
+        },
+        "health": {
+          "title": "健康運",
+          "description": "コンディション管理と注意事項"
+        },
+        "relationship": {
+          "title": "対人関係運",
+          "description": "出会いとコミュニケーションの吉凶"
+        },
+        "overall": {
+          "title": "総合スコア",
+          "description": "今日の運勢スコア(0-100)"
+        }
+      },
+      "socialProof": {
+        "quote": "単なる星座占いではありません。\nあなたの四柱推命と今日の日柱を14段階で分析します。",
+        "stats": {
+          "steps": "14段階分析",
+          "classics": "5冊の古典",
+          "areas": "6つの領域"
+        }
+      },
+      "pricing": {
+        "title": "プレミアム購読",
+        "price": "¥390",
+        "period": "/月",
+        "includes": {
+          "dailyFortune": "毎日の運勢が無制限",
+          "credits": "毎月50Cクレジット付与",
+          "sixAreas": "6領域の詳細分析",
+          "personalized": "個人用神に基づくラッキー情報"
+        },
+        "cta": {
+          "startTrial": "3日間無料体験を始める",
+          "trialNotice": "無料体験後の自動課金なし",
+          "subscribe": "購読を開始する",
+          "trialActive": "残り{days}日",
+          "mockNotice": "テストモード：実際の決済なしで購読体験"
+        }
+      }
+    },
     "overallScore": "総合運",
     "todayPillar": "今日の干支",
     "luckyColor": "ラッキーカラー",
@@ -958,6 +1094,10 @@
     "luckyDirection": "ラッキー方角",
     "viewDetail": "詳細を見る",
     "trialBadge": "残り{days}日",
+    "luckyInfo": "ラッキー情報",
+    "areaFortunes": "分野別運勢",
+    "todayAdvice": "今日のアドバイス",
+    "tip": "ヒント",
     "areas": {
       "career": "仕事運",
       "wealth": "金運",
@@ -976,7 +1116,32 @@
       "title": "運勢履歴",
       "subtitle": "過去1年間の運勢記録",
       "noData": "まだ運勢の記録がありません"
-    }
+    },
+    "steps": {
+      "day_calculation": "日干支を計算中...",
+      "wunseong": "12運星を分析中...",
+      "bokeum_baneum": "復吟/反吟を感知中...",
+      "johu": "調候用神を適用中...",
+      "samhap_banghap": "三合/方合を分析中...",
+      "lucky_info": "幸運情報を計算中...",
+      "gemini_analysis": "AI分析中...",
+      "complete": "分析完了"
+    },
+    "scoreLabels": {
+      "great": "大吉",
+      "good": "吉",
+      "normal": "普通",
+      "bad": "凶",
+      "terrible": "大凶"
+    },
+    "errors": {
+      "fetchFailed": "運勢の取得に失敗しました",
+      "generateFailed": "運勢の生成に失敗しました",
+      "timeout": "運勢生成がタイムアウトしました",
+      "trialFailed": "無料体験の開始に失敗しました",
+      "generic": "エラーが発生しました"
+    },
+    "retry": "再試行"
   },
   "profile": {
     "pageTitle": {
@@ -1065,7 +1230,18 @@
       "updateSuccess": "プロフィールを更新しました",
       "deleteSuccess": "プロフィールを削除しました",
       "error": "エラーが発生しました"
-    }
+    },
+    "analysisFailed": "四柱分析に失敗しました",
+    "notFound": "プロフィールが見つかりません"
+  },
+  "consultation": {
+    "history": "相談履歴",
+    "newSession": "新しいセッション",
+    "needMoreInfo": "追加情報が必要です",
+    "questionCount": "質問 {current}/{max}",
+    "charsRemaining": "残り{count}文字",
+    "skipInfo": "追加情報なしで回答を得る",
+    "roundLimitDesc": "セッションごとに2ラウンドの質問が可能です"
   },
   "errors": {
     "AUTH_UNAUTHORIZED": "ログインが必要です",
@@ -1142,6 +1318,27 @@
     },
     "result": {
       "title": "相性結果"
-    }
+    },
+    "interactions": {
+      "samhapBanghap": "三合・方合",
+      "heavenlyCombine": "天干合",
+      "earthlyCombine": "地支合（六合）",
+      "earthlyClash": "地支冲（六冲）",
+      "earthlyPunish": "地支刑（三刑）",
+      "wonjin": "元嗔"
+    },
+    "errors": {
+      "needSaju": "基本四柱分析が必要です",
+      "analysisFailed": "分析に失敗しました",
+      "partialMissing": "分析の一部が不足しています",
+      "noSajuInfo": "四柱情報がありません"
+    },
+    "progress": "進行状況",
+    "tips": "分析のヒント",
+    "credits": "保有クレジット",
+    "selectDifferent": "異なる二人を選択してください",
+    "checkingExisting": "既存の分析を確認中...",
+    "noProfiles": "登録されたプロフィールがありません",
+    "communicationTips": "コミュニケーションのヒント"
   }
 }

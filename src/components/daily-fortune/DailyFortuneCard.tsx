@@ -449,14 +449,14 @@ export function DailyFortuneCard() {
                 </div>
               )}
 
-              {/* 상세 보기 버튼 - TODO: daily-fortune 상세 페이지 구현 시 활성화 */}
-              {/* <Button
+              {/* 상세 보기 버튼 */}
+              <Button
                 onClick={() => router.push(`/${locale}/daily-fortune`)}
                 className="w-full bg-[#d4af37] text-[#0a0a0a] hover:bg-[#c9a432]"
               >
                 {t('viewDetail')}
                 <ChevronRight className="ml-1 h-4 w-4" />
-              </Button> */}
+              </Button>
             </motion.div>
           )}
         </AnimatePresence>
