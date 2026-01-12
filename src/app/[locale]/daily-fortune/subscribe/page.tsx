@@ -36,6 +36,7 @@ export default function DailyFortuneSubscribePage({
   const [subscriptionStatus, setSubscriptionStatus] = useState<SubscriptionStatus | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isProcessing, setIsProcessing] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   // Hydration 방지: 클라이언트 마운트 확인
   useEffect(() => {
@@ -99,6 +100,7 @@ export default function DailyFortuneSubscribePage({
     }
 
     setIsProcessing(true);
+    setError(null);
     try {
       // POST /api/daily-fortune 호출 시 자동으로 무료체험 시작
       const res = await fetch('/api/daily-fortune', {
@@ -107,14 +109,17 @@ export default function DailyFortuneSubscribePage({
         body: JSON.stringify({}),
       });
 
+      const data = await res.json();
+
       if (res.ok) {
         router.push(`/${locale}/home`);
       } else {
-        const data = await res.json();
+        setError(data.error || '무료체험 시작에 실패했습니다.');
         console.error('Failed to start trial:', data);
       }
-    } catch (error) {
-      console.error('Failed to start trial:', error);
+    } catch (err) {
+      setError('네트워크 오류가 발생했습니다.');
+      console.error('Failed to start trial:', err);
     } finally {
       setIsProcessing(false);
     }
@@ -128,6 +133,7 @@ export default function DailyFortuneSubscribePage({
     }
 
     setIsProcessing(true);
+    setError(null);
     try {
       const res = await fetch('/api/subscription/start', { method: 'POST' });
       const data = await res.json();
@@ -135,10 +141,12 @@ export default function DailyFortuneSubscribePage({
       if (data.success) {
         router.push(`/${locale}/home`);
       } else {
+        setError(data.error || '구독 시작에 실패했습니다.');
         console.error('Failed to subscribe:', data);
       }
-    } catch (error) {
-      console.error('Failed to subscribe:', error);
+    } catch (err) {
+      setError('네트워크 오류가 발생했습니다.');
+      console.error('Failed to subscribe:', err);
     } finally {
       setIsProcessing(false);
     }
@@ -170,6 +178,8 @@ export default function DailyFortuneSubscribePage({
           onStartTrial={handleStartTrial}
           onSubscribe={handleSubscribe}
           isLoading={isProcessing}
+          error={error}
+          onErrorDismiss={() => setError(null)}
         />
       </main>
 

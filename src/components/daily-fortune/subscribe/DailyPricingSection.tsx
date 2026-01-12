@@ -2,7 +2,7 @@
 
 import { motion } from 'framer-motion';
 import { useTranslations } from 'next-intl';
-import { Check, Crown } from 'lucide-react';
+import { Check, Crown, X, AlertCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 interface SubscriptionStatus {
@@ -18,6 +18,8 @@ interface DailyPricingSectionProps {
   onStartTrial: () => void;
   onSubscribe: () => void;
   isLoading?: boolean;
+  error?: string | null;
+  onErrorDismiss?: () => void;
 }
 
 const INCLUDES_KEYS = [
@@ -37,6 +39,8 @@ export function DailyPricingSection({
   onStartTrial,
   onSubscribe,
   isLoading = false,
+  error = null,
+  onErrorDismiss,
 }: DailyPricingSectionProps) {
   const t = useTranslations('dailyFortune.subscribe.pricing');
 
@@ -84,6 +88,22 @@ export function DailyPricingSection({
               </li>
             ))}
           </ul>
+
+          {/* 에러 메시지 */}
+          {error && (
+            <div className="mb-4 flex items-start gap-2 rounded-lg border border-red-900/50 bg-red-950/30 p-3">
+              <AlertCircle className="mt-0.5 h-4 w-4 flex-shrink-0 text-red-400" />
+              <p className="flex-1 text-sm text-red-400">{error}</p>
+              {onErrorDismiss && (
+                <button
+                  onClick={onErrorDismiss}
+                  className="flex-shrink-0 text-red-400 hover:text-red-300"
+                >
+                  <X className="h-4 w-4" />
+                </button>
+              )}
+            </div>
+          )}
 
           {/* CTA 버튼 */}
           {canStartTrial ? (
