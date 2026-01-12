@@ -359,31 +359,31 @@ class DailyFortunePrompts:
   "careerFortune": {{
     "score": 0-100,
     "title": "{SECTION_TITLES['career'].get(language, '직장/사업운')}",
-    "description": "직장/사업에 대한 운세 (100-200자)",
+    "description": "직장/사업에 대한 운세 (200-500자, 서사체로 구체적으로)",
     "tip": "실천 가능한 조언 (50자 이내)"
   }},
   "wealthFortune": {{
     "score": 0-100,
     "title": "{SECTION_TITLES['wealth'].get(language, '재물운')}",
-    "description": "재물에 대한 운세 (100-200자)",
+    "description": "재물에 대한 운세 (200-500자, 서사체로 구체적으로)",
     "tip": "실천 가능한 조언 (50자 이내)"
   }},
   "loveFortune": {{
     "score": 0-100,
     "title": "{SECTION_TITLES['love'].get(language, '연애운')}",
-    "description": "연애에 대한 운세 (100-200자)",
+    "description": "연애에 대한 운세 (200-500자, 서사체로 구체적으로)",
     "tip": "실천 가능한 조언 (50자 이내)"
   }},
   "healthFortune": {{
     "score": 0-100,
     "title": "{SECTION_TITLES['health'].get(language, '건강운')}",
-    "description": "건강에 대한 운세 (100-200자)",
+    "description": "건강에 대한 운세 (200-500자, 서사체로 구체적으로)",
     "tip": "실천 가능한 조언 (50자 이내)"
   }},
   "relationshipFortune": {{
     "score": 0-100,
     "title": "{SECTION_TITLES['relationship'].get(language, '대인관계운')}",
-    "description": "대인관계에 대한 운세 (100-200자)",
+    "description": "대인관계에 대한 운세 (200-500자, 서사체로 구체적으로)",
     "tip": "실천 가능한 조언 (50자 이내)"
   }},
   "advice": "오늘 하루를 위한 종합 조언 (100-150자)"
