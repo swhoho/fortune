@@ -2,10 +2,11 @@
 
 > Master's Insight AI 결제, 크레딧, 구독 시스템 문서
 
-**Version**: 3.1.0
+**Version**: 3.2.0
 **Last Updated**: 2026-01-12
 **현재 사용**: PayApp (신용카드1)
 **구독**: PayApp 정기결제 (실결제 연동)
+**Android 앱**: Google Play Billing (준비중)
 
 ---
 
@@ -16,8 +17,10 @@
 | **신용카드1** | PayApp (실결제 연동) |
 | **신용카드2** | 준비중 (PortOne) |
 | **카카오페이** | 준비중 (PortOne) |
+| **Google Play (Android)** | 코드 준비 완료 (Play Console 설정 필요) |
 
 > PayApp으로 신용카드 결제 실연동 완료. 신용카드2, 카카오페이는 추후 연동 예정.
+> Android 앱용 Google Play Billing 코드 준비 완료.
 
 ---
 
@@ -333,10 +336,195 @@ Vercel Cron으로 매일 자정(UTC 00:00 = KST 09:00) 실행됩니다.
 
 ---
 
-## 8. 변경 이력
+## 8. Google Play Billing (Android 앱 - 준비중)
+
+> Android 앱에서 Google Play 결제를 통한 크레딧 구매 및 구독 시스템
+
+### 8.1 개요
+
+| 항목 | 상태 |
+|------|------|
+| **크레딧 구매 (일회성)** | 코드 준비 완료 |
+| **구독 (정기결제)** | 코드 준비 완료 |
+| **Play Console 설정** | 미완료 |
+
+### 8.2 환경변수
+
+```bash
+# .env.local (Google Cloud 서비스 계정 JSON)
+GOOGLE_SERVICE_ACCOUNT_JSON={"type":"service_account","project_id":"...","private_key":"...","client_email":"..."}
+```
+
+### 8.3 상품 ID 매핑
+
+**크레딧 패키지 (일회성 구매)**:
+
+| 패키지 | Google 상품 ID | 크레딧 | 가격 (KRW) |
+|--------|----------------|--------|------------|
+| 베이직 | `credits_30` | 30 | ₩3,000 |
+| 스타터 | `credits_50` | 50 | ₩5,000 |
+| 인기 | `credits_100` | 110 (+10 보너스) | ₩10,000 |
+| 프리미엄 | `credits_200` | 230 (+30 보너스) | ₩20,000 |
+
+**구독 상품**:
+
+| 플랜 | Google 상품 ID | 가격 | 혜택 |
+|------|----------------|------|------|
+| 프리미엄 | `subscription_premium_monthly` | ₩3,900/월 | 오늘의 운세 무제한 + 월 50C |
+
+### 8.4 결제 플로우
+
+**크레딧 구매**:
+```
+[앱에서 패키지 선택] → isNativeApp() 확인
+  → [purchaseGoogleCredits() 호출] → [Google Play 결제 UI]
+  → [결제 완료] → [POST /api/payment/google/verify]
+  → [Google Play Developer API 검증] → [크레딧 지급] → [성공]
+```
+
+**구독**:
+```
+[앱에서 구독 시작] → isNativeApp() 확인
+  → [purchaseGoogleSubscription() 호출] → [Google Play 구독 UI]
+  → [결제 완료] → [POST /api/payment/google/subscription]
+  → [Google Play Developer API 검증] → [구독 생성 + 50C 지급] → [성공]
+```
+
+### 8.5 관련 파일
+
+```
+src/lib/google-billing.ts                           # Google Play Billing 클라이언트
+src/app/api/payment/google/verify/route.ts          # 크레딧 구매 검증 API
+src/app/api/payment/google/subscription/route.ts    # 구독 검증 API
+```
+
+### 8.6 API 명세
+
+| API | 메서드 | 설명 |
+|-----|--------|------|
+| `/api/payment/google/verify` | POST | 크레딧 구매 검증, 크레딧 지급 |
+| `/api/payment/google/subscription` | POST | 구독 검증, 구독 생성, 50C 지급 |
+
+**verify 요청**:
+```json
+{
+  "purchaseToken": "...",
+  "productId": "credits_100",
+  "userId": "user-123",
+  "orderId": "GPA.1234-5678-9012"
+}
+```
+
+**subscription 요청**:
+```json
+{
+  "purchaseToken": "...",
+  "productId": "subscription_premium_monthly",
+  "userId": "user-123",
+  "orderId": "GPA.1234-5678-9012"
+}
+```
+
+### 8.7 DB 스키마 변경 (적용 필요)
+
+```sql
+-- subscriptions 테이블에 Google Play 컬럼 추가
+ALTER TABLE subscriptions ADD COLUMN google_purchase_token TEXT;
+ALTER TABLE subscriptions ADD COLUMN google_order_id TEXT;
+```
+
+### 8.8 활성화 단계
+
+#### Step 1: Google Play Console 설정
+
+1. **앱 등록**: Google Play Console에 앱 생성 (패키지명: `ai.mastersinsight.app`)
+2. **인앱 상품 등록**: 수익 창출 > 인앱 상품 > 관리형 제품
+   - `credits_30`, `credits_50`, `credits_100`, `credits_200`
+3. **구독 상품 등록**: 수익 창출 > 구독
+   - `subscription_premium_monthly` (₩3,900, 월간)
+
+#### Step 2: 서비스 계정 설정
+
+1. **Google Cloud Console**:
+   - 프로젝트 생성 또는 선택
+   - IAM > 서비스 계정 > 새 서비스 계정 생성
+   - JSON 키 다운로드
+
+2. **Play Console API 접근 권한**:
+   - 설정 > API 액세스 > 서비스 계정 연결
+   - 권한: 앱 정보 보기, 주문 및 구독 관리
+
+3. **환경변수 설정**:
+   ```bash
+   # Vercel에 추가
+   GOOGLE_SERVICE_ACCOUNT_JSON={"type":"service_account",...}
+   ```
+
+#### Step 3: DB 마이그레이션
+
+```sql
+-- Supabase SQL Editor에서 실행
+ALTER TABLE subscriptions ADD COLUMN IF NOT EXISTS google_purchase_token TEXT;
+ALTER TABLE subscriptions ADD COLUMN IF NOT EXISTS google_order_id TEXT;
+```
+
+#### Step 4: 테스트
+
+1. **라이선스 테스터 등록**: Play Console > 설정 > 라이선스 테스트
+2. **내부 테스트 트랙**: 테스트 > 내부 테스트 > 테스터 추가
+3. **테스트 결제**: 실제 결제 없이 테스트 가능
+
+### 8.9 클라이언트 사용법
+
+```typescript
+import {
+  isNativeApp,
+  purchaseGoogleCredits,
+  purchaseGoogleSubscription,
+} from '@/lib/google-billing';
+
+// 크레딧 구매
+if (isNativeApp()) {
+  const result = await purchaseGoogleCredits(packageInfo, userId);
+  if (result.success) {
+    // 성공 처리
+  }
+}
+
+// 구독
+if (isNativeApp()) {
+  const result = await purchaseGoogleSubscription(userId);
+  if (result.success) {
+    // 성공 처리
+  }
+}
+```
+
+### 8.10 실시간 개발자 알림 (RTDN) - 추후 구현
+
+Google Play에서 구독 상태 변경 시 실시간 알림을 받으려면 Cloud Pub/Sub 설정이 필요합니다.
+
+```
+[Google Play] → [Cloud Pub/Sub] → [Push Endpoint] → [서버 처리]
+```
+
+**알림 유형**:
+| notificationType | 설명 |
+|------------------|------|
+| 2 | SUBSCRIPTION_RENEWED - 갱신 |
+| 3 | SUBSCRIPTION_CANCELED - 취소 |
+| 12 | SUBSCRIPTION_REVOKED - 환불 |
+| 13 | SUBSCRIPTION_EXPIRED - 만료 |
+
+> 현재는 앱에서 구독 상태를 확인하는 방식으로 구현. RTDN은 추후 필요 시 추가.
+
+---
+
+## 9. 변경 이력
 
 | 버전 | 날짜 | 변경 내용 |
 |------|------|----------|
+| 3.2.0 | 2026-01-12 | Google Play Billing 준비 (크레딧 구매 + 구독), 문서화 |
 | 3.1.0 | 2026-01-12 | PayApp 정기결제(구독) 연동, subscriptions 테이블 컬럼 추가 |
 | 3.0.0 | 2026-01-12 | PayApp 신용카드 결제 연동 (신용카드1), 결제 수단 3개 UI |
 | 2.0.0 | 2026-01-12 | 크레딧 유효기간 시스템, FIFO 차감, 구독 시스템 (Mock) |

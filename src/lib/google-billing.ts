@@ -8,7 +8,7 @@ import { NativePurchases, PURCHASE_TYPE } from '@capgo/native-purchases';
 import type { CreditPackage } from './stripe';
 
 /**
- * Google Play 상품 ID 매핑
+ * Google Play 상품 ID 매핑 (일회성 구매)
  * Google Play Console에 등록할 상품 ID
  */
 export const GOOGLE_PRODUCT_IDS = {
@@ -16,6 +16,14 @@ export const GOOGLE_PRODUCT_IDS = {
   starter: 'credits_50',
   popular: 'credits_100',
   premium: 'credits_200',
+} as const;
+
+/**
+ * Google Play 구독 상품 ID 매핑
+ * Google Play Console > 수익 창출 > 구독에 등록
+ */
+export const GOOGLE_SUBSCRIPTION_IDS = {
+  premium_monthly: 'subscription_premium_monthly', // ₩3,900/월
 } as const;
 
 /**
@@ -27,6 +35,19 @@ export const GOOGLE_CREDIT_AMOUNTS: Record<string, number> = {
   credits_100: 110, // 100 + 10 보너스
   credits_200: 230, // 200 + 30 보너스
 };
+
+/**
+ * 구독 플랜 정보
+ */
+export const GOOGLE_SUBSCRIPTION_PLANS = {
+  subscription_premium_monthly: {
+    id: 'subscription_premium_monthly',
+    name: '프리미엄 구독',
+    price: 3900,
+    credits: 50, // 월 50C 지급
+    benefits: ['오늘의 운세 무제한', '월 50C 크레딧'],
+  },
+} as const;
 
 /**
  * 네이티브 앱 여부 확인
@@ -220,4 +241,147 @@ export async function restorePurchases(): Promise<{
       error: err instanceof Error ? err.message : '구매 복원 중 오류가 발생했습니다',
     };
   }
+}
+
+// ============================================
+// 구독 (Subscription) 관련
+// ============================================
+
+/**
+ * Google Play 구독 상품 정보 조회
+ */
+export async function getGoogleSubscriptionProduct(): Promise<{
+  productId: string;
+  title: string;
+  description: string;
+  price: string;
+  priceAmountMicros: number;
+  priceCurrencyCode: string;
+  subscriptionPeriod: string;
+} | null> {
+  if (!isAndroid()) {
+    throw new Error('Android 전용 기능입니다');
+  }
+
+  const productId = GOOGLE_SUBSCRIPTION_IDS.premium_monthly;
+
+  try {
+    const result = await NativePurchases.getProduct({
+      productIdentifier: productId,
+      productType: PURCHASE_TYPE.PAID_SUBSCRIPTION,
+    });
+
+    if (result.product) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const product = result.product as any;
+      return {
+        productId: product.productId || product.id || productId,
+        title: product.title,
+        description: product.description,
+        price: product.priceString,
+        priceAmountMicros: product.priceAmountMicros,
+        priceCurrencyCode: product.priceCurrencyCode,
+        subscriptionPeriod: product.subscriptionPeriod || 'P1M', // ISO 8601 (1개월)
+      };
+    }
+    return null;
+  } catch (err) {
+    console.error(`구독 상품 조회 실패: ${productId}`, err);
+    return null;
+  }
+}
+
+/**
+ * Google Play 구독 결제 실행
+ */
+export async function purchaseGoogleSubscription(
+  userId: string
+): Promise<{
+  success: boolean;
+  purchaseToken?: string;
+  orderId?: string;
+  error?: string;
+}> {
+  if (!isAndroid()) {
+    return { success: false, error: 'Android 전용 기능입니다' };
+  }
+
+  const productId = GOOGLE_SUBSCRIPTION_IDS.premium_monthly;
+
+  try {
+    // 구독 결제 실행
+    const result = await NativePurchases.purchaseProduct({
+      productIdentifier: productId,
+      productType: PURCHASE_TYPE.PAID_SUBSCRIPTION,
+      quantity: 1,
+    });
+
+    if (!result.purchaseToken) {
+      return { success: false, error: '결제가 완료되지 않았습니다' };
+    }
+
+    // 서버에서 구독 검증
+    const verifyResult = await verifyGoogleSubscription({
+      purchaseToken: result.purchaseToken,
+      productId,
+      userId,
+      orderId: result.orderId || '',
+    });
+
+    if (!verifyResult.success) {
+      return { success: false, error: verifyResult.error || '구독 검증 실패' };
+    }
+
+    return {
+      success: true,
+      purchaseToken: result.purchaseToken,
+      orderId: result.orderId,
+    };
+  } catch (err) {
+    console.error('Google Play 구독 오류:', err);
+    return {
+      success: false,
+      error: err instanceof Error ? err.message : '구독 처리 중 오류가 발생했습니다',
+    };
+  }
+}
+
+/**
+ * 서버에서 Google Play 구독 검증
+ */
+async function verifyGoogleSubscription(params: {
+  purchaseToken: string;
+  productId: string;
+  userId: string;
+  orderId: string;
+}): Promise<{ success: boolean; subscriptionId?: string; error?: string }> {
+  try {
+    const response = await fetch('/api/payment/google/subscription', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(params),
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      return { success: false, error: data.error || '검증 실패' };
+    }
+
+    return { success: true, subscriptionId: data.subscriptionId };
+  } catch (err) {
+    console.error('구독 검증 API 오류:', err);
+    return { success: false, error: '서버 통신 오류' };
+  }
+}
+
+/**
+ * Google Play 구독 취소 (앱에서는 Play Store로 이동)
+ */
+export function openGooglePlaySubscriptionManagement(): void {
+  // Google Play 구독 관리 페이지로 이동
+  window.open(
+    'https://play.google.com/store/account/subscriptions',
+    '_blank'
+  );
 }
