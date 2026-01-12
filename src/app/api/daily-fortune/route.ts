@@ -128,6 +128,7 @@ export async function GET() {
       return NextResponse.json({
         success: true,
         cached: true,
+        fortuneId: cachedFortune.id,
         data: cachedFortune,
         profile: {
           id: primaryProfile.id,
@@ -242,6 +243,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({
         success: true,
         cached: true,
+        fortuneId: existingFortune.id,
         data: existingFortune,
         message: '이미 오늘의 운세가 있습니다.',
       });
@@ -286,6 +288,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({
       success: true,
       cached: false,
+      fortuneId: savedFortune?.id,
       data: savedFortune,
       message: pythonResult.message || '오늘의 운세가 생성되었습니다.',
     });

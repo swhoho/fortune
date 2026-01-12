@@ -451,7 +451,7 @@ export function DailyFortuneCard() {
 
               {/* 상세 보기 버튼 */}
               <Button
-                onClick={() => router.push(`/${locale}/daily-fortune`)}
+                onClick={() => router.push(`/${locale}/daily-fortune/${data.data?.id}`)}
                 className="w-full bg-[#d4af37] text-[#0a0a0a] hover:bg-[#c9a432]"
               >
                 {t('viewDetail')}
