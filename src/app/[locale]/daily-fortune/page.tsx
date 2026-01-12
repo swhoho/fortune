@@ -133,7 +133,10 @@ function AreaFortuneCard({
             <h3 className="font-medium text-white">
               {t(`areas.${areaKey}`)}
             </h3>
-            <p className="text-xs text-gray-500">{fortune.title}</p>
+            {/* 타이틀이 영역명과 다를 때만 표시 (중복 방지) */}
+            {fortune.title && fortune.title !== t(`areas.${areaKey}`) && (
+              <p className="text-xs text-gray-500">{fortune.title}</p>
+            )}
           </div>
         </div>
         <div
@@ -165,7 +168,6 @@ function AreaFortuneCard({
 
 export default function DailyFortunePage() {
   const t = useTranslations('dailyFortune');
-  const tCommon = useTranslations('common');
   const locale = useLocale();
   const router = useRouter();
 
@@ -429,22 +431,6 @@ export default function DailyFortunePage() {
                   </p>
                 </motion.section>
               )}
-
-              {/* 홈으로 돌아가기 */}
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: 0.3 }}
-                className="pt-4"
-              >
-                <Button
-                  onClick={() => router.push(`/${locale}/home`)}
-                  variant="outline"
-                  className="w-full border-[#333] bg-transparent text-gray-300 hover:bg-[#242424]"
-                >
-                  {tCommon('backToHome')}
-                </Button>
-              </motion.div>
             </motion.div>
           )}
         </AnimatePresence>
