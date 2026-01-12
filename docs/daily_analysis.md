@@ -1,10 +1,19 @@
-# 오늘의 운세 시스템 v4.0
+# 오늘의 운세 시스템 v5.0
 
 > 구독자/무료체험 전용 일일 운세 분석 서비스 (고전 명리학 기반 고도화 + Report 패턴)
 
 ## 개요
 
 매일 사용자의 사주(대표 프로필)와 당일 간지를 고전 명리학 이론에 기반하여 분석합니다.
+
+### v5.0 주요 변경 (재생성 제한)
+
+| 항목 | v4.0 | v5.0 |
+|------|------|------|
+| **UNIQUE 제약** | `(profile_id, fortune_date)` | `(user_id, fortune_date)` |
+| **재생성 제한** | ❌ 무제한 | ✅ 하루 1회 (총 2회) |
+| **프로필 변경 경고** | ❌ 없음 | ✅ 확인 다이얼로그 |
+| **check-regeneration API** | ❌ 없음 | ✅ 프로필 변경 전 체크 |
 
 ### v4.0 주요 변경 (Task 12-15 고도화)
 
@@ -328,6 +337,25 @@ final_score = clamp(adjusted_score, 0, 100)
 }
 ```
 
+### GET /api/daily-fortune/check-regeneration (v5.0)
+
+오늘의 운세 재생성 가능 여부 확인 (대표 프로필 변경 전 체크용)
+
+**응답**:
+```json
+{
+  "hasTodayFortune": true,
+  "canRegenerate": true,
+  "fortuneProfileId": "uuid"
+}
+```
+
+| 필드 | 설명 |
+|------|------|
+| `hasTodayFortune` | 오늘 운세 존재 여부 |
+| `canRegenerate` | 재생성 가능 여부 (regenerated_at이 NULL일 때만 true) |
+| `fortuneProfileId` | 현재 운세의 프로필 ID |
+
 ### GET /api/daily-fortune/history
 
 히스토리 조회 (최대 1년)
@@ -482,18 +510,24 @@ SAMHAP = {
 火局 → love_fortune (+20점)
 ```
 
-#### 용신 기반 행운 정보 (Task 11)
+#### 행운 정보 (당일 오행 기반)
 
-개인 사주의 용신을 기반으로 행운 정보 개인화
+당일 천간의 오행을 기준으로 행운 정보 생성 (매일 변경)
 
 ```python
-# 기존 (모든 사람 동일)
-day_element = '火' → lucky_color = '빨간색'
+# 당일 오행 기반 (모든 사람 동일, 매일 변경)
+day_element = '火' → lucky_color = '빨간색', lucky_number = 2, lucky_direction = '남쪽'
+day_element = '水' → lucky_color = '검정색', lucky_number = 1, lucky_direction = '북쪽'
+day_element = '木' → lucky_color = '초록색', lucky_number = 3, lucky_direction = '동쪽'
+day_element = '金' → lucky_color = '흰색', lucky_number = 4, lucky_direction = '서쪽'
+day_element = '土' → lucky_color = '노란색', lucky_number = 5, lucky_direction = '중앙'
+```
 
-# 개선 (개인 용신 기반)
-useful_god = '水' → lucky_color = '검정색'
-useful_god = '木' → lucky_direction = '동쪽'
+#### 용신 일치 보너스 (Task 11)
 
+개인 사주의 용신과 당일 천간이 일치할 때 점수 보너스
+
+```python
 # 용신 일치 보너스
 if 당일 천간 오행 == 용신: +15점
 ```
@@ -715,16 +749,24 @@ CREATE TABLE daily_fortunes (
   error JSONB,                              -- 에러 정보
   gemini_result JSONB,                      -- Gemini 원본 응답 (중간 저장용)
 
+  -- v5.0: 재생성 제한
+  regenerated_at TIMESTAMPTZ DEFAULT NULL,  -- 재생성 시점 (NULL=재생성 가능)
+
   language TEXT DEFAULT 'ko',
   created_at TIMESTAMPTZ DEFAULT NOW(),
   updated_at TIMESTAMPTZ DEFAULT NOW(),
 
-  UNIQUE(profile_id, fortune_date)
+  -- v5.0: user_id 기준으로 변경 (하루 1회 제한)
+  UNIQUE(user_id, fortune_date)
 );
 
 -- 상태 조회 최적화 인덱스
 CREATE INDEX IF NOT EXISTS idx_daily_fortunes_status
   ON daily_fortunes(user_id, profile_id, fortune_date, status);
+
+-- profile_id 인덱스 (조회 성능)
+CREATE INDEX IF NOT EXISTS idx_daily_fortunes_profile
+  ON daily_fortunes(profile_id, fortune_date);
 ```
 
 ### users 테이블 (추가 컬럼)
@@ -935,9 +977,22 @@ v4.0부터 응답에 `_analysis_meta` 필드가 추가됩니다 (디버깅/분�
 
 ---
 
-**Last Updated**: 2026-01-12 (v4.0 Task 12-15 고도화)
+**Last Updated**: 2026-01-12 (v5.0 재생성 제한)
 
 ## Changelog
+
+### v5.0 (2026-01-12)
+- **재생성 제한 시스템**
+  - UNIQUE 제약 변경: `(profile_id, fortune_date)` → `(user_id, fortune_date)`
+  - `regenerated_at` 컬럼 추가 (재생성 추적)
+  - 하루 최대 2회 (첫 생성 + 1회 재생성)
+- **API 변경**
+  - GET /api/daily-fortune: `canRegenerate` 응답 추가
+  - POST /api/daily-fortune: 재생성 로직 (`forceRegenerate` 파라미터)
+  - **신규** GET /api/daily-fortune/check-regeneration: 프로필 변경 전 체크
+- **UI 개선**
+  - 대표 프로필 변경 시 확인 다이얼로그 (FortuneWarningDialog)
+  - 재생성 제한 경고 메시지 (5개 언어)
 
 ### v4.0 (2026-01-12)
 - **고전 명리학 확장 (Task 12-15)**

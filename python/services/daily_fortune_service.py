@@ -1430,16 +1430,16 @@ class DailyFortuneService:
                 "reason": str
             }
         """
-        # 용신이 있으면 용신 기반, 없으면 당일 오행 기반
-        target_element = useful_god if useful_god else day_element
+        # 항상 당일 오행 기반 (매일 변경되도록)
+        target_element = day_element
         info = ELEMENT_LUCKY_INFO.get(target_element, ELEMENT_LUCKY_INFO['土'])
 
         return {
             'luckyColor': info['color'].get(language, info['color']['ko']),
             'luckyDirection': info['direction'].get(language, info['direction']['ko']),
             'luckyNumber': info['numbers'][0],
-            'personalized': useful_god is not None,
-            'reason': f"용신({useful_god}) 기반" if useful_god else "당일 오행 기반"
+            'personalized': False,  # 항상 당일 오행 기반
+            'reason': f"당일 오행({day_element}) 기반"
         }
 
     def check_useful_god_match(self, useful_god: Optional[str], day_stem: str) -> Dict[str, Any]:
@@ -2286,7 +2286,7 @@ class DailyFortuneService:
 
         try:
             async with httpx.AsyncClient() as client:
-                # UPSERT (profile_id, fortune_date 기준)
+                # UPSERT (user_id, fortune_date 기준 - DB UNIQUE 제약)
                 response = await client.post(
                     f"{SUPABASE_URL}/rest/v1/daily_fortunes",
                     json=insert_data,
