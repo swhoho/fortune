@@ -82,7 +82,7 @@ export default function RefundPage() {
               <ol className="list-inside list-decimal space-y-3">
                 <li>
                   <strong className="text-white">환불 신청:</strong> 고객센터 이메일
-                  (asolid@gmail.com)로 환불 요청
+                  (goblincallcontact@gmail.com)로 환불 요청
                   <ul className="ml-6 mt-2 list-inside list-disc text-gray-400">
                     <li>성함, 이메일, 결제일, 결제금액, 환불 사유 기재</li>
                   </ul>

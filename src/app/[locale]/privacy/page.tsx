@@ -182,7 +182,7 @@ export default function PrivacyPage() {
                 <li>처리정지 요구</li>
               </ul>
               <p className="mt-3 text-gray-400">
-                위 권리 행사는 이메일(asolid@gmail.com)을 통해 요청하실 수 있으며, 회사는 지체 없이
+                위 권리 행사는 이메일(goblincallcontact@gmail.com)을 통해 요청하실 수 있으며, 회사는 지체 없이
                 조치하겠습니다.
               </p>
             </section>
@@ -244,7 +244,7 @@ export default function PrivacyPage() {
                 <ul className="space-y-2 text-gray-400">
                   <li>성명: 박유민</li>
                   <li>직책: 대표</li>
-                  <li>이메일: asolid@gmail.com</li>
+                  <li>이메일: goblincallcontact@gmail.com</li>
                   <li>전화: 070-7954-2284</li>
                 </ul>
               </div>

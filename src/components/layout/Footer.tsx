@@ -16,7 +16,7 @@ const BUSINESS_INFO = {
   businessNumber: '761-23-01990',
   address: '경기도 용인시 수지구 신봉2로 154',
   phone: '070-7954-2284',
-  email: 'asolid@gmail.com',
+  email: 'goblincallcontact@gmail.com',
   sellerRegistration: '제-2026용인수지-0217호',
 };
 
