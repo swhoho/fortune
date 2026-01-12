@@ -1061,7 +1061,7 @@
         }
       },
       "socialProof": {
-        "quote": "不是簡單的星座運勢。\n用14步分析您的八字和今日日柱。",
+        "quote": "不是簡單的星座或機械分析。\n用14步分析您的八字和今日日柱，\n頂級AI模型解讀著名命理典籍並提供分析結果。",
         "stats": {
           "steps": "14步分析",
           "classics": "5本古典",
@@ -1075,8 +1075,9 @@
         "includes": {
           "dailyFortune": "每日運勢無限查看",
           "credits": "每月贈送50C積分",
-          "sixAreas": "6個領域詳細分析",
-          "personalized": "基於個人用神的幸運資訊"
+          "sixAreas": "每月30次詳細日運分析",
+          "personalized": "基於個人用神的幸運資訊",
+          "consultation": "積分可進行個人諮詢"
         },
         "cta": {
           "startTrial": "開始3天免費試用",

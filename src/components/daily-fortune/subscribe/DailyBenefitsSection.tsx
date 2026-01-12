@@ -25,7 +25,7 @@ export function DailyBenefitsSection({ locale }: DailyBenefitsSectionProps) {
   const t = useTranslations('dailyFortune.subscribe.benefits');
 
   return (
-    <section className="px-6 py-10" suppressHydrationWarning>
+    <section className="px-6 py-6" suppressHydrationWarning>
       <div className="mx-auto max-w-4xl">
         {/* 섹션 제목 */}
         <motion.h2

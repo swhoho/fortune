@@ -11,7 +11,6 @@ import { AppHeader, Footer } from '@/components/layout';
 import { useAuth } from '@/hooks/use-user';
 import {
   DailyHeroSection,
-  DailyPillarsSection,
   DailyBenefitsSection,
   DailySocialProofSection,
   DailyPricingSection,
@@ -161,7 +160,6 @@ export default function DailyFortuneSubscribePage({
 
       <main className="flex-1">
         <DailyHeroSection locale={locale} />
-        <DailyPillarsSection locale={locale} />
         <DailyBenefitsSection locale={locale} />
         <DailySocialProofSection locale={locale} />
         <DailyPricingSection

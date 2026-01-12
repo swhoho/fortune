@@ -20,7 +20,7 @@ interface DailyPricingSectionProps {
   isLoading?: boolean;
 }
 
-const INCLUDES_KEYS = ['dailyFortune', 'credits', 'sixAreas', 'personalized'] as const;
+const INCLUDES_KEYS = ['dailyFortune', 'credits', 'sixAreas', 'personalized', 'consultation'] as const;
 
 /**
  * Pricing Section - 가격 정보 및 CTA 버튼
@@ -39,7 +39,7 @@ export function DailyPricingSection({
   const trialRemainingDays = subscriptionStatus?.trialRemainingDays ?? 0;
 
   return (
-    <section className="px-6 py-12" suppressHydrationWarning>
+    <section className="px-6 py-8" suppressHydrationWarning>
       <motion.div
         initial={{ opacity: 0, y: 30 }}
         whileInView={{ opacity: 1, y: 0 }}

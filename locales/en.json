@@ -1204,7 +1204,7 @@
         }
       },
       "socialProof": {
-        "quote": "Not just horoscopes.\nYour Four Pillars and daily energy analyzed in 14 steps.",
+        "quote": "Not simple zodiac or mechanical analysis.\nYour Four Pillars and daily energy analyzed in 14 steps.\nClassical texts interpreted by premium AI model.",
         "stats": {
           "steps": "14-Step Analysis",
           "classics": "5 Classical Texts",
@@ -1218,8 +1218,9 @@
         "includes": {
           "dailyFortune": "Unlimited daily fortune readings",
           "credits": "50C credits every month",
-          "sixAreas": "Detailed 6-area analysis",
-          "personalized": "Personalized lucky information"
+          "sixAreas": "30 detailed daily analyses per month",
+          "personalized": "Personalized lucky information",
+          "consultation": "Personal AI consultation with credits"
         },
         "cta": {
           "startTrial": "Start 3-Day Free Trial",

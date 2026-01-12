@@ -21,7 +21,7 @@ export function DailySocialProofSection({ locale }: DailySocialProofSectionProps
   ];
 
   return (
-    <section className="px-6 py-10 text-center" suppressHydrationWarning>
+    <section className="px-6 py-6 text-center" suppressHydrationWarning>
       <motion.div
         initial={{ opacity: 0, scale: 0.9 }}
         whileInView={{ opacity: 1, scale: 1 }}

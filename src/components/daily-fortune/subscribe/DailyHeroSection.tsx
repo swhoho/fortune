@@ -15,7 +15,7 @@ export function DailyHeroSection({ locale }: DailyHeroSectionProps) {
   const t = useTranslations('dailyFortune.subscribe.hero');
 
   return (
-    <section className="relative px-6 py-12 text-center" suppressHydrationWarning>
+    <section className="relative px-6 py-8 text-center" suppressHydrationWarning>
       {/* 배경 장식 */}
       <div className="absolute left-1/2 top-0 block h-64 w-[200%] -translate-x-1/2 rounded-[100%] bg-gradient-to-b from-[#d4af37]/10 via-[#d4af37]/5 to-transparent blur-3xl" />
 
