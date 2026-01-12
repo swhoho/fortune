@@ -894,6 +894,97 @@ async def generate_daily_fortune(request: DailyFortuneRequest) -> DailyFortuneSt
         )
 
 
+@app.get("/api/daily-fortune/status")
+async def get_daily_fortune_status(
+    user_id: str,
+    profile_id: str,
+    date: str
+):
+    """
+    오늘의 운세 진행 상태 조회 (v3.0 진행률 폴링용)
+
+    - **user_id**: 사용자 ID
+    - **profile_id**: 프로필 ID
+    - **date**: 운세 날짜 (YYYY-MM-DD)
+
+    Returns:
+        status, progress_percent, step_statuses, error, result(완료시)
+    """
+    import os
+    import httpx
+
+    SUPABASE_URL = os.getenv("SUPABASE_URL", "")
+    SUPABASE_SERVICE_ROLE_KEY = os.getenv("SUPABASE_SERVICE_ROLE_KEY", "")
+
+    if not SUPABASE_URL or not SUPABASE_SERVICE_ROLE_KEY:
+        raise HTTPException(status_code=500, detail="Supabase 설정 누락")
+
+    try:
+        async with httpx.AsyncClient() as client:
+            response = await client.get(
+                f"{SUPABASE_URL}/rest/v1/daily_fortunes",
+                params={
+                    "select": "id,status,progress_percent,step_statuses,error,overall_score,summary,career_fortune,wealth_fortune,love_fortune,health_fortune,relationship_fortune,lucky_color,lucky_number,lucky_direction,advice,fortune_date,day_stem,day_branch,day_element",
+                    "user_id": f"eq.{user_id}",
+                    "profile_id": f"eq.{profile_id}",
+                    "fortune_date": f"eq.{date}",
+                    "limit": "1"
+                },
+                headers={
+                    "apikey": SUPABASE_SERVICE_ROLE_KEY,
+                    "Authorization": f"Bearer {SUPABASE_SERVICE_ROLE_KEY}",
+                },
+                timeout=10.0
+            )
+            response.raise_for_status()
+            data = response.json()
+
+            if not data:
+                return {
+                    "status": "not_found",
+                    "progress_percent": 0,
+                    "step_statuses": {},
+                    "error": None,
+                    "result": None
+                }
+
+            fortune = data[0]
+            status = fortune.get("status", "pending")
+
+            # 완료된 경우 전체 결과 포함
+            result = None
+            if status == "completed":
+                result = {
+                    "id": fortune.get("id"),
+                    "fortune_date": fortune.get("fortune_date"),
+                    "day_stem": fortune.get("day_stem"),
+                    "day_branch": fortune.get("day_branch"),
+                    "day_element": fortune.get("day_element"),
+                    "overall_score": fortune.get("overall_score"),
+                    "summary": fortune.get("summary"),
+                    "career_fortune": fortune.get("career_fortune"),
+                    "wealth_fortune": fortune.get("wealth_fortune"),
+                    "love_fortune": fortune.get("love_fortune"),
+                    "health_fortune": fortune.get("health_fortune"),
+                    "relationship_fortune": fortune.get("relationship_fortune"),
+                    "lucky_color": fortune.get("lucky_color"),
+                    "lucky_number": fortune.get("lucky_number"),
+                    "lucky_direction": fortune.get("lucky_direction"),
+                    "advice": fortune.get("advice"),
+                }
+
+            return {
+                "status": status,
+                "progress_percent": fortune.get("progress_percent", 0),
+                "step_statuses": fortune.get("step_statuses", {}),
+                "error": fortune.get("error"),
+                "result": result
+            }
+
+    except httpx.HTTPError as e:
+        raise HTTPException(status_code=500, detail=f"DB 조회 실패: {str(e)}")
+
+
 @app.exception_handler(ValueError)
 async def value_error_handler(request, exc):
     """입력값 오류 처리 (한국어)"""

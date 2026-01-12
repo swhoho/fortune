@@ -6,7 +6,7 @@
  */
 import { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useTranslations } from 'next-intl';
+import { useTranslations, useLocale } from 'next-intl';
 import { useRouter } from 'next/navigation';
 import { Calendar, ChevronRight, Sparkles, RefreshCw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -61,13 +61,31 @@ interface DailyFortuneData {
 
 type CardState = 'loading' | 'subscription' | 'generating' | 'ready' | 'error';
 
+/** 단계별 라벨 (다국어) */
+const STEP_LABELS: Record<string, Record<string, string>> = {
+  day_calculation: { ko: '일진 계산 중...', en: 'Calculating day pillar...', ja: '日柱計算中...', 'zh-CN': '计算日柱中...', 'zh-TW': '計算日柱中...' },
+  wunseong: { ko: '12운성 분석 중...', en: 'Analyzing 12 stages...', ja: '十二運星分析中...', 'zh-CN': '分析十二运星中...', 'zh-TW': '分析十二運星中...' },
+  timing: { ko: '복음/반음 감지 중...', en: 'Detecting patterns...', ja: 'パターン検出中...', 'zh-CN': '检测模式中...', 'zh-TW': '檢測模式中...' },
+  johu: { ko: '조후용신 분석 중...', en: 'Analyzing seasonal needs...', ja: '調候分析中...', 'zh-CN': '分析调候中...', 'zh-TW': '分析調候中...' },
+  combination: { ko: '삼합/방합 감지 중...', en: 'Detecting combinations...', ja: '三合検出中...', 'zh-CN': '检测三合中...', 'zh-TW': '檢測三合中...' },
+  useful_god: { ko: '용신 정보 조회 중...', en: 'Looking up useful god...', ja: '用神照会中...', 'zh-CN': '查询用神中...', 'zh-TW': '查詢用神中...' },
+  gemini_analysis: { ko: 'AI 분석 중...', en: 'AI analyzing...', ja: 'AI分析中...', 'zh-CN': 'AI分析中...', 'zh-TW': 'AI分析中...' },
+  score_adjustment: { ko: '점수 계산 중...', en: 'Calculating scores...', ja: 'スコア計算中...', 'zh-CN': '计算分数中...', 'zh-TW': '計算分數中...' },
+  complete: { ko: '완료!', en: 'Complete!', ja: '完了！', 'zh-CN': '完成！', 'zh-TW': '完成！' },
+};
+
 export function DailyFortuneCard() {
   const t = useTranslations('dailyFortune');
+  const locale = useLocale();
   const router = useRouter();
 
   const [state, setState] = useState<CardState>('loading');
   const [data, setData] = useState<DailyFortuneResponse | null>(null);
   const [error, setError] = useState<string | null>(null);
+
+  // v3.0: 진행률 상태
+  const [progress, setProgress] = useState(0);
+  const [currentStep, setCurrentStep] = useState('');
 
   /** 데이터 조회 */
   const fetchFortune = useCallback(async () => {
@@ -102,29 +120,86 @@ export function DailyFortuneCard() {
     }
   }, []);
 
-  /** 운세 생성 */
+  /** 운세 생성 (v3.0: 진행률 폴링) */
   const generateFortune = async (fetchedData: DailyFortuneResponse) => {
     setState('generating');
+    setProgress(0);
+    setCurrentStep('');
+
+    const profileId = fetchedData.profile?.id;
+    const today = new Date().toISOString().split('T')[0];
 
     try {
-      const res = await fetch('/api/daily-fortune', {
+      // 1. POST 요청으로 운세 생성 시작 (백그라운드에서 진행)
+      const postRes = await fetch('/api/daily-fortune', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          profileId: fetchedData.profile?.id,
+          profileId: profileId,
           pillars: fetchedData.pillars,
           daewun: fetchedData.daewun,
         }),
       });
 
-      const json: DailyFortuneResponse = await res.json();
-
-      if (!res.ok) {
-        throw new Error(json.message || '운세 생성에 실패했습니다');
+      // 즉시 완료된 경우 (이미 캐시된 경우 등)
+      if (postRes.ok) {
+        const json: DailyFortuneResponse = await postRes.json();
+        if (json.data) {
+          setData(prev => prev ? { ...prev, data: json.data, cached: false } : json);
+          setProgress(100);
+          setState('ready');
+          return;
+        }
       }
 
-      setData(prev => prev ? { ...prev, data: json.data, cached: false } : json);
-      setState('ready');
+      // 2. 진행률 폴링 시작
+      const pollStatus = async (): Promise<boolean> => {
+        try {
+          const statusRes = await fetch(
+            `/api/daily-fortune/status?profile_id=${profileId}&date=${today}`
+          );
+          const statusJson = await statusRes.json();
+
+          setProgress(statusJson.progress_percent || 0);
+
+          // 현재 진행 중인 단계 찾기
+          const stepStatuses = statusJson.step_statuses || {};
+          const inProgressStep = Object.entries(stepStatuses).find(
+            ([, status]) => status === 'in_progress'
+          );
+          if (inProgressStep) {
+            setCurrentStep(inProgressStep[0]);
+          }
+
+          if (statusJson.status === 'completed' && statusJson.result) {
+            setData(prev => prev ? { ...prev, data: statusJson.result, cached: false } : { success: true, data: statusJson.result });
+            setProgress(100);
+            setState('ready');
+            return true;
+          }
+
+          if (statusJson.status === 'failed') {
+            throw new Error(statusJson.error?.message || '운세 생성에 실패했습니다');
+          }
+
+          return false;
+        } catch (e) {
+          console.error('[DailyFortune] 폴링 오류:', e);
+          return false;
+        }
+      };
+
+      // 3. 1초 간격으로 폴링 (최대 60초)
+      let completed = false;
+      for (let i = 0; i < 60 && !completed; i++) {
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        completed = await pollStatus();
+      }
+
+      if (!completed) {
+        throw new Error('운세 생성 시간이 초과되었습니다');
+      }
+
     } catch (err) {
       console.error('[DailyFortune] 생성 오류:', err);
       setError(err instanceof Error ? err.message : '운세 생성 오류');
@@ -236,14 +311,14 @@ export function DailyFortuneCard() {
             </motion.div>
           )}
 
-          {/* 생성 중 */}
+          {/* 생성 중 (v3.0: 진행률 표시) */}
           {state === 'generating' && (
             <motion.div
               key="generating"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="flex flex-col items-center justify-center py-10"
+              className="flex flex-col items-center justify-center py-8"
             >
               <motion.div
                 animate={{ rotate: 360 }}
@@ -251,8 +326,28 @@ export function DailyFortuneCard() {
               >
                 <Sparkles className="h-10 w-10 text-[#d4af37]" />
               </motion.div>
-              <p className="mt-4 text-sm text-gray-400">오늘의 운세를 분석 중...</p>
-              <p className="mt-1 text-xs text-gray-500">잠시만 기다려 주세요</p>
+
+              {/* 현재 단계 라벨 */}
+              <p className="mt-4 text-sm text-gray-300">
+                {currentStep && STEP_LABELS[currentStep]
+                  ? STEP_LABELS[currentStep][locale] || STEP_LABELS[currentStep]['en']
+                  : t('generating')}
+              </p>
+
+              {/* Progress Bar */}
+              <div className="mt-4 w-full max-w-xs">
+                <div className="h-2 w-full overflow-hidden rounded-full bg-[#333]">
+                  <motion.div
+                    className="h-full bg-gradient-to-r from-[#d4af37] to-[#f5d77a]"
+                    initial={{ width: 0 }}
+                    animate={{ width: `${progress}%` }}
+                    transition={{ duration: 0.3, ease: 'easeOut' }}
+                  />
+                </div>
+                <p className="mt-2 text-center text-xs text-gray-500">
+                  {progress}%
+                </p>
+              </div>
             </motion.div>
           )}
 
