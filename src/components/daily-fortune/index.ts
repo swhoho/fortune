@@ -4,3 +4,5 @@
 export { DailyFortuneCard } from './DailyFortuneCard';
 export { FortuneScoreGauge } from './FortuneScoreGauge';
 export { SubscriptionPrompt } from './SubscriptionPrompt';
+export { DailyFortuneNavigation } from './DailyFortuneNavigation';
+export type { DailyFortuneTabType } from './DailyFortuneNavigation';

@@ -50,7 +50,8 @@
     "pdfDownload": "下载PDF",
     "unknownError": "未知错误",
     "free": "0积分（免费）",
-    "login": "登录"
+    "login": "登录",
+    "linkCopied": "链接已复制"
   },
   "nav": {
     "login": "登录",
@@ -995,6 +996,10 @@
   "dailyFortune": {
     "title": "今日运势",
     "generating": "正在分析今日运势...",
+    "tabs": {
+      "fortune": "今日运势",
+      "consultation": "AI咨询"
+    },
     "subscribe": {
       "hero": {
         "headline": "每天早晨，专属于您的\n运势已准备就绪",

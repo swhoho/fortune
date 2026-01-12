@@ -271,12 +271,49 @@ yearly_result = supabase.table('yearly_analyses').select(
 
 ---
 
+## 오늘의 운세 상담 탭 (v1.46)
+
+오늘의 운세 상세 페이지에서도 상담 탭을 통해 AI 상담을 이용할 수 있습니다.
+
+### 탭 구조
+```
+/[locale]/daily-fortune/[id]?tab=fortune     # 운세 탭 (기본)
+/[locale]/daily-fortune/[id]?tab=consultation # 상담 탭
+```
+
+### 컴포넌트 구조
+```
+DailyFortuneNavigation      # 탭 네비게이션 (2탭)
+├── 운세 (Sun 아이콘)        # fortune 탭
+└── 상담 (MessageCircle 아이콘)  # consultation 탭 → ConsultationTab 재사용
+```
+
+### 접근 제어
+| 사용자 | 운세 탭 | 상담 탭 |
+|--------|---------|---------|
+| 본인 | ✅ | ✅ |
+| 타인 (공유 링크) | ✅ | ❌ 차단 |
+| 비로그인 | ✅ | ❌ 로그인 리다이렉트 |
+
+### ConsultationTab 연동
+```typescript
+// daily-fortune/[id]/page.tsx
+{activeTab === 'consultation' && profileId && (
+  <ConsultationTab profileId={profileId} />
+)}
+```
+
+기존 ConsultationTab 컴포넌트를 그대로 재사용하며, `profileId`를 전달하여 해당 프로필 기준으로 상담 세션을 관리합니다.
+
+---
+
 ## 관련 문서
 
 - [fortune_engine.md](./fortune_engine.md) - 만세력 엔진, 점수 시스템
 - [report_analysis.md](./report_analysis.md) - 리포트 분석 파이프라인
 - [yearly_analysis.md](./yearly_analysis.md) - 신년 분석 파이프라인
+- [daily_analysis.md](./daily_analysis.md) - 오늘의 운세 시스템
 
 ---
 
-**최종 수정**: 2026-01-08 (v1.38 신년분석 요약 연동)
+**최종 수정**: 2026-01-12 (v1.46 오늘의 운세 상담 탭)

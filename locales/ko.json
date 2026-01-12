@@ -50,7 +50,8 @@
     "backToProfile": "프로필로 돌아가기",
     "backToList": "목록으로 돌아가기",
     "free": "0C (무료)",
-    "login": "로그인"
+    "login": "로그인",
+    "linkCopied": "링크가 복사되었습니다"
   },
   "nav": {
     "login": "로그인",
@@ -1142,6 +1143,10 @@
   "dailyFortune": {
     "title": "오늘의 운세",
     "generating": "오늘의 운세를 분석하고 있습니다...",
+    "tabs": {
+      "fortune": "오늘의 운세",
+      "consultation": "AI 상담"
+    },
     "subscribe": {
       "hero": {
         "headline": "매일 아침, 당신만을 위한\n운세가 준비됩니다",

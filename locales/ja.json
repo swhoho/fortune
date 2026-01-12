@@ -50,7 +50,8 @@
     "pdfDownload": "PDFダウンロード",
     "unknownError": "不明なエラー",
     "free": "0C (無料)",
-    "login": "ログイン"
+    "login": "ログイン",
+    "linkCopied": "リンクがコピーされました"
   },
   "nav": {
     "login": "ログイン",
@@ -995,6 +996,10 @@
   "dailyFortune": {
     "title": "今日の運勢",
     "generating": "今日の運勢を分析しています...",
+    "tabs": {
+      "fortune": "今日の運勢",
+      "consultation": "AI相談"
+    },
     "subscribe": {
       "hero": {
         "headline": "毎朝、あなただけのために\n運勢が用意されます",

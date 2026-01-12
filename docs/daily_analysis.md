@@ -733,6 +733,48 @@ CREATE INDEX IF NOT EXISTS idx_daily_fortunes_status
 ALTER TABLE users ADD COLUMN daily_fortune_trial_started_at TIMESTAMPTZ DEFAULT NULL;
 ```
 
+## 상담 탭 연동 (v5.0)
+
+오늘의 운세 상세 페이지에서 AI 상담이 가능합니다.
+
+### 탭 구조
+
+| 탭 | 설명 |
+|-----|------|
+| 운세 | 기존 운세 상세 정보 |
+| 상담 | ConsultationTab 컴포넌트 재사용 |
+
+### URL 파라미터
+
+```
+/daily-fortune/{id}?tab=fortune   # 운세 탭 (기본)
+/daily-fortune/{id}?tab=consultation  # 상담 탭
+```
+
+### 권한 제어
+
+- **운세 탭**: 공유 링크로 누구나 접근 가능
+- **상담 탭**: 본인만 접근 가능 (타인 → AUTH_FORBIDDEN 에러)
+
+### 컴포넌트 구조
+
+```
+DailyFortuneDetailPage
+├── AppHeader (공유 버튼: 운세 탭에서만 표시)
+├── DailyFortuneNavigation (2탭: 운세/상담)
+├── [운세 탭] 기존 운세 컨텐츠
+└── [상담 탭] ConsultationTab (profileId 전달)
+```
+
+### 파일
+
+| 파일 | 설명 |
+|------|------|
+| `src/components/daily-fortune/DailyFortuneNavigation.tsx` | 탭 네비게이션 |
+| `src/app/[locale]/daily-fortune/[id]/page.tsx` | 상세 페이지 (탭 로직) |
+
+---
+
 ## 프론트엔드 컴포넌트
 
 ### DailyFortuneCard (v3.0)

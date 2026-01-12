@@ -50,7 +50,8 @@
     "pdfDownload": "下載PDF",
     "unknownError": "未知錯誤",
     "free": "0積分（免費）",
-    "login": "登入"
+    "login": "登入",
+    "linkCopied": "連結已複製"
   },
   "nav": {
     "login": "登入",
@@ -995,6 +996,10 @@
   "dailyFortune": {
     "title": "今日運勢",
     "generating": "正在分析今日運勢...",
+    "tabs": {
+      "fortune": "今日運勢",
+      "consultation": "AI諮詢"
+    },
     "subscribe": {
       "hero": {
         "headline": "每天早晨，專屬於您的\n運勢已準備就緒",

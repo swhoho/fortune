@@ -50,7 +50,8 @@
     "backToProfile": "Back to Profile",
     "backToList": "Back to List",
     "free": "0C (Free)",
-    "login": "Sign In"
+    "login": "Sign In",
+    "linkCopied": "Link copied to clipboard"
   },
   "nav": {
     "login": "Sign In",
@@ -1138,6 +1139,10 @@
   "dailyFortune": {
     "title": "Today's Fortune",
     "generating": "Analyzing today's fortune...",
+    "tabs": {
+      "fortune": "Today's Fortune",
+      "consultation": "AI Consultation"
+    },
     "subscribe": {
       "hero": {
         "headline": "Every Morning, A Fortune\nPrepared Just For You",
