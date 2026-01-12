@@ -268,7 +268,7 @@ export async function getGoogleSubscriptionProduct(): Promise<{
   try {
     const result = await NativePurchases.getProduct({
       productIdentifier: productId,
-      productType: PURCHASE_TYPE.PAID_SUBSCRIPTION,
+      productType: PURCHASE_TYPE.SUBS,
     });
 
     if (result.product) {
@@ -294,9 +294,7 @@ export async function getGoogleSubscriptionProduct(): Promise<{
 /**
  * Google Play 구독 결제 실행
  */
-export async function purchaseGoogleSubscription(
-  userId: string
-): Promise<{
+export async function purchaseGoogleSubscription(userId: string): Promise<{
   success: boolean;
   purchaseToken?: string;
   orderId?: string;
@@ -312,7 +310,7 @@ export async function purchaseGoogleSubscription(
     // 구독 결제 실행
     const result = await NativePurchases.purchaseProduct({
       productIdentifier: productId,
-      productType: PURCHASE_TYPE.PAID_SUBSCRIPTION,
+      productType: PURCHASE_TYPE.SUBS,
       quantity: 1,
     });
 
@@ -380,8 +378,5 @@ async function verifyGoogleSubscription(params: {
  */
 export function openGooglePlaySubscriptionManagement(): void {
   // Google Play 구독 관리 페이지로 이동
-  window.open(
-    'https://play.google.com/store/account/subscriptions',
-    '_blank'
-  );
+  window.open('https://play.google.com/store/account/subscriptions', '_blank');
 }
