@@ -2,10 +2,10 @@
 
 > Master's Insight AI 결제, 크레딧, 구독 시스템 문서
 
-**Version**: 3.0.0
+**Version**: 3.1.0
 **Last Updated**: 2026-01-12
 **현재 사용**: PayApp (신용카드1)
-**구독**: Mock 모드 (실 결제 미연동)
+**구독**: PayApp 정기결제 (실결제 연동)
 
 ---
 
@@ -239,15 +239,15 @@ await deductCredits({
 
 ---
 
-## 6. 구독 시스템 (Mock)
+## 6. 구독 시스템 (PayApp 정기결제)
 
 ### 6.1 개요
 
-현재 구독은 Mock 모드로 운영되며, 실제 결제가 연동되지 않습니다.
+PayApp 정기결제를 통한 월간 구독 시스템입니다.
 
 | 구독 플랜 | 가격 | 혜택 |
 |-----------|------|------|
-| 프리미엄 | ₩3,900/월 | 오늘의 운세 + 월 50C |
+| 프리미엄 | ₩3,900/월 | 오늘의 운세 무제한 + 월 50C |
 
 ### 6.2 DB 스키마
 
@@ -260,6 +260,9 @@ CREATE TABLE subscriptions (
   current_period_start TIMESTAMPTZ NOT NULL,
   current_period_end TIMESTAMPTZ NOT NULL,
   price INTEGER NOT NULL DEFAULT 3900,
+  payapp_rebill_no TEXT,           -- PayApp 정기결제 번호
+  payapp_recvphone TEXT,           -- PayApp 등록 전화번호
+  payment_method VARCHAR(20) DEFAULT 'mock',  -- mock, payapp
   created_at TIMESTAMPTZ DEFAULT NOW(),
   canceled_at TIMESTAMPTZ
 );
@@ -273,19 +276,39 @@ ALTER TABLE users ADD COLUMN subscription_id UUID REFERENCES subscriptions(id);
 
 | API | 메서드 | 설명 |
 |-----|--------|------|
-| `/api/subscription/start` | POST | Mock 구독 시작 (50C 지급) |
+| `/api/subscription/payapp/create` | POST | PayApp 정기결제 요청 생성 |
+| `/api/subscription/payapp/callback` | POST | PayApp Feedback URL (매월 자동결제 노티) |
+| `/api/subscription/start` | POST | Mock 구독 시작 (테스트용) |
 | `/api/subscription/status` | GET | 구독 상태 조회 |
 | `/api/subscription/cancel` | POST | 구독 취소 |
 | `/api/cron/expire-subscriptions` | GET | 만료 구독 처리 (Vercel Cron) |
 
-### 6.4 구독 시작 플로우
+### 6.4 PayApp 정기결제 플로우
 
 ```
-[구독 시작 버튼] → [POST /api/subscription/start]
-  → subscriptions 레코드 생성
-  → 50C 크레딧 지급 (1개월 만료)
+[구독 시작] → [휴대폰 입력] → [POST /api/subscription/payapp/create]
+  → PayApp 정기결제 등록 페이지로 리다이렉트
+  → [카드 등록 완료] → [Callback: pay_state=1]
+  → subscriptions 레코드 생성 (payment_method='payapp')
+  → 최초 50C 크레딧 지급
   → users.subscription_status = 'active' 업데이트
+
+[매월 자동결제] → [Callback: pay_state=4]
+  → 구독 기간 갱신
+  → 50C 크레딧 지급
+
+[구독 해지] → [Callback: pay_state=8]
+  → subscriptions.status = 'canceled'
 ```
+
+### 6.5 PayApp 정기결제 파라미터
+
+| 파라미터 | 값 |
+|---------|-----|
+| `rebillCycleType` | `Month` |
+| `rebillCycleMonth` | 등록일 (1~28) |
+| `rebillExpire` | 1년 후 |
+| `openpaytype` | `card` |
 
 ---
 
@@ -314,6 +337,7 @@ Vercel Cron으로 매일 자정(UTC 00:00 = KST 09:00) 실행됩니다.
 
 | 버전 | 날짜 | 변경 내용 |
 |------|------|----------|
+| 3.1.0 | 2026-01-12 | PayApp 정기결제(구독) 연동, subscriptions 테이블 컬럼 추가 |
 | 3.0.0 | 2026-01-12 | PayApp 신용카드 결제 연동 (신용카드1), 결제 수단 3개 UI |
 | 2.0.0 | 2026-01-12 | 크레딧 유효기간 시스템, FIFO 차감, 구독 시스템 (Mock) |
 | 1.1.0 | 2026-01-05 | Stripe으로 임시 복원, 포트원 코드 준비 완료 |

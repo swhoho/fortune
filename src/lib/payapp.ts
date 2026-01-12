@@ -137,3 +137,141 @@ export function generatePayAppOrderId(): string {
   const random = Math.random().toString(36).substring(2, 8);
   return `payapp-${timestamp}-${random}`;
 }
+
+// ============================================
+// 정기결제 (Rebill) 관련
+// ============================================
+
+/**
+ * 정기결제 주기 타입
+ */
+export type RebillCycleType = 'Month' | 'Week' | 'Day';
+
+/**
+ * 정기결제 요청 파라미터 타입
+ */
+export interface PayAppRebillRequest {
+  goodname: string;
+  goodprice: number;
+  recvphone: string;
+  rebillCycleType: RebillCycleType;
+  rebillCycleMonth?: number; // 월 결제일 (1~31, 90:말일)
+  rebillExpire: string; // yyyy-mm-dd
+  feedbackurl: string;
+  failurl?: string; // 2회차 이후 실패 노티 URL
+  returnurl?: string;
+  userId: string; // var1
+}
+
+/**
+ * 정기결제 응답 타입
+ */
+export interface PayAppRebillResponse {
+  state: '1' | '0';
+  rebill_no?: string; // 정기결제 번호
+  payurl?: string; // 정기결제 등록 URL
+  errorMessage?: string;
+  errno?: string;
+}
+
+/**
+ * 정기결제 Feedback 데이터 타입
+ */
+export interface PayAppRebillFeedbackData {
+  state: string; // 1: 결제요청, 4: 결제완료, 8: 해지
+  rebill_no: string; // 정기결제 번호
+  mul_no?: string; // 개별 결제번호 (2회차 이후)
+  pay_date?: string; // 결제일시
+  pay_state: string; // 1: 요청, 4: 완료, 8: 해지
+  goodname: string;
+  price: string;
+  recvphone: string;
+  var1?: string; // userId
+  linkkey: string;
+  linkval: string;
+}
+
+/**
+ * PayApp 정기결제 요청 생성 (서버 사이드)
+ */
+export async function createPayAppRebill(
+  params: PayAppRebillRequest
+): Promise<PayAppRebillResponse> {
+  const formData = new URLSearchParams();
+  formData.append('cmd', 'rebillrequest');
+  formData.append('userid', PAYAPP_CONFIG.userId);
+  formData.append('linkkey', PAYAPP_CONFIG.linkKey);
+  formData.append('linkval', PAYAPP_CONFIG.linkVal);
+  formData.append('shopname', PAYAPP_CONFIG.shopName);
+  formData.append('goodname', params.goodname);
+  formData.append('goodprice', params.goodprice.toString());
+  formData.append('recvphone', params.recvphone);
+  formData.append('rebillCycleType', params.rebillCycleType);
+  if (params.rebillCycleMonth) {
+    formData.append('rebillCycleMonth', params.rebillCycleMonth.toString());
+  }
+  formData.append('rebillExpire', params.rebillExpire);
+  formData.append('feedbackurl', params.feedbackurl);
+  if (params.failurl) {
+    formData.append('failurl', params.failurl);
+  }
+  if (params.returnurl) {
+    formData.append('returnurl', params.returnurl);
+  }
+  formData.append('var1', params.userId);
+  formData.append('smsuse', 'n');
+  formData.append('openpaytype', 'card'); // 신용카드만
+
+  const response = await fetch(PAYAPP_CONFIG.apiUrl, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/x-www-form-urlencoded',
+    },
+    body: formData.toString(),
+  });
+
+  const text = await response.text();
+
+  // 응답 파싱
+  const result: Record<string, string> = {};
+  text.split('&').forEach((pair) => {
+    const [key, value] = pair.split('=');
+    if (key && value) {
+      result[key] = decodeURIComponent(value);
+    }
+  });
+
+  return {
+    state: result.state as '1' | '0',
+    rebill_no: result.rebill_no,
+    payurl: result.payurl,
+    errorMessage: result.errorMessage,
+    errno: result.errno,
+  };
+}
+
+/**
+ * 정기결제 Feedback 검증
+ */
+export function verifyPayAppRebillFeedback(data: PayAppRebillFeedbackData): boolean {
+  return data.linkkey === PAYAPP_CONFIG.linkKey && data.linkval === PAYAPP_CONFIG.linkVal;
+}
+
+/**
+ * 정기결제 만료일 계산 (1년 후)
+ */
+export function calculateRebillExpireDate(): string {
+  const expireDate = new Date();
+  expireDate.setFullYear(expireDate.getFullYear() + 1);
+  return expireDate.toISOString().split('T')[0]; // yyyy-mm-dd
+}
+
+/**
+ * 구독 플랜 설정
+ */
+export const SUBSCRIPTION_PLAN = {
+  name: '프리미엄 구독',
+  price: 3900, // ₩3,900/월
+  credits: 50, // 월 50C 지급
+  benefits: ['오늘의 운세 무제한', '월 50C 크레딧'],
+};
