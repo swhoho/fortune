@@ -592,6 +592,130 @@ def normalize_daily_fortune(raw: Dict[str, Any]) -> Dict[str, Any]:
     return result
 
 
+# ============================================
+# Monthly Fortune 정규화 (v4.0)
+# ============================================
+
+MONTHLY_FORTUNE_KEY_MAPPING = {
+    # snake_case → camelCase
+    'overall_score': 'overallScore',
+    'lucky_days': 'luckyDays',
+    'lucky_nights': 'luckyNights',
+    # 한글 키
+    '종합점수': 'overallScore',
+    '요약': 'summary',
+    '길일': 'luckyDays',
+    '길야': 'luckyNights',
+    '조언': 'advice',
+}
+
+
+def normalize_monthly_fortunes(raw: Dict[str, Any]) -> Dict[str, Any]:
+    """
+    월별 운세 응답 정규화 (monthly_1_3 ~ monthly_10_12)
+
+    - snake_case/한글 키 → camelCase
+    - monthlyFortunes 배열 내부 정규화
+    - 기본값 보장
+    """
+    if raw is None:
+        return raw
+
+    result = {}
+
+    # monthlyFortunes 배열 추출
+    fortunes = raw.get('monthlyFortunes') or raw.get('monthly_fortunes') or raw.get('월별운세') or []
+
+    normalized_fortunes = []
+    for fortune in fortunes:
+        if isinstance(fortune, dict):
+            normalized = _normalize_dict(fortune, MONTHLY_FORTUNE_KEY_MAPPING)
+            # 기본값 보장
+            if 'month' not in normalized:
+                normalized['month'] = 1
+            if 'summary' not in normalized:
+                normalized['summary'] = ''
+            if 'overallScore' not in normalized:
+                normalized['overallScore'] = 50
+            if 'luckyDays' not in normalized:
+                normalized['luckyDays'] = []
+            if 'luckyNights' not in normalized:
+                normalized['luckyNights'] = []
+            if 'advice' not in normalized:
+                normalized['advice'] = ''
+            normalized_fortunes.append(normalized)
+
+    result['monthlyFortunes'] = normalized_fortunes
+    return result
+
+
+# ============================================
+# Yearly Overview 정규화 (v4.0)
+# ============================================
+
+YEARLY_OVERVIEW_KEY_MAPPING = {
+    # snake_case → camelCase
+    'overall_score': 'overallScore',
+    'yearly_theme': 'yearlyTheme',
+    # 한글 키
+    '종합점수': 'overallScore',
+    '연간테마': 'yearlyTheme',
+    '요약': 'summary',
+}
+
+
+def normalize_yearly_overview(raw: Dict[str, Any]) -> Dict[str, Any]:
+    """
+    연간 총평 응답 정규화 (yearly_overview)
+    """
+    if raw is None:
+        return raw
+
+    result = _normalize_dict(raw, YEARLY_OVERVIEW_KEY_MAPPING)
+
+    # 기본값 보장
+    if 'year' not in result:
+        result['year'] = 2026
+    if 'summary' not in result:
+        result['summary'] = ''
+    if 'yearlyTheme' not in result:
+        result['yearlyTheme'] = ''
+    if 'overallScore' not in result:
+        result['overallScore'] = 50
+
+    return result
+
+
+# ============================================
+# Classical References 정규화 (v4.0)
+# ============================================
+
+def normalize_classical_refs(raw: Dict[str, Any]) -> Dict[str, Any]:
+    """
+    고전 인용 응답 정규화 (classical_refs)
+    """
+    if raw is None:
+        return raw
+
+    result = {}
+
+    # classicalReferences 배열 추출
+    refs = raw.get('classicalReferences') or raw.get('classical_references') or raw.get('고전인용') or []
+
+    normalized_refs = []
+    for ref in refs:
+        if isinstance(ref, dict):
+            normalized = {
+                'source': ref.get('source') or ref.get('출처') or '',
+                'quote': ref.get('quote') or ref.get('인용문') or '',
+                'interpretation': ref.get('interpretation') or ref.get('해석') or '',
+            }
+            normalized_refs.append(normalized)
+
+    result['classicalReferences'] = normalized_refs
+    return result
+
+
 def normalize_response(step_name: str, raw_response: Dict[str, Any]) -> Dict[str, Any]:
     """단계별 응답 정규화 라우터"""
     normalizers = {
@@ -602,6 +726,13 @@ def normalize_response(step_name: str, raw_response: Dict[str, Any]) -> Dict[str
         'fortune': normalize_fortune,
         'yearly_advice': normalize_yearly_advice,
         'daily_fortune': normalize_daily_fortune,
+        # v4.0: 신년 분석 단계 추가
+        'yearly_overview': normalize_yearly_overview,
+        'monthly_1_3': normalize_monthly_fortunes,
+        'monthly_4_6': normalize_monthly_fortunes,
+        'monthly_7_9': normalize_monthly_fortunes,
+        'monthly_10_12': normalize_monthly_fortunes,
+        'classical_refs': normalize_classical_refs,
     }
 
     normalizer = normalizers.get(step_name)

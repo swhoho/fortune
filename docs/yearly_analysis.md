@@ -165,30 +165,59 @@ await yearly_analysis_service.reanalyze_step(
 
 ---
 
-## 키 정규화 (v2.5)
+## 정규화 + Pydantic 검증 (v4.0)
 
-Gemini 응답의 키 불일치 문제 해결:
+Gemini 응답의 키 불일치 + 타입/구조 검증:
 
-**파일**: `python/services/normalizers.py`
+**파일**:
+- `python/services/normalizers.py` - 키 정규화
+- `python/schemas/yearly_fortune.py` - Pydantic 스키마
+
+### 2단계 파이프라인
 
 ```python
 from services.normalizers import normalize_response, normalize_all_keys
+from schemas.yearly_fortune import validate_yearly_step
 
-# yearly_advice 정규화
-normalized = normalize_all_keys(normalize_response('yearly_advice', raw_response))
+# Step 1: 정규화 (snake_case/한글 → camelCase)
+normalized = normalize_all_keys(normalize_response(step_name, result))
+
+# Step 2: Pydantic 검증 (실패 시 재시도)
+validated = validate_yearly_step(step_name, normalized, raise_on_error=True)
 ```
 
-**기능**:
-1. snake_case/한글 → camelCase 변환
-2. 6개 섹션 기본값 보장 (`firstHalf`, `secondHalf`)
-3. 누락된 섹션 빈 문자열로 초기화
+### 단계별 검증 함수
 
-**키 매핑**:
+| 단계 | 검증 함수 | Pydantic 스키마 |
+|------|----------|----------------|
+| `yearly_overview` | `validate_yearly_overview()` | `YearlyOverviewSchema` |
+| `monthly_*` | `validate_monthly_fortunes()` | `MonthlyFortunesSchema` |
+| `yearly_advice` | `validate_yearly_advice()` | `YearlyAdviceSchema` |
+| `classical_refs` | `validate_classical_refs()` | `ClassicalRefsSchema` |
+
+### 정규화 키 매핑
+
 | 입력 | 정규화 |
 |------|--------|
 | `nature_and_soul`, `본연의_성정` | `natureAndSoul` |
 | `first_half`, `상반기` | `firstHalf` |
 | `second_half`, `하반기` | `secondHalf` |
+| `overall_score`, `종합점수` | `overallScore` |
+| `lucky_days`, `길일` | `luckyDays` |
+| `lucky_nights`, `길야` | `luckyNights` |
+
+### 검증 실패 시 동작
+
+```python
+# raise_on_error=True → 예외 발생 → 재시도 로직에서 처리
+try:
+    validated = validate_yearly_step(step, normalized, raise_on_error=True)
+except Exception:
+    # 재시도 (최대 3회)
+```
+
+> **중요**: 검증 실패 시 기본값으로 대체하지 않고 **재시도**합니다.
+> 선택적 필드(luckyDays 등)만 누락 시 기본값 `[]`으로 채워집니다.
 
 ---
 
@@ -333,6 +362,7 @@ const analysisResult = {
 
 | 날짜 | 버전 | 변경 내용 |
 |------|------|----------|
+| 2026-01-12 | v4.0 | Pydantic 검증 추가 (yearly_fortune.py), 2단계 정규화+검증 파이프라인 |
 | 2026-01-07 | v2.9 | 검증 키 camelCase 통일, reanalyze_step() 3회 재시도 + 이전 응답 피드백 |
 | 2026-01-07 | v2.8 | response_schema 미지원 필드 제거 (minimum, maximum, minItems, enum → description) |
 | 2026-01-07 | v2.7 | 재분석 API 응답 중첩 제거, 만세력 422 에러 친절한 메시지 |
@@ -342,4 +372,4 @@ const analysisResult = {
 
 ---
 
-**최종 수정**: 2026-01-07 (v2.9)
+**최종 수정**: 2026-01-12 (v4.0)

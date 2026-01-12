@@ -24,8 +24,9 @@ from schemas.yearly import (
 )
 from prompts.yearly_steps import YearlyStepPrompts
 from .gemini import get_gemini_service
-from .normalizers import normalize_all_keys
+from .normalizers import normalize_all_keys, normalize_response
 from schemas.gemini_schemas import get_gemini_schema
+from schemas.yearly_fortune import validate_yearly_step
 
 logger = logging.getLogger(__name__)
 
@@ -613,8 +614,12 @@ class YearlyAnalysisService:
             # 기존 방식 (fallback)
             result = await gemini.generate_yearly_step(prompt, step)
 
-        # DB 저장 전 camelCase 정규화
-        return normalize_all_keys(result)
+        # v4.0: 단계별 정규화 + Pydantic 검증
+        normalized = normalize_all_keys(normalize_response(step, result))
+        validated = validate_yearly_step(step, normalized, raise_on_error=True)
+
+        logger.info(f"[YearlyAnalysis] {step} 정규화 + 검증 완료")
+        return validated
 
     async def _update_db_analysis(
         self,
