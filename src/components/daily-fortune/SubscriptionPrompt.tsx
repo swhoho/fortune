@@ -2,12 +2,12 @@
 
 /**
  * 비구독자용 오늘의 운세 구독 유도 카드
- * 무료체험 가능 시 무료체험 시작 버튼 표시
+ * 버튼 클릭 시 /daily-fortune/subscribe 랜딩 페이지로 이동
  */
 import { motion } from 'framer-motion';
-import { useTranslations } from 'next-intl';
+import { useTranslations, useLocale } from 'next-intl';
 import { useRouter } from 'next/navigation';
-import { Sparkles, Crown, Calendar } from 'lucide-react';
+import { Sparkles, Crown, Calendar, ChevronRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 interface SubscriptionPromptProps {
@@ -23,6 +23,12 @@ export function SubscriptionPrompt({
 }: SubscriptionPromptProps) {
   const t = useTranslations('dailyFortune');
   const router = useRouter();
+  const locale = useLocale();
+
+  /** 랜딩 페이지로 이동 */
+  const handleNavigateToSubscribe = () => {
+    router.push(`/${locale}/daily-fortune/subscribe`);
+  };
 
   return (
     <motion.div
@@ -79,30 +85,16 @@ export function SubscriptionPrompt({
           </div>
         </div>
 
-        {/* 버튼 */}
-        {canStartTrial ? (
-          <Button
-            onClick={onStartTrial}
-            disabled={isLoading}
-            className="w-full bg-[#d4af37] text-[#0a0a0a] hover:bg-[#c9a432]"
-          >
-            {isLoading ? (
-              <span className="flex items-center gap-2">
-                <span className="h-4 w-4 animate-spin rounded-full border-2 border-[#0a0a0a] border-t-transparent" />
-                처리 중...
-              </span>
-            ) : (
-              t('subscriptionPrompt.startTrial')
-            )}
-          </Button>
-        ) : (
-          <Button
-            onClick={() => router.push('/mypage')}
-            className="w-full bg-[#d4af37] text-[#0a0a0a] hover:bg-[#c9a432]"
-          >
-            {t('subscriptionPrompt.subscribe')}
-          </Button>
-        )}
+        {/* 버튼 - 랜딩 페이지로 이동 */}
+        <Button
+          onClick={handleNavigateToSubscribe}
+          className="group w-full bg-[#d4af37] text-[#0a0a0a] hover:bg-[#c9a432]"
+        >
+          <span className="flex items-center justify-center gap-2">
+            {canStartTrial ? t('subscriptionPrompt.startTrial') : t('subscriptionPrompt.subscribe')}
+            <ChevronRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+          </span>
+        </Button>
       </div>
     </motion.div>
   );
