@@ -6,6 +6,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getAuthenticatedUser } from '@/lib/supabase/server';
 import { getSupabaseAdmin } from '@/lib/supabase/client';
+import { isValidPillars } from '@/lib/validation/pillars';
 
 /** Python API URL */
 function getPythonApiUrl(): string {
@@ -105,11 +106,12 @@ export async function GET() {
       .limit(1)
       .single();
 
-    if (!report?.pillars) {
+    if (!isValidPillars(report?.pillars)) {
       return NextResponse.json({
         success: false,
         error: 'SAJU_REQUIRED',
         message: '기본 사주 분석을 먼저 완료해주세요.',
+        profileId: primaryProfile.id,
       }, { status: 400 });
     }
 

@@ -748,23 +748,39 @@ class ReportAnalysisService:
         if "fortune" in kwargs:
             update_data["fortune"] = kwargs["fortune"]
 
-        try:
-            async with httpx.AsyncClient() as client:
-                response = await client.patch(
-                    f"{SUPABASE_URL}/rest/v1/profile_reports?id=eq.{report_id}",
-                    json=update_data,
-                    headers={
-                        "apikey": SUPABASE_SERVICE_ROLE_KEY,
-                        "Authorization": f"Bearer {SUPABASE_SERVICE_ROLE_KEY}",
-                        "Content-Type": "application/json",
-                        "Prefer": "return=minimal"
-                    },
-                    timeout=30.0
-                )
-                response.raise_for_status()
-                logger.info(f"DB 상태 업데이트 완료: report_id={report_id}")
-        except Exception as e:
-            logger.error(f"DB 업데이트 실패: {e}")
+        # DB 업데이트 재시도 로직 (최대 3회)
+        max_retries = 3
+        last_error = None
+
+        for attempt in range(max_retries):
+            try:
+                async with httpx.AsyncClient() as client:
+                    response = await client.patch(
+                        f"{SUPABASE_URL}/rest/v1/profile_reports?id=eq.{report_id}",
+                        json=update_data,
+                        headers={
+                            "apikey": SUPABASE_SERVICE_ROLE_KEY,
+                            "Authorization": f"Bearer {SUPABASE_SERVICE_ROLE_KEY}",
+                            "Content-Type": "application/json",
+                            "Prefer": "return=minimal"
+                        },
+                        timeout=30.0
+                    )
+                    response.raise_for_status()
+                    logger.info(f"DB 상태 업데이트 완료: report_id={report_id}")
+                    return  # 성공 시 종료
+            except Exception as e:
+                last_error = e
+                logger.warning(f"DB 업데이트 시도 {attempt + 1}/{max_retries} 실패: {e}")
+                if attempt < max_retries - 1:
+                    await asyncio.sleep(1 * (attempt + 1))  # 점진적 대기
+
+        # 모든 재시도 실패
+        logger.error(f"DB 업데이트 최종 실패 (report_id={report_id}): {last_error}")
+        # job_store에 DB 저장 실패 플래그 추가
+        job = job_store.get_by_report_id(report_id)
+        if job:
+            job_store.update(job.get("job_id"), db_save_failed=True)
 
     def get_status(self, job_id: str) -> Optional[Dict[str, Any]]:
         """작업 상태 조회"""

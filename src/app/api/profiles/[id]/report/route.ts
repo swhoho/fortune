@@ -1068,15 +1068,18 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
       .limit(1)
       .maybeSingle();
 
-    // 이미 완료된 리포트가 있는 경우 (재시도 요청이 아닐 때) → 리다이렉트 안내
+    // 이미 완료된 리포트가 있는 경우 (재시도 요청이 아닐 때) → 중복 분석 차단
     if (existingReport?.status === 'completed' && !retryFromStep) {
-      return NextResponse.json({
-        success: true,
-        message: '이미 완료된 리포트가 있습니다',
-        reportId: existingReport.id,
-        status: 'completed',
-        redirectUrl: `/profiles/${profileId}/report`,
-      });
+      return NextResponse.json(
+        {
+          success: false,
+          error: '이미 분석이 완료된 프로필입니다',
+          errorCode: 'ALREADY_ANALYZED',
+          reportId: existingReport.id,
+          redirectUrl: `/profiles/${profileId}/report`,
+        },
+        { status: 400 }
+      );
     }
 
     // pending/in_progress 상태 모두 체크 (재시도 요청이 아닐 때)

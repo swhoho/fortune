@@ -18,6 +18,7 @@ import {
   getStatusCode,
 } from '@/lib/errors/codes';
 import { deductCredits, refundCredits } from '@/lib/credits';
+import { isValidPillars } from '@/lib/validation/pillars';
 
 /** 신년 분석 크레딧 비용 */
 const YEARLY_ANALYSIS_CREDIT_COST = 50;
@@ -223,19 +224,22 @@ export async function POST(request: NextRequest) {
       gender = profile.gender as 'male' | 'female';
       birthYear = new Date(profile.birth_date).getFullYear();
 
-      // 프로필에서 기존 리포트 조회
+      // 프로필에서 기존 완료된 리포트 조회 (status: 'completed' 조건 추가)
       const { data: existingReport } = await supabase
         .from('profile_reports')
-        .select('pillars, daewun')
+        .select('pillars, daewun, status')
         .eq('profile_id', profileId)
+        .eq('status', 'completed')
         .order('created_at', { ascending: false })
         .limit(1)
-        .single();
+        .maybeSingle();
 
-      if (existingReport) {
-        pillars = existingReport.pillars;
+      // pillars 구조 검증 강화
+      if (existingReport && isValidPillars(existingReport.pillars)) {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        pillars = existingReport.pillars as any;
         daewun = existingReport.daewun || [];
-      } else {
+      } else if (!existingReport) {
         // 만세력 API 호출
         try {
           const manseryeokRes = await fetch(`${pythonApiUrl}/api/manseryeok/calculate`, {
@@ -276,6 +280,21 @@ export async function POST(request: NextRequest) {
             status: getStatusCode(API_ERRORS.SERVER_ERROR),
           });
         }
+      } else {
+        // 리포트는 있지만 pillars가 유효하지 않은 경우
+        console.log('[API] SAJU_REQUIRED - 리포트 있으나 pillars 불완전:', {
+          profileId,
+          reportStatus: existingReport?.status,
+          hasPillars: !!existingReport?.pillars,
+        });
+        return NextResponse.json(
+          {
+            success: false,
+            error: '기본 사주 분석 데이터가 불완전합니다. 기본 분석을 다시 진행해주세요.',
+            errorCode: 'SAJU_REQUIRED',
+          },
+          { status: 400 }
+        );
       }
     } else if (data.existingAnalysisId) {
       const { data: existingAnalysis, error: analysisError } = await supabase

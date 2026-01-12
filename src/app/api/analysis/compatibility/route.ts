@@ -17,6 +17,7 @@ import {
   getStatusCode,
 } from '@/lib/errors/codes';
 import { deductCredits, refundCredits } from '@/lib/credits';
+import { isValidPillars } from '@/lib/validation/pillars';
 
 /** 궁합 분석 크레딧 비용 */
 const COMPATIBILITY_ANALYSIS_CREDIT_COST = 70;
@@ -130,12 +131,20 @@ export async function POST(request: NextRequest) {
       .limit(1)
       .maybeSingle();
 
-    // 만세력 없는 프로필 확인
+    // 만세력 데이터 유효성 검사 (구조 검증 강화)
     const missingReports: string[] = [];
-    if (!reportA?.pillars) missingReports.push(profileA.name);
-    if (!reportB?.pillars) missingReports.push(profileB.name);
+    if (!isValidPillars(reportA?.pillars)) missingReports.push(profileA.name);
+    if (!isValidPillars(reportB?.pillars)) missingReports.push(profileB.name);
 
     if (missingReports.length > 0) {
+      console.log('[API] SAJU_REQUIRED:', {
+        profileA: profileA.name,
+        profileB: profileB.name,
+        pillarsA: !!reportA?.pillars,
+        pillarsB: !!reportB?.pillars,
+        validA: isValidPillars(reportA?.pillars),
+        validB: isValidPillars(reportB?.pillars),
+      });
       return NextResponse.json(
         {
           success: false,
