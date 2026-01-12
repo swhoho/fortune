@@ -237,13 +237,15 @@ export function DailyFortuneCard() {
     }
   };
 
+  // v4.0: 날짜는 클라이언트에서만 계산 (hydration 오류 방지)
+  const [dateStr, setDateStr] = useState('');
+
   useEffect(() => {
     fetchFortune();
+    // 클라이언트에서만 날짜 설정
+    const today = new Date();
+    setDateStr(`${today.getFullYear()}년 ${today.getMonth() + 1}월 ${today.getDate()}일`);
   }, [fetchFortune]);
-
-  /** 오늘 날짜 포맷 */
-  const today = new Date();
-  const dateStr = `${today.getFullYear()}년 ${today.getMonth() + 1}월 ${today.getDate()}일`;
 
   return (
     <motion.div
