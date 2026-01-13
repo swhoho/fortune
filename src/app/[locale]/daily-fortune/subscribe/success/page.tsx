@@ -9,7 +9,7 @@
  * 2. sessionStorage (같은 탭에서 리다이렉트된 경우)
  * 3. 구독 상태 API (fallback - 최신 구독 확인)
  */
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback, Suspense } from 'react';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
@@ -29,11 +29,32 @@ interface VerifyResult {
 const MAX_RETRY_COUNT = 10; // 최대 10회 재시도
 const RETRY_INTERVAL = 2000; // 2초 간격
 
+/**
+ * 메인 페이지 컴포넌트 - Suspense로 감싸서 export
+ */
 export default function SubscriptionSuccessPage({
   params: { locale },
 }: {
   params: { locale: string };
 }) {
+  return (
+    <Suspense
+      fallback={
+        <div className="flex min-h-screen flex-col items-center justify-center bg-[#0a0a0a] px-6">
+          <Loader2 className="mb-6 h-12 w-12 animate-spin text-[#d4af37]" />
+          <h1 className="mb-2 font-serif text-xl font-bold text-white">로딩 중...</h1>
+        </div>
+      }
+    >
+      <SubscriptionSuccessContent locale={locale} />
+    </Suspense>
+  );
+}
+
+/**
+ * 실제 컨텐츠 컴포넌트 - useSearchParams 사용
+ */
+function SubscriptionSuccessContent({ locale }: { locale: string }) {
   const t = useTranslations('dailyFortune');
   const searchParams = useSearchParams();
   const [result, setResult] = useState<VerifyResult>({
