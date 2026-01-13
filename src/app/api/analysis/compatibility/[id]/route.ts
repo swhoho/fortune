@@ -43,29 +43,33 @@ function getPythonApiUrl(): string {
 
 /**
  * GET /api/analysis/compatibility/:id
- * 궁합 분석 상태/결과 조회 (폴링)
+ * 궁합 분석 상태/결과 조회 (폴링 + URL 공유용)
+ * - 완료된 분석은 비로그인도 조회 가능 (RLS public_read 정책)
+ * - 진행 중/실패 분석은 소유자만 조회 가능
  */
 export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
-    // 1. 인증 확인
-    const user = await getAuthenticatedUser();
-    if (!user) {
-      return NextResponse.json(createErrorResponse(AUTH_ERRORS.UNAUTHORIZED), {
-        status: getStatusCode(AUTH_ERRORS.UNAUTHORIZED),
-      });
+    // 1. 인증 시도 (실패해도 계속 - URL 공유 지원)
+    let userId: string | null = null;
+    try {
+      const user = await getAuthenticatedUser();
+      userId = user?.id || null;
+    } catch {
+      // 비로그인 상태 - 계속 진행
     }
 
     const { id: analysisId } = await params;
-    const userId = user.id;
     const supabase = getSupabaseAdmin();
 
-    // 2. DB에서 분석 레코드 조회
+    // 2. DB에서 분석 레코드 조회 (service_role은 RLS 우회)
     const { data: analysis, error: analysisError } = await supabase
       .from('compatibility_analyses')
       .select('*')
       .eq('id', analysisId)
-      .eq('user_id', userId)
       .single();
+
+    // 소유자 여부 판단
+    const isOwner = userId === analysis?.user_id;
 
     if (analysisError || !analysis) {
       console.error('[API] 궁합 분석 조회 실패:', analysisError);
@@ -89,6 +93,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
         success: true,
         status: 'completed',
         progressPercent: 100,
+        isOwner,
         data: normalizeKeys({
           id: analysis.id,
           profileIdA: analysis.profile_id_a,
@@ -118,23 +123,38 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
           conflictAnalysis: analysis.conflict_analysis,
           marriageFit: analysis.marriage_fit,
           mutualInfluence: analysis.mutual_influence,
+          interactionInterpretation: analysis.interaction_interpretation,
 
           // 메타
           language: analysis.language,
           creditsUsed: analysis.credits_used,
           failedSteps: analysis.failed_steps,
           createdAt: analysis.created_at,
+          isOwner,
         }),
       });
     }
 
-    // 4. 실패한 경우
+    // 4. 실패한 경우 (소유자만 접근 가능)
     if (analysis.status === 'failed') {
+      if (!isOwner) {
+        return NextResponse.json(createErrorResponse(API_ERRORS.NOT_FOUND), {
+          status: getStatusCode(API_ERRORS.NOT_FOUND),
+        });
+      }
       return NextResponse.json({
         success: false,
         status: 'failed',
         error: analysis.error || '분석에 실패했습니다',
         failedSteps: analysis.failed_steps,
+        isOwner,
+      });
+    }
+
+    // 4.1. 진행 중인데 소유자가 아닌 경우 접근 거부
+    if (!isOwner && analysis.status !== 'completed') {
+      return NextResponse.json(createErrorResponse(API_ERRORS.NOT_FOUND), {
+        status: getStatusCode(API_ERRORS.NOT_FOUND),
       });
     }
 
@@ -164,6 +184,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
                 success: true,
                 status: 'completed',
                 progressPercent: 100,
+                isOwner,
                 data: normalizeKeys({
                   id: updatedAnalysis.id,
                   profileIdA: updatedAnalysis.profile_id_a,
@@ -185,10 +206,12 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
                   conflictAnalysis: updatedAnalysis.conflict_analysis,
                   marriageFit: updatedAnalysis.marriage_fit,
                   mutualInfluence: updatedAnalysis.mutual_influence,
+                  interactionInterpretation: updatedAnalysis.interaction_interpretation,
                   language: updatedAnalysis.language,
                   creditsUsed: updatedAnalysis.credits_used,
                   failedSteps: updatedAnalysis.failed_steps,
                   createdAt: updatedAnalysis.created_at,
+                  isOwner,
                 }),
               });
             }
@@ -201,6 +224,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
               status: 'failed',
               error: statusData.error || '분석에 실패했습니다',
               failedSteps: statusData.failed_steps,
+              isOwner,
             });
           }
 
@@ -230,6 +254,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
               success: true,
               status: 'completed',
               progressPercent: 100,
+              isOwner,
               data: normalizeKeys({
                 id: refreshedAnalysis.id,
                 profileIdA: refreshedAnalysis.profile_id_a,
@@ -251,10 +276,12 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
                 conflictAnalysis: refreshedAnalysis.conflict_analysis,
                 marriageFit: refreshedAnalysis.marriage_fit,
                 mutualInfluence: refreshedAnalysis.mutual_influence,
+                interactionInterpretation: refreshedAnalysis.interaction_interpretation,
                 language: refreshedAnalysis.language,
                 creditsUsed: refreshedAnalysis.credits_used,
                 failedSteps: refreshedAnalysis.failed_steps,
                 createdAt: refreshedAnalysis.created_at,
+                isOwner,
               }),
             });
           }
@@ -265,6 +292,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
               status: 'failed',
               error: refreshedAnalysis.error || '분석에 실패했습니다',
               failedSteps: refreshedAnalysis.failed_steps,
+              isOwner,
             });
           }
 

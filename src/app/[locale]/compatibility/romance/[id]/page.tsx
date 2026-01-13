@@ -23,10 +23,20 @@ import {
   Zap,
   MessageCircle,
   ArrowRight,
+  Share2,
 } from 'lucide-react';
 
 import { AppHeader } from '@/components/layout';
 import { Button } from '@/components/ui/button';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
+import { toast } from 'sonner';
 import {
   CosmicBackground,
   ScoreGauge,
@@ -185,12 +195,42 @@ export default function CompatibilityResultPage() {
   const params = useParams();
   const router = useRouter();
   const analysisId = params.id as string;
+  const locale = (params?.locale as string) || 'ko';
   const t = useTranslations('compatibility');
 
   const [activeTab, setActiveTab] = useState<TabType>('score');
   const [data, setData] = useState<CompatibilityData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [showShareDialog, setShowShareDialog] = useState(false);
+
+  /** 공유 확인 후 실행 */
+  const handleConfirmShare = async () => {
+    setShowShareDialog(false);
+    const shareUrl = `${window.location.origin}/${locale}/compatibility/romance/${analysisId}`;
+    const shareTitle = t('share.title', {
+      defaultValue: `${data?.nameA}님과 ${data?.nameB}님의 궁합 분석`,
+      nameA: data?.nameA || 'A',
+      nameB: data?.nameB || 'B',
+    });
+
+    try {
+      if (navigator.share) {
+        await navigator.share({
+          title: shareTitle,
+          url: shareUrl,
+        });
+      } else {
+        await navigator.clipboard.writeText(shareUrl);
+        toast.success(t('share.copied', { defaultValue: '링크가 복사되었습니다' }));
+      }
+    } catch (err) {
+      // 사용자가 공유 취소한 경우 무시
+      if ((err as Error).name !== 'AbortError') {
+        console.error('공유 실패:', err);
+      }
+    }
+  };
 
   // 데이터 로드
   useEffect(() => {
@@ -276,7 +316,51 @@ export default function CompatibilityResultPage() {
       <CosmicBackground />
 
       {/* 헤더 */}
-      <AppHeader title={t('result.title', { defaultValue: '궁합 결과' })} />
+      <AppHeader
+        title={t('result.title', { defaultValue: '궁합 결과' })}
+        rightSlot={
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => setShowShareDialog(true)}
+            className="text-gray-400 hover:bg-white/10 hover:text-white"
+          >
+            <Share2 className="h-5 w-5" />
+          </Button>
+        }
+      />
+
+      {/* 공유 확인 다이얼로그 */}
+      <Dialog open={showShareDialog} onOpenChange={setShowShareDialog}>
+        <DialogContent className="border-[#333] bg-[#1a1a1a]">
+          <DialogHeader>
+            <DialogTitle className="text-white">
+              {t('share.dialogTitle', { defaultValue: '궁합 분석 공유' })}
+            </DialogTitle>
+            <DialogDescription className="text-gray-400">
+              {t('share.dialogDescription', {
+                defaultValue:
+                  '이 링크를 통해 누구나 두 사람의 사주 정보와 궁합 분석 결과를 볼 수 있습니다. 민감한 정보가 포함되어 있으니 신뢰할 수 있는 분에게만 공유해 주세요.',
+              })}
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="gap-2 sm:gap-0">
+            <Button
+              variant="outline"
+              onClick={() => setShowShareDialog(false)}
+              className="border-[#333] bg-transparent text-gray-300 hover:bg-[#242424] hover:text-white"
+            >
+              {t('share.cancel', { defaultValue: '취소' })}
+            </Button>
+            <Button
+              onClick={handleConfirmShare}
+              className="bg-[#d4af37] text-black hover:bg-[#c9a227]"
+            >
+              {t('share.confirm', { defaultValue: '공유하기' })}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       {/* 히어로 섹션 - 총점 */}
       <motion.section

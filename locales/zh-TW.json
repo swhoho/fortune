@@ -1436,6 +1436,65 @@
     "selectDifferent": "請選擇兩個不同的檔案",
     "checkingExisting": "正在檢查現有分析...",
     "noProfiles": "暫無檔案",
-    "communicationTips": "溝通技巧"
+    "communicationTips": "溝通技巧",
+    "tabs": {
+      "new": "新分析",
+      "history": "分析紀錄"
+    },
+    "history": {
+      "loading": "正在載入分析紀錄...",
+      "error": "無法載入分析紀錄",
+      "empty": "暫無配對分析紀錄",
+      "emptyHint": "在新分析標籤頁開始配對分析",
+      "scoreUnit": "分",
+      "status": {
+        "completed": "完成",
+        "processing": "分析中",
+        "pending": "等待中",
+        "failed": "失敗"
+      }
+    },
+    "share": {
+      "title": "{nameA}和{nameB}的配對分析",
+      "copied": "連結已複製",
+      "dialogTitle": "分享配對分析",
+      "dialogDescription": "任何人都可以透過此連結查看兩人的八字資訊和配對分析結果。請僅與您信任的人分享，因為其中包含敏感資訊。",
+      "cancel": "取消",
+      "confirm": "分享"
+    }
+  },
+  "glossary": {
+    "daewun": {
+      "title": "大運 (大運)",
+      "description": "大運是個人先天八字行走的10年單位的「人生道路」。無論能力多麼出眾，成功的速度和規模都取決於當前大運的流向。"
+    },
+    "dayMaster": {
+      "title": "日干 (日干)",
+      "description": "日干是八字中出生日的天干，是代表「我」本質和自我的最核心支柱。如同汽車的發動機或一國之君。"
+    },
+    "structure": {
+      "title": "格局 (格局)",
+      "description": "格局指八字的整體結構，表示在社會舞台上扮演什麼角色和具有什麼器量的「人生框架」。"
+    },
+    "usefulGod": {
+      "title": "用神 (用神)",
+      "description": "用神是調和八字偏頗五行之氣的「最關鍵和必要的能量」。如同平息風浪的鑰匙或治病的良藥。"
+    },
+    "secondary": {
+      "title": "喜神 (喜神)",
+      "description": "喜神是幫助用神使其力量更強大的輔佐能量。如果用神是君王，喜神就是忠誠輔佐君王的宰相。"
+    },
+    "harmful": {
+      "title": "忌神 (忌神)",
+      "description": "忌神是剋制或攻擊用神、打破八字平衡的有害能量。運勢中遇到忌神時，判斷力會變得模糊，可能遭遇意外的失敗和困難。"
+    },
+    "jijanggan": {
+      "title": "支藏干 (支藏干)",
+      "description": "支藏干是指各地支中儲存的天干之氣，像種子一樣蘊含其中，可以看到表面傾向背後隱藏的內心世界和潛在能力。"
+    },
+    "usefulGodSection": {
+      "title": "什麼是用神/忌神？",
+      "description": "為您展示您需要的能量（用神）和應避免的能量（忌神）。點擊各項目可查看詳細說明。"
+    }
   }
 }

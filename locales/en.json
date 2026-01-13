@@ -1458,6 +1458,65 @@
     "selectDifferent": "Please select two different profiles.",
     "checkingExisting": "Checking existing analysis...",
     "noProfiles": "No profiles registered",
-    "communicationTips": "Communication Tips"
+    "communicationTips": "Communication Tips",
+    "tabs": {
+      "new": "New Analysis",
+      "history": "History"
+    },
+    "history": {
+      "loading": "Loading analysis history...",
+      "error": "Failed to load analysis history",
+      "empty": "No compatibility analysis records yet",
+      "emptyHint": "Start a new compatibility analysis from the New Analysis tab",
+      "scoreUnit": "pts",
+      "status": {
+        "completed": "Completed",
+        "processing": "Processing",
+        "pending": "Pending",
+        "failed": "Failed"
+      }
+    },
+    "share": {
+      "title": "Compatibility analysis of {nameA} and {nameB}",
+      "copied": "Link copied to clipboard",
+      "dialogTitle": "Share Compatibility Analysis",
+      "dialogDescription": "Anyone with this link can view both persons' birth chart information and compatibility analysis results. Please only share with people you trust, as this contains sensitive information.",
+      "cancel": "Cancel",
+      "confirm": "Share"
+    }
+  },
+  "glossary": {
+    "daewun": {
+      "title": "Major Fortune (大運)",
+      "description": "Major Fortune is like a '10-year life road' or 'seasonal environment' where the individual's innate Saju travels. No matter how capable you are, the speed and magnitude of success depend on the current flow of Major Fortune, making it the most fundamental temporal milestone in destiny studies."
+    },
+    "dayMaster": {
+      "title": "Day Master (日干)",
+      "description": "The Day Master is the heavenly stem of your birth day among the eight characters of Saju. It represents your essential self and identity. Like an engine of a car or a king of a nation, all other characters in your Saju are interpreted based on their relationship with the Day Master."
+    },
+    "structure": {
+      "title": "Structure (格局)",
+      "description": "Structure refers to the overall framework of your Saju, showing what role and capacity you have on the stage of society. Primarily determined by the month branch, it defines how you live in the world, your social status, and your life purpose."
+    },
+    "usefulGod": {
+      "title": "Useful God (用神)",
+      "description": "The Useful God is the most crucial and necessary energy to harmoniously balance the five elements in your Saju. Like a key that calms rough waves or medicine when you're ill, it heals the imbalances in your destiny and guides your life in a positive direction."
+    },
+    "secondary": {
+      "title": "Favorable God (喜神)",
+      "description": "The Favorable God means 'the spirit that brings joy,' supporting the Useful God and strengthening its power. If the Useful God is the king, the Favorable God is like a loyal minister who protects and assists the king."
+    },
+    "harmful": {
+      "title": "Unfavorable God (忌神)",
+      "description": "The Unfavorable God is the energy that attacks the Useful God and disrupts the balance of your Saju. It's often the excessive element in your chart that weakens the Useful God. Meeting this energy in fortune cycles may bring unexpected failures and hardships."
+    },
+    "jijanggan": {
+      "title": "Hidden Stems (支藏干)",
+      "description": "Hidden Stems refer to the heavenly stems stored within each earthly branch like seeds. They reveal the inner psychology, latent capabilities, and complex aspects of life hidden behind visible tendencies, becoming manifest only when meeting specific fortune cycles."
+    },
+    "usefulGodSection": {
+      "title": "What is Useful/Unfavorable God?",
+      "description": "This shows the energies you need (Useful God) and should avoid (Unfavorable God). Touch each item for detailed explanations."
+    }
   }
 }
