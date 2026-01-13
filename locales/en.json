@@ -692,7 +692,11 @@
       "compatibility": "Compatibility Analysis",
       "mypage": "My Page"
     },
-    "comingSoon": "Coming Soon"
+    "comingSoon": "Coming Soon",
+    "consultationBanner": {
+      "title": "Consult with AI Fortune Expert",
+      "subtitle": "Ask anything you're curious about"
+    }
   },
   "language": {
     "ko": "한국어",
@@ -1048,6 +1052,10 @@
     }
   },
   "consultation": {
+    "title": "AI Consultation",
+    "selectProfile": {
+      "title": "Select a profile for consultation"
+    },
     "history": "Consultation History",
     "newSession": "New Session",
     "yesterday": "Yesterday",

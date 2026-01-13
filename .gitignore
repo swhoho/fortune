@@ -65,3 +65,4 @@ serviceAccountKey.json
 # Claude Code (민감한 로컬 설정)
 .claude/settings.local.json
 
+*.pyc

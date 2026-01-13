@@ -8,6 +8,7 @@ import { motion } from 'framer-motion';
 import { useTranslations } from 'next-intl';
 import { useRouter } from 'next/navigation';
 import { HomeMenuGrid } from '@/components/home/HomeMenuGrid';
+import { ConsultationBanner } from '@/components/home/ConsultationBanner';
 import { AppHeader, Footer } from '@/components/layout';
 import { DailyFortuneCard } from '@/components/daily-fortune';
 import { BRAND_COLORS } from '@/lib/constants/colors';
@@ -111,10 +112,15 @@ export function HomePageClient() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.3 }}
-            className="px-6 pb-6"
+            className="px-6 pb-4"
           >
             <DailyFortuneCard />
           </motion.section>
+
+          {/* AI 상담 배너 */}
+          <section className="px-6 pb-6">
+            <ConsultationBanner delay={0.4} />
+          </section>
 
           {/* 메뉴 그리드 */}
           <HomeMenuGrid />

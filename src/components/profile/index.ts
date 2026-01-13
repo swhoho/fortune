@@ -8,5 +8,6 @@ export { ProfileCard } from './ProfileCard';
 export { ProfileList } from './ProfileList';
 export { ProfileInfoCard } from './ProfileInfoCard';
 export { DeleteProfileDialog } from './DeleteProfileDialog';
+export { FortuneWarningDialog } from './FortuneWarningDialog';
 export { EmptyProfiles } from './EmptyProfiles';
 export { ProfileSelector } from './ProfileSelector';

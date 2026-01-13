@@ -677,7 +677,11 @@
       "compatibility": "合婚分析",
       "mypage": "我的頁面"
     },
-    "comingSoon": "即將推出"
+    "comingSoon": "即將推出",
+    "consultationBanner": {
+      "title": "諮詢AI命理專家",
+      "subtitle": "有什麼疑問都可以問"
+    }
   },
   "language": {
     "ko": "한국어",
@@ -1295,6 +1299,10 @@
     "notFound": "找不到檔案"
   },
   "consultation": {
+    "title": "AI諮詢",
+    "selectProfile": {
+      "title": "請選擇要諮詢的檔案"
+    },
     "history": "諮詢記錄",
     "newSession": "新會話",
     "needMoreInfo": "需要更多資訊",

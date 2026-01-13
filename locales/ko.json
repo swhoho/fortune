@@ -692,7 +692,11 @@
       "compatibility": "궁합 분석",
       "mypage": "마이페이지"
     },
-    "comingSoon": "준비중"
+    "comingSoon": "준비중",
+    "consultationBanner": {
+      "title": "AI 사주 전문가와 상담하기",
+      "subtitle": "궁금한 것을 물어보세요"
+    }
   },
   "language": {
     "ko": "한국어",
@@ -1006,6 +1010,10 @@
     }
   },
   "consultation": {
+    "title": "AI 상담",
+    "selectProfile": {
+      "title": "상담 받을 프로필을 선택해주세요"
+    },
     "history": "상담 내역",
     "newSession": "새 상담",
     "yesterday": "어제",

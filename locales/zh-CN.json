@@ -677,7 +677,11 @@
       "compatibility": "合婚分析",
       "mypage": "我的页面"
     },
-    "comingSoon": "即将推出"
+    "comingSoon": "即将推出",
+    "consultationBanner": {
+      "title": "咨询AI命理专家",
+      "subtitle": "有什么疑问都可以问"
+    }
   },
   "language": {
     "ko": "한국어",
@@ -1295,6 +1299,10 @@
     "notFound": "未找到档案"
   },
   "consultation": {
+    "title": "AI咨询",
+    "selectProfile": {
+      "title": "请选择要咨询的档案"
+    },
     "history": "咨询记录",
     "newSession": "新会话",
     "needMoreInfo": "需要更多信息",

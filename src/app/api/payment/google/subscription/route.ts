@@ -138,7 +138,9 @@ export async function POST(request: NextRequest) {
 
     // 구독 기간 계산
     const periodStart = startTimeMillis ? new Date(startTimeMillis) : new Date();
-    const periodEnd = expiryTimeMillis ? new Date(expiryTimeMillis) : new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
+    const periodEnd = expiryTimeMillis
+      ? new Date(expiryTimeMillis)
+      : new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
 
     // 구독 레코드 생성
     const { data: subscription, error: subError } = await supabase

@@ -677,7 +677,11 @@
       "compatibility": "相性分析",
       "mypage": "マイページ"
     },
-    "comingSoon": "準備中"
+    "comingSoon": "準備中",
+    "consultationBanner": {
+      "title": "AI四柱専門家に相談する",
+      "subtitle": "何でもお聞きください"
+    }
   },
   "language": {
     "ko": "한국어",
@@ -1295,6 +1299,10 @@
     "notFound": "プロフィールが見つかりません"
   },
   "consultation": {
+    "title": "AI相談",
+    "selectProfile": {
+      "title": "相談するプロフィールを選択してください"
+    },
     "history": "相談履歴",
     "newSession": "新しいセッション",
     "needMoreInfo": "追加情報が必要です",

@@ -13,7 +13,7 @@ import { useTranslations } from 'next-intl';
 import { useQuery } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
-import { ProfileInfoCard, DeleteProfileDialog } from '@/components/profile';
+import { ProfileInfoCard, DeleteProfileDialog, FortuneWarningDialog } from '@/components/profile';
 import { InsufficientCreditsDialog, CreditDeductionDialog } from '@/components/credits';
 import { AppHeader } from '@/components/layout';
 import {
@@ -39,6 +39,7 @@ export default function ProfileDetailPage({ params }: PageProps) {
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [showInsufficientCreditsDialog, setShowInsufficientCreditsDialog] = useState(false);
   const [showDeductionDialog, setShowDeductionDialog] = useState(false);
+  const [showFortuneWarningDialog, setShowFortuneWarningDialog] = useState(false);
 
   // params 처리 (Promise 또는 일반 객체 모두 지원)
   useEffect(() => {
@@ -171,10 +172,37 @@ export default function ProfileDetailPage({ params }: PageProps) {
 
   /**
    * 대표 프로필 설정 핸들러
+   * 오늘의 운세가 있고 재생성 가능한 경우 경고 다이얼로그 표시
    */
-  const handleSetPrimary = () => {
+  const handleSetPrimary = async () => {
     if (!id) return;
 
+    try {
+      // 오늘 운세 상태 확인
+      const res = await fetch('/api/daily-fortune/check-regeneration');
+      if (res.ok) {
+        const data = await res.json();
+        // 오늘 운세가 있고, 재생성 가능하면 경고 다이얼로그 표시
+        if (data.hasTodayFortune && data.canRegenerate) {
+          setShowFortuneWarningDialog(true);
+          return;
+        }
+      }
+    } catch (error) {
+      console.error('[SetPrimary] 운세 상태 확인 오류:', error);
+    }
+
+    // 경고가 필요 없으면 바로 설정
+    confirmSetPrimary();
+  };
+
+  /**
+   * 대표 프로필 설정 확인 (실제 API 호출)
+   */
+  const confirmSetPrimary = () => {
+    if (!id) return;
+
+    setShowFortuneWarningDialog(false);
     setPrimary(id, {
       onSuccess: () => {
         toast.success(t('primary.setSuccess'));
@@ -259,6 +287,13 @@ export default function ProfileDetailPage({ params }: PageProps) {
         required={creditsData?.required ?? 50}
         current={creditsData?.current ?? 0}
         onConfirm={handleConfirmDeduction}
+      />
+
+      {/* 대표 프로필 변경 시 운세 재생성 경고 다이얼로그 */}
+      <FortuneWarningDialog
+        open={showFortuneWarningDialog}
+        onOpenChange={setShowFortuneWarningDialog}
+        onConfirm={confirmSetPrimary}
       />
     </div>
   );
