@@ -47,6 +47,7 @@ export default function SubscriptionSuccessPage({
       });
       const data = await res.json();
 
+      // eslint-disable-next-line no-console
       console.log('[Success Page] Verify 응답:', data);
 
       if (data.success) {
@@ -74,6 +75,7 @@ export default function SubscriptionSuccessPage({
         errorMessage: data.error || '결제 확인에 실패했습니다.',
       };
     } catch (err) {
+      // eslint-disable-next-line no-console
       console.error('[Success Page] Verify 오류:', err);
       return {
         status: 'error',
@@ -90,6 +92,7 @@ export default function SubscriptionSuccessPage({
       const rebillNo = sessionStorage.getItem('payapp_rebill_no');
 
       if (!rebillNo) {
+        // eslint-disable-next-line no-console
         console.log('[Success Page] rebill_no 없음, 구독 상태 확인');
         // rebill_no가 없으면 기존 구독 상태 확인
         try {
@@ -122,6 +125,7 @@ export default function SubscriptionSuccessPage({
         return;
       }
 
+      // eslint-disable-next-line no-console
       console.log('[Success Page] rebill_no 발견:', rebillNo);
 
       // verify API 호출
@@ -142,8 +146,17 @@ export default function SubscriptionSuccessPage({
 
   // pending 상태일 때 폴링
   useEffect(() => {
-    // 최대 재시도 횟수 초과 시 성공으로 처리 (콜백이 늦게 올 수 있음)
-    if (result.status === 'pending' && retryCount >= MAX_RETRY_COUNT) {
+    // Guard clause: only process pending status
+    if (result.status !== 'pending') {
+      return;
+    }
+
+    // OPTIMISTIC SUCCESS: After max retries, assume payment succeeded
+    // Reason: User already completed payment on PayApp. Showing 'error'
+    // would cause unnecessary panic. Actual activation happens via:
+    // 1. PayApp callback (async, may be delayed)
+    // 2. User refresh triggering another verify call
+    if (retryCount >= MAX_RETRY_COUNT) {
       setResult((prev) => ({
         ...prev,
         status: 'success',
@@ -153,12 +166,12 @@ export default function SubscriptionSuccessPage({
       return;
     }
 
-    if (result.status === 'pending' && retryCount < MAX_RETRY_COUNT) {
-      const timer = setTimeout(() => {
-        setRetryCount((prev) => prev + 1);
-      }, RETRY_INTERVAL);
-      return () => clearTimeout(timer);
-    }
+    // Continue polling
+    const timer = setTimeout(() => {
+      setRetryCount((prev) => prev + 1);
+    }, RETRY_INTERVAL);
+
+    return () => clearTimeout(timer);
   }, [result.status, retryCount]);
 
   // 로딩/검증 중 UI
@@ -170,9 +183,7 @@ export default function SubscriptionSuccessPage({
           {result.status === 'verifying' ? '결제 확인 중...' : '결제 처리 중...'}
         </h1>
         <p className="mb-4 text-gray-400">잠시만 기다려주세요.</p>
-        {result.rebillNo && (
-          <p className="text-xs text-gray-500">결제번호: {result.rebillNo}</p>
-        )}
+        {result.rebillNo && <p className="text-xs text-gray-500">결제번호: {result.rebillNo}</p>}
         {result.status === 'pending' && (
           <p className="mt-2 text-xs text-gray-500">
             확인 중... ({retryCount}/{MAX_RETRY_COUNT})
@@ -200,7 +211,7 @@ export default function SubscriptionSuccessPage({
           </div>
         )}
 
-        <div className="flex items-start gap-2 rounded-lg bg-yellow-500/10 px-4 py-3 mb-6">
+        <div className="mb-6 flex items-start gap-2 rounded-lg bg-yellow-500/10 px-4 py-3">
           <AlertCircle className="mt-0.5 h-4 w-4 shrink-0 text-yellow-500" />
           <p className="text-sm text-yellow-200">
             결제가 완료되었다면 잠시 후 자동으로 반영됩니다.
