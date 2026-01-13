@@ -456,14 +456,13 @@ export default function ProfileReportPage({ params }: PageProps) {
               transition={{ duration: 0.3 }}
               className="space-y-12"
             >
-              {/* 사주 탭: 프로필 + 명식 + 지장간 + 대운 미리보기 */}
+              {/* 사주 탭: 프로필 + 명식 + 지장간 */}
               <section className="space-y-6">
                 <ProfileInfoHeader {...reportData.profile} />
                 <SajuTable
                   pillars={reportData.pillars}
                   jijanggan={reportData.jijanggan || undefined}
                 />
-                <DaewunHorizontalScroll daewun={reportData.daewun} />
               </section>
 
               {/* Task 25: 기본 분석 (용신/기신/격국/일간) */}
@@ -503,9 +502,13 @@ export default function ProfileReportPage({ params }: PageProps) {
               transition={{ duration: 0.3 }}
               className="space-y-8"
             >
-              {/* 대운 탭: 프로필 간략 + 대운 상세 */}
+              {/* 대운 탭: 프로필 간략 + 대운 캐러셀 + 대운 상세 */}
               <section className="space-y-6">
                 <ProfileInfoHeader {...reportData.profile} />
+                {/* 대운 캐러셀 */}
+                {reportData.daewun && reportData.daewun.length > 0 && (
+                  <DaewunHorizontalScroll daewun={reportData.daewun} currentAge={currentAge} />
+                )}
               </section>
 
               {/* 대운 상세 분석 */}

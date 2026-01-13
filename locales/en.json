@@ -521,6 +521,9 @@
       "sheep": "Sheep"
     },
     "daewun": {
+      "title": "Major Luck Cycles",
+      "previous": "Previous cycle",
+      "next": "Next cycle",
       "fortuneFlow": "Fortune Flow",
       "tenYearTitle": "10-Year Major Cycle",
       "clickToExpand": "Click to see details",

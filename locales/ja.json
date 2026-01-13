@@ -506,6 +506,9 @@
       "sheep": "羊"
     },
     "daewun": {
+      "title": "大運の流れ",
+      "previous": "前の大運",
+      "next": "次の大運",
       "fortuneFlow": "運勢の流れ",
       "tenYearTitle": "10年大運",
       "clickToExpand": "クリックで詳細表示",

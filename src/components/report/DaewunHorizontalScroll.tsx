@@ -4,6 +4,7 @@ import { useRef } from 'react';
 import { motion } from 'framer-motion';
 import { useTranslations } from 'next-intl';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { InfoTooltip } from '@/components/ui/info-tooltip';
 import type { ReportDaewunItem } from '@/types/report';
 
 interface DaewunHorizontalScrollProps {
@@ -22,6 +23,7 @@ export function DaewunHorizontalScroll({
   className = '',
 }: DaewunHorizontalScrollProps) {
   const t = useTranslations('report.daewun');
+  const tGlossary = useTranslations('glossary');
   const scrollRef = useRef<HTMLDivElement>(null);
 
   // 스크롤 핸들러
@@ -78,6 +80,16 @@ export function DaewunHorizontalScroll({
       transition={{ duration: 0.5, delay: 0.2 }}
       className={`relative ${className}`}
     >
+      {/* 제목 + 툴팁 */}
+      <div className="mb-3 flex items-center gap-2 px-14">
+        <h3 className="text-sm font-medium text-[#d4af37]">{t('title')}</h3>
+        <InfoTooltip
+          title={tGlossary('daewun.title')}
+          content={tGlossary('daewun.description')}
+          iconSize={12}
+        />
+      </div>
+
       {/* 좌측 스크롤 버튼 */}
       <button
         onClick={() => scroll('left')}

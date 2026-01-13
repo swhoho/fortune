@@ -2,6 +2,7 @@
 
 import { motion } from 'framer-motion';
 import { useTranslations } from 'next-intl';
+import { InfoTooltip } from '@/components/ui/info-tooltip';
 import type { BasicAnalysisData } from '@/types/report';
 
 interface BasicAnalysisSectionProps {
@@ -46,6 +47,7 @@ const QUALITY_COLORS: Record<string, string> = {
  */
 export function BasicAnalysisSection({ data, className = '' }: BasicAnalysisSectionProps) {
   const t = useTranslations('report.basicAnalysis');
+  const tGlossary = useTranslations('glossary');
   const { summary, dayMaster, structure, usefulGod } = data;
 
   const elementColor = ELEMENT_COLORS[dayMaster.element] || '#d4af37';
@@ -116,7 +118,14 @@ export function BasicAnalysisSection({ data, className = '' }: BasicAnalysisSect
           className="rounded-xl border border-[#333] bg-[#1a1a1a] p-4"
         >
           <div className="mb-3 flex items-center justify-between">
-            <span className="text-xs font-medium text-gray-500">{t('dayMaster')}</span>
+            <div className="flex items-center gap-1.5">
+              <span className="text-xs font-medium text-gray-500">{t('dayMaster')}</span>
+              <InfoTooltip
+                title={tGlossary('dayMaster.title')}
+                content={tGlossary('dayMaster.description')}
+                iconSize={12}
+              />
+            </div>
             <span
               className="rounded-full px-2 py-0.5 text-xs font-bold"
               style={{ backgroundColor: elementBgColor, color: elementColor }}
@@ -170,7 +179,14 @@ export function BasicAnalysisSection({ data, className = '' }: BasicAnalysisSect
           className="rounded-xl border border-[#333] bg-[#1a1a1a] p-4"
         >
           <div className="mb-3 flex items-center justify-between">
-            <span className="text-xs font-medium text-gray-500">{t('structure')}</span>
+            <div className="flex items-center gap-1.5">
+              <span className="text-xs font-medium text-gray-500">{t('structure')}</span>
+              <InfoTooltip
+                title={tGlossary('structure.title')}
+                content={tGlossary('structure.description')}
+                iconSize={12}
+              />
+            </div>
             <span
               className="rounded-full px-2 py-0.5 text-xs font-bold"
               style={{ backgroundColor: `${qualityColor}20`, color: qualityColor }}
@@ -257,6 +273,11 @@ export function BasicAnalysisSection({ data, className = '' }: BasicAnalysisSect
           <span className="rounded-full bg-[#d4af37]/10 px-3 py-1 text-xs font-medium text-[#d4af37]">
             {t('usefulGod')}
           </span>
+          <InfoTooltip
+            title={tGlossary('usefulGodSection.title')}
+            content={tGlossary('usefulGodSection.description')}
+            iconSize={12}
+          />
         </div>
 
         {/* 용신/희신/기신 카드들 */}
@@ -266,8 +287,15 @@ export function BasicAnalysisSection({ data, className = '' }: BasicAnalysisSect
             <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-[#d4af37]/20 font-serif text-xl font-bold text-[#d4af37]">
               {usefulGod.primary}
             </div>
-            <div>
-              <p className="text-xs text-[#d4af37]/70">{t('primary')}</p>
+            <div className="flex-1">
+              <div className="flex items-center gap-1">
+                <p className="text-xs text-[#d4af37]/70">{t('primary')}</p>
+                <InfoTooltip
+                  title={tGlossary('usefulGod.title')}
+                  content={tGlossary('usefulGod.description')}
+                  iconSize={10}
+                />
+              </div>
               <p className="font-semibold text-[#d4af37]">{usefulGod.primary}</p>
             </div>
           </div>
@@ -277,8 +305,15 @@ export function BasicAnalysisSection({ data, className = '' }: BasicAnalysisSect
             <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-green-500/20 font-serif text-xl font-bold text-green-400">
               {usefulGod.secondary}
             </div>
-            <div>
-              <p className="text-xs text-green-400/70">{t('secondary')}</p>
+            <div className="flex-1">
+              <div className="flex items-center gap-1">
+                <p className="text-xs text-green-400/70">{t('secondary')}</p>
+                <InfoTooltip
+                  title={tGlossary('secondary.title')}
+                  content={tGlossary('secondary.description')}
+                  iconSize={10}
+                />
+              </div>
               <p className="font-semibold text-green-400">{usefulGod.secondary}</p>
             </div>
           </div>
@@ -288,8 +323,15 @@ export function BasicAnalysisSection({ data, className = '' }: BasicAnalysisSect
             <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-red-500/20 font-serif text-xl font-bold text-red-400">
               {usefulGod.harmful}
             </div>
-            <div>
-              <p className="text-xs text-red-400/70">{t('harmful')}</p>
+            <div className="flex-1">
+              <div className="flex items-center gap-1">
+                <p className="text-xs text-red-400/70">{t('harmful')}</p>
+                <InfoTooltip
+                  title={tGlossary('harmful.title')}
+                  content={tGlossary('harmful.description')}
+                  iconSize={10}
+                />
+              </div>
               <p className="font-semibold text-red-400">{usefulGod.harmful}</p>
             </div>
           </div>

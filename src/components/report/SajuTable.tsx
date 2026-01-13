@@ -1,6 +1,8 @@
 'use client';
 
 import { motion } from 'framer-motion';
+import { useTranslations } from 'next-intl';
+import { InfoTooltip } from '@/components/ui/info-tooltip';
 import type { PillarsHanja } from '@/types/saju';
 import type { JijangganData } from '@/types/report';
 
@@ -47,6 +49,8 @@ function getStemColor(stem: string): string {
  * Task 25: 지장간 표시 추가
  */
 export function SajuTable({ pillars, jijanggan, name, age, className = '' }: SajuTableProps) {
+  const tGlossary = useTranslations('glossary');
+
   const columns = [
     { key: 'hour', label: '時', pillar: pillars.hour, jijang: jijanggan?.hour },
     { key: 'day', label: '日', pillar: pillars.day, jijang: jijanggan?.day },
@@ -184,8 +188,13 @@ export function SajuTable({ pillars, jijanggan, name, age, className = '' }: Saj
 
               {/* 지장간 공간 맞춤 */}
               {hasJijanggan && (
-                <div className="flex h-10 w-full items-center justify-center rounded-b-lg border border-[#d4af37]/30 bg-[#d4af37]/5">
+                <div className="flex h-10 w-full items-center justify-center gap-1 rounded-b-lg border border-[#d4af37]/30 bg-[#d4af37]/5">
                   <span className="text-[10px] text-[#d4af37]/50">지장간</span>
+                  <InfoTooltip
+                    title={tGlossary('jijanggan.title')}
+                    content={tGlossary('jijanggan.description')}
+                    iconSize={10}
+                  />
                 </div>
               )}
             </motion.div>

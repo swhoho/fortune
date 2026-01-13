@@ -521,6 +521,9 @@
       "sheep": "양"
     },
     "daewun": {
+      "title": "대운 흐름",
+      "previous": "이전 대운",
+      "next": "다음 대운",
       "fortuneFlow": "운세 흐름",
       "tenYearTitle": "10년 대운",
       "clickToExpand": "클릭하여 상세 보기",
