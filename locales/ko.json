@@ -313,6 +313,7 @@
     "sidebar": {
       "analysis": "분석 기록",
       "credits": "크레딧 기록",
+      "subscription": "구독 관리",
       "questions": "질문 기록",
       "notifications": "알림 설정",
       "settings": "프로필 설정",
@@ -1155,6 +1156,7 @@
       "notSubscribing": "구독 중이 아닙니다",
       "nextPayment": "다음 결제일: {date}",
       "premiumMembership": "프리미엄 멤버십",
+      "adminGranted": "관리자 지급",
       "freeTrial": "무료체험",
       "freeTrialDays": "{days}일 체험",
       "freeTrialEnded": "{date} 종료",
@@ -1167,7 +1169,19 @@
         "active": "활성",
         "canceled": "취소됨",
         "expired": "만료됨"
-      }
+      },
+      "cancelButton": "구독 취소",
+      "cancelDialog": {
+        "title": "구독을 취소하시겠습니까?",
+        "description": "취소해도 {date}까지는 프리미엄 혜택을 이용할 수 있습니다.",
+        "benefits": "취소 후에도 이용 가능한 혜택",
+        "benefitDailyFortune": "오늘의 운세 ({date}까지)",
+        "benefitCredits": "지급된 크레딧 (유효기간까지)",
+        "confirm": "구독 취소",
+        "cancel": "취소하지 않기"
+      },
+      "cancelSuccess": "구독이 취소되었습니다. {date}까지 이용 가능합니다.",
+      "cancelError": "구독 취소에 실패했습니다"
     }
   },
   "dailyFortune": {

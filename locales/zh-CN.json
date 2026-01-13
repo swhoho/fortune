@@ -297,10 +297,15 @@
     },
     "sidebar": {
       "analysis": "分析记录",
+      "credits": "积分记录",
+      "subscription": "订阅管理",
       "questions": "问题记录",
       "notifications": "通知设置",
       "settings": "资料设置",
-      "profiles": "档案管理"
+      "profiles": "档案管理",
+      "customerService": "客服中心",
+      "chatSupport": "在线客服",
+      "contactHint": "请通过右下角的\n客服系统联系我们"
     },
     "analysisHistory": {
       "title": "分析记录",
@@ -1003,6 +1008,7 @@
       "notSubscribing": "未订阅",
       "nextPayment": "下次扣费日：{date}",
       "premiumMembership": "高级会员",
+      "adminGranted": "管理员授予",
       "freeTrial": "免费体验",
       "freeTrialDays": "{days}天体验",
       "freeTrialEnded": "{date}结束",
@@ -1015,7 +1021,19 @@
         "active": "有效",
         "canceled": "已取消",
         "expired": "已过期"
-      }
+      },
+      "cancelButton": "取消订阅",
+      "cancelDialog": {
+        "title": "确定要取消订阅吗？",
+        "description": "取消后，您仍可在{date}前使用高级功能。",
+        "benefits": "取消后仍可使用的权益",
+        "benefitDailyFortune": "今日运势（{date}前）",
+        "benefitCredits": "已获得的积分（有效期内）",
+        "confirm": "确认取消",
+        "cancel": "保留订阅"
+      },
+      "cancelSuccess": "订阅已取消。{date}前仍可使用。",
+      "cancelError": "取消订阅失败"
     }
   },
   "dailyFortune": {

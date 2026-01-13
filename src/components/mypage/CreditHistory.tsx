@@ -4,7 +4,7 @@
  * 크레딧 충전/사용 기록 컴포넌트
  * 마이페이지 - 크레딧 기록 탭
  * v2.0: credit_transactions 테이블 기반, 만료 정보 표시
- * v2.1: 하단에 SubscriptionHistory 컴포넌트 통합
+ * v2.2: SubscriptionHistory 분리 (별도 탭으로 이동)
  */
 import { useQuery } from '@tanstack/react-query';
 import { motion } from 'framer-motion';
@@ -14,7 +14,6 @@ import { useTranslations, useLocale } from 'next-intl';
 import { supabase } from '@/lib/supabase/client';
 import { cn } from '@/lib/utils';
 import { getDateLocale } from '@/lib/date-locale';
-import { SubscriptionHistory } from './SubscriptionHistory';
 
 /** 크레딧 트랜잭션 타입 */
 type TransactionType = 'purchase' | 'subscription' | 'usage' | 'expiry' | 'bonus' | 'refund';
@@ -179,13 +178,11 @@ export function CreditHistory() {
   }
 
   return (
-    <div className="space-y-8">
-      {/* 크레딧 기록 */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="space-y-4"
-      >
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      className="space-y-4"
+    >
         <div className="mb-6">
           <h2 className="font-serif text-xl font-bold text-white">{t('title')}</h2>
           <p className="mt-1 text-sm text-gray-400">{t('subtitle')}</p>
@@ -279,10 +276,6 @@ export function CreditHistory() {
             ))}
           </div>
         </div>
-      </motion.div>
-
-      {/* 구독 기록 */}
-      <SubscriptionHistory />
-    </div>
+    </motion.div>
   );
 }

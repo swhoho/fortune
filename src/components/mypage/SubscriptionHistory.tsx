@@ -2,17 +2,29 @@
 
 /**
  * 구독 기록 컴포넌트
- * 마이페이지 - 크레딧 기록 탭 하단에 표시
- * v1.0: subscriptions 테이블 + 무료체험 기록 표시
+ * 마이페이지 - 구독 관리 탭
+ * v2.0: 구독 취소 버튼 및 확인 다이얼로그 추가
  */
-import { useQuery } from '@tanstack/react-query';
+import { useState } from 'react';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { motion } from 'framer-motion';
-import { format, addDays, differenceInDays } from 'date-fns';
-import { Crown, Gift, Loader2, CheckCircle, XCircle } from 'lucide-react';
+import { format, addDays } from 'date-fns';
+import { Crown, Gift, Loader2, CheckCircle, XCircle, AlertTriangle } from 'lucide-react';
 import { useTranslations, useLocale } from 'next-intl';
 import { supabase } from '@/lib/supabase/client';
 import { cn } from '@/lib/utils';
 import { getDateLocale } from '@/lib/date-locale';
+import { Button } from '@/components/ui/button';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 
 /** 구독 상태 타입 */
 type SubscriptionStatus = 'active' | 'canceled' | 'expired' | 'past_due';
@@ -45,6 +57,7 @@ interface HistoryItem {
   price?: number;
   paymentMethod?: string | null;
   trialEndDate?: string;
+  periodEnd?: string;
 }
 
 /**
@@ -108,6 +121,12 @@ export function SubscriptionHistory() {
   const t = useTranslations('subscription.history');
   const locale = useLocale();
   const dateLocale = getDateLocale(locale);
+  const queryClient = useQueryClient();
+
+  // 취소 다이얼로그 상태
+  const [showCancelDialog, setShowCancelDialog] = useState(false);
+  const [isCanceling, setIsCanceling] = useState(false);
+  const [cancelError, setCancelError] = useState<string | null>(null);
 
   // 현재 사용자 ID 조회
   const { data: userId } = useQuery({
@@ -139,6 +158,30 @@ export function SubscriptionHistory() {
   // 현재 활성 구독 찾기
   const activeSubscription = subscriptions.find((s) => s.status === 'active');
 
+  // 구독 취소 핸들러
+  const handleCancelSubscription = async () => {
+    setIsCanceling(true);
+    setCancelError(null);
+
+    try {
+      const res = await fetch('/api/subscription/cancel', { method: 'POST' });
+      const data = await res.json();
+
+      if (res.ok && data.success) {
+        // 쿼리 리프레시
+        queryClient.invalidateQueries({ queryKey: ['subscriptionHistory'] });
+        queryClient.invalidateQueries({ queryKey: ['subscriptionStatus'] });
+        setShowCancelDialog(false);
+      } else {
+        setCancelError(data.error || t('cancelError'));
+      }
+    } catch {
+      setCancelError(t('cancelError'));
+    } finally {
+      setIsCanceling(false);
+    }
+  };
+
   // 통합 기록 목록 생성 (구독 + 무료체험, 날짜순 정렬)
   const historyItems: HistoryItem[] = [];
 
@@ -151,6 +194,7 @@ export function SubscriptionHistory() {
       status: sub.status,
       price: sub.price,
       paymentMethod: sub.paymentMethod,
+      periodEnd: sub.periodEnd,
     });
   });
 
@@ -202,7 +246,7 @@ export function SubscriptionHistory() {
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      className="mt-8 space-y-4"
+      className="space-y-4"
     >
       <div className="mb-4">
         <h2 className="font-serif text-xl font-bold text-white">{t('title')}</h2>
@@ -214,30 +258,44 @@ export function SubscriptionHistory() {
         'rounded-xl p-4',
         activeSubscription ? 'bg-[#d4af37]/10 border border-[#d4af37]/30' : 'bg-[#242424]'
       )}>
-        <div className="flex items-center gap-3">
-          {activeSubscription ? (
-            <>
-              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#d4af37]/20">
-                <CheckCircle className="h-5 w-5 text-[#d4af37]" />
-              </div>
-              <div>
-                <p className="font-medium text-[#d4af37]">{t('subscribing')}</p>
-                <p className="text-sm text-gray-400">
-                  {t('nextPayment', {
-                    date: format(new Date(activeSubscription.periodEnd), 'yyyy.MM.dd', { locale: dateLocale }),
-                  })}
-                </p>
-              </div>
-            </>
-          ) : (
-            <>
-              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#333]">
-                <XCircle className="h-5 w-5 text-gray-500" />
-              </div>
-              <div>
-                <p className="font-medium text-gray-400">{t('notSubscribing')}</p>
-              </div>
-            </>
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            {activeSubscription ? (
+              <>
+                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#d4af37]/20">
+                  <CheckCircle className="h-5 w-5 text-[#d4af37]" />
+                </div>
+                <div>
+                  <p className="font-medium text-[#d4af37]">{t('subscribing')}</p>
+                  <p className="text-sm text-gray-400">
+                    {t('nextPayment', {
+                      date: format(new Date(activeSubscription.periodEnd), 'yyyy.MM.dd', { locale: dateLocale }),
+                    })}
+                  </p>
+                </div>
+              </>
+            ) : (
+              <>
+                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#333]">
+                  <XCircle className="h-5 w-5 text-gray-500" />
+                </div>
+                <div>
+                  <p className="font-medium text-gray-400">{t('notSubscribing')}</p>
+                </div>
+              </>
+            )}
+          </div>
+
+          {/* 구독 취소 버튼 */}
+          {activeSubscription && (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setShowCancelDialog(true)}
+              className="border-red-900/50 text-red-400 hover:bg-red-900/20 hover:text-red-300"
+            >
+              {t('cancelButton')}
+            </Button>
           )}
         </div>
       </div>
@@ -271,6 +329,12 @@ export function SubscriptionHistory() {
                     <p className="font-medium text-white">
                       {item.type === 'subscription' ? t('premiumMembership') : t('freeTrial')}
                     </p>
+                    {/* 관리자 지급 배지 */}
+                    {item.type === 'subscription' && item.price === 0 && (
+                      <span className="rounded-full bg-purple-900/40 px-2 py-0.5 text-xs text-purple-400">
+                        {t('adminGranted')}
+                      </span>
+                    )}
                     {/* 구독 상태 배지 */}
                     {item.type === 'subscription' && item.status && item.status !== 'active' && (
                       <span
@@ -302,10 +366,13 @@ export function SubscriptionHistory() {
               {/* 구독: 결제 수단 + 금액 */}
               {item.type === 'subscription' && (
                 <div className="text-right">
-                  <span className="font-semibold text-[#d4af37]">
-                    {formatPrice(item.price || 3900)}
+                  <span className={cn(
+                    'font-semibold',
+                    item.price === 0 ? 'text-purple-400' : 'text-[#d4af37]'
+                  )}>
+                    {item.price === 0 ? t('adminGranted') : formatPrice(item.price || 3900)}
                   </span>
-                  {item.paymentMethod && (
+                  {item.paymentMethod && item.price !== 0 && (
                     <p className="text-xs text-gray-500">
                       {t(`paymentMethod.${item.paymentMethod}`)}
                     </p>
@@ -316,6 +383,74 @@ export function SubscriptionHistory() {
           ))}
         </div>
       </div>
+
+      {/* 구독 취소 확인 다이얼로그 */}
+      <AlertDialog open={showCancelDialog} onOpenChange={setShowCancelDialog}>
+        <AlertDialogContent className="border-[#333] bg-[#1a1a1a]">
+          <AlertDialogHeader>
+            <AlertDialogTitle className="flex items-center gap-2 text-white">
+              <AlertTriangle className="h-5 w-5 text-amber-400" />
+              {t('cancelDialog.title')}
+            </AlertDialogTitle>
+            <AlertDialogDescription className="text-gray-400">
+              {activeSubscription && t('cancelDialog.description', {
+                date: format(new Date(activeSubscription.periodEnd), 'yyyy년 M월 d일', { locale: dateLocale }),
+              })}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+
+          {/* 취소 후에도 이용 가능한 혜택 안내 */}
+          {activeSubscription && (
+            <div className="rounded-lg bg-[#242424] p-4">
+              <p className="mb-2 text-sm font-medium text-gray-300">
+                {t('cancelDialog.benefits')}
+              </p>
+              <ul className="space-y-1 text-sm text-gray-400">
+                <li className="flex items-center gap-2">
+                  <CheckCircle className="h-4 w-4 text-green-400" />
+                  {t('cancelDialog.benefitDailyFortune', {
+                    date: format(new Date(activeSubscription.periodEnd), 'M월 d일', { locale: dateLocale }),
+                  })}
+                </li>
+                <li className="flex items-center gap-2">
+                  <CheckCircle className="h-4 w-4 text-green-400" />
+                  {t('cancelDialog.benefitCredits')}
+                </li>
+              </ul>
+            </div>
+          )}
+
+          {/* 에러 메시지 */}
+          {cancelError && (
+            <div className="rounded-lg border border-red-900/50 bg-red-950/30 p-3 text-sm text-red-400">
+              {cancelError}
+            </div>
+          )}
+
+          <AlertDialogFooter>
+            <AlertDialogCancel
+              disabled={isCanceling}
+              className="border-[#333] bg-transparent text-gray-400 hover:bg-[#242424] hover:text-white"
+            >
+              {t('cancelDialog.cancel')}
+            </AlertDialogCancel>
+            <AlertDialogAction
+              onClick={(e) => {
+                e.preventDefault();
+                handleCancelSubscription();
+              }}
+              disabled={isCanceling}
+              className="bg-red-900 text-white hover:bg-red-800"
+            >
+              {isCanceling ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                t('cancelDialog.confirm')
+              )}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </motion.div>
   );
 }

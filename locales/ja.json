@@ -297,10 +297,15 @@
     },
     "sidebar": {
       "analysis": "分析履歴",
+      "credits": "クレジット履歴",
+      "subscription": "サブスクリプション",
       "questions": "質問履歴",
       "notifications": "通知設定",
       "settings": "プロフィール設定",
-      "profiles": "プロフィール管理"
+      "profiles": "プロフィール管理",
+      "customerService": "カスタマーサービス",
+      "chatSupport": "チャットサポート",
+      "contactHint": "右下のメッセンジャーから\nお問い合わせください"
     },
     "analysisHistory": {
       "title": "分析履歴",
@@ -1003,6 +1008,7 @@
       "notSubscribing": "未加入",
       "nextPayment": "次回請求日: {date}",
       "premiumMembership": "プレミアムメンバーシップ",
+      "adminGranted": "管理者付与",
       "freeTrial": "無料体験",
       "freeTrialDays": "{days}日間体験",
       "freeTrialEnded": "{date}終了",
@@ -1015,7 +1021,19 @@
         "active": "有効",
         "canceled": "解約済み",
         "expired": "期限切れ"
-      }
+      },
+      "cancelButton": "解約する",
+      "cancelDialog": {
+        "title": "サブスクリプションを解約しますか？",
+        "description": "{date}まではプレミアム特典をご利用いただけます。",
+        "benefits": "解約後も利用可能な特典",
+        "benefitDailyFortune": "今日の運勢（{date}まで）",
+        "benefitCredits": "付与されたクレジット（有効期限まで）",
+        "confirm": "解約する",
+        "cancel": "解約しない"
+      },
+      "cancelSuccess": "解約しました。{date}までご利用いただけます。",
+      "cancelError": "解約に失敗しました"
     }
   },
   "dailyFortune": {

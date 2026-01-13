@@ -312,10 +312,15 @@
     "retryLater": "Please try again later",
     "sidebar": {
       "analysis": "Analysis History",
+      "credits": "Credit History",
+      "subscription": "Subscription",
       "questions": "Question History",
       "notifications": "Notifications",
       "settings": "Profile Settings",
-      "profiles": "Manage Profiles"
+      "profiles": "Manage Profiles",
+      "customerService": "Customer Service",
+      "chatSupport": "Chat Support",
+      "contactHint": "Contact us via the messenger\nin the bottom right corner"
     },
     "analysisHistory": {
       "title": "Analysis History",
@@ -1151,6 +1156,7 @@
       "notSubscribing": "Not subscribed",
       "nextPayment": "Next billing: {date}",
       "premiumMembership": "Premium Membership",
+      "adminGranted": "Admin Granted",
       "freeTrial": "Free Trial",
       "freeTrialDays": "{days}-day trial",
       "freeTrialEnded": "Ended {date}",
@@ -1163,7 +1169,19 @@
         "active": "Active",
         "canceled": "Canceled",
         "expired": "Expired"
-      }
+      },
+      "cancelButton": "Cancel Subscription",
+      "cancelDialog": {
+        "title": "Cancel your subscription?",
+        "description": "You can still use premium benefits until {date}.",
+        "benefits": "Benefits available after cancellation",
+        "benefitDailyFortune": "Daily Fortune (until {date})",
+        "benefitCredits": "Granted credits (until expiration)",
+        "confirm": "Cancel Subscription",
+        "cancel": "Keep Subscription"
+      },
+      "cancelSuccess": "Subscription canceled. Available until {date}.",
+      "cancelError": "Failed to cancel subscription"
     }
   },
   "dailyFortune": {

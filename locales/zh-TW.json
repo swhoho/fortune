@@ -297,10 +297,15 @@
     },
     "sidebar": {
       "analysis": "分析記錄",
+      "credits": "積分記錄",
+      "subscription": "訂閱管理",
       "questions": "問題記錄",
       "notifications": "通知設定",
       "settings": "資料設定",
-      "profiles": "檔案管理"
+      "profiles": "檔案管理",
+      "customerService": "客服中心",
+      "chatSupport": "線上客服",
+      "contactHint": "請透過右下角的\n客服系統聯繫我們"
     },
     "analysisHistory": {
       "title": "分析記錄",
@@ -1003,6 +1008,7 @@
       "notSubscribing": "未訂閱",
       "nextPayment": "下次扣費日：{date}",
       "premiumMembership": "高級會員",
+      "adminGranted": "管理員授予",
       "freeTrial": "免費體驗",
       "freeTrialDays": "{days}天體驗",
       "freeTrialEnded": "{date}結束",
@@ -1015,7 +1021,19 @@
         "active": "有效",
         "canceled": "已取消",
         "expired": "已過期"
-      }
+      },
+      "cancelButton": "取消訂閱",
+      "cancelDialog": {
+        "title": "確定要取消訂閱嗎？",
+        "description": "取消後，您仍可在{date}前使用高級功能。",
+        "benefits": "取消後仍可使用的權益",
+        "benefitDailyFortune": "今日運勢（{date}前）",
+        "benefitCredits": "已獲得的積分（有效期內）",
+        "confirm": "確認取消",
+        "cancel": "保留訂閱"
+      },
+      "cancelSuccess": "訂閱已取消。{date}前仍可使用。",
+      "cancelError": "取消訂閱失敗"
     }
   },
   "dailyFortune": {
