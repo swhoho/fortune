@@ -3,11 +3,16 @@
 /**
  * 구독 완료 페이지
  * PayApp 정기결제 returnurl로 사용
- * rebill_no로 결제 상태를 직접 확인하고 구독 활성화
+ *
+ * rebill_no 획득 우선순위:
+ * 1. URL 파라미터 (PayApp 치환 시) - `{rebill_no}` 문자열이면 무시
+ * 2. sessionStorage (같은 탭에서 리다이렉트된 경우)
+ * 3. 구독 상태 API (fallback - 최신 구독 확인)
  */
 import { useEffect, useState, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
+import { useSearchParams } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { Button } from '@/components/ui/button';
 import { Crown, Loader2, AlertCircle, XCircle } from 'lucide-react';
@@ -30,6 +35,7 @@ export default function SubscriptionSuccessPage({
   params: { locale: string };
 }) {
   const t = useTranslations('dailyFortune');
+  const searchParams = useSearchParams();
   const [result, setResult] = useState<VerifyResult>({
     status: 'verifying',
     rebillNo: null,
@@ -37,6 +43,34 @@ export default function SubscriptionSuccessPage({
     errorMessage: null,
   });
   const [retryCount, setRetryCount] = useState(0);
+
+  /**
+   * rebill_no 획득 (우선순위 적용)
+   * 1. URL 파라미터 - {rebill_no} 문자열이면 무시
+   * 2. sessionStorage
+   * 3. null (구독 상태 API로 fallback)
+   */
+  const getRebillNo = useCallback((): string | null => {
+    // 1. URL 파라미터에서 확인
+    const urlRebillNo = searchParams.get('rebill_no');
+    if (urlRebillNo && urlRebillNo !== '{rebill_no}' && !urlRebillNo.includes('{')) {
+      // eslint-disable-next-line no-console
+      console.log('[Success Page] URL 파라미터에서 rebill_no 발견:', urlRebillNo);
+      return urlRebillNo;
+    }
+
+    // 2. sessionStorage에서 확인
+    const storedRebillNo = sessionStorage.getItem('payapp_rebill_no');
+    if (storedRebillNo) {
+      // eslint-disable-next-line no-console
+      console.log('[Success Page] sessionStorage에서 rebill_no 발견:', storedRebillNo);
+      return storedRebillNo;
+    }
+
+    // eslint-disable-next-line no-console
+    console.log('[Success Page] rebill_no 없음, 구독 상태 API로 fallback');
+    return null;
+  }, [searchParams]);
 
   const verifySubscription = useCallback(async (rebillNo: string): Promise<VerifyResult> => {
     try {
@@ -88,13 +122,11 @@ export default function SubscriptionSuccessPage({
 
   useEffect(() => {
     async function checkSubscription() {
-      // sessionStorage에서 rebill_no 가져오기
-      const rebillNo = sessionStorage.getItem('payapp_rebill_no');
+      // rebill_no 획득 (URL 파라미터 → sessionStorage → null)
+      const rebillNo = getRebillNo();
 
       if (!rebillNo) {
-        // eslint-disable-next-line no-console
-        console.log('[Success Page] rebill_no 없음, 구독 상태 확인');
-        // rebill_no가 없으면 기존 구독 상태 확인
+        // rebill_no가 없으면 구독 상태 API로 확인 (fallback)
         try {
           const res = await fetch('/api/subscription/status');
           const data = await res.json();
@@ -102,17 +134,36 @@ export default function SubscriptionSuccessPage({
           if (data.subscription?.status === 'active') {
             setResult({
               status: 'success',
-              rebillNo: null,
+              rebillNo: data.subscription.payapp_rebill_no || null,
               message: '구독이 활성화되어 있습니다.',
               errorMessage: null,
             });
-          } else {
+          } else if (data.subscription?.status === 'past_due') {
+            // 결제 대기 상태 - 폴링으로 재확인
             setResult({
-              status: 'error',
-              rebillNo: null,
-              message: null,
-              errorMessage: '결제 정보를 찾을 수 없습니다. 고객센터에 문의해주세요.',
+              status: 'pending',
+              rebillNo: data.subscription.payapp_rebill_no || null,
+              message: '결제 확인 중입니다...',
+              errorMessage: null,
             });
+          } else {
+            // URL에 mul_no(결제번호)가 있으면 결제는 완료된 것으로 판단
+            const mulNo = searchParams.get('mul_no');
+            if (mulNo) {
+              setResult({
+                status: 'pending',
+                rebillNo: mulNo,
+                message: '결제가 완료되었습니다. 구독 활성화 중...',
+                errorMessage: null,
+              });
+            } else {
+              setResult({
+                status: 'error',
+                rebillNo: null,
+                message: null,
+                errorMessage: 'cmd+값을+확인+하세요.',
+              });
+            }
           }
         } catch {
           setResult({
@@ -142,7 +193,7 @@ export default function SubscriptionSuccessPage({
     }
 
     checkSubscription();
-  }, [retryCount, verifySubscription]);
+  }, [retryCount, verifySubscription, getRebillNo, searchParams]);
 
   // pending 상태일 때 폴링
   useEffect(() => {
