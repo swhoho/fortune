@@ -1144,7 +1144,31 @@
       "none": "미구독"
     },
     "currentPeriodEnd": "다음 결제일: {date}",
-    "canceledNotice": "구독이 취소되었습니다. {date}까지 사용 가능합니다."
+    "canceledNotice": "구독이 취소되었습니다. {date}까지 사용 가능합니다.",
+    "history": {
+      "title": "구독 기록",
+      "subtitle": "구독 및 무료체험 내역을 확인하세요",
+      "empty": "구독 기록이 없습니다",
+      "emptyDescription": "구독 시 기록이 여기에 표시됩니다",
+      "currentStatus": "현재 상태",
+      "subscribing": "프리미엄 구독 중",
+      "notSubscribing": "구독 중이 아닙니다",
+      "nextPayment": "다음 결제일: {date}",
+      "premiumMembership": "프리미엄 멤버십",
+      "freeTrial": "무료체험",
+      "freeTrialDays": "{days}일 체험",
+      "freeTrialEnded": "{date} 종료",
+      "paymentMethod": {
+        "mock": "mock",
+        "payapp": "payapp",
+        "google_play": "google_play"
+      },
+      "status": {
+        "active": "활성",
+        "canceled": "취소됨",
+        "expired": "만료됨"
+      }
+    }
   },
   "dailyFortune": {
     "title": "오늘의 운세",

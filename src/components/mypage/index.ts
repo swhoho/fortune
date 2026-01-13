@@ -4,5 +4,6 @@
 export { MypageSidebar, type MypageTab } from './MypageSidebar';
 export { AnalysisHistory } from './AnalysisHistory';
 export { CreditHistory } from './CreditHistory';
+export { SubscriptionHistory } from './SubscriptionHistory';
 export { NotificationSettings } from './NotificationSettings';
 export { ProfileSettings } from './ProfileSettings';

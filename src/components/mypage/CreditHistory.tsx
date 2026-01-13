@@ -4,6 +4,7 @@
  * 크레딧 충전/사용 기록 컴포넌트
  * 마이페이지 - 크레딧 기록 탭
  * v2.0: credit_transactions 테이블 기반, 만료 정보 표시
+ * v2.1: 하단에 SubscriptionHistory 컴포넌트 통합
  */
 import { useQuery } from '@tanstack/react-query';
 import { motion } from 'framer-motion';
@@ -13,6 +14,7 @@ import { useTranslations, useLocale } from 'next-intl';
 import { supabase } from '@/lib/supabase/client';
 import { cn } from '@/lib/utils';
 import { getDateLocale } from '@/lib/date-locale';
+import { SubscriptionHistory } from './SubscriptionHistory';
 
 /** 크레딧 트랜잭션 타입 */
 type TransactionType = 'purchase' | 'subscription' | 'usage' | 'expiry' | 'bonus' | 'refund';
@@ -177,104 +179,110 @@ export function CreditHistory() {
   }
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      className="space-y-4"
-    >
-      <div className="mb-6">
-        <h2 className="font-serif text-xl font-bold text-white">{t('title')}</h2>
-        <p className="mt-1 text-sm text-gray-400">{t('subtitle')}</p>
-      </div>
-
-      {/* 통계 요약 */}
-      <div className="grid gap-4 sm:grid-cols-2">
-        <div className="rounded-xl bg-green-900/30 p-4">
-          <div className="flex items-center gap-2">
-            <ArrowUpCircle className="h-5 w-5 text-green-400" />
-            <span className="text-sm text-green-400">{t('totalCharge')}</span>
-          </div>
-          <p className="mt-2 text-2xl font-bold text-green-400">{totalCharge}C</p>
+    <div className="space-y-8">
+      {/* 크레딧 기록 */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="space-y-4"
+      >
+        <div className="mb-6">
+          <h2 className="font-serif text-xl font-bold text-white">{t('title')}</h2>
+          <p className="mt-1 text-sm text-gray-400">{t('subtitle')}</p>
         </div>
-        <div className="rounded-xl bg-red-900/30 p-4">
-          <div className="flex items-center gap-2">
-            <ArrowDownCircle className="h-5 w-5 text-red-400" />
-            <span className="text-sm text-red-400">{t('totalUsage')}</span>
-          </div>
-          <p className="mt-2 text-2xl font-bold text-red-400">{totalUsage}C</p>
-        </div>
-      </div>
 
-      {/* 기록 목록 */}
-      <div className="rounded-2xl bg-[#1a1a1a]">
-        <div className="divide-y divide-[#333]">
-          {historyItems.map((item, index) => (
-            <motion.div
-              key={item.id}
-              initial={{ opacity: 0, x: -10 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: index * 0.03 }}
-              className="flex items-center justify-between px-4 py-3"
-            >
-              <div className="flex items-center gap-3">
-                <div
-                  className={cn(
-                    'flex h-8 w-8 items-center justify-center rounded-full',
-                    isPositive(item) ? 'bg-green-900/30' : 'bg-red-900/30'
-                  )}
-                >
-                  {isPositive(item) ? (
-                    <ArrowUpCircle className="h-4 w-4 text-green-400" />
-                  ) : (
-                    <ArrowDownCircle className="h-4 w-4 text-red-400" />
-                  )}
-                </div>
-                <div>
-                  <div className="flex items-center">
-                    <p className="font-medium text-white">{getItemDescription(item)}</p>
-                    {/* 충전 타입에만 만료 경고 표시 */}
-                    {['purchase', 'subscription', 'bonus', 'refund'].includes(item.type) && (
-                      <ExpiryBadge expiresAt={item.expiresAt} remaining={item.remaining} t={t} />
+        {/* 통계 요약 */}
+        <div className="grid gap-4 sm:grid-cols-2">
+          <div className="rounded-xl bg-green-900/30 p-4">
+            <div className="flex items-center gap-2">
+              <ArrowUpCircle className="h-5 w-5 text-green-400" />
+              <span className="text-sm text-green-400">{t('totalCharge')}</span>
+            </div>
+            <p className="mt-2 text-2xl font-bold text-green-400">{totalCharge}C</p>
+          </div>
+          <div className="rounded-xl bg-red-900/30 p-4">
+            <div className="flex items-center gap-2">
+              <ArrowDownCircle className="h-5 w-5 text-red-400" />
+              <span className="text-sm text-red-400">{t('totalUsage')}</span>
+            </div>
+            <p className="mt-2 text-2xl font-bold text-red-400">{totalUsage}C</p>
+          </div>
+        </div>
+
+        {/* 기록 목록 */}
+        <div className="rounded-2xl bg-[#1a1a1a]">
+          <div className="divide-y divide-[#333]">
+            {historyItems.map((item, index) => (
+              <motion.div
+                key={item.id}
+                initial={{ opacity: 0, x: -10 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: index * 0.03 }}
+                className="flex items-center justify-between px-4 py-3"
+              >
+                <div className="flex items-center gap-3">
+                  <div
+                    className={cn(
+                      'flex h-8 w-8 items-center justify-center rounded-full',
+                      isPositive(item) ? 'bg-green-900/30' : 'bg-red-900/30'
+                    )}
+                  >
+                    {isPositive(item) ? (
+                      <ArrowUpCircle className="h-4 w-4 text-green-400" />
+                    ) : (
+                      <ArrowDownCircle className="h-4 w-4 text-red-400" />
                     )}
                   </div>
-                  <div className="flex items-center gap-2 text-xs text-gray-500">
-                    <span>
-                      {format(new Date(item.createdAt), 'yyyy.MM.dd HH:mm', { locale: dateLocale })}
-                    </span>
-                    {/* 만료일 표시 (충전 기록에만) */}
-                    {item.expiresAt &&
-                      ['purchase', 'subscription', 'bonus'].includes(item.type) && (
-                        <span className="flex items-center gap-1 text-gray-600">
-                          <Clock className="h-3 w-3" />
-                          {t('expiresOn', {
-                            date: format(new Date(item.expiresAt), 'yyyy.MM.dd', {
-                              locale: dateLocale,
-                            }),
-                          })}
-                        </span>
+                  <div>
+                    <div className="flex items-center">
+                      <p className="font-medium text-white">{getItemDescription(item)}</p>
+                      {/* 충전 타입에만 만료 경고 표시 */}
+                      {['purchase', 'subscription', 'bonus', 'refund'].includes(item.type) && (
+                        <ExpiryBadge expiresAt={item.expiresAt} remaining={item.remaining} t={t} />
                       )}
+                    </div>
+                    <div className="flex items-center gap-2 text-xs text-gray-500">
+                      <span>
+                        {format(new Date(item.createdAt), 'yyyy.MM.dd HH:mm', { locale: dateLocale })}
+                      </span>
+                      {/* 만료일 표시 (충전 기록에만) */}
+                      {item.expiresAt &&
+                        ['purchase', 'subscription', 'bonus'].includes(item.type) && (
+                          <span className="flex items-center gap-1 text-gray-600">
+                            <Clock className="h-3 w-3" />
+                            {t('expiresOn', {
+                              date: format(new Date(item.expiresAt), 'yyyy.MM.dd', {
+                                locale: dateLocale,
+                              }),
+                            })}
+                          </span>
+                        )}
+                    </div>
                   </div>
                 </div>
-              </div>
-              <div className="text-right">
-                <span
-                  className={cn(
-                    'font-semibold',
-                    isPositive(item) ? 'text-green-400' : 'text-red-400'
-                  )}
-                >
-                  {isPositive(item) ? '+' : ''}
-                  {item.amount}C
-                </span>
-                {/* 잔액 표시 */}
-                <p className="text-xs text-gray-500">
-                  {t('balance', { amount: item.balanceAfter })}
-                </p>
-              </div>
-            </motion.div>
-          ))}
+                <div className="text-right">
+                  <span
+                    className={cn(
+                      'font-semibold',
+                      isPositive(item) ? 'text-green-400' : 'text-red-400'
+                    )}
+                  >
+                    {isPositive(item) ? '+' : ''}
+                    {item.amount}C
+                  </span>
+                  {/* 잔액 표시 */}
+                  <p className="text-xs text-gray-500">
+                    {t('balance', { amount: item.balanceAfter })}
+                  </p>
+                </div>
+              </motion.div>
+            ))}
+          </div>
         </div>
-      </div>
-    </motion.div>
+      </motion.div>
+
+      {/* 구독 기록 */}
+      <SubscriptionHistory />
+    </div>
   );
 }

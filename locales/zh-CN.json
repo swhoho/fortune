@@ -992,7 +992,31 @@
       "none": "未订阅"
     },
     "currentPeriodEnd": "下次扣费日：{date}",
-    "canceledNotice": "订阅已取消。可使用至 {date}。"
+    "canceledNotice": "订阅已取消。可使用至 {date}。",
+    "history": {
+      "title": "订阅记录",
+      "subtitle": "查看订阅和免费体验记录",
+      "empty": "没有订阅记录",
+      "emptyDescription": "订阅记录将显示在这里",
+      "currentStatus": "当前状态",
+      "subscribing": "高级订阅中",
+      "notSubscribing": "未订阅",
+      "nextPayment": "下次扣费日：{date}",
+      "premiumMembership": "高级会员",
+      "freeTrial": "免费体验",
+      "freeTrialDays": "{days}天体验",
+      "freeTrialEnded": "{date}结束",
+      "paymentMethod": {
+        "mock": "mock",
+        "payapp": "payapp",
+        "google_play": "google_play"
+      },
+      "status": {
+        "active": "有效",
+        "canceled": "已取消",
+        "expired": "已过期"
+      }
+    }
   },
   "dailyFortune": {
     "title": "今日运势",

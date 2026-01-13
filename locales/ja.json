@@ -992,7 +992,31 @@
       "none": "未加入"
     },
     "currentPeriodEnd": "次回請求日: {date}",
-    "canceledNotice": "サブスクリプションが解約されました。{date}までご利用いただけます。"
+    "canceledNotice": "サブスクリプションが解約されました。{date}までご利用いただけます。",
+    "history": {
+      "title": "サブスクリプション履歴",
+      "subtitle": "サブスクリプションと無料体験の履歴を確認",
+      "empty": "サブスクリプション履歴がありません",
+      "emptyDescription": "サブスクリプション履歴がここに表示されます",
+      "currentStatus": "現在の状態",
+      "subscribing": "プレミアムサブスクリプション有効",
+      "notSubscribing": "未加入",
+      "nextPayment": "次回請求日: {date}",
+      "premiumMembership": "プレミアムメンバーシップ",
+      "freeTrial": "無料体験",
+      "freeTrialDays": "{days}日間体験",
+      "freeTrialEnded": "{date}終了",
+      "paymentMethod": {
+        "mock": "mock",
+        "payapp": "payapp",
+        "google_play": "google_play"
+      },
+      "status": {
+        "active": "有効",
+        "canceled": "解約済み",
+        "expired": "期限切れ"
+      }
+    }
   },
   "dailyFortune": {
     "title": "今日の運勢",

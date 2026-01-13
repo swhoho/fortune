@@ -1140,7 +1140,31 @@
       "none": "Not subscribed"
     },
     "currentPeriodEnd": "Next billing: {date}",
-    "canceledNotice": "Subscription canceled. Access until {date}."
+    "canceledNotice": "Subscription canceled. Access until {date}.",
+    "history": {
+      "title": "Subscription History",
+      "subtitle": "View your subscription and free trial history",
+      "empty": "No subscription history",
+      "emptyDescription": "Your subscription history will appear here",
+      "currentStatus": "Current Status",
+      "subscribing": "Premium Subscription Active",
+      "notSubscribing": "Not subscribed",
+      "nextPayment": "Next billing: {date}",
+      "premiumMembership": "Premium Membership",
+      "freeTrial": "Free Trial",
+      "freeTrialDays": "{days}-day trial",
+      "freeTrialEnded": "Ended {date}",
+      "paymentMethod": {
+        "mock": "mock",
+        "payapp": "payapp",
+        "google_play": "google_play"
+      },
+      "status": {
+        "active": "Active",
+        "canceled": "Canceled",
+        "expired": "Expired"
+      }
+    }
   },
   "dailyFortune": {
     "title": "Today's Fortune",
