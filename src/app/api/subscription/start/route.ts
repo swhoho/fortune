@@ -12,7 +12,7 @@ import { getSupabaseAdmin } from '@/lib/supabase/client';
 import { addCredits } from '@/lib/credits';
 
 /** 구독 가격 (KRW) */
-const SUBSCRIPTION_PRICE = 3900;
+const SUBSCRIPTION_PRICE = 2900;
 
 /** 월간 지급 크레딧 */
 const MONTHLY_CREDITS = 50;

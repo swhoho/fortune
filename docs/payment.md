@@ -2,8 +2,8 @@
 
 > Master's Insight AI 결제, 크레딧, 구독 시스템 문서
 
-**Version**: 3.2.0
-**Last Updated**: 2026-01-12
+**Version**: 3.4.0
+**Last Updated**: 2026-01-13
 **현재 사용**: PayApp (신용카드1)
 **구독**: PayApp 정기결제 (실결제 연동)
 **Android 앱**: Google Play Billing (준비중)
@@ -247,7 +247,10 @@ PayApp 정기결제를 통한 월간 구독 시스템입니다.
 
 | 구독 플랜 | 가격 | 혜택 |
 |-----------|------|------|
-| 프리미엄 | ₩3,900/월 | 오늘의 운세 무제한 + 월 50C |
+| 프리미엄 (웹) | ₩2,900/월 | 오늘의 운세 무제한 + 월 50C |
+| 프리미엄 (앱) | ₩3,900/월 | 오늘의 운세 무제한 + 월 50C |
+
+> **참고**: 웹(PayApp)과 앱(Google Play)의 구독 가격이 다릅니다.
 
 ### 6.2 DB 스키마
 
@@ -517,10 +520,262 @@ Google Play에서 구독 상태 변경 시 실시간 알림을 받으려면 Clou
 
 ---
 
-## 9. 변경 이력
+## 9. 가격 변경 가이드
+
+가격 변경 시 UI, DB, 로그에 문제가 없도록 아래 체크리스트를 따라 수정하세요.
+
+### 9.1 구독 상품 가격 변경
+
+현재 가격: **₩2,900/월** (웹), **₩3,900/월** (앱)
+
+#### 수정 파일 체크리스트
+
+| 우선순위 | 파일 | 위치 | 변수명 | 현재값 | 설명 |
+|---------|------|------|--------|--------|------|
+| **1** | `src/lib/payapp.ts` | L331-336 | `SUBSCRIPTION_PLAN.price` | 2900 | PayApp 결제 요청 시 사용 |
+| **1** | `src/app/api/subscription/start/route.ts` | L14-18 | `SUBSCRIPTION_PRICE` | 2900 | Mock 구독 테스트용 |
+| **2** | `locales/ko.json` | L1148 | `dailyFortune.subscribe.hero.price` | "월 2,900원" | 구독 페이지 히어로 |
+| **2** | `locales/ko.json` | L1284 | `pricing.price` | "₩2,900" | 가격표 표시 |
+| **2** | `locales/en.json` | L1148, L1284 | 동일 | "$1.99" | 영어 (USD 환산) |
+| **2** | `locales/ja.json` | L995, L1131 | 동일 | "¥290" | 일본어 (JPY 환산) |
+| **2** | `locales/zh-CN.json` | L995, L1131 | 동일 | "¥15" | 중국어 간체 (CNY 환산) |
+| **2** | `locales/zh-TW.json` | L995, L1131 | 동일 | "NT$79" | 중국어 번체 (TWD 환산) |
+
+#### DB 영향
+
+| 테이블 | 컬럼 | 영향 |
+|--------|------|------|
+| `subscriptions` | `price` | 새 구독부터 새 가격 적용 (기존 기록 유지) |
+
+#### 변경 플로우
+
+```
+SUBSCRIPTION_PLAN.price 변경
+        ↓
+PayApp API 요청 시 자동 반영
+        ↓
+subscriptions.price 컬럼에 새 가격 저장
+        ↓
+다국어 메시지에 새 가격 표시
+```
+
+> **주의**: 기존 구독자의 가격은 변경되지 않습니다. 다음 결제 주기부터 새 가격이 적용됩니다.
+
+---
+
+### 9.2 크레딧 패키지 가격 변경
+
+현재 패키지: **30C/₩3,000 ~ 200C+30/₩20,000**
+
+#### 수정 파일 체크리스트
+
+| 우선순위 | 파일 | 위치 | 변수명 | 용도 |
+|---------|------|------|--------|------|
+| **1** | `src/lib/portone.ts` | L19-47 | `CREDIT_PACKAGES` | KRW 가격 (PayApp 결제) |
+| **1** | `src/lib/stripe.ts` | L55-83 | `CREDIT_PACKAGES` | USD 가격 (Stripe 결제, 미사용) |
+| **2** | `src/lib/google-billing.ts` | L14-37 | `GOOGLE_CREDIT_AMOUNTS` | 상품ID→크레딧 매핑 |
+
+#### 패키지 구조
+
+```typescript
+// src/lib/portone.ts
+export const CREDIT_PACKAGES: CreditPackage[] = [
+  { id: 'basic', credits: 30, price: 3000 },           // 변경 대상
+  { id: 'starter', credits: 50, price: 5000 },         // 변경 대상
+  { id: 'popular', credits: 100, price: 10000, bonus: 10, popular: true },
+  { id: 'premium', credits: 200, price: 20000, bonus: 30 },
+];
+```
+
+#### DB 영향
+
+| 테이블 | 컬럼 | 영향 |
+|--------|------|------|
+| `purchases` | `amount` | 결제 시점 가격 자동 기록 |
+| `purchases` | `credits` | 충전된 크레딧 수량 기록 |
+| `credit_transactions` | `amount` | FIFO 크레딧 잔액 기록 |
+
+#### Google Play 추가 작업
+
+Google Play 상품 가격은 **Play Console에서 별도 설정** 필요:
+1. Google Play Console → 수익 창출 → 인앱 상품
+2. 각 상품(`credits_30`, `credits_50`, `credits_100`, `credits_200`) 가격 수정
+
+> **주의**: 코드의 `GOOGLE_CREDIT_AMOUNTS`는 상품ID→크레딧 매핑만 담당. 실제 가격은 Play Console에서 관리.
+
+---
+
+### 9.3 서비스별 크레딧 비용 변경
+
+현재 비용:
+| 서비스 | 크레딧 |
+|--------|--------|
+| 전체 사주 분석 | 70C |
+| 신년 운세 | 50C |
+| 궁합 분석 | 70C |
+| AI 상담 세션 | 10C |
+| AI 추가 질문 | 10C |
+| 섹션 재분석 | 5C |
+
+#### 중앙 상수 (필수 수정)
+
+| 파일 | 위치 | 변수명 |
+|------|------|--------|
+| `src/lib/stripe.ts` | L88-95 | `SERVICE_CREDITS` |
+
+```typescript
+export const SERVICE_CREDITS = {
+  fullAnalysis: 70,        // 전체 사주 분석
+  yearlyAnalysis: 50,      // 신년 분석
+  compatibility: 70,       // 궁합 분석
+  question: 10,            // AI 질문/상담
+  sectionReanalysis: 5,    // 섹션 재분석
+  profileReport: 70,       // 프로필 리포트
+} as const;
+```
+
+#### API 로컬 상수 (중복 정의 - 함께 수정 필수)
+
+| 파일 | 위치 | 변수명 | 현재값 |
+|------|------|--------|--------|
+| `src/app/api/analysis/yearly/route.ts` | L24 | `YEARLY_ANALYSIS_CREDIT_COST` | 50 |
+| `src/app/api/analysis/compatibility/route.ts` | L23 | `COMPATIBILITY_ANALYSIS_CREDIT_COST` | 70 |
+
+> **⚠️ 주의**: 위 API들은 `SERVICE_CREDITS`를 참조하지 않고 로컬 상수를 사용합니다. 반드시 함께 수정해야 합니다.
+
+#### UI 하드코딩 (함께 수정 필수)
+
+| 파일 | 위치 | 현재값 | 용도 |
+|------|------|--------|------|
+| `src/app/[locale]/analysis/yearly/page.tsx` | L26 | 50 | 신년 분석 비용 표시 |
+| `src/app/[locale]/compatibility/romance/new/page.tsx` | L33 | 70 | 궁합 분석 비용 표시 |
+
+#### 다국어 메시지 (옵션)
+
+일부 메시지에 크레딧 비용이 하드코딩되어 있습니다:
+
+| 파일 | 키 | 예시 |
+|------|-----|------|
+| `locales/en.json` L173 | `profile.creditInfo` | "Full destiny analysis requires 50 credits" |
+| `locales/ko.json` | 동일 | "전체 운세 분석에는 50 크레딧이 필요합니다" |
+
+> **참고**: `credits.deductionDialog.message`는 `{required}` 플레이스홀더를 사용하여 동적으로 표시됩니다.
+
+#### DB 영향
+
+| 테이블 | 컬럼 | 영향 |
+|--------|------|------|
+| `credit_transactions` | `amount` | 차감 시 음수 값으로 자동 기록 |
+| `credit_transactions` | `service_type` | 서비스 종류 기록 (report, yearly, compatibility 등) |
+| `ai_usage_logs` | - | 분석 서비스 사용 기록 (레거시) |
+
+#### 변경 플로우
+
+```
+SERVICE_CREDITS 변경 (stripe.ts)
+        ↓
+API 로컬 상수도 함께 변경 (yearly/route.ts, compatibility/route.ts)
+        ↓
+UI 페이지 상수도 함께 변경 (yearly/page.tsx, compatibility 등)
+        ↓
+다국어 메시지 확인 및 수정 (필요 시)
+        ↓
+credit_transactions에 새 비용으로 차감 기록
+```
+
+---
+
+### 9.4 가격 변경 체크리스트 템플릿
+
+가격 변경 시 아래 체크리스트를 복사하여 사용하세요.
+
+#### 구독 가격 변경 시
+
+```markdown
+[ ] src/lib/payapp.ts - SUBSCRIPTION_PLAN.price 변경
+[ ] src/app/api/subscription/start/route.ts - SUBSCRIPTION_PRICE 변경
+[ ] locales/ko.json - 2개 위치 가격 수정
+[ ] locales/en.json - 2개 위치 가격 수정
+[ ] locales/ja.json - 2개 위치 가격 수정
+[ ] locales/zh-CN.json - 2개 위치 가격 수정
+[ ] locales/zh-TW.json - 2개 위치 가격 수정
+[ ] docs/payment.md - 문서 업데이트
+```
+
+#### 크레딧 패키지 가격 변경 시
+
+```markdown
+[ ] src/lib/portone.ts - CREDIT_PACKAGES 변경 (KRW)
+[ ] src/lib/stripe.ts - CREDIT_PACKAGES 변경 (USD)
+[ ] Google Play Console - 인앱 상품 가격 수정 (Android)
+[ ] docs/payment.md - 문서 업데이트
+```
+
+#### 서비스 크레딧 비용 변경 시
+
+```markdown
+[ ] src/lib/stripe.ts - SERVICE_CREDITS 변경
+[ ] src/app/api/analysis/yearly/route.ts - YEARLY_ANALYSIS_CREDIT_COST 변경
+[ ] src/app/api/analysis/compatibility/route.ts - COMPATIBILITY_ANALYSIS_CREDIT_COST 변경
+[ ] src/app/[locale]/analysis/yearly/page.tsx - 하드코딩 값 변경
+[ ] src/app/[locale]/compatibility/romance/new/page.tsx - 하드코딩 값 변경
+[ ] locales/*.json - 필요 시 메시지 수정
+[ ] docs/payment.md - 문서 업데이트
+[ ] claude.md - 크레딧 시스템 테이블 업데이트
+```
+
+---
+
+### 9.5 영향도 다이어그램
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                        가격 변경 영향도                          │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                  │
+│  [구독 가격]                                                      │
+│       │                                                          │
+│       ├─→ src/lib/payapp.ts (SUBSCRIPTION_PLAN.price)           │
+│       │         ↓                                                │
+│       │   PayApp API → subscriptions.price (DB)                 │
+│       │                                                          │
+│       └─→ locales/*.json (5개 언어 × 2개 위치)                   │
+│                 ↓                                                │
+│           UI 가격 표시                                           │
+│                                                                  │
+│  [크레딧 패키지]                                                  │
+│       │                                                          │
+│       ├─→ src/lib/portone.ts (CREDIT_PACKAGES)                  │
+│       │         ↓                                                │
+│       │   PayApp 결제 → purchases.amount (DB)                   │
+│       │                                                          │
+│       └─→ Google Play Console (별도 설정)                        │
+│                 ↓                                                │
+│           앱 내 결제 가격                                         │
+│                                                                  │
+│  [서비스 크레딧]                                                  │
+│       │                                                          │
+│       ├─→ src/lib/stripe.ts (SERVICE_CREDITS) ← 중앙 상수       │
+│       │                                                          │
+│       ├─→ API 로컬 상수 (yearly, compatibility) ← 중복 정의     │
+│       │         ↓                                                │
+│       │   크레딧 차감 → credit_transactions (DB)                 │
+│       │                                                          │
+│       └─→ UI 페이지 하드코딩 (yearly, compatibility)             │
+│                 ↓                                                │
+│           사용자에게 비용 표시                                    │
+│                                                                  │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+---
+
+## 10. 변경 이력
 
 | 버전 | 날짜 | 변경 내용 |
 |------|------|----------|
+| 3.4.0 | 2026-01-13 | 웹 구독 가격 변경 (₩3,900 → ₩2,900), Google Play는 ₩3,900 유지 |
+| 3.3.0 | 2026-01-13 | 가격 변경 가이드 추가 (구독/크레딧 패키지/서비스 비용), 체크리스트 템플릿 |
 | 3.2.0 | 2026-01-12 | Google Play Billing 준비 (크레딧 구매 + 구독), 문서화 |
 | 3.1.0 | 2026-01-12 | PayApp 정기결제(구독) 연동, subscriptions 테이블 컬럼 추가 |
 | 3.0.0 | 2026-01-12 | PayApp 신용카드 결제 연동 (신용카드1), 결제 수단 3개 UI |

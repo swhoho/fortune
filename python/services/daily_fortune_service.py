@@ -1713,6 +1713,85 @@ class DailyFortuneService:
 
         return ' '.join(parts) if parts else base_advice
 
+    async def _get_recent_consultations_for_fortune(
+        self,
+        profile_id: str,
+        limit: int = 10
+    ) -> List[Dict[str, str]]:
+        """
+        오늘의 운세용 최근 상담 기록 조회 (v3.0)
+
+        Args:
+            profile_id: 프로필 ID
+            limit: 조회할 상담 수 (기본 10개)
+
+        Returns:
+            [{"date": "2026-01-10", "question": "...", "summary": "..."}, ...]
+        """
+        try:
+            async with httpx.AsyncClient() as client:
+                # 1단계: 최근 완료된 세션 조회
+                sessions_response = await client.get(
+                    f"{SUPABASE_URL}/rest/v1/consultation_sessions",
+                    params={
+                        "profile_id": f"eq.{profile_id}",
+                        "status": "eq.completed",
+                        "select": "id,title,created_at",
+                        "order": "created_at.desc",
+                        "limit": str(limit)
+                    },
+                    headers={
+                        "apikey": SUPABASE_SERVICE_ROLE_KEY,
+                        "Authorization": f"Bearer {SUPABASE_SERVICE_ROLE_KEY}",
+                    },
+                    timeout=10.0
+                )
+                sessions_response.raise_for_status()
+                sessions = sessions_response.json()
+
+                if not sessions:
+                    return []
+
+                consultations = []
+                for session in sessions:
+                    # 2단계: 각 세션의 마지막 AI 답변 조회
+                    messages_response = await client.get(
+                        f"{SUPABASE_URL}/rest/v1/consultation_messages",
+                        params={
+                            "session_id": f"eq.{session['id']}",
+                            "message_type": "eq.ai_answer",
+                            "status": "eq.completed",
+                            "select": "content",
+                            "order": "created_at.desc",
+                            "limit": "1"
+                        },
+                        headers={
+                            "apikey": SUPABASE_SERVICE_ROLE_KEY,
+                            "Authorization": f"Bearer {SUPABASE_SERVICE_ROLE_KEY}",
+                        },
+                        timeout=10.0
+                    )
+                    messages_response.raise_for_status()
+                    messages = messages_response.json()
+
+                    if messages and messages[0].get('content'):
+                        content = messages[0]['content']
+                        summary = content[:200].replace('\n', ' ')
+                        if len(content) > 200:
+                            summary += '...'
+
+                        consultations.append({
+                            'date': session['created_at'][:10],
+                            'question': session.get('title') or '(제목 없음)',
+                            'summary': summary
+                        })
+
+                return consultations
+
+        except Exception as e:
+            logger.warning(f"[DailyFortune] 상담 기록 조회 실패: {e}")
+            return []
+
     def calculate_day_pillars(self, target_date: str) -> Dict[str, str]:
         """
         당일 천간/지지 계산 (간단한 일진 계산)
@@ -1935,6 +2014,10 @@ class DailyFortuneService:
             step_statuses[current_step] = "completed"
             logger.info(f"[DailyFortune] Step 10 완료: 십신={mulsangron_info.get('ten_god', 'N/A')}")
 
+            # Step 10.5: 최근 상담 기록 조회 (v3.0)
+            recent_consultations = await self._get_recent_consultations_for_fortune(profile_id, limit=10)
+            logger.info(f"[DailyFortune] Step 10.5 완료: 상담 기록 {len(recent_consultations)}개 조회")
+
             # Step 11: Gemini 분석 (3회 재시도 + Fallback)
             current_step = "gemini_analysis"
             step_statuses[current_step] = "in_progress"
@@ -1961,6 +2044,8 @@ class DailyFortuneService:
                 shinssal_info=shinssal_info,
                 johu_tuning_info=johu_tuning_info,
                 mulsangron_info=mulsangron_info,
+                # v3.0: 상담 기록 연동
+                recent_consultations=recent_consultations,
             )
             is_fallback = fortune_result.get("_fallback", False)
             step_statuses[current_step] = "completed"
@@ -2046,6 +2131,9 @@ class DailyFortuneService:
                     combination_info,
                     language
                 ),
+
+                # v3.0: LoA Wisdom
+                "loa_wisdom": fortune_result.get("loaWisdom", ""),
 
                 "language": language,
 
@@ -2168,6 +2256,8 @@ class DailyFortuneService:
         shinssal_info: Dict[str, Any] = None,
         johu_tuning_info: Dict[str, Any] = None,
         mulsangron_info: Dict[str, Any] = None,
+        # v3.0: 상담 기록 연동
+        recent_consultations: List[Dict[str, str]] = None,
     ) -> Dict[str, Any]:
         """
         Gemini로 오늘의 운세 분석 (고도화된 프롬프트)
@@ -2187,6 +2277,7 @@ class DailyFortuneService:
             shinssal_info: 12신살 정보 (Task 13)
             johu_tuning_info: 조후 튜닝 정보 (Task 15)
             mulsangron_info: 물상론 정보 (Task 14)
+            recent_consultations: 최근 상담 기록 (v3.0)
 
         Returns:
             분석 결과 JSON
@@ -2210,6 +2301,8 @@ class DailyFortuneService:
             shinssal_info=shinssal_info,
             johu_tuning_info=johu_tuning_info,
             mulsangron_info=mulsangron_info,
+            # v3.0: 상담 기록 연동
+            recent_consultations=recent_consultations,
         )
 
         # 3회 재시도
@@ -2281,6 +2374,7 @@ class DailyFortuneService:
             "health_fortune": result.get("health_fortune"),
             "relationship_fortune": result.get("relationship_fortune"),
             "advice": result.get("advice"),
+            "loa_wisdom": result.get("loa_wisdom"),  # v3.0
             "language": result.get("language", "ko"),
         }
 

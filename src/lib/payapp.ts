@@ -330,7 +330,7 @@ export function calculateRebillExpireDate(): string {
  */
 export const SUBSCRIPTION_PLAN = {
   name: '프리미엄 구독',
-  price: 3900, // ₩3,900/월
+  price: 2900, // ₩2,900/월
   credits: 50, // 월 50C 지급
   benefits: ['오늘의 운세 무제한', '월 50C 크레딧'],
 };

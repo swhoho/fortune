@@ -1067,6 +1067,7 @@
     "askAnythingDesc": "Based on your analyzed destiny and fortune,\nask about career, love, wealth, health, and more.",
     "question": "Question",
     "generating": "Generating answer...",
+    "collectingInfo": "Collecting additional info ({current}/{max})",
     "timeout": "Response timeout",
     "timeoutMessage": "Response generation timed out. Please try again.",
     "failed": "Response generation failed",
@@ -1082,7 +1083,12 @@
     "questionCount": "Question {current}/{max}",
     "charsRemaining": "{count} characters left",
     "skipInfo": "Answer without additional info",
-    "roundLimitDesc": "2 rounds per session"
+    "roundLimitDesc": "2 rounds per session",
+    "noReportError": {
+      "title": "Basic Saju Analysis Required",
+      "description": "Please complete your basic saju analysis first to use AI consultation.",
+      "goToAnalysis": "Go to Saju Analysis"
+    }
   },
   "credits": {
     "balance": "Credit Balance",
@@ -1144,7 +1150,7 @@
   },
   "subscription": {
     "title": "Premium Subscription",
-    "price": "$2.99/month",
+    "price": "$1.99/month",
     "benefits": {
       "dailyFortune": "Daily fortune reading",
       "monthlyCredits": "50C credits every month"
@@ -1280,7 +1286,7 @@
       },
       "pricing": {
         "title": "Premium Subscription",
-        "price": "$2.99",
+        "price": "$1.99",
         "period": "/month",
         "includes": {
           "dailyFortune": "Unlimited daily fortune readings",

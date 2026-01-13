@@ -1041,7 +1041,12 @@
     "questionCount": "질문 {current}/{max}",
     "charsRemaining": "{count}자 남음",
     "skipInfo": "추가 정보 없이 답변받기",
-    "roundLimitDesc": "세션당 2라운드 질문 가능"
+    "roundLimitDesc": "세션당 2라운드 질문 가능",
+    "noReportError": {
+      "title": "기본 사주 분석이 필요합니다",
+      "description": "AI 상담을 이용하려면 먼저 기본 사주 분석을 완료해주세요.",
+      "goToAnalysis": "사주 분석 하기"
+    }
   },
   "pipeline": {
     "steps": {
@@ -1145,7 +1150,7 @@
   },
   "subscription": {
     "title": "프리미엄 구독",
-    "price": "월 3,900원",
+    "price": "월 2,900원",
     "benefits": {
       "dailyFortune": "매일 오늘의 운세 확인",
       "monthlyCredits": "매월 50C 크레딧 지급"
@@ -1281,7 +1286,7 @@
       },
       "pricing": {
         "title": "프리미엄 구독",
-        "price": "₩3,900",
+        "price": "₩2,900",
         "period": "/월",
         "includes": {
           "dailyFortune": "매일 오늘의 운세 무제한",

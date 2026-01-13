@@ -75,6 +75,7 @@ interface DailyFortuneData {
   health_fortune?: AreaFortune;
   relationship_fortune?: AreaFortune;
   advice?: string;
+  loa_wisdom?: string;
 }
 
 interface DailyFortuneResponse {
@@ -485,8 +486,8 @@ export default function DailyFortuneDetailPage() {
                   </div>
                 </motion.section>
 
-                {/* 오늘의 조언 */}
-                {fortune.advice && (
+                {/* 오늘의 조언 (advice + loaWisdom) */}
+                {(fortune.advice || fortune.loa_wisdom) && (
                   <motion.section
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
@@ -497,7 +498,10 @@ export default function DailyFortuneDetailPage() {
                       <Lightbulb className="h-4 w-4" />
                       {t('todayAdvice')}
                     </h2>
-                    <p className="text-sm leading-relaxed text-gray-300">{fortune.advice}</p>
+                    <div className="space-y-4 text-sm leading-relaxed text-gray-300">
+                      {fortune.advice && <p>{fortune.advice}</p>}
+                      {fortune.loa_wisdom && <p>{fortune.loa_wisdom}</p>}
+                    </div>
                   </motion.section>
                 )}
               </motion.div>

@@ -992,7 +992,7 @@
   },
   "subscription": {
     "title": "高级订阅",
-    "price": "每月19.9元",
+    "price": "每月14.9元",
     "benefits": {
       "dailyFortune": "每日运势查看",
       "monthlyCredits": "每月50积分"
@@ -1128,7 +1128,7 @@
       },
       "pricing": {
         "title": "高级订阅",
-        "price": "¥25",
+        "price": "¥15",
         "period": "/月",
         "includes": {
           "dailyFortune": "每日运势无限查看",
@@ -1308,11 +1308,37 @@
     },
     "history": "咨询记录",
     "newSession": "新会话",
+    "yesterday": "昨天",
+    "daysAgo": "{days}天前",
+    "empty": "暂无咨询记录",
+    "noSession": "请选择会话或开始新咨询",
+    "loadError": "无法加载消息",
+    "askAnything": "请随意提问",
+    "askAnythingDesc": "基于分析的八字和大运\n为您解答职业、恋爱、财运、健康等问题。",
+    "question": "问题",
+    "generating": "正在生成回答...",
+    "collectingInfo": "正在收集额外信息 ({current}/{max})",
+    "timeout": "响应超时",
+    "timeoutMessage": "响应生成超时，请重试。",
+    "failed": "响应生成失败",
+    "failedDefault": "AI响应生成失败",
+    "regenerating": "正在重新生成...",
+    "regenerate": "重新生成",
+    "complete": "完成",
+    "roundLimit": "此会话已达到问题限制（2轮）。",
+    "newSessionCost": "开始新咨询 (10C)",
+    "inputPlaceholder": "请输入问题...（最多500字）",
+    "clarificationPlaceholder": "请输入补充信息...",
     "needMoreInfo": "需要更多信息",
     "questionCount": "问题 {current}/{max}",
     "charsRemaining": "剩余{count}字",
     "skipInfo": "不提供额外信息直接回答",
-    "roundLimitDesc": "每次会话可进行2轮提问"
+    "roundLimitDesc": "每次会话可进行2轮提问",
+    "noReportError": {
+      "title": "需要先完成基本四柱分析",
+      "description": "使用AI咨询前，请先完成基本四柱分析。",
+      "goToAnalysis": "前往四柱分析"
+    }
   },
   "errors": {
     "AUTH_UNAUTHORIZED": "请登录后继续",

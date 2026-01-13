@@ -91,6 +91,12 @@ export function useCreateSession() {
           (insufficientError as Error & { code: string }).code = 'INSUFFICIENT_CREDITS';
           throw insufficientError;
         }
+        // 사주 분석 미완료 에러 특별 처리
+        if (error.code === 'NO_REPORT') {
+          const noReportError = new Error(error.error || '사주 분석이 필요합니다');
+          (noReportError as Error & { code: string }).code = 'NO_REPORT';
+          throw noReportError;
+        }
         throw new Error(error.error || '세션 생성에 실패했습니다');
       }
 

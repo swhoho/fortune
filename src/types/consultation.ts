@@ -24,6 +24,10 @@ export interface ConsultationSessionRow {
   credits_used: number;
   created_at: string;
   updated_at: string;
+  /** 현재 명확화 횟수 (v2.0) */
+  clarification_count?: number;
+  /** 최대 명확화 횟수 (v2.0) */
+  max_clarifications?: number;
 }
 
 /** 상담 세션 (클라이언트 형식) */
@@ -38,6 +42,10 @@ export interface ConsultationSession {
   updatedAt: string;
   /** 마지막 메시지 미리보기 (목록 표시용) */
   lastMessage?: string;
+  /** 현재 명확화 횟수 (v2.0) */
+  clarificationCount?: number;
+  /** 최대 명확화 횟수 (v2.0) */
+  maxClarifications?: number;
 }
 
 /** 메시지 상태 (비동기 처리용) */
@@ -53,6 +61,8 @@ export interface ConsultationMessageRow {
   created_at: string;
   status?: ConsultationMessageStatus;
   error_message?: string;
+  /** 명확화 라운드 번호 (v2.0, 1-3) */
+  clarification_round?: number;
 }
 
 /** 상담 메시지 (클라이언트 형식) */
@@ -67,6 +77,8 @@ export interface ConsultationMessage {
   status?: ConsultationMessageStatus;
   /** 실패 시 에러 메시지 */
   errorMessage?: string;
+  /** 명확화 라운드 번호 (v2.0, 1-3) */
+  clarificationRound?: number;
 }
 
 /** 세션 목록 조회 응답 */
@@ -106,6 +118,10 @@ export interface GetMessagesResponse {
       status: ConsultationSessionStatus;
       questionCount: number;
       maxQuestions: number;
+      /** 현재 명확화 횟수 (v2.0) */
+      clarificationCount?: number;
+      /** 최대 명확화 횟수 (v2.0) */
+      maxClarifications?: number;
     };
     messages: ConsultationMessage[];
   };
@@ -146,10 +162,18 @@ export interface SendMessageResponse {
       clarificationQuestions?: string[];
       /** 메시지 상태 (비동기 처리) */
       status?: ConsultationMessageStatus;
+      /** 명확화 라운드 번호 (v2.0) */
+      clarificationRound?: number;
     };
     sessionStatus: ConsultationSessionStatus;
     questionCount: number;
     canAskMore: boolean;
+    /** 현재 명확화 라운드 (v2.0) */
+    clarificationRound?: number;
+    /** 최대 명확화 횟수 (v2.0) */
+    maxClarifications?: number;
+    /** 마지막 명확화 여부 (v2.0) */
+    isLastClarification?: boolean;
   };
   error?: string;
   code?: string;
@@ -166,6 +190,8 @@ export function transformSession(row: ConsultationSessionRow): ConsultationSessi
     creditsUsed: row.credits_used,
     createdAt: row.created_at,
     updatedAt: row.updated_at,
+    clarificationCount: row.clarification_count,
+    maxClarifications: row.max_clarifications,
   };
 }
 
@@ -177,15 +203,20 @@ export function transformMessage(row: ConsultationMessageRow): ConsultationMessa
     content: row.content,
     questionRound: row.question_round,
     createdAt: row.created_at,
+    status: row.status,
+    errorMessage: row.error_message,
+    clarificationRound: row.clarification_round,
   };
 }
 
 /** 상수 */
 export const CONSULTATION_CONSTANTS = {
   /** 세션당 최대 질문 수 */
-  MAX_QUESTIONS_PER_SESSION: 5,
+  MAX_QUESTIONS_PER_SESSION: 2,
   /** 세션 생성 크레딧 비용 */
   SESSION_CREDITS: 10,
   /** 질문 최대 길이 */
   MAX_QUESTION_LENGTH: 500,
+  /** 최대 명확화 횟수 (v2.0) */
+  MAX_CLARIFICATIONS: 3,
 } as const;

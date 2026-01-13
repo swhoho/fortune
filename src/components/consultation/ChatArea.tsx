@@ -15,6 +15,7 @@ import {
   useInvalidateConsultation,
 } from '@/hooks/use-consultation';
 import type { ConsultationMessage } from '@/types/consultation';
+import { CONSULTATION_CONSTANTS } from '@/types/consultation';
 
 /** 폴링 간격 (ms) */
 const POLLING_INTERVAL = 2000;
@@ -316,7 +317,14 @@ export function ChatArea({
                 className="flex items-center gap-2 text-gray-400"
               >
                 <Loader2 className="h-4 w-4 animate-spin" />
-                <span className="text-sm">{t('generating')}</span>
+                <span className="text-sm">
+                  {awaitingClarification || generatingMessage.type === 'ai_clarification'
+                    ? t('collectingInfo', {
+                        current: (session?.clarificationCount || 0) + 1,
+                        max: session?.maxClarifications || CONSULTATION_CONSTANTS.MAX_CLARIFICATIONS,
+                      })
+                    : t('generating')}
+                </span>
               </motion.div>
             )}
 

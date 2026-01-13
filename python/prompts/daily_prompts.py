@@ -272,6 +272,8 @@ class DailyFortunePrompts:
         shinssal_info: Dict[str, Any] = None,
         johu_tuning_info: Dict[str, Any] = None,
         mulsangron_info: Dict[str, Any] = None,
+        # v3.0: 상담 기록 연동
+        recent_consultations: List[Dict[str, str]] = None,
     ) -> str:
         """
         오늘의 운세 분석 프롬프트 생성 (고도화 버전 v2.0)
@@ -291,6 +293,7 @@ class DailyFortunePrompts:
             shinssal_info: 12신살 정보 (Task 13)
             johu_tuning_info: 조후 튜닝 정보 (Task 15)
             mulsangron_info: 물상론 정보 (Task 14)
+            recent_consultations: 최근 상담 기록 (v3.0)
 
         Returns:
             Gemini 프롬프트 문자열
@@ -329,6 +332,12 @@ class DailyFortunePrompts:
             mulsangron_info=mulsangron_info,
         )
 
+        # v3.0: 상담 기록 컨텍스트
+        consultation_context = cls._build_consultation_context(recent_consultations, language)
+
+        # v3.0: LoA 가이드
+        loa_guide = cls._get_loa_wisdom_guide(language)
+
         prompt = f"""{persona}
 
 ## 분석 대상
@@ -346,6 +355,10 @@ class DailyFortunePrompts:
 {analysis_guide}
 
 {classical_section}
+
+{consultation_context}
+
+{loa_guide}
 
 ## JSON 응답 형식
 반드시 아래 JSON 형식으로만 응답하세요. 다른 텍스트 없이 순수 JSON만 출력하세요.
@@ -386,7 +399,8 @@ class DailyFortunePrompts:
     "description": "대인관계에 대한 운세 (200-500자, 서사체로 구체적으로)",
     "tip": "실천 가능한 조언 (50자 이내)"
   }},
-  "advice": "오늘 하루를 위한 종합 조언 (100-150자)"
+  "advice": "사주 + 상담 기반 종합 조언 (100-200자, 서사체)",
+  "loaWisdom": "영성 마스터 관점의 인생 지혜 (50-200자, 철학적 위로)"
 }}
 """
         return prompt
@@ -755,6 +769,180 @@ class DailyFortunePrompts:
         }
         return guides.get(language, guides['ko'])
 
+    @classmethod
+    def _build_consultation_context(
+        cls,
+        recent_consultations: List[Dict[str, str]],
+        language: str
+    ) -> str:
+        """최근 상담 기록을 프롬프트 컨텍스트로 변환 (v3.0)"""
+        if not recent_consultations:
+            return ""
+
+        headers = {
+            'ko': '## 최근 상담 기록 (참고용)',
+            'en': '## Recent Consultation Records (Reference)',
+            'ja': '## 最近の相談記録（参考用）',
+            'zh-CN': '## 最近咨询记录（参考用）',
+            'zh-TW': '## 最近諮詢記錄（參考用）',
+        }
+
+        instructions = {
+            'ko': """위 상담 내용을 참고하여:
+- advice: 사주의 흐름과 상담에서 드러난 고민을 연결한 실용적 조언
+- loaWisdom: 상담에서 드러난 고민에 대해 긍정적 마음가짐과 영적 지혜 제시""",
+            'en': """Based on the consultation records above:
+- advice: Practical advice connecting BaZi flow with concerns from consultations
+- loaWisdom: Positive mindset and spiritual wisdom for the concerns revealed in consultations""",
+            'ja': """上記の相談記録を参考に:
+- advice: 命式の流れと相談で明らかになった悩みを結びつけた実用的アドバイス
+- loaWisdom: 相談で明らかになった悩みに対する前向きな心構えと精神的知恵""",
+            'zh-CN': """根据以上咨询记录:
+- advice: 结合命理走势和咨询中暴露的烦恼的实用建议
+- loaWisdom: 针对咨询中暴露的烦恼提供积极心态和精神智慧""",
+            'zh-TW': """根據以上諮詢記錄:
+- advice: 結合命理走勢和諮詢中暴露的煩惱的實用建議
+- loaWisdom: 針對諮詢中暴露的煩惱提供積極心態和精神智慧""",
+        }
+
+        # 상담 기록 포맷 (최대 10개)
+        formatted_consultations = []
+        for c in recent_consultations[:10]:
+            date = c.get('date', '')
+            question = c.get('question', '(제목 없음)')
+            summary = c.get('summary', '')[:150]
+            if len(c.get('summary', '')) > 150:
+                summary += '...'
+            formatted_consultations.append(f"- [{date}] {question}\n  요약: {summary}")
+
+        return f"""
+{headers.get(language, headers['ko'])}
+
+{chr(10).join(formatted_consultations)}
+
+{instructions.get(language, instructions['ko'])}
+"""
+
+    @classmethod
+    def _get_loa_wisdom_guide(cls, language: str) -> str:
+        """LoA Wisdom 작성 가이드 반환 (v3.0)"""
+        guides = {
+            'ko': """## loaWisdom 작성 가이드 (Law of Assumption & 영성 마스터 관점)
+
+당신은 아래 스승들의 지혜를 체화한 영적 상담가입니다.
+사용자의 사주와 상담 기록을 바탕으로, 그들이 했을 법한 조언을 상황에 맞게 변형하여 전달하세요.
+
+**참고할 스승과 핵심 가르침**:
+- 네빌 고다드: 이미 이루어진 상태의 느낌을 유지하라
+- 조셉 머피: 잠재의식에 심은 씨앗이 현실이 된다
+- 플로렌스 스코블 신: 말의 힘, 선언의 마법
+- 루이스 헤이: 자기 사랑과 긍정 확언
+- 에이브러햄 힉스: 좋은 기분이 좋은 현실을 끌어당긴다
+- 에크하르트 톨레: 지금 이 순간에 머무는 것의 힘
+- 웨인 다이어: 의도와 우주 에너지의 연결
+- 디팩 초프라: 순수 잠재성과 집착 내려놓기
+
+**작성 원칙**:
+1. 오늘의 사주 에너지와 사용자의 상황(상담 기록)을 연결
+2. 위 스승들의 철학 중 상황에 맞는 것을 선택하여 조언
+3. 영적/철학적 위로와 구체적 마음가짐 제시
+4. 50-200자로 간결하되 깊이 있게
+
+**중요 금지 사항**:
+- 출력에 스승 이름 절대 언급 금지
+- 서적 이름 언급 금지
+- 철학만 녹여내고, 출처는 밝히지 않음
+- 사용자 상황에 맞게 창의적으로 변형""",
+
+            'en': """## loaWisdom Writing Guide (Law of Assumption & Spiritual Masters)
+
+You are a spiritual counselor who has embodied the wisdom of the masters below.
+Transform their teachings to fit the user's situation based on their BaZi and consultation records.
+
+**Reference Masters and Core Teachings**:
+- Neville Goddard: Maintain the feeling of the wish fulfilled
+- Joseph Murphy: Seeds planted in the subconscious become reality
+- Florence Scovel Shinn: The power of words and declarations
+- Louise Hay: Self-love and positive affirmations
+- Abraham Hicks: Good feelings attract good reality
+- Eckhart Tolle: The power of staying in the present moment
+- Wayne Dyer: Connection between intention and universal energy
+- Deepak Chopra: Pure potentiality and letting go of attachment
+
+**Writing Principles**:
+1. Connect today's BaZi energy with user's situation (consultation records)
+2. Choose philosophy that fits the situation from the masters above
+3. Provide spiritual/philosophical comfort and specific mindset guidance
+4. Keep it 50-200 characters, concise yet profound
+
+**Important Prohibitions**:
+- NEVER mention master names in output
+- NEVER mention book titles
+- Infuse philosophy only, don't reveal sources
+- Creatively adapt to user's situation""",
+
+            'ja': """## loaWisdom 作成ガイド（引き寄せの法則 & 精神的マスター）
+
+あなたは以下のマスターたちの知恵を体現した精神的カウンセラーです。
+ユーザーの命式と相談記録に基づき、彼らがしそうなアドバイスを状況に合わせて変形して伝えてください。
+
+**参考マスターと核心的教え**:
+- ネヴィル・ゴダード: 願いが叶った状態の感覚を維持せよ
+- ジョセフ・マーフィー: 潜在意識に蒔いた種が現実になる
+- フローレンス・スコベル・シン: 言葉の力、宣言の魔法
+- ルイーズ・ヘイ: 自己愛と肯定的確言
+- エイブラハム・ヒックス: 良い気分が良い現実を引き寄せる
+- エックハルト・トール: 今この瞬間に留まることの力
+- ウェイン・ダイアー: 意図と宇宙エネルギーの繋がり
+- ディーパック・チョプラ: 純粋潜在性と執着の手放し
+
+**重要禁止事項**:
+- 出力にマスター名を絶対に言及しない
+- 書籍名の言及禁止
+- 哲学のみ溶け込ませ、出典は明かさない""",
+
+            'zh-CN': """## loaWisdom 写作指南（吸引力法则 & 灵性大师）
+
+您是体现了以下大师智慧的灵性咨询师。
+根据用户的命盘和咨询记录，将他们可能给出的建议进行情境化调整后传达。
+
+**参考大师与核心教导**:
+- 内维尔·戈达德: 保持愿望已实现的感觉
+- 约瑟夫·墨菲: 播种在潜意识中的种子会变成现实
+- 佛罗伦斯·斯科维尔·辛: 言语的力量，宣言的魔法
+- 露易丝·海: 自爱与积极肯定
+- 亚伯拉罕·希克斯: 好心情吸引好现实
+- 艾克哈特·托利: 活在当下的力量
+- 韦恩·戴尔: 意图与宇宙能量的连接
+- 迪帕克·乔普拉: 纯粹潜能与放下执着
+
+**重要禁止事项**:
+- 输出中绝对不提及大师姓名
+- 禁止提及书名
+- 只融入哲学，不透露来源""",
+
+            'zh-TW': """## loaWisdom 寫作指南（吸引力法則 & 靈性大師）
+
+您是體現了以下大師智慧的靈性諮詢師。
+根據用戶的命盤和諮詢記錄，將他們可能給出的建議進行情境化調整後傳達。
+
+**參考大師與核心教導**:
+- 內維爾·戈達德: 保持願望已實現的感覺
+- 約瑟夫·墨菲: 播種在潛意識中的種子會變成現實
+- 佛羅倫斯·斯科維爾·辛: 言語的力量，宣言的魔法
+- 露易絲·海: 自愛與積極肯定
+- 亞伯拉罕·希克斯: 好心情吸引好現實
+- 艾克哈特·托利: 活在當下的力量
+- 韋恩·戴爾: 意圖與宇宙能量的連接
+- 迪帕克·喬普拉: 純粹潛能與放下執著
+
+**重要禁止事項**:
+- 輸出中絕對不提及大師姓名
+- 禁止提及書名
+- 只融入哲學，不透露來源"""
+        }
+        return guides.get(language, guides['ko'])
+
 
 # Gemini response_schema (JSON 강제 출력용)
 DAILY_FORTUNE_SCHEMA = {
@@ -815,11 +1003,12 @@ DAILY_FORTUNE_SCHEMA = {
             },
             "required": ["score", "title", "description", "tip"]
         },
-        "advice": {"type": "string"}
+        "advice": {"type": "string"},
+        "loaWisdom": {"type": "string"}
     },
     "required": [
         "overallScore", "summary", "luckyColor", "luckyNumber", "luckyDirection",
         "careerFortune", "wealthFortune", "loveFortune", "healthFortune",
-        "relationshipFortune", "advice"
+        "relationshipFortune", "advice", "loaWisdom"
     ]
 }

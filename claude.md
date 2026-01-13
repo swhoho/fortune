@@ -86,7 +86,7 @@ python/
 | `docs/report_analysis.md` | 프로필 리포트 분석 파이프라인 |
 | `docs/yearly_analysis.md` | 신년 분석 파이프라인 |
 | `docs/compatibility.md` | 궁합 분석 시스템 (Python 점수 엔진 + Gemini 해석) |
-| `docs/consultation.md` | AI 상담 시스템 |
+| `docs/consultation.md` | AI 상담 시스템 (v2.0 다회 명확화 + 가정의 법칙) |
 | `docs/daily_analysis.md` | 오늘의 운세 시스템 |
 | `docs/payment.md` | 결제, 크레딧 유효기간, 구독 시스템 |
 | `docs/app.md` | Android 앱 출시 가이드 (Capacitor, Google Play Billing) |
@@ -358,10 +358,22 @@ cd python && pytest  # Python
 
 ---
 
-**Version**: 1.46.0
-**Last Updated**: 2026-01-13 (관리자 유저 관리 페이지)
+**Version**: 1.47.0
+**Last Updated**: 2026-01-13 (상담 시스템 v2.0)
 
 ## Changelog
+
+### v1.47.0 (2026-01-13)
+- **상담 시스템 v2.0 (다회 명확화 + 가정의 법칙)**
+  - 다회 명확화: 최대 3회까지 추가 정보 수집 (confidenceLevel 80% 기준)
+  - 가정의 법칙(LoA): 사주의 흐름을 초월하는 긍정적 마음가짐 철학 적용
+  - 최근 5개 상담 기록 연동 (일관성 검토, 중복 질문 방지)
+  - DB 스키마 확장: `clarification_round`, `clarification_count`, `max_clarifications` 컬럼
+  - Python 프롬프트 재작성: `build_assessment_prompt()`, `build_answer_prompt()`
+  - 5단계 응답 구조: 도입 → 사주해석 → 시기흐름 → LoA적용 → 실행플랜
+  - 분량 확장: 500-800자 → 800-1300자
+  - 건너뛰기 버튼: "추가 정보 없이 답변받기" → "바로 답변 받기"
+  - 상세 문서: `docs/consultation.md` v2.0
 
 ### v1.46.0 (2026-01-13)
 - **관리자 유저 관리 페이지**

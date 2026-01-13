@@ -154,7 +154,7 @@ export function ChatInput({
             className="flex items-center gap-1.5 rounded-md px-3 py-1.5 text-sm text-gray-400 transition-colors hover:bg-[#242424] hover:text-white disabled:opacity-50"
           >
             <SkipForward className="h-4 w-4" />
-            <span>추가 정보 없이 답변받기</span>
+            <span>바로 답변 받기</span>
           </button>
         </div>
       )}

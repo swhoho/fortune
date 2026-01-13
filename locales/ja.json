@@ -992,7 +992,7 @@
   },
   "subscription": {
     "title": "プレミアムサブスクリプション",
-    "price": "月額390円",
+    "price": "月額290円",
     "benefits": {
       "dailyFortune": "毎日の運勢確認",
       "monthlyCredits": "毎月50Cクレジット付与"
@@ -1128,7 +1128,7 @@
       },
       "pricing": {
         "title": "プレミアム購読",
-        "price": "¥390",
+        "price": "¥290",
         "period": "/月",
         "includes": {
           "dailyFortune": "毎日の運勢が無制限",
@@ -1308,11 +1308,37 @@
     },
     "history": "相談履歴",
     "newSession": "新しいセッション",
+    "yesterday": "昨日",
+    "daysAgo": "{days}日前",
+    "empty": "まだ相談履歴がありません",
+    "noSession": "セッションを選択するか、新しい相談を開始してください",
+    "loadError": "メッセージを読み込めません",
+    "askAnything": "何でもご質問ください",
+    "askAnythingDesc": "分析された四柱推命と大運をもとに\n進路、恋愛、財運、健康などについてご相談いただけます。",
+    "question": "質問",
+    "generating": "回答を生成中...",
+    "collectingInfo": "追加情報を収集中 ({current}/{max})",
+    "timeout": "応答タイムアウト",
+    "timeoutMessage": "応答生成がタイムアウトしました。もう一度お試しください。",
+    "failed": "応答生成に失敗しました",
+    "failedDefault": "AI応答の生成に失敗しました",
+    "regenerating": "再生成中...",
+    "regenerate": "再生成する",
+    "complete": "完了",
+    "roundLimit": "このセッションの質問制限（2ラウンド）に達しました。",
+    "newSessionCost": "新しい相談を開始 (10C)",
+    "inputPlaceholder": "質問を入力してください...（最大500文字）",
+    "clarificationPlaceholder": "追加情報を入力してください...",
     "needMoreInfo": "追加情報が必要です",
     "questionCount": "質問 {current}/{max}",
     "charsRemaining": "残り{count}文字",
     "skipInfo": "追加情報なしで回答を得る",
-    "roundLimitDesc": "セッションごとに2ラウンドの質問が可能です"
+    "roundLimitDesc": "セッションごとに2ラウンドの質問が可能です",
+    "noReportError": {
+      "title": "基本四柱分析が必要です",
+      "description": "AI相談を利用するには、まず基本四柱分析を完了してください。",
+      "goToAnalysis": "四柱分析へ"
+    }
   },
   "errors": {
     "AUTH_UNAUTHORIZED": "ログインが必要です",

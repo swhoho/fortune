@@ -1,17 +1,18 @@
 """
 상담 메시지 AI 응답 생성 서비스
-report_analysis.py + question_service.py 패턴 적용
+v2.0: 다회 명확화 + 최근 상담 연동 + 가정의 법칙
 """
 import asyncio
 import os
 import logging
+import json
 from typing import Dict, Any, Tuple, List, Optional
 from datetime import datetime
 
 from supabase import create_client, Client
 
 from .gemini import get_gemini_service
-from prompts.consultation import build_clarification_prompt, build_answer_prompt
+from prompts.consultation import build_assessment_prompt, build_answer_prompt
 
 logger = logging.getLogger(__name__)
 
@@ -25,10 +26,21 @@ def get_supabase_client() -> Client:
     return create_client(url, key)
 
 
+# 일간 비유 매핑
+STEM_METAPHORS = {
+    '甲': '甲木(큰 나무)', '乙': '乙木(풀/덩굴)',
+    '丙': '丙火(태양)', '丁': '丁火(촛불)',
+    '戊': '戊土(산/대지)', '己': '己土(논밭)',
+    '庚': '庚金(바위/쇠)', '辛': '辛金(보석/칼날)',
+    '壬': '壬水(바다/큰물)', '癸': '癸水(이슬/샘물)'
+}
+
+
 class ConsultationService:
-    """상담 AI 응답 생성 서비스"""
+    """상담 AI 응답 생성 서비스 v2.0"""
 
     MAX_RETRIES = 3
+    MAX_CLARIFICATIONS = 3
 
     async def start_generate(self, request: dict):
         """
@@ -38,6 +50,7 @@ class ConsultationService:
             request: 요청 데이터
               - message_id: AI 메시지 ID
               - session_id: 세션 ID
+              - profile_id: 프로필 ID
               - profile_report_id: 리포트 ID
               - user_content: 사용자 질문
               - message_type: 'user_question' | 'user_clarification'
@@ -73,21 +86,25 @@ class ConsultationService:
                 # 1. 리포트 데이터 조회
                 report = self._get_report_data(supabase, request['profile_report_id'])
 
-                # 2. 이전 메시지 조회
+                # 2. 최근 상담 기록 조회 (최대 5개)
+                profile_id = request.get('profile_id') or report.get('profile_id')
+                recent_consultations = self._get_recent_consultations(supabase, profile_id)
+
+                # 3. 현재 세션 히스토리 조회
                 history = self._get_session_history(supabase, request['session_id'], message_id)
 
-                # 3. AI 응답 생성 (clarification vs answer 분기)
-                # v2.7: 에러 피드백 전달 (재시도 시 Gemini가 개선)
-                ai_content, final_type = await self._call_gemini(
-                    request, report, history,
+                # 4. AI 응답 생성
+                ai_content, final_type, clarification_round = await self._call_gemini(
+                    request, report, history, recent_consultations,
                     previous_error=last_error if attempt > 1 else None
                 )
 
-                # 4. DB 업데이트 (성공) - generating 상태인 경우만 업데이트
+                # 5. DB 업데이트 (성공) - generating 상태인 경우만 업데이트
                 result = supabase.table('consultation_messages').update({
                     'content': ai_content,
                     'message_type': final_type,
                     'status': 'completed',
+                    'clarification_round': clarification_round,
                 }).eq('id', message_id).eq('status', 'generating').execute()
 
                 # 이미 처리된 경우 (중복 요청) 조기 종료
@@ -95,26 +112,34 @@ class ConsultationService:
                     logger.warning(f"[Consultation:{message_id}] 이미 처리됨 (중복 요청)")
                     return
 
-                # 5. 세션 업데이트 (최종 답변인 경우)
+                # 6. 세션 업데이트
                 if final_type == 'ai_answer':
                     self._update_session(
                         supabase,
                         request['session_id'],
-                        request.get('user_content', '')
+                        request.get('user_content', ''),
+                        increment_question=True
+                    )
+                elif final_type == 'ai_clarification':
+                    self._update_session(
+                        supabase,
+                        request['session_id'],
+                        request.get('user_content', ''),
+                        increment_clarification=True,
+                        clarification_round=clarification_round
                     )
 
-                logger.info(f"[Consultation:{message_id}] 생성 완료")
+                logger.info(f"[Consultation:{message_id}] 생성 완료 - type: {final_type}")
                 success = True
                 break
 
             except Exception as e:
                 last_error = str(e)
                 logger.warning(f"[Consultation:{message_id}] 실패 ({attempt}/{self.MAX_RETRIES}): {e}")
-                await asyncio.sleep(1 * attempt)  # 지수 백오프
+                await asyncio.sleep(1 * attempt)
 
         if not success:
             logger.error(f"[Consultation:{message_id}] 최종 실패: {last_error}")
-            # generating 상태인 경우만 실패로 업데이트 (중복 방지)
             supabase.table('consultation_messages').update({
                 'status': 'failed',
                 'error_message': last_error or 'AI 응답 생성에 실패했습니다',
@@ -122,7 +147,6 @@ class ConsultationService:
 
     def _get_report_data(self, supabase: Client, report_id: str) -> dict:
         """리포트 데이터 조회 (신년분석 요약 포함)"""
-        # 1. profile_reports 조회 (profile_id 추가)
         result = supabase.table('profile_reports').select(
             'profile_id, pillars, daewun, analysis'
         ).eq('id', report_id).single().execute()
@@ -132,7 +156,7 @@ class ConsultationService:
 
         report_data = result.data
 
-        # 2. 신년분석 요약 조회 (없으면 생략)
+        # 신년분석 요약 조회
         profile_id = report_data.get('profile_id')
         if profile_id:
             yearly_result = supabase.table('yearly_analyses').select(
@@ -152,48 +176,139 @@ class ConsultationService:
 
         return report_data
 
+    def _get_recent_consultations(
+        self,
+        supabase: Client,
+        profile_id: str,
+        limit: int = 5
+    ) -> List[dict]:
+        """최근 완료된 상담 기록 조회 (최대 5개)"""
+        if not profile_id:
+            return []
+
+        result = supabase.table('consultation_sessions').select(
+            'id, title, created_at'
+        ).eq('profile_id', profile_id).eq(
+            'status', 'completed'
+        ).order('created_at', desc=True).limit(limit).execute()
+
+        consultations = []
+        for session in result.data or []:
+            # 각 세션의 마지막 AI 답변 조회
+            messages = supabase.table('consultation_messages').select(
+                'content'
+            ).eq('session_id', session['id']).eq(
+                'message_type', 'ai_answer'
+            ).eq('status', 'completed').order('created_at', desc=True).limit(1).execute()
+
+            if messages.data and messages.data[0].get('content'):
+                content = messages.data[0]['content']
+                # 요약 생성 (처음 200자)
+                summary = content[:200].replace('\n', ' ')
+                if len(content) > 200:
+                    summary += '...'
+
+                consultations.append({
+                    'date': session['created_at'][:10],
+                    'question': session.get('title') or '(제목 없음)',
+                    'summary': summary
+                })
+
+        return consultations
+
     def _get_session_history(
         self,
         supabase: Client,
         session_id: str,
         exclude_message_id: str
     ) -> List[dict]:
-        """이전 메시지 조회"""
+        """현재 세션의 메시지 히스토리 조회"""
         result = supabase.table('consultation_messages').select(
-            'id, message_type, content, question_round, status'
+            'id, message_type, content, question_round, clarification_round, status'
         ).eq('session_id', session_id).neq(
             'id', exclude_message_id
         ).order('created_at', desc=False).execute()
 
         return result.data or []
 
+    def _build_pillars_summary(self, pillars: dict, analysis: dict) -> str:
+        """사주 요약 문자열 생성"""
+        day_stem = pillars.get('day', {}).get('stem', '')
+        day_stem_desc = STEM_METAPHORS.get(day_stem, day_stem)
+
+        # 용신 추출
+        yongsin = ''
+        if analysis:
+            yongsin_data = analysis.get('yongsin') or analysis.get('용신') or {}
+            if isinstance(yongsin_data, dict):
+                yongsin = yongsin_data.get('primary') or yongsin_data.get('주용신') or ''
+            elif isinstance(yongsin_data, str):
+                yongsin = yongsin_data
+
+        # 격국 추출
+        geukguk = ''
+        if analysis:
+            geukguk = analysis.get('geukguk') or analysis.get('격국') or ''
+
+        return f"일간: {day_stem_desc}, 용신: {yongsin}, 격국: {geukguk}"
+
+    def _extract_clarification_history(self, history: List[dict]) -> List[Dict[str, str]]:
+        """히스토리에서 명확화 Q&A 쌍 추출"""
+        clarifications = []
+        current_ai_question = None
+        current_round = 0
+
+        for msg in history:
+            msg_type = msg.get('message_type')
+            status = msg.get('status')
+
+            if msg_type == 'ai_clarification' and status == 'completed':
+                current_ai_question = msg.get('content', '')
+                current_round = msg.get('clarification_round', 0)
+
+            elif msg_type == 'user_clarification' and current_ai_question:
+                clarifications.append({
+                    'round': current_round,
+                    'ai_question': current_ai_question,
+                    'user_answer': msg.get('content', '')
+                })
+                current_ai_question = None
+
+        return clarifications
+
     def _update_session(
         self,
         supabase: Client,
         session_id: str,
-        user_content: str
+        user_content: str,
+        increment_question: bool = False,
+        increment_clarification: bool = False,
+        clarification_round: int = 0
     ):
-        """세션 업데이트 (질문 수 증가, 제목 업데이트)"""
-        # 현재 세션 조회
+        """세션 업데이트"""
         session_result = supabase.table('consultation_sessions').select(
-            'question_count, title'
+            'question_count, clarification_count, title'
         ).eq('id', session_id).single().execute()
 
         if not session_result.data:
             return
 
         session = session_result.data
-        new_count = session['question_count'] + 1
-
         update_data = {
-            'question_count': new_count,
-            'status': 'completed' if new_count >= 5 else 'active',
             'updated_at': datetime.utcnow().isoformat(),
         }
 
+        if increment_question:
+            new_count = session['question_count'] + 1
+            update_data['question_count'] = new_count
+            update_data['status'] = 'completed' if new_count >= 2 else 'active'
+
+        if increment_clarification:
+            update_data['clarification_count'] = clarification_round
+
         # 첫 답변이면 제목 업데이트
         current_title = session.get('title', '')
-        if session['question_count'] == 0 and (not current_title or '상담' not in current_title):
+        if session['question_count'] == 0 and (not current_title or current_title == '새 상담'):
             update_data['title'] = user_content[:30] + ('...' if len(user_content) > 30 else '')
 
         supabase.table('consultation_sessions').update(
@@ -205,19 +320,14 @@ class ConsultationService:
         request: dict,
         report: dict,
         history: List[dict],
+        recent_consultations: List[dict],
         previous_error: str = None
-    ) -> Tuple[str, str]:
+    ) -> Tuple[str, str, int]:
         """
-        Gemini 호출 (clarification vs answer 분기)
-
-        Args:
-            request: 요청 데이터
-            report: 사주 리포트 데이터
-            history: 세션 히스토리
-            previous_error: 이전 시도 오류 (재시도 시 피드백)
+        Gemini 호출 (평가 → 명확화 or 답변)
 
         Returns:
-            (ai_content, message_type)
+            (ai_content, message_type, clarification_round)
         """
         gemini = get_gemini_service()
         language = request.get('language', 'ko')
@@ -229,65 +339,170 @@ class ConsultationService:
         daewun = report.get('daewun', [])
         analysis = report.get('analysis', {})
 
-        # user_question + 첫 질문 + 건너뛰기 아님 → clarification 시도
-        is_user_question = message_type == 'user_question'
-        has_no_prev_clarification = not any(
-            h.get('message_type') == 'ai_clarification' for h in history
-        )
+        # 명확화 히스토리 추출
+        clarification_history = self._extract_clarification_history(history)
+        current_clarification_round = len(clarification_history)
 
-        if is_user_question and not skip_clarification and has_no_prev_clarification:
-            # 추가 정보 요청 시도
+        # 사주 요약 생성
+        pillars_summary = self._build_pillars_summary(pillars, analysis)
+
+        # 최대 명확화 횟수 도달 또는 건너뛰기 → 바로 답변
+        if current_clarification_round >= self.MAX_CLARIFICATIONS or skip_clarification:
+            logger.info(f"[Consultation] 바로 답변 생성 (round={current_clarification_round}, skip={skip_clarification})")
+            return await self._generate_final_answer(
+                gemini, request, report, clarification_history,
+                recent_consultations, 100, previous_error
+            )
+
+        # user_clarification인 경우 → 정보 평가 후 다음 결정
+        # user_question인 경우 → 정보 평가
+        if message_type in ['user_question', 'user_clarification']:
+            # 정보 평가 (프롬프트 1)
+            assessment_prompt = build_assessment_prompt(
+                question=user_content,
+                pillars_summary=pillars_summary,
+                history=clarification_history,
+                recent_consultations=recent_consultations,
+                language=language
+            )
+
             try:
-                clarification_prompt = build_clarification_prompt(user_content, language)
-                clarification_result = await gemini.generate_json(clarification_prompt)
+                assessment = await gemini.generate_json(assessment_prompt)
+                logger.info(f"[Consultation] 평가 결과: {assessment}")
 
-                if (clarification_result.get('needsClarification') and
-                    clarification_result.get('clarificationQuestions')):
-                    questions = clarification_result['clarificationQuestions']
-                    ai_content = "더 정확한 상담을 위해 몇 가지 여쭤볼게요:\n\n"
-                    ai_content += "\n".join(f"{i+1}. {q}" for i, q in enumerate(questions))
-                    return ai_content, 'ai_clarification'
+                # 유효하지 않은 질문
+                if not assessment.get('isValid', True):
+                    invalid_reason = assessment.get('invalidReason') or '사주 상담과 관련된 질문을 부탁드립니다.'
+                    return invalid_reason, 'ai_answer', 0
 
-                if not clarification_result.get('isValidQuestion'):
-                    invalid_reason = clarification_result.get(
-                        'invalidReason',
-                        '사주 상담과 관련된 질문을 부탁드립니다.'
+                # 정보 충분 → 답변 생성
+                is_sufficient = assessment.get('isInfoSufficient', False)
+                confidence = assessment.get('confidenceLevel', 0)
+
+                if is_sufficient or confidence >= 80:
+                    logger.info(f"[Consultation] 정보 충분 (confidence={confidence}%) → 답변 생성")
+                    return await self._generate_final_answer(
+                        gemini, request, report, clarification_history,
+                        recent_consultations, confidence, previous_error
                     )
-                    return invalid_reason, 'ai_answer'
+
+                # 정보 부족 → 추가 질문
+                next_questions = assessment.get('nextQuestions', [])
+                if next_questions:
+                    new_round = current_clarification_round + 1
+                    logger.info(f"[Consultation] 추가 질문 필요 (round={new_round})")
+
+                    # 질문 포맷
+                    ai_content = self._format_clarification_questions(next_questions, language)
+                    return ai_content, 'ai_clarification', new_round
+
+                # nextQuestions가 없으면 답변 생성
+                logger.info("[Consultation] nextQuestions 없음 → 답변 생성")
+                return await self._generate_final_answer(
+                    gemini, request, report, clarification_history,
+                    recent_consultations, confidence, previous_error
+                )
 
             except Exception as e:
-                logger.warning(f"Clarification 생성 실패, 바로 답변 시도: {e}")
+                logger.warning(f"[Consultation] 평가 실패, 바로 답변 시도: {e}")
+                return await self._generate_final_answer(
+                    gemini, request, report, clarification_history,
+                    recent_consultations, 50, previous_error
+                )
 
-        # 최종 답변 생성
-        session_history = self._build_session_history(history)
-
-        clarification_response = None
-        if message_type == 'user_clarification':
-            clarification_response = user_content
-            # user_clarification인 경우 원래 질문 찾기
-            original_question = self._find_original_question(
-                history,
-                request.get('question_round', 1)
-            )
-            if original_question:
-                user_content = original_question
-
-        # 신년분석 요약 추출
-        yearly_summary = report.get('yearly_summary')
-
-        answer_prompt = build_answer_prompt(
-            question=user_content,
-            pillars=pillars,
-            daewun=daewun,
-            analysis_summary=analysis.get('summary'),
-            session_history=session_history,
-            clarification_response=clarification_response,
-            language=language,
-            today=datetime.now().strftime('%Y-%m-%d'),
-            yearly_summary=yearly_summary,
+        # 기타 경우 → 답변 생성
+        return await self._generate_final_answer(
+            gemini, request, report, clarification_history,
+            recent_consultations, 100, previous_error
         )
 
-        # v2.7: 에러 피드백 추가 (재시도 시)
+    def _format_clarification_questions(
+        self,
+        questions: List[str],
+        language: str
+    ) -> str:
+        """명확화 질문 포맷"""
+        intro_messages = {
+            'ko': '더 정확한 상담을 위해 몇 가지 여쭤볼게요:\n\n',
+            'en': 'For a more accurate consultation, I have a few questions:\n\n',
+            'ja': 'より正確な相談のために、いくつかお聞きします：\n\n',
+            'zh-CN': '为了更准确的咨询，我有几个问题：\n\n',
+            'zh-TW': '為了更準確的諮詢，我有幾個問題：\n\n'
+        }
+
+        intro = intro_messages.get(language, intro_messages['ko'])
+        formatted_questions = '\n'.join(f"{i+1}. {q}" for i, q in enumerate(questions[:2]))
+
+        return intro + formatted_questions
+
+    async def _generate_final_answer(
+        self,
+        gemini,
+        request: dict,
+        report: dict,
+        clarification_history: List[Dict[str, str]],
+        recent_consultations: List[dict],
+        confidence_level: int,
+        previous_error: str = None
+    ) -> Tuple[str, str, int]:
+        """최종 답변 생성"""
+        language = request.get('language', 'ko')
+        user_content = request['user_content']
+        message_type = request['message_type']
+
+        pillars = report.get('pillars', {})
+        daewun = report.get('daewun', [])
+        analysis = report.get('analysis', {})
+        yearly_summary = report.get('yearly_summary')
+
+        # user_clarification인 경우 원래 질문 찾기
+        original_question = user_content
+        if message_type == 'user_clarification':
+            # 히스토리에서 원래 user_question 찾기
+            for msg in self._get_session_history(
+                get_supabase_client(),
+                request['session_id'],
+                request['message_id']
+            ):
+                if msg.get('message_type') == 'user_question':
+                    original_question = msg.get('content', user_content)
+                    break
+
+            # 현재 응답도 clarification_history에 추가
+            # (아직 DB에 저장 안 됨)
+            clarification_history = clarification_history.copy()
+            # 마지막 ai_clarification 찾기
+            last_ai_q = None
+            for msg in self._get_session_history(
+                get_supabase_client(),
+                request['session_id'],
+                request['message_id']
+            ):
+                if msg.get('message_type') == 'ai_clarification' and msg.get('status') == 'completed':
+                    last_ai_q = msg.get('content', '')
+
+            if last_ai_q:
+                clarification_history.append({
+                    'round': len(clarification_history) + 1,
+                    'ai_question': last_ai_q,
+                    'user_answer': user_content
+                })
+
+        # 답변 프롬프트 생성
+        answer_prompt = build_answer_prompt(
+            question=original_question,
+            pillars=pillars,
+            daewun=daewun,
+            clarification_responses=clarification_history,
+            today=datetime.now().strftime('%Y-%m-%d'),
+            analysis_summary=analysis.get('summary') if analysis else None,
+            yearly_summary=yearly_summary,
+            recent_consultations=recent_consultations,
+            confidence_level=confidence_level,
+            language=language
+        )
+
+        # 에러 피드백 추가 (재시도 시)
         if previous_error:
             answer_prompt += f"""
 
@@ -296,37 +511,7 @@ class ConsultationService:
 위 오류를 해결하여 올바르게 응답하세요."""
 
         answer = await gemini.generate_text(answer_prompt)
-        return answer, 'ai_answer'
-
-    def _build_session_history(self, history: List[dict]) -> List[Dict[str, str]]:
-        """세션 히스토리를 Q&A 쌍으로 변환"""
-        result = []
-        current_question = None
-
-        for msg in history:
-            msg_type = msg.get('message_type')
-            if msg_type == 'user_question':
-                current_question = msg.get('content', '')
-            elif msg_type == 'ai_answer' and msg.get('status') == 'completed' and current_question:
-                result.append({
-                    'question': current_question,
-                    'answer': msg.get('content', '')
-                })
-                current_question = None
-
-        return result
-
-    def _find_original_question(
-        self,
-        history: List[dict],
-        question_round: int
-    ) -> Optional[str]:
-        """현재 라운드의 원래 질문 찾기"""
-        for msg in history:
-            if (msg.get('message_type') == 'user_question' and
-                msg.get('question_round') == question_round):
-                return msg.get('content')
-        return None
+        return answer, 'ai_answer', len(clarification_history)
 
 
 # 싱글톤 인스턴스

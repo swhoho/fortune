@@ -6,14 +6,17 @@
  * 모바일: 채팅 영역 + 슬라이드 메뉴
  */
 import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
-import { MessageCircle, Sparkles } from 'lucide-react';
+import { MessageCircle, Sparkles, AlertCircle } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import { SessionList } from './SessionList';
 import { ChatArea } from './ChatArea';
 import { useConsultationSessions, useCreateSession } from '@/hooks/use-consultation';
 import { useCreditsCheck } from '@/hooks/use-credits';
 import { InsufficientCreditsDialog } from '@/components/credits/InsufficientCreditsDialog';
 import { CreditDeductionDialog } from '@/components/credits/CreditDeductionDialog';
+import { Button } from '@/components/ui/button';
 import { SERVICE_CREDITS } from '@/lib/stripe';
 
 interface ConsultationTabProps {
@@ -22,6 +25,10 @@ interface ConsultationTabProps {
 }
 
 export function ConsultationTab({ profileId }: ConsultationTabProps) {
+  const router = useRouter();
+  const t = useTranslations('consultation');
+  const tCommon = useTranslations('common');
+
   // 세션 목록 조회
   const { data: sessions = [], isLoading: isLoadingSessions } = useConsultationSessions(profileId);
   const createSession = useCreateSession();
@@ -37,6 +44,9 @@ export function ConsultationTab({ profileId }: ConsultationTabProps) {
 
   // 크레딧 차감 확인 다이얼로그
   const [showDeductionDialog, setShowDeductionDialog] = useState(false);
+
+  // 사주 분석 미완료 에러 상태
+  const [noReportError, setNoReportError] = useState(false);
 
   // 크레딧 확인
   const { data: creditsCheck, refetch: refetchCredits } = useCreditsCheck(SERVICE_CREDITS.question);
@@ -79,9 +89,16 @@ export function ConsultationTab({ profileId }: ConsultationTabProps) {
         refetchCredits();
       }
     } catch (error) {
+      const err = error as Error & { code?: string };
       // 크레딧 부족 에러 처리
-      if ((error as Error & { code?: string }).code === 'INSUFFICIENT_CREDITS') {
+      if (err.code === 'INSUFFICIENT_CREDITS') {
         setShowCreditsDialog(true);
+        return;
+      }
+      // 사주 분석 미완료 에러 처리
+      if (err.code === 'NO_REPORT') {
+        setNoReportError(true);
+        return;
       }
       console.error('[ConsultationTab] 세션 생성 실패:', error);
     }
@@ -94,6 +111,37 @@ export function ConsultationTab({ profileId }: ConsultationTabProps) {
     setActiveSessionId(sessionId);
     setIsMobileMenuOpen(false);
   };
+
+  // 사주 분석 미완료 에러 화면
+  if (noReportError) {
+    return (
+      <motion.div
+        initial={{ opacity: 0, scale: 0.9 }}
+        animate={{ opacity: 1, scale: 1 }}
+        className="flex flex-col items-center justify-center py-16 text-center"
+      >
+        <AlertCircle className="mb-4 h-16 w-16 text-red-400" />
+        <h3 className="mb-2 text-xl font-semibold text-white">{t('noReportError.title')}</h3>
+        <p className="mb-6 max-w-sm text-gray-400">{t('noReportError.description')}</p>
+        <div className="flex gap-3">
+          <Button
+            variant="outline"
+            onClick={() => setNoReportError(false)}
+            className="border-[#333] bg-[#1a1a1a] text-white hover:bg-[#242424]"
+          >
+            {tCommon('back')}
+          </Button>
+          <Button
+            onClick={() => router.push(`/profiles/${profileId}/generating`)}
+            style={{ backgroundColor: '#d4af37', color: '#000' }}
+            className="hover:opacity-90"
+          >
+            {t('noReportError.goToAnalysis')}
+          </Button>
+        </div>
+      </motion.div>
+    );
+  }
 
   // 세션이 없을 때 빈 상태
   if (!isLoadingSessions && sessions.length === 0) {

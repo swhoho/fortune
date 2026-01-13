@@ -12,6 +12,7 @@ import type {
   SendMessageResponse,
   GetMessagesResponse,
 } from '@/types/consultation';
+import { CONSULTATION_CONSTANTS } from '@/types/consultation';
 
 // Vercel serverless 캐시 비활성화
 export const dynamic = 'force-dynamic';
@@ -105,6 +106,7 @@ export async function GET(request: NextRequest, context: RouteContext) {
           errorMessage: isStale
             ? '응답 생성 시간이 초과되었습니다. 다시 시도해주세요.'
             : msg.error_message,
+          clarificationRound: msg.clarification_round || 0,
         };
       }
     );
@@ -117,7 +119,9 @@ export async function GET(request: NextRequest, context: RouteContext) {
           title: session.title,
           status: session.status,
           questionCount: session.question_count,
-          maxQuestions: 5,
+          maxQuestions: CONSULTATION_CONSTANTS.MAX_QUESTIONS_PER_SESSION,
+          clarificationCount: session.clarification_count || 0,
+          maxClarifications: session.max_clarifications || CONSULTATION_CONSTANTS.MAX_CLARIFICATIONS,
         },
         messages,
       },
@@ -195,7 +199,7 @@ export async function POST(request: NextRequest, context: RouteContext) {
       );
     }
 
-    if (session.question_count >= 5) {
+    if (session.question_count >= CONSULTATION_CONSTANTS.MAX_QUESTIONS_PER_SESSION) {
       return NextResponse.json(
         { success: false, ...createErrorResponse(API_ERRORS.BAD_REQUEST) },
         { status: getStatusCode(API_ERRORS.BAD_REQUEST) }
@@ -205,6 +209,8 @@ export async function POST(request: NextRequest, context: RouteContext) {
     const currentRound = session.question_count + 1;
     const isUserClarification = body.messageType === 'user_clarification';
     const skipClarification = body.skipClarification || false;
+    const currentClarificationCount = session.clarification_count || 0;
+    const maxClarifications = session.max_clarifications || CONSULTATION_CONSTANTS.MAX_CLARIFICATIONS;
 
     // 1. 사용자 메시지 저장
     const { data: userMessage, error: userMsgError } = await supabase
@@ -317,10 +323,14 @@ export async function POST(request: NextRequest, context: RouteContext) {
           content: '',
           questionRound: currentRound,
           status: 'generating',
+          clarificationRound: isUserClarification ? currentClarificationCount + 1 : 0,
         },
         sessionStatus: session.status as 'active' | 'completed',
         questionCount: session.question_count,
-        canAskMore: session.question_count < 5,
+        canAskMore: session.question_count < CONSULTATION_CONSTANTS.MAX_QUESTIONS_PER_SESSION,
+        clarificationRound: isUserClarification ? currentClarificationCount + 1 : 0,
+        maxClarifications: maxClarifications,
+        isLastClarification: isUserClarification && (currentClarificationCount + 1) >= maxClarifications,
       },
     };
 

@@ -992,7 +992,7 @@
   },
   "subscription": {
     "title": "高級訂閱",
-    "price": "每月NT$99",
+    "price": "每月NT$79",
     "benefits": {
       "dailyFortune": "每日運勢查看",
       "monthlyCredits": "每月50積分"
@@ -1128,7 +1128,7 @@
       },
       "pricing": {
         "title": "高級訂閱",
-        "price": "NT$99",
+        "price": "NT$79",
         "period": "/月",
         "includes": {
           "dailyFortune": "每日運勢無限查看",
@@ -1308,11 +1308,37 @@
     },
     "history": "諮詢記錄",
     "newSession": "新會話",
+    "yesterday": "昨天",
+    "daysAgo": "{days}天前",
+    "empty": "暫無諮詢記錄",
+    "noSession": "請選擇會話或開始新諮詢",
+    "loadError": "無法載入訊息",
+    "askAnything": "請隨意提問",
+    "askAnythingDesc": "基於分析的八字和大運\n為您解答職業、戀愛、財運、健康等問題。",
+    "question": "問題",
+    "generating": "正在生成回答...",
+    "collectingInfo": "正在收集額外資訊 ({current}/{max})",
+    "timeout": "回應逾時",
+    "timeoutMessage": "回應生成逾時，請重試。",
+    "failed": "回應生成失敗",
+    "failedDefault": "AI回應生成失敗",
+    "regenerating": "正在重新生成...",
+    "regenerate": "重新生成",
+    "complete": "完成",
+    "roundLimit": "此會話已達到問題限制（2輪）。",
+    "newSessionCost": "開始新諮詢 (10C)",
+    "inputPlaceholder": "請輸入問題...（最多500字）",
+    "clarificationPlaceholder": "請輸入補充資訊...",
     "needMoreInfo": "需要更多資訊",
     "questionCount": "問題 {current}/{max}",
     "charsRemaining": "剩餘{count}字",
     "skipInfo": "不提供額外資訊直接回答",
-    "roundLimitDesc": "每次會話可進行2輪提問"
+    "roundLimitDesc": "每次會話可進行2輪提問",
+    "noReportError": {
+      "title": "需要先完成基本四柱分析",
+      "description": "使用AI諮詢前，請先完成基本四柱分析。",
+      "goToAnalysis": "前往四柱分析"
+    }
   },
   "errors": {
     "AUTH_UNAUTHORIZED": "請登入後繼續",
