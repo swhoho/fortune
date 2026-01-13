@@ -141,7 +141,15 @@ export function ProfileInfoCard({
 
                 {/* 이름 + 기본 정보 */}
                 <div>
-                  <h2 className="font-serif text-xl font-bold text-white">{profile.name}</h2>
+                  <div className="flex items-center gap-2">
+                    <h2 className="font-serif text-xl font-bold text-white">{profile.name}</h2>
+                    {profile.isPrimary && (
+                      <span className="inline-flex items-center gap-1 rounded-full bg-[#d4af37]/20 px-2 py-0.5 text-xs font-medium text-[#d4af37]">
+                        <Crown className="h-3 w-3" />
+                        {t('primary.badge')}
+                      </span>
+                    )}
+                  </div>
                   <p className="text-sm text-gray-400">
                     {profile.gender === 'male' ? t('form.male') : t('form.female')} ·{' '}
                     {t('detail.age', { age })}
