@@ -198,7 +198,7 @@ export async function createPayAppRebill(
   params: PayAppRebillRequest
 ): Promise<PayAppRebillResponse> {
   const formData = new URLSearchParams();
-  formData.append('cmd', 'rebillrequest');
+  formData.append('cmd', 'rebillRegist');
   formData.append('userid', PAYAPP_CONFIG.userId);
   formData.append('linkkey', PAYAPP_CONFIG.linkKey);
   formData.append('linkval', PAYAPP_CONFIG.linkVal);
