@@ -125,8 +125,8 @@ export default function DailyFortuneSubscribePage({
     }
   };
 
-  /** 구독 시작 (Mock) */
-  const handleSubscribe = async () => {
+  /** 구독 시작 (PayApp 정기결제) */
+  const handleSubscribe = async (phoneNumber: string) => {
     if (!user) {
       router.push(`/${locale}/auth/signin?redirect=/daily-fortune/subscribe`);
       return;
@@ -135,21 +135,27 @@ export default function DailyFortuneSubscribePage({
     setIsProcessing(true);
     setError(null);
     try {
-      const res = await fetch('/api/subscription/start', { method: 'POST' });
+      const res = await fetch('/api/subscription/payapp/create', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ phoneNumber }),
+      });
       const data = await res.json();
 
-      if (data.success) {
-        router.push(`/${locale}/home`);
+      if (data.success && data.payUrl) {
+        // PayApp 결제창으로 리디렉션
+        window.location.href = data.payUrl;
       } else {
-        setError(data.error || '구독 시작에 실패했습니다.');
-        console.error('Failed to subscribe:', data);
+        setError(data.error || '결제 요청에 실패했습니다.');
+        console.error('Failed to create payment:', data);
+        setIsProcessing(false);
       }
     } catch (err) {
       setError('네트워크 오류가 발생했습니다.');
       console.error('Failed to subscribe:', err);
-    } finally {
       setIsProcessing(false);
     }
+    // 성공 시 isProcessing은 리디렉션되므로 유지
   };
 
   // 마운트 전 또는 로딩 중일 때 로딩 UI

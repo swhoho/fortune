@@ -1137,12 +1137,15 @@
           "personalized": "個人用神に基づくラッキー情報",
           "consultation": "クレジットで個人相談可能"
         },
+        "phoneLabel": "決済通知用の携帯電話番号",
+        "phoneHint": "PayAppから決済通知が送信されます",
+        "phoneError": "有効な携帯電話番号を入力してください",
         "cta": {
           "startTrial": "3日間無料体験を始める",
           "trialNotice": "無料体験後の自動課金なし",
           "subscribe": "購読を開始する",
           "trialActive": "残り{days}日",
-          "mockNotice": "テストモード：実際の決済なしで購読体験"
+          "paymentNotice": "定期課金購読・いつでも解約可能"
         }
       }
     },

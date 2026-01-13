@@ -1289,12 +1289,15 @@
           "personalized": "개인 용신 기반 행운 정보",
           "consultation": "크레딧을 통한 개인 상담 진행가능"
         },
+        "phoneLabel": "결제 알림 받을 휴대폰 번호",
+        "phoneHint": "PayApp에서 결제 알림이 발송됩니다",
+        "phoneError": "올바른 휴대폰 번호를 입력해주세요",
         "cta": {
           "startTrial": "3일 무료체험 시작하기",
           "trialNotice": "무료체험 후 자동 결제 없음",
           "subscribe": "구독 시작하기",
           "trialActive": "무료체험 {days}일 남음",
-          "mockNotice": "테스트 모드: 실제 결제 없이 구독 체험"
+          "paymentNotice": "정기결제 구독 · 언제든 해지 가능"
         }
       }
     },

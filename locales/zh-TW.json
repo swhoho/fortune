@@ -1137,12 +1137,15 @@
           "personalized": "基於個人用神的幸運資訊",
           "consultation": "積分可進行個人諮詢"
         },
+        "phoneLabel": "接收付款通知的手機號碼",
+        "phoneHint": "PayApp將發送付款通知",
+        "phoneError": "請輸入有效的手機號碼",
         "cta": {
           "startTrial": "開始3天免費試用",
           "trialNotice": "試用後無自動扣費",
           "subscribe": "開始訂閱",
           "trialActive": "剩餘{days}天",
-          "mockNotice": "測試模式：無需付費體驗訂閱"
+          "paymentNotice": "定期訂閱 · 隨時可取消"
         }
       }
     },

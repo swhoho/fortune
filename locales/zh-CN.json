@@ -1137,12 +1137,15 @@
           "personalized": "基于个人用神的幸运信息",
           "consultation": "积分可进行个人咨询"
         },
+        "phoneLabel": "接收付款通知的手机号码",
+        "phoneHint": "PayApp将发送付款通知",
+        "phoneError": "请输入有效的手机号码",
         "cta": {
           "startTrial": "开始3天免费试用",
           "trialNotice": "试用后无自动扣费",
           "subscribe": "开始订阅",
           "trialActive": "剩余{days}天",
-          "mockNotice": "测试模式：无需付费体验订阅"
+          "paymentNotice": "定期订阅 · 随时可取消"
         }
       }
     },

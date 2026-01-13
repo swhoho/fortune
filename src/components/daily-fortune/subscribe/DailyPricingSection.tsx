@@ -1,8 +1,9 @@
 'use client';
 
+import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { useTranslations } from 'next-intl';
-import { Check, Crown, X, AlertCircle } from 'lucide-react';
+import { Check, Crown, X, AlertCircle, Phone, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 interface SubscriptionStatus {
@@ -16,7 +17,7 @@ interface DailyPricingSectionProps {
   locale: string;
   subscriptionStatus: SubscriptionStatus | null;
   onStartTrial: () => void;
-  onSubscribe: () => void;
+  onSubscribe: (phoneNumber: string) => void;
   isLoading?: boolean;
   error?: string | null;
   onErrorDismiss?: () => void;
@@ -43,10 +44,37 @@ export function DailyPricingSection({
   onErrorDismiss,
 }: DailyPricingSectionProps) {
   const t = useTranslations('dailyFortune.subscribe.pricing');
+  const [phoneNumber, setPhoneNumber] = useState('');
+  const [phoneError, setPhoneError] = useState<string | null>(null);
 
   const canStartTrial = subscriptionStatus?.canStartTrial ?? true;
   const isTrialActive = subscriptionStatus?.isTrialActive ?? false;
   const trialRemainingDays = subscriptionStatus?.trialRemainingDays ?? 0;
+
+  /** 휴대폰 번호 포맷팅 (000-0000-0000) */
+  const formatPhoneNumber = (value: string) => {
+    const numbers = value.replace(/[^0-9]/g, '');
+    if (numbers.length <= 3) return numbers;
+    if (numbers.length <= 7) return `${numbers.slice(0, 3)}-${numbers.slice(3)}`;
+    return `${numbers.slice(0, 3)}-${numbers.slice(3, 7)}-${numbers.slice(7, 11)}`;
+  };
+
+  /** 휴대폰 번호 입력 핸들러 */
+  const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const formatted = formatPhoneNumber(e.target.value);
+    setPhoneNumber(formatted);
+    setPhoneError(null);
+  };
+
+  /** 구독 버튼 클릭 핸들러 */
+  const handleSubscribeClick = () => {
+    const numbers = phoneNumber.replace(/[^0-9]/g, '');
+    if (numbers.length < 10 || numbers.length > 11) {
+      setPhoneError(t('phoneError'));
+      return;
+    }
+    onSubscribe(numbers);
+  };
 
   return (
     <section className="px-6 py-8" suppressHydrationWarning>
@@ -113,20 +141,40 @@ export function DailyPricingSection({
                 disabled={isLoading}
                 className="w-full bg-gradient-to-r from-[#d4af37] to-amber-500 py-6 text-base font-semibold text-black hover:from-amber-500 hover:to-[#d4af37]"
               >
-                {isLoading ? '...' : t('cta.startTrial')}
+                {isLoading ? <Loader2 className="h-5 w-5 animate-spin" /> : t('cta.startTrial')}
               </Button>
               <p className="text-center text-xs text-gray-500">{t('cta.trialNotice')}</p>
             </div>
           ) : (
-            <div className="space-y-3">
+            <div className="space-y-4">
+              {/* 휴대폰 번호 입력 */}
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-gray-300">{t('phoneLabel')}</label>
+                <div className="relative">
+                  <Phone className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-500" />
+                  <input
+                    type="tel"
+                    value={phoneNumber}
+                    onChange={handlePhoneChange}
+                    placeholder="010-0000-0000"
+                    maxLength={13}
+                    className="w-full rounded-lg border border-[#333] bg-[#1a1a1a] py-3 pl-10 pr-4 text-white placeholder:text-gray-500 focus:border-[#d4af37] focus:outline-none focus:ring-1 focus:ring-[#d4af37]"
+                  />
+                </div>
+                {phoneError && (
+                  <p className="text-xs text-red-400">{phoneError}</p>
+                )}
+                <p className="text-xs text-gray-500">{t('phoneHint')}</p>
+              </div>
+
               <Button
-                onClick={onSubscribe}
-                disabled={isLoading}
-                className="w-full bg-gradient-to-r from-[#d4af37] to-amber-500 py-6 text-base font-semibold text-black hover:from-amber-500 hover:to-[#d4af37]"
+                onClick={handleSubscribeClick}
+                disabled={isLoading || !phoneNumber}
+                className="w-full bg-gradient-to-r from-[#d4af37] to-amber-500 py-6 text-base font-semibold text-black hover:from-amber-500 hover:to-[#d4af37] disabled:opacity-50"
               >
-                {isLoading ? '...' : t('cta.subscribe')}
+                {isLoading ? <Loader2 className="h-5 w-5 animate-spin" /> : t('cta.subscribe')}
               </Button>
-              <p className="text-center text-xs text-gray-500">{t('cta.mockNotice')}</p>
+              <p className="text-center text-xs text-gray-500">{t('cta.paymentNotice')}</p>
             </div>
           )}
         </div>

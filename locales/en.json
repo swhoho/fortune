@@ -1289,12 +1289,15 @@
           "personalized": "Personalized lucky information",
           "consultation": "Personal AI consultation with credits"
         },
+        "phoneLabel": "Phone number for payment notification",
+        "phoneHint": "Payment notifications will be sent via PayApp",
+        "phoneError": "Please enter a valid phone number",
         "cta": {
           "startTrial": "Start 3-Day Free Trial",
           "trialNotice": "No auto-charge after trial",
           "subscribe": "Start Subscription",
           "trialActive": "{days} days left",
-          "mockNotice": "Test mode: Experience subscription without payment"
+          "paymentNotice": "Recurring subscription · Cancel anytime"
         }
       }
     },
