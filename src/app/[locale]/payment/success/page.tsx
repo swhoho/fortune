@@ -79,25 +79,25 @@ function PaymentSuccessContent() {
         const isCompleted = await checkPayAppStatus(paymentId, packageId);
         if (isCompleted) return;
 
-        // 3초 간격으로 최대 10회 폴링 (30초)
+        // 2초 간격으로 최대 15회 폴링 (30초)
         pollingRef.current = setInterval(async () => {
           pollingCountRef.current += 1;
 
           const completed = await checkPayAppStatus(paymentId, packageId);
 
-          if (completed || pollingCountRef.current >= 10) {
+          if (completed || pollingCountRef.current >= 15) {
             if (pollingRef.current) {
               clearInterval(pollingRef.current);
               pollingRef.current = null;
             }
 
-            if (!completed && pollingCountRef.current >= 10) {
+            if (!completed && pollingCountRef.current >= 15) {
               // 타임아웃 - 그래도 성공으로 처리 (콜백이 늦게 올 수 있음)
               setCredits(String(selectedPackage.credits + (selectedPackage.bonus || 0)));
               setVerifyStatus('success');
             }
           }
-        }, 3000);
+        }, 2000);
 
         return;
       }
