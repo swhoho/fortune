@@ -1017,7 +1017,7 @@ function InteractionDisplay({
           </span>
           {peachBlossom && (
             <span className="ml-auto rounded-full bg-pink-500/20 px-2 py-0.5 text-xs text-pink-300">
-              +{peachBlossom.attractionBonus}점
+              +{peachBlossom.attractionBonus}{t('history.scoreUnit', { defaultValue: '점' })}
             </span>
           )}
         </div>
