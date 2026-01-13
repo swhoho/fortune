@@ -25,6 +25,7 @@ import {
   type PaymentMethod,
 } from '@/lib/portone';
 
+import { Coffee, ChevronRight } from 'lucide-react';
 import {
   HeroSection,
   PillarsSection,
@@ -315,6 +316,37 @@ export default function PaymentPage({ params: { locale } }: { params: { locale: 
                     </motion.button>
                   ))}
                 </div>
+
+                {/* 구독 프로모션 배너 */}
+                <motion.div
+                  onClick={() => router.push(`/${locale}/daily-fortune/subscribe`)}
+                  whileHover={{ scale: 1.01 }}
+                  whileTap={{ scale: 0.99 }}
+                  className="mt-4 flex cursor-pointer items-center justify-between rounded-xl border border-[#d4af37]/40 bg-gradient-to-r from-[#1a1a1a] to-[#242424] p-4 transition-all hover:border-[#d4af37] hover:shadow-[0_0_15px_rgba(212,175,55,0.2)]"
+                >
+                  {/* 아이콘 */}
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#d4af37]/10">
+                    <Coffee className="h-5 w-5 text-[#d4af37]" />
+                  </div>
+
+                  {/* 텍스트 */}
+                  <div className="mx-4 flex-1">
+                    <p className="text-sm font-medium text-white">
+                      커피 한 잔 가격으로 <span className="text-[#d4af37]">매일 운세분석</span> + <span className="text-[#d4af37]">50C</span>
+                    </p>
+                    <p className="mt-0.5 text-xs text-gray-400">
+                      개인화 조언 · 무제한 오늘의 운세
+                    </p>
+                  </div>
+
+                  {/* 가격 + 화살표 */}
+                  <div className="flex shrink-0 items-center gap-2">
+                    <span className="rounded-full bg-[#d4af37]/20 px-3 py-1 text-sm font-bold text-[#d4af37]">
+                      ₩2,900/월
+                    </span>
+                    <ChevronRight className="h-5 w-5 text-gray-400" />
+                  </div>
+                </motion.div>
 
                 {/* 결제 수단 선택 */}
                 <div className="mb-6">
