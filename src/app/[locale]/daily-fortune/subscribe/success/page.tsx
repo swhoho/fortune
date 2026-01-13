@@ -142,13 +142,6 @@ export default function SubscriptionSuccessPage({
 
   // pending 상태일 때 폴링
   useEffect(() => {
-    if (result.status === 'pending' && retryCount < MAX_RETRY_COUNT) {
-      const timer = setTimeout(() => {
-        setRetryCount((prev) => prev + 1);
-      }, RETRY_INTERVAL);
-      return () => clearTimeout(timer);
-    }
-
     // 최대 재시도 횟수 초과 시 성공으로 처리 (콜백이 늦게 올 수 있음)
     if (result.status === 'pending' && retryCount >= MAX_RETRY_COUNT) {
       setResult((prev) => ({
@@ -157,6 +150,14 @@ export default function SubscriptionSuccessPage({
         message: '결제가 완료되었습니다. 잠시 후 구독이 활성화됩니다.',
       }));
       sessionStorage.removeItem('payapp_rebill_no');
+      return;
+    }
+
+    if (result.status === 'pending' && retryCount < MAX_RETRY_COUNT) {
+      const timer = setTimeout(() => {
+        setRetryCount((prev) => prev + 1);
+      }, RETRY_INTERVAL);
+      return () => clearTimeout(timer);
     }
   }, [result.status, retryCount]);
 
