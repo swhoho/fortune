@@ -22,8 +22,14 @@
 ## 프로젝트 구조
 
 ```
+admin/                          # 관리자 시스템 (최상위)
+├── api/                        # API 핸들러 로직
+├── components/                 # 관리자 UI 컴포넌트
+└── lib/                        # 관리자 유틸리티
+
 src/
 ├── app/
+│   ├── admin/              # 관리자 페이지 (다국어 미지원)
 │   ├── [locale]/           # 다국어 라우팅
 │   │   ├── home/           # 홈화면
 │   │   ├── profiles/       # 프로필 CRUD
@@ -33,6 +39,7 @@ src/
 │   │   ├── analysis/       # 분석 플로우
 │   │   └── payment/        # 결제
 │   └── api/
+│       ├── admin/                 # 관리자 API
 │       ├── profiles/[id]/report/  # 리포트 API
 │       └── user/credits/          # 크레딧 API
 ├── components/
@@ -130,6 +137,23 @@ python/
 - `GET /api/subscription/status` - 상태 조회
 - `POST /api/subscription/cancel` - 취소
 - `/api/cron/expire-subscriptions` - 만료 처리
+
+### 관리자 시스템
+
+- **관리자 페이지**: `/admin`
+- **관리자 이메일**: `swhoho@gmail.com` (환경변수 `ADMIN_EMAILS`)
+- **관련 파일**: `admin/` 폴더
+
+**기능**:
+- 유저 검색 (user_id, 이메일)
+- 유저별 결제/크레딧/AI 사용 기록 조회
+- 무료 크레딧 보상 지급 (만료일 설정 가능)
+
+**API**:
+- `GET /api/admin/check` - 관리자 권한 확인
+- `GET /api/admin/users?q=검색어` - 유저 검색
+- `GET /api/admin/users/[id]?tab=&page=` - 유저 상세 조회
+- `POST /api/admin/credits` - 크레딧 보상 지급
 
 ### 점수 계산 (v4.0)
 
@@ -334,10 +358,20 @@ cd python && pytest  # Python
 
 ---
 
-**Version**: 1.45.0
-**Last Updated**: 2026-01-12 (오늘의 운세 v4.0 Task 12-15 고도화)
+**Version**: 1.46.0
+**Last Updated**: 2026-01-13 (관리자 유저 관리 페이지)
 
 ## Changelog
+
+### v1.46.0 (2026-01-13)
+- **관리자 유저 관리 페이지**
+  - `/admin` 관리자 전용 페이지 (환경변수 ADMIN_EMAILS로 권한 관리)
+  - 관리자 이메일: `swhoho@gmail.com`
+  - 유저 검색 (user_id 완전일치 / 이메일 부분일치)
+  - 유저별 상세 조회 (결제 기록, 크레딧 기록, AI 사용 기록)
+  - 무료 크레딧 보상 지급 (만료일 1~36개월 설정 가능)
+  - `admin/` 최상위 폴더: API 핸들러, 컴포넌트, 유틸리티
+  - `ADMIN_ERRORS` 에러 코드 추가
 
 ### v1.45.0 (2026-01-12)
 - **오늘의 운세 v4.0 (PRD v4.0 Group 4 Task 12-15)**

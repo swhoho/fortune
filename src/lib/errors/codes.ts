@@ -143,6 +143,18 @@ export const VALIDATION_ERRORS = {
 } as const;
 
 /**
+ * 관리자 관련 에러 코드
+ */
+export const ADMIN_ERRORS = {
+  /** 관리자 권한 없음 */
+  NOT_ADMIN: 'ADMIN_NOT_ADMIN',
+  /** 대상 유저를 찾을 수 없음 */
+  USER_NOT_FOUND: 'ADMIN_USER_NOT_FOUND',
+  /** 크레딧 지급 실패 */
+  CREDIT_GRANT_FAILED: 'ADMIN_CREDIT_GRANT_FAILED',
+} as const;
+
+/**
  * 모든 에러 코드 타입
  */
 export type ErrorCode =
@@ -152,7 +164,8 @@ export type ErrorCode =
   | (typeof PROFILE_ERRORS)[keyof typeof PROFILE_ERRORS]
   | (typeof CREDIT_ERRORS)[keyof typeof CREDIT_ERRORS]
   | (typeof PAYMENT_ERRORS)[keyof typeof PAYMENT_ERRORS]
-  | (typeof VALIDATION_ERRORS)[keyof typeof VALIDATION_ERRORS];
+  | (typeof VALIDATION_ERRORS)[keyof typeof VALIDATION_ERRORS]
+  | (typeof ADMIN_ERRORS)[keyof typeof ADMIN_ERRORS];
 
 /**
  * 에러 응답 인터페이스
@@ -231,6 +244,11 @@ export const ERROR_STATUS_CODES: Partial<Record<ErrorCode, number>> = {
   [PAYMENT_ERRORS.RECORD_CREATE_FAILED]: 500,
   [PAYMENT_ERRORS.USER_FETCH_FAILED]: 500,
   [PAYMENT_ERRORS.CREDIT_UPDATE_FAILED]: 500,
+
+  // 관리자 에러 (403, 404, 500)
+  [ADMIN_ERRORS.NOT_ADMIN]: 403,
+  [ADMIN_ERRORS.USER_NOT_FOUND]: 404,
+  [ADMIN_ERRORS.CREDIT_GRANT_FAILED]: 500,
 };
 
 /**
