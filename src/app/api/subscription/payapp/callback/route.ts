@@ -88,7 +88,10 @@ export async function POST(request: Request) {
     const expectedUserId = process.env.PAYAPP_USER_ID;
     const receivedUserId = formData.get('userid')?.toString();
     if (expectedUserId && receivedUserId !== expectedUserId) {
-      console.error('[PayApp Rebill Callback] 검증 실패: userid 불일치', { expected: expectedUserId, received: receivedUserId });
+      console.error('[PayApp Rebill Callback] 검증 실패: userid 불일치', {
+        expected: expectedUserId,
+        received: receivedUserId,
+      });
       return new Response('FAIL', { status: 400 });
     }
 
@@ -172,7 +175,12 @@ async function handleSubscriptionPending(userId: string, rebillNo: string, recvp
  * - 첫 결제: 구독 활성화 (past_due → active) + 크레딧 지급
  * - 갱신 결제: 구독 기간 연장 + 크레딧 지급
  */
-async function handlePaymentCompleted(userId: string, rebillNo: string, mulNo?: string, recvphone?: string) {
+async function handlePaymentCompleted(
+  userId: string,
+  rebillNo: string,
+  mulNo?: string,
+  recvphone?: string
+) {
   // 구독 조회
   let { data: subscription } = await supabaseAdmin
     .from('subscriptions')

@@ -161,9 +161,7 @@ export function DailyPricingSection({
                     className="w-full rounded-lg border border-[#333] bg-[#1a1a1a] py-3 pl-10 pr-4 text-white placeholder:text-gray-500 focus:border-[#d4af37] focus:outline-none focus:ring-1 focus:ring-[#d4af37]"
                   />
                 </div>
-                {phoneError && (
-                  <p className="text-xs text-red-400">{phoneError}</p>
-                )}
+                {phoneError && <p className="text-xs text-red-400">{phoneError}</p>}
                 <p className="text-xs text-gray-500">{t('phoneHint')}</p>
               </div>
 

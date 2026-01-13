@@ -66,10 +66,7 @@ export interface AnalyticsParams {
  * @param eventName - 이벤트 이름
  * @param params - 이벤트 파라미터
  */
-export function trackEvent(
-  eventName: AnalyticsEvent | string,
-  params?: AnalyticsParams
-): void {
+export function trackEvent(eventName: AnalyticsEvent | string, params?: AnalyticsParams): void {
   // 개발 환경 로깅
   if (process.env.NODE_ENV === 'development') {
     console.log('[GA4]', eventName, params);

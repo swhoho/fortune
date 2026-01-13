@@ -63,7 +63,10 @@ export async function POST(request: Request) {
     const expectedUserId = process.env.PAYAPP_USER_ID;
     const receivedUserId = formData.get('userid')?.toString();
     if (expectedUserId && receivedUserId !== expectedUserId) {
-      console.error('[PayApp Callback] 검증 실패: userid 불일치', { expected: expectedUserId, received: receivedUserId });
+      console.error('[PayApp Callback] 검증 실패: userid 불일치', {
+        expected: expectedUserId,
+        received: receivedUserId,
+      });
       return new Response('FAIL', { status: 400 });
     }
 
@@ -129,7 +132,7 @@ export async function POST(request: Request) {
       amount: totalCredits,
       type: 'purchase',
       purchaseId: purchase.id,
-      description: `PayApp ${pkg.name} 패키지 구매`,
+      description: `PayApp ${pkg.credits}C 패키지 구매`,
       supabase: supabaseAdmin,
     });
 

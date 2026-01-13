@@ -80,9 +80,7 @@ export function FailedSectionCard({
           </Button>
         </div>
 
-        <p className="mt-3 text-center text-xs text-gray-500 sm:text-left">
-          {t('freeNote')}
-        </p>
+        <p className="mt-3 text-center text-xs text-gray-500 sm:text-left">{t('freeNote')}</p>
       </div>
     </motion.div>
   );

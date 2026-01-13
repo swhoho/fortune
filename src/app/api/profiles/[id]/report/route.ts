@@ -1040,9 +1040,7 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
     const retryFromStep = validationResult.success
       ? validationResult.data.retryFromStep
       : undefined;
-    const language = validationResult.success
-      ? validationResult.data.language
-      : 'ko';
+    const language = validationResult.success ? validationResult.data.language : 'ko';
 
     // 1. 프로필 조회 및 소유권 확인
     const { data: profile, error: profileError } = await supabase

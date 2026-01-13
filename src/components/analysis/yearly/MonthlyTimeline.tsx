@@ -194,7 +194,9 @@ export function MonthlyTimeline({ monthlyFortunes, year }: MonthlyTimelineProps)
                 }`}
               >
                 <div className="flex items-center justify-between">
-                  <span className="text-sm font-medium text-gray-300">{getMonthName(fortune.month)}</span>
+                  <span className="text-sm font-medium text-gray-300">
+                    {getMonthName(fortune.month)}
+                  </span>
                   <TrendIcon score={fortune.score} />
                 </div>
                 <p

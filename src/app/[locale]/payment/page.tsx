@@ -340,13 +340,15 @@ export default function PaymentPage({ params: { locale } }: { params: { locale: 
                   <div className="mx-4 flex-1">
                     <p className="text-sm font-medium text-white">
                       {t.rich('subscription.promo', {
-                        daily: () => <span className="text-[#d4af37]">{t('subscription.daily')}</span>,
-                        credits: () => <span className="text-[#d4af37]">{t('subscription.credits')}</span>,
+                        daily: () => (
+                          <span className="text-[#d4af37]">{t('subscription.daily')}</span>
+                        ),
+                        credits: () => (
+                          <span className="text-[#d4af37]">{t('subscription.credits')}</span>
+                        ),
                       })}
                     </p>
-                    <p className="mt-0.5 text-xs text-gray-400">
-                      {t('subscription.subtext')}
-                    </p>
+                    <p className="mt-0.5 text-xs text-gray-400">{t('subscription.subtext')}</p>
                   </div>
 
                   {/* 가격 + 화살표 */}

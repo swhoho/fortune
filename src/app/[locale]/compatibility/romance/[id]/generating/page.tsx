@@ -175,7 +175,9 @@ export default function CompatibilityGeneratingPage() {
   const tips = (() => {
     try {
       const localizedTips = t.raw('generatingTips') as string[];
-      return Array.isArray(localizedTips) && localizedTips.length > 0 ? localizedTips : DEFAULT_TIPS;
+      return Array.isArray(localizedTips) && localizedTips.length > 0
+        ? localizedTips
+        : DEFAULT_TIPS;
     } catch {
       return DEFAULT_TIPS;
     }
@@ -455,13 +457,15 @@ export default function CompatibilityGeneratingPage() {
               <h2 className="text-xl font-semibold text-white">
                 {isCompleted
                   ? t('generatingUI.completed', { defaultValue: '분석이 완료되었습니다!' })
-                  : t('generatingUI.analyzing', { defaultValue: '두 사람의 운명을 분석하고 있습니다...' })}
+                  : t('generatingUI.analyzing', {
+                      defaultValue: '두 사람의 운명을 분석하고 있습니다...',
+                    })}
               </h2>
               {!isCompleted && (
                 <p className="mt-2 text-gray-400">
                   {t('generatingUI.remainingTime', {
                     defaultValue: '예상 남은 시간: {seconds}초',
-                    seconds: remainingTime
+                    seconds: remainingTime,
                   }).replace('{seconds}', String(remainingTime))}
                 </p>
               )}
@@ -474,9 +478,7 @@ export default function CompatibilityGeneratingPage() {
               className="mb-8"
             >
               <div className="mb-2 flex items-center justify-between text-sm">
-                <span className="text-gray-400">
-                  {t('progress', { defaultValue: '진행률' })}
-                </span>
+                <span className="text-gray-400">{t('progress', { defaultValue: '진행률' })}</span>
                 <span style={{ color: BRAND_COLORS.primary }}>{displayProgress}%</span>
               </div>
               <div className="h-2 overflow-hidden rounded-full bg-[#333]">
@@ -571,7 +573,9 @@ export default function CompatibilityGeneratingPage() {
                                 : 'text-gray-500'
                         }`}
                       >
-                        {t(`generatingSteps.${step.key}`, { defaultValue: STEP_DEFAULT_LABELS[step.key] })}
+                        {t(`generatingSteps.${step.key}`, {
+                          defaultValue: STEP_DEFAULT_LABELS[step.key],
+                        })}
                       </span>
                     </div>
                   );
@@ -589,12 +593,15 @@ export default function CompatibilityGeneratingPage() {
                 <div className="mb-2 flex items-center gap-2">
                   <AlertCircle className="h-4 w-4 text-amber-400" />
                   <p className="text-sm font-medium text-amber-400">
-                    {t('generatingUI.slowWarning', { defaultValue: '서버 응답이 지연되고 있습니다' })}
+                    {t('generatingUI.slowWarning', {
+                      defaultValue: '서버 응답이 지연되고 있습니다',
+                    })}
                   </p>
                 </div>
                 <p className="mb-3 text-xs text-gray-400">
                   {t('generatingUI.slowWarningDesc', {
-                    defaultValue: '분석이 진행 중이지만 서버 응답이 늦어지고 있습니다. 잠시 더 기다려주세요.'
+                    defaultValue:
+                      '분석이 진행 중이지만 서버 응답이 늦어지고 있습니다. 잠시 더 기다려주세요.',
                   })}
                 </p>
                 <Button
@@ -620,7 +627,7 @@ export default function CompatibilityGeneratingPage() {
                 <p className="text-sm text-amber-400">
                   {t('generatingUI.partialFailed', {
                     defaultValue: '일부 분석이 실패했습니다: {steps}',
-                    steps: status.failedSteps.join(', ')
+                    steps: status.failedSteps.join(', '),
                   }).replace('{steps}', status.failedSteps.join(', '))}
                 </p>
               </motion.div>

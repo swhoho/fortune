@@ -44,22 +44,22 @@ function AuthStateManager() {
   const trackedRef = useRef(false);
 
   useEffect(() => {
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
-        if (event === 'SIGNED_IN' && session?.user && !trackedRef.current) {
-          const createdAt = new Date(session.user.created_at);
-          const now = new Date();
-          const diffMs = now.getTime() - createdAt.getTime();
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange(async (event, session) => {
+      if (event === 'SIGNED_IN' && session?.user && !trackedRef.current) {
+        const createdAt = new Date(session.user.created_at);
+        const now = new Date();
+        const diffMs = now.getTime() - createdAt.getTime();
 
-          // 1분(60초) 이내에 생성된 유저면 신규 가입
-          if (diffMs < 60000) {
-            trackedRef.current = true;
-            const provider = session.user.app_metadata?.provider || 'email';
-            trackSignUp(provider);
-          }
+        // 1분(60초) 이내에 생성된 유저면 신규 가입
+        if (diffMs < 60000) {
+          trackedRef.current = true;
+          const provider = session.user.app_metadata?.provider || 'email';
+          trackSignUp(provider);
         }
       }
-    );
+    });
 
     return () => subscription.unsubscribe();
   }, []);

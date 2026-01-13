@@ -51,7 +51,7 @@ export async function POST(request: Request) {
       // 구독 존재 - 상태에 따라 응답
       console.log('[PayApp Verify] 구독 발견:', {
         subscriptionId: subscription.id,
-        status: subscription.status
+        status: subscription.status,
       });
 
       if (subscription.status === 'active') {

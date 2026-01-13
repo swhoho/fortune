@@ -247,9 +247,7 @@ export function CompatibilityHistoryList({ locale }: CompatibilityHistoryListPro
             </div>
 
             {/* 화살표 (클릭 가능한 경우) */}
-            {item.status !== 'failed' && (
-              <ChevronRight className="h-5 w-5 text-gray-500" />
-            )}
+            {item.status !== 'failed' && <ChevronRight className="h-5 w-5 text-gray-500" />}
           </div>
         </motion.button>
       ))}

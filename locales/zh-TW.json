@@ -259,10 +259,14 @@
   "payment": {
     "title": "付款",
     "subtitle": "充值積分開始分析",
+    "header": {
+      "title": "積分充值"
+    },
     "fullAnalysis": "四柱八字全面分析",
     "focusAreaLabel": "集中分析領域",
     "concernLabel": "問題",
     "includes": "包含內容",
+    "includedInReport": "Included in Report",
     "analysisIncludes": {
       "lifetimeFortune": "終身運勢分析",
       "personality": "性格分析",
@@ -272,7 +276,43 @@
       "loveMarriage": "愛情與婚姻運",
       "healthLongevity": "健康與壽命"
     },
+    "startAnalysis": "開始分析",
     "creditCharge": "積分充值",
+    "packages": {
+      "basic": "基礎",
+      "starter": "入門",
+      "popular": "熱門",
+      "premium": "高級"
+    },
+    "labels": {
+      "popular": "Popular",
+      "bonus": "+{amount} Bonus"
+    },
+    "subscription": {
+      "promo": "咖啡一杯的價格：{daily} + {credits}",
+      "daily": "每日運勢",
+      "credits": "50C",
+      "subtext": "個人化建議 · 無限每日運勢"
+    },
+    "checkout": {
+      "method": "付款方式",
+      "processing": "付款處理中...",
+      "payWith": "使用{method}付款",
+      "preparing": "準備中"
+    },
+    "methods": {
+      "payapp_card": "信用卡",
+      "kakaopay": "KakaoPay"
+    },
+    "summary": {
+      "totalCredits": "Total Credits",
+      "totalPrice": "Total Price",
+      "selectPackage": "Select a package to continue"
+    },
+    "security": {
+      "payapp": "PayApp 安全付款",
+      "portone": "PortOne 安全付款 · KakaoPay"
+    },
     "popular": "熱門",
     "bonus": "獎勵",
     "currentCredits": "目前積分",
@@ -285,8 +325,41 @@
     "errors": {
       "sessionFailed": "付款會話建立失敗",
       "noUrl": "未收到付款URL",
-      "generic": "付款過程中發生錯誤"
+      "generic": "付款過程中發生錯誤",
+      "loginRequired": "請先登入。",
+      "storeIdMissing": "付款設定錯誤：未設定 Store ID。",
+      "channelKeyMissing": "付款設定錯誤：未設定 Channel Key。",
+      "createFailed": "建立付款請求失敗",
+      "cancelled": "付款已取消",
+      "verifyFailed": "付款驗證失敗"
     }
+  },
+  "paymentSuccess": {
+    "verifying": {
+      "title": "付款確認中...",
+      "subtitle": "請稍候。"
+    },
+    "error": {
+      "title": "付款確認失敗",
+      "noInfo": "沒有付款資訊。",
+      "invalidPackage": "無效的套餐。",
+      "verifyFailed": "付款驗證失敗。",
+      "verifyError": "付款驗證過程中發生錯誤。",
+      "paymentIdLabel": "付款ID（聯繫客服時需要）",
+      "contactSupport": "如果付款已完成，請通過我的頁面聯繫客服。"
+    },
+    "success": {
+      "title": "付款完成！",
+      "charged": "已充值{credits}C積分。",
+      "chargedGeneric": "積分已充值。",
+      "canStart": "現在可以開始八字分析了。"
+    },
+    "cta": {
+      "home": "返回首頁",
+      "profiles": "管理檔案"
+    },
+    "paymentId": "付款ID",
+    "notice": "付款問題請通過我的頁面聯繫客服"
   },
   "mypage": {
     "title": "我的頁面",

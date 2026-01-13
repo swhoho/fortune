@@ -45,6 +45,7 @@ export function CreditDeductionDialog({
   isFreeEligible = false,
 }: CreditDeductionDialogProps) {
   const t = useTranslations('credits');
+  const tCommon = useTranslations('common');
   const afterDeduction = current - required;
 
   const handleConfirm = () => {
@@ -68,7 +69,7 @@ export function CreditDeductionDialog({
                 {/* 무료 안내 배지 */}
                 <div className="mx-auto inline-flex items-center gap-2 rounded-full bg-green-500/10 px-4 py-2 text-green-400">
                   <Gift className="h-4 w-4" />
-                  <span className="font-medium">0C (무료)</span>
+                  <span className="font-medium">{tCommon('free')}</span>
                 </div>
               </div>
             </AlertDialogDescription>

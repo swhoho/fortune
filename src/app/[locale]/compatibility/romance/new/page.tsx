@@ -190,7 +190,7 @@ export default function CompatibilityRomanceNewPage() {
           <p className="mb-6 max-w-sm text-gray-400">
             {t('ui.needSajuDesc', {
               defaultValue: '{profiles}의 기본 사주 분석을 먼저 완료해주세요.',
-              profiles: sajuRequiredError.missingProfiles.join(', ')
+              profiles: sajuRequiredError.missingProfiles.join(', '),
             })}
           </p>
           <div className="flex gap-3">
@@ -503,7 +503,7 @@ export default function CompatibilityRomanceNewPage() {
                   <RefreshCw className="h-4 w-4 shrink-0 text-green-400" />
                   <p className="text-sm text-green-400">
                     {t('cost.freeRetryHint', {
-                      defaultValue: '이전 분석이 실패했습니다. 무료로 재시도할 수 있습니다.'
+                      defaultValue: '이전 분석이 실패했습니다. 무료로 재시도할 수 있습니다.',
                     })}
                   </p>
                 </motion.div>
@@ -519,7 +519,7 @@ export default function CompatibilityRomanceNewPage() {
                   <AlertTriangle className="h-4 w-4 shrink-0 text-red-400" />
                   <p className="text-sm text-red-400">
                     {t('cost.insufficientCredits', {
-                      defaultValue: '크레딧이 부족합니다. 크레딧을 충전해주세요.'
+                      defaultValue: '크레딧이 부족합니다. 크레딧을 충전해주세요.',
                     })}
                   </p>
                 </motion.div>
@@ -535,7 +535,9 @@ export default function CompatibilityRomanceNewPage() {
                   >
                     <AlertTriangle className="h-4 w-4 shrink-0 text-amber-400" />
                     <p className="text-sm text-amber-400">
-                      {t('selectDifferent', { defaultValue: '서로 다른 두 프로필을 선택해주세요.' })}
+                      {t('selectDifferent', {
+                        defaultValue: '서로 다른 두 프로필을 선택해주세요.',
+                      })}
                     </p>
                   </motion.div>
                 )}
@@ -707,9 +709,11 @@ function ProfileGrid({
 
             <p className="truncate font-medium text-white">{profile.name}</p>
             <p className="mt-1 text-xs text-gray-500">
-              {profile.birthDate} ({profile.gender === 'male'
+              {profile.birthDate} (
+              {profile.gender === 'male'
                 ? t('gender.male', { defaultValue: '남' })
-                : t('gender.female', { defaultValue: '여' })})
+                : t('gender.female', { defaultValue: '여' })}
+              )
             </p>
           </motion.button>
         );

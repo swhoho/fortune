@@ -321,7 +321,8 @@ export function ChatArea({
                   {awaitingClarification || generatingMessage.type === 'ai_clarification'
                     ? t('collectingInfo', {
                         current: (session?.clarificationCount || 0) + 1,
-                        max: session?.maxClarifications || CONSULTATION_CONSTANTS.MAX_CLARIFICATIONS,
+                        max:
+                          session?.maxClarifications || CONSULTATION_CONSTANTS.MAX_CLARIFICATIONS,
                       })
                     : t('generating')}
                 </span>

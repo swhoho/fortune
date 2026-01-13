@@ -67,7 +67,7 @@ export function UserSearchSection({ onSelectUser, selectedUserId }: UserSearchSe
           placeholder="user_id 또는 이메일로 검색..."
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          className="bg-[#242424] border-[#333] text-white pl-10 placeholder:text-gray-500"
+          className="border-[#333] bg-[#242424] pl-10 text-white placeholder:text-gray-500"
         />
       </div>
 

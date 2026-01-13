@@ -50,10 +50,7 @@ export function UserInfoCard({ user, onReward, onSubscription }: UserInfoCardPro
             <Crown className="mr-2 h-4 w-4" />
             구독 부여
           </Button>
-          <Button
-            onClick={onReward}
-            className="bg-[#d4af37] text-white hover:bg-[#c19a2e]"
-          >
+          <Button onClick={onReward} className="bg-[#d4af37] text-white hover:bg-[#c19a2e]">
             <Gift className="mr-2 h-4 w-4" />
             크레딧 보상
           </Button>

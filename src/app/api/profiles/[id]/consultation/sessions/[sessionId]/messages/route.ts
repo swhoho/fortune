@@ -121,7 +121,8 @@ export async function GET(request: NextRequest, context: RouteContext) {
           questionCount: session.question_count,
           maxQuestions: CONSULTATION_CONSTANTS.MAX_QUESTIONS_PER_SESSION,
           clarificationCount: session.clarification_count || 0,
-          maxClarifications: session.max_clarifications || CONSULTATION_CONSTANTS.MAX_CLARIFICATIONS,
+          maxClarifications:
+            session.max_clarifications || CONSULTATION_CONSTANTS.MAX_CLARIFICATIONS,
         },
         messages,
       },
@@ -210,7 +211,8 @@ export async function POST(request: NextRequest, context: RouteContext) {
     const isUserClarification = body.messageType === 'user_clarification';
     const skipClarification = body.skipClarification || false;
     const currentClarificationCount = session.clarification_count || 0;
-    const maxClarifications = session.max_clarifications || CONSULTATION_CONSTANTS.MAX_CLARIFICATIONS;
+    const maxClarifications =
+      session.max_clarifications || CONSULTATION_CONSTANTS.MAX_CLARIFICATIONS;
 
     // 1. 사용자 메시지 저장
     const { data: userMessage, error: userMsgError } = await supabase
@@ -330,7 +332,8 @@ export async function POST(request: NextRequest, context: RouteContext) {
         canAskMore: session.question_count < CONSULTATION_CONSTANTS.MAX_QUESTIONS_PER_SESSION,
         clarificationRound: isUserClarification ? currentClarificationCount + 1 : 0,
         maxClarifications: maxClarifications,
-        isLastClarification: isUserClarification && (currentClarificationCount + 1) >= maxClarifications,
+        isLastClarification:
+          isUserClarification && currentClarificationCount + 1 >= maxClarifications,
       },
     };
 

@@ -105,9 +105,7 @@ export function SubscriptionGrantDialog({
             <p className="text-xs text-gray-500">부여 대상</p>
             <p className="text-sm font-medium text-white">{userEmail}</p>
             {isActive && periodEndStr && (
-              <p className="mt-1 text-xs text-green-400">
-                현재 구독 중 (~ {periodEndStr})
-              </p>
+              <p className="mt-1 text-xs text-green-400">현재 구독 중 (~ {periodEndStr})</p>
             )}
           </div>
 

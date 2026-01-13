@@ -21,12 +21,7 @@ interface InfoTooltipProps {
  * - 모바일: 클릭/터치 시 표시
  * - 긴 설명: 스크롤 가능
  */
-export function InfoTooltip({
-  content,
-  title,
-  iconSize = 14,
-  className = '',
-}: InfoTooltipProps) {
+export function InfoTooltip({ content, title, iconSize = 14, className = '' }: InfoTooltipProps) {
   const [open, setOpen] = useState(false);
   const hoverTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const isHoveringRef = useRef(false);
@@ -102,9 +97,7 @@ export function InfoTooltip({
           onMouseLeave={handleMouseLeave}
           onInteractOutside={() => setOpen(false)}
         >
-          {title && (
-            <p className="mb-2 text-sm font-semibold text-[#d4af37]">{title}</p>
-          )}
+          {title && <p className="mb-2 text-sm font-semibold text-[#d4af37]">{title}</p>}
           <p className="text-xs leading-relaxed text-gray-300">{content}</p>
           <Popover.Arrow className="fill-[#333]" />
         </Popover.Content>

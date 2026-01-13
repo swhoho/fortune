@@ -9,7 +9,11 @@ type Props = {
 /**
  * 오늘의 운세 페이지 메타데이터 (SEO)
  */
-export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: 'metadata' });
   const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://masters-insight.ai';

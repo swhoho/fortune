@@ -43,10 +43,7 @@ export default function AdminPage() {
       <div className="grid gap-6 lg:grid-cols-[400px_1fr]">
         {/* 좌측: 유저 검색 */}
         <div className="lg:sticky lg:top-6 lg:self-start">
-          <UserSearchSection
-            onSelectUser={setSelectedUserId}
-            selectedUserId={selectedUserId}
-          />
+          <UserSearchSection onSelectUser={setSelectedUserId} selectedUserId={selectedUserId} />
         </div>
 
         {/* 우측: 유저 상세 */}

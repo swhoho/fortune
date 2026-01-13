@@ -240,7 +240,10 @@ export default function CompatibilityResultPage() {
         const result = await response.json();
 
         if (!response.ok) {
-          throw new Error(result.error?.message || t('errors.loadFailed', { defaultValue: '데이터를 불러올 수 없습니다' }));
+          throw new Error(
+            result.error?.message ||
+              t('errors.loadFailed', { defaultValue: '데이터를 불러올 수 없습니다' })
+          );
         }
 
         if (result.status !== 'completed') {
@@ -250,7 +253,11 @@ export default function CompatibilityResultPage() {
 
         setData(result.data);
       } catch (err) {
-        setError(err instanceof Error ? err.message : t('errors.unknown', { defaultValue: '오류가 발생했습니다' }));
+        setError(
+          err instanceof Error
+            ? err.message
+            : t('errors.unknown', { defaultValue: '오류가 발생했습니다' })
+        );
       } finally {
         setLoading(false);
       }
@@ -261,10 +268,14 @@ export default function CompatibilityResultPage() {
 
   // 총점 등급
   const getScoreGrade = (score: number) => {
-    if (score >= 85) return { label: t('scoreGrade.perfect', { defaultValue: '천생연분' }), color: '#ef4444' };
-    if (score >= 70) return { label: t('scoreGrade.good', { defaultValue: '좋은 인연' }), color: '#d4af37' };
-    if (score >= 55) return { label: t('scoreGrade.average', { defaultValue: '보통' }), color: '#eab308' };
-    if (score >= 40) return { label: t('scoreGrade.needEffort', { defaultValue: '노력 필요' }), color: '#f97316' };
+    if (score >= 85)
+      return { label: t('scoreGrade.perfect', { defaultValue: '천생연분' }), color: '#ef4444' };
+    if (score >= 70)
+      return { label: t('scoreGrade.good', { defaultValue: '좋은 인연' }), color: '#d4af37' };
+    if (score >= 55)
+      return { label: t('scoreGrade.average', { defaultValue: '보통' }), color: '#eab308' };
+    if (score >= 40)
+      return { label: t('scoreGrade.needEffort', { defaultValue: '노력 필요' }), color: '#f97316' };
     return { label: t('scoreGrade.caution', { defaultValue: '주의' }), color: '#8b5cf6' };
   };
 
@@ -282,7 +293,9 @@ export default function CompatibilityResultPage() {
               <Loader2 className="h-12 w-12 text-[#d4af37]" />
             </div>
           </div>
-          <p className="text-sm text-gray-400">{t('ui.loadingResult', { defaultValue: '궁합 결과를 불러오는 중...' })}</p>
+          <p className="text-sm text-gray-400">
+            {t('ui.loadingResult', { defaultValue: '궁합 결과를 불러오는 중...' })}
+          </p>
         </motion.div>
       </div>
     );
@@ -296,7 +309,9 @@ export default function CompatibilityResultPage() {
         <div className="mx-auto max-w-2xl px-4 py-12">
           <GlassCard variant="warning" className="p-8 text-center">
             <AlertCircle className="mx-auto mb-4 h-14 w-14 text-amber-400" />
-            <p className="mb-6 text-lg text-gray-300">{error || t('ui.errorLoadData', { defaultValue: '데이터를 불러올 수 없습니다' })}</p>
+            <p className="mb-6 text-lg text-gray-300">
+              {error || t('ui.errorLoadData', { defaultValue: '데이터를 불러올 수 없습니다' })}
+            </p>
             <Button
               onClick={() => router.push('/compatibility')}
               className="bg-[#d4af37] px-8 py-3 font-semibold text-black hover:bg-[#c9a227]"
@@ -462,9 +477,13 @@ export default function CompatibilityResultPage() {
             <div className="flex items-start gap-3">
               <AlertCircle className="mt-0.5 h-5 w-5 shrink-0 text-amber-400" />
               <div>
-                <p className="text-sm font-medium text-amber-400">{t('ui.partialAnalysis', { defaultValue: '분석 일부 누락' })}</p>
+                <p className="text-sm font-medium text-amber-400">
+                  {t('ui.partialAnalysis', { defaultValue: '분석 일부 누락' })}
+                </p>
                 <p className="mt-1 text-xs text-gray-400">
-                  {t('ui.partialAnalysisDesc', { defaultValue: '일부 분석 단계가 실패하여 결과가 불완전할 수 있습니다.' })}
+                  {t('ui.partialAnalysisDesc', {
+                    defaultValue: '일부 분석 단계가 실패하여 결과가 불완전할 수 있습니다.',
+                  })}
                 </p>
               </div>
             </div>
@@ -505,7 +524,9 @@ function ScoreTab({ data }: { data: CompatibilityData }) {
       score: data.scores.stemHarmony?.score ?? 0,
       weight: t('scores.stemHarmony.weight', { defaultValue: '24%' }),
       icon: <TrendingUp className="h-4 w-4" />,
-      description: t('scores.stemHarmony.description', { defaultValue: DEFAULT_DESCRIPTIONS.stemHarmony }),
+      description: t('scores.stemHarmony.description', {
+        defaultValue: DEFAULT_DESCRIPTIONS.stemHarmony,
+      }),
     },
     {
       key: 'branchHarmony',
@@ -513,7 +534,9 @@ function ScoreTab({ data }: { data: CompatibilityData }) {
       score: data.scores.branchHarmony?.score ?? 0,
       weight: t('scores.branchHarmony.weight', { defaultValue: '24%' }),
       icon: <Users className="h-4 w-4" />,
-      description: t('scores.branchHarmony.description', { defaultValue: DEFAULT_DESCRIPTIONS.branchHarmony }),
+      description: t('scores.branchHarmony.description', {
+        defaultValue: DEFAULT_DESCRIPTIONS.branchHarmony,
+      }),
     },
     {
       key: 'elementBalance',
@@ -521,7 +544,9 @@ function ScoreTab({ data }: { data: CompatibilityData }) {
       score: data.scores.elementBalance?.score ?? 0,
       weight: t('scores.elementBalance.weight', { defaultValue: '19%' }),
       icon: <Compass className="h-4 w-4" />,
-      description: t('scores.elementBalance.description', { defaultValue: DEFAULT_DESCRIPTIONS.elementBalance }),
+      description: t('scores.elementBalance.description', {
+        defaultValue: DEFAULT_DESCRIPTIONS.elementBalance,
+      }),
     },
     {
       key: 'tenGodCompatibility',
@@ -529,7 +554,9 @@ function ScoreTab({ data }: { data: CompatibilityData }) {
       score: data.scores.tenGodCompatibility?.score ?? 0,
       weight: t('scores.tenGodCompatibility.weight', { defaultValue: '19%' }),
       icon: <Heart className="h-4 w-4" />,
-      description: t('scores.tenGodCompatibility.description', { defaultValue: DEFAULT_DESCRIPTIONS.tenGodCompatibility }),
+      description: t('scores.tenGodCompatibility.description', {
+        defaultValue: DEFAULT_DESCRIPTIONS.tenGodCompatibility,
+      }),
     },
     {
       key: 'wunsengSynergy',
@@ -537,7 +564,9 @@ function ScoreTab({ data }: { data: CompatibilityData }) {
       score: data.scores.wunsengSynergy?.score ?? 0,
       weight: t('scores.wunsengSynergy.weight', { defaultValue: '9%' }),
       icon: <Sparkles className="h-4 w-4" />,
-      description: t('scores.wunsengSynergy.description', { defaultValue: DEFAULT_DESCRIPTIONS.wunsengSynergy }),
+      description: t('scores.wunsengSynergy.description', {
+        defaultValue: DEFAULT_DESCRIPTIONS.wunsengSynergy,
+      }),
     },
     {
       key: 'combinationSynergy',
@@ -545,7 +574,9 @@ function ScoreTab({ data }: { data: CompatibilityData }) {
       score: data.scores.combinationSynergy?.score ?? 0,
       weight: t('scores.combinationSynergy.weight', { defaultValue: '5%' }),
       icon: <Zap className="h-4 w-4" />,
-      description: t('scores.combinationSynergy.description', { defaultValue: DEFAULT_DESCRIPTIONS.combinationSynergy }),
+      description: t('scores.combinationSynergy.description', {
+        defaultValue: DEFAULT_DESCRIPTIONS.combinationSynergy,
+      }),
     },
   ];
 
@@ -553,7 +584,10 @@ function ScoreTab({ data }: { data: CompatibilityData }) {
     <div className="space-y-6">
       {/* 6개 항목 점수 */}
       <GlassCard className="p-6">
-        <SectionHeader title={t('sections.detailScores', { defaultValue: '상세 점수' })} icon={<TrendingUp className="h-4 w-4" />} />
+        <SectionHeader
+          title={t('sections.detailScores', { defaultValue: '상세 점수' })}
+          icon={<TrendingUp className="h-4 w-4" />}
+        />
         <div className="space-y-5">
           {scoreItems.map((item, index) => (
             <div key={item.key}>
@@ -571,7 +605,10 @@ function ScoreTab({ data }: { data: CompatibilityData }) {
 
       {/* 연애 스타일 비교 */}
       <GlassCard className="p-6">
-        <SectionHeader title={t('sections.traitComparison', { defaultValue: '연애 스타일 비교' })} icon={<Heart className="h-4 w-4" />} />
+        <SectionHeader
+          title={t('sections.traitComparison', { defaultValue: '연애 스타일 비교' })}
+          icon={<Heart className="h-4 w-4" />}
+        />
         <div className="grid gap-3 sm:grid-cols-2">
           <DualScoreBar
             label={t('traitLabels.expression', { defaultValue: '표현력' })}
@@ -628,7 +665,10 @@ function AnalysisTab({ data }: { data: CompatibilityData }) {
       {/* 인연의 성격 */}
       {data.relationshipType && (
         <GlassCard variant="highlight" className="p-6">
-          <SectionHeader title={t('sections.relationshipType', { defaultValue: '인연의 성격' })} icon={<Sparkles className="h-4 w-4" />} />
+          <SectionHeader
+            title={t('sections.relationshipType', { defaultValue: '인연의 성격' })}
+            icon={<Sparkles className="h-4 w-4" />}
+          />
           <div className="mb-4 flex flex-wrap gap-2">
             {data.relationshipType.keywords.map((keyword, i) => (
               <motion.span
@@ -662,7 +702,10 @@ function AnalysisTab({ data }: { data: CompatibilityData }) {
       {/* 갈등 포인트 */}
       {data.conflictAnalysis && data.conflictAnalysis.conflictPoints.length > 0 && (
         <GlassCard className="p-6">
-          <SectionHeader title={t('sections.conflictPoints', { defaultValue: '갈등 포인트' })} icon={<Flame className="h-4 w-4" />} />
+          <SectionHeader
+            title={t('sections.conflictPoints', { defaultValue: '갈등 포인트' })}
+            icon={<Flame className="h-4 w-4" />}
+          />
           <div className="space-y-3">
             {data.conflictAnalysis.conflictPoints.map((point, i) => (
               <motion.div
@@ -692,7 +735,9 @@ function AnalysisTab({ data }: { data: CompatibilityData }) {
             <div className="mt-4 flex items-start gap-3 rounded-lg border border-[#d4af37]/20 bg-[#d4af37]/5 p-4">
               <MessageCircle className="mt-0.5 h-5 w-5 shrink-0 text-[#d4af37]" />
               <div>
-                <p className="text-sm font-medium text-[#d4af37]">{t('communicationTips', { defaultValue: '소통 팁' })}</p>
+                <p className="text-sm font-medium text-[#d4af37]">
+                  {t('communicationTips', { defaultValue: '소통 팁' })}
+                </p>
                 <p className="mt-1 text-sm text-gray-300">
                   {replaceAB(data.conflictAnalysis.communicationTips, data.nameA, data.nameB)}
                 </p>
@@ -705,7 +750,10 @@ function AnalysisTab({ data }: { data: CompatibilityData }) {
       {/* 결혼 적합도 */}
       {data.marriageFit && (
         <GlassCard className="p-6">
-          <SectionHeader title={t('sections.marriageFit', { defaultValue: '결혼 적합도' })} icon={<Shield className="h-4 w-4" />} />
+          <SectionHeader
+            title={t('sections.marriageFit', { defaultValue: '결혼 적합도' })}
+            icon={<Shield className="h-4 w-4" />}
+          />
           <div className="mb-4 flex items-center gap-4">
             <div
               className="flex h-16 w-16 items-center justify-center rounded-2xl"
@@ -722,9 +770,18 @@ function AnalysisTab({ data }: { data: CompatibilityData }) {
           </div>
           <div className="grid gap-3">
             {[
-              { label: t('marriageFitLabels.roleDistribution', { defaultValue: '역할 분담' }), value: data.marriageFit.roleDistribution },
-              { label: t('marriageFitLabels.childFortune', { defaultValue: '자녀운' }), value: data.marriageFit.childFortune },
-              { label: t('marriageFitLabels.wealthSynergy', { defaultValue: '재물 시너지' }), value: data.marriageFit.wealthSynergy },
+              {
+                label: t('marriageFitLabels.roleDistribution', { defaultValue: '역할 분담' }),
+                value: data.marriageFit.roleDistribution,
+              },
+              {
+                label: t('marriageFitLabels.childFortune', { defaultValue: '자녀운' }),
+                value: data.marriageFit.childFortune,
+              },
+              {
+                label: t('marriageFitLabels.wealthSynergy', { defaultValue: '재물 시너지' }),
+                value: data.marriageFit.wealthSynergy,
+              },
             ].map((item) => (
               <div
                 key={item.label}
@@ -743,7 +800,10 @@ function AnalysisTab({ data }: { data: CompatibilityData }) {
       {/* 상호 영향 */}
       {data.mutualInfluence && (
         <GlassCard className="p-6">
-          <SectionHeader title={t('sections.mutualInfluence', { defaultValue: '상호 영향' })} icon={<Zap className="h-4 w-4" />} />
+          <SectionHeader
+            title={t('sections.mutualInfluence', { defaultValue: '상호 영향' })}
+            icon={<Zap className="h-4 w-4" />}
+          />
           <div className="space-y-4">
             {/* A → B */}
             <div className="rounded-xl border border-[#d4af37]/20 bg-[#d4af37]/5 p-4">
@@ -771,7 +831,8 @@ function AnalysisTab({ data }: { data: CompatibilityData }) {
               </p>
               <p className="mt-2 text-xs text-amber-400/80">
                 <Lock className="mr-1 inline-block h-3 w-3" />
-                {t('ui.caution', { defaultValue: '주의:' })} {replaceAB(data.mutualInfluence.aToB.caution, data.nameA, data.nameB)}
+                {t('ui.caution', { defaultValue: '주의:' })}{' '}
+                {replaceAB(data.mutualInfluence.aToB.caution, data.nameA, data.nameB)}
               </p>
             </div>
 
@@ -801,7 +862,8 @@ function AnalysisTab({ data }: { data: CompatibilityData }) {
               </p>
               <p className="mt-2 text-xs text-amber-400/80">
                 <Lock className="mr-1 inline-block h-3 w-3" />
-                {t('ui.caution', { defaultValue: '주의:' })} {replaceAB(data.mutualInfluence.bToA.caution, data.nameA, data.nameB)}
+                {t('ui.caution', { defaultValue: '주의:' })}{' '}
+                {replaceAB(data.mutualInfluence.bToA.caution, data.nameA, data.nameB)}
               </p>
             </div>
 
@@ -825,7 +887,10 @@ function CompareTab({ data }: { data: CompatibilityData }) {
   return (
     <div className="space-y-6">
       <GlassCard className="p-6">
-        <SectionHeader title={t('sections.sajuComparison', { defaultValue: '사주 명식 비교' })} icon={<Users className="h-4 w-4" />} />
+        <SectionHeader
+          title={t('sections.sajuComparison', { defaultValue: '사주 명식 비교' })}
+          icon={<Users className="h-4 w-4" />}
+        />
 
         {data.pillarsA && data.pillarsB ? (
           <div className="grid gap-4 md:grid-cols-2">
@@ -843,7 +908,12 @@ function CompareTab({ data }: { data: CompatibilityData }) {
                 >
                   {truncateName(data.nameA)}
                 </div>
-                <span className="font-medium text-white">{t('ui.personSaju', { name: data.nameA || 'A', defaultValue: `${data.nameA || 'A'}님의 사주` })}</span>
+                <span className="font-medium text-white">
+                  {t('ui.personSaju', {
+                    name: data.nameA || 'A',
+                    defaultValue: `${data.nameA || 'A'}님의 사주`,
+                  })}
+                </span>
               </div>
               <PillarDisplay pillars={data.pillarsA} t={t} />
             </motion.div>
@@ -862,21 +932,31 @@ function CompareTab({ data }: { data: CompatibilityData }) {
                 >
                   {truncateName(data.nameB)}
                 </div>
-                <span className="font-medium text-white">{t('ui.personSaju', { name: data.nameB || 'B', defaultValue: `${data.nameB || 'B'}님의 사주` })}</span>
+                <span className="font-medium text-white">
+                  {t('ui.personSaju', {
+                    name: data.nameB || 'B',
+                    defaultValue: `${data.nameB || 'B'}님의 사주`,
+                  })}
+                </span>
               </div>
               <PillarDisplay pillars={data.pillarsB} t={t} />
             </motion.div>
           </div>
         ) : (
           <div className="py-8 text-center">
-            <p className="text-gray-400">{t('ui.noSajuInfo', { defaultValue: '사주 정보가 없습니다.' })}</p>
+            <p className="text-gray-400">
+              {t('ui.noSajuInfo', { defaultValue: '사주 정보가 없습니다.' })}
+            </p>
           </div>
         )}
       </GlassCard>
 
       {/* 간지 상호작용 */}
       <GlassCard className="p-6">
-        <SectionHeader title={t('sections.interactions', { defaultValue: '간지 상호작용' })} icon={<Zap className="h-4 w-4" />} />
+        <SectionHeader
+          title={t('sections.interactions', { defaultValue: '간지 상호작용' })}
+          icon={<Zap className="h-4 w-4" />}
+        />
         <InteractionDisplay
           interactions={data.interactions || {}}
           peachBlossom={
@@ -1013,16 +1093,20 @@ function InteractionDisplay({
         <div className="mb-2 flex items-center gap-2">
           <Heart className="h-4 w-4 text-pink-400" />
           <span className="font-medium text-pink-400">
-            {interpretation?.peachBlossom?.title || t('interactionSections.peachBlossom.title', { defaultValue: '도화살 (桃花煞)' })}
+            {interpretation?.peachBlossom?.title ||
+              t('interactionSections.peachBlossom.title', { defaultValue: '도화살 (桃花煞)' })}
           </span>
           {peachBlossom && (
             <span className="ml-auto rounded-full bg-pink-500/20 px-2 py-0.5 text-xs text-pink-300">
-              +{peachBlossom.attractionBonus}{t('history.scoreUnit', { defaultValue: '점' })}
+              +{peachBlossom.attractionBonus}
+              {t('history.scoreUnit', { defaultValue: '점' })}
             </span>
           )}
         </div>
         <p className="mb-2 text-xs text-gray-500">
-          {t('interactionSections.peachBlossom.description', { defaultValue: '연지/일지 기준으로 특별한 이성 끌림을 나타내는 살(煞)' })}
+          {t('interactionSections.peachBlossom.description', {
+            defaultValue: '연지/일지 기준으로 특별한 이성 끌림을 나타내는 살(煞)',
+          })}
         </p>
         {interpretation?.peachBlossom ? (
           <div className="space-y-2">
@@ -1037,7 +1121,10 @@ function InteractionDisplay({
           </p>
         ) : (
           <p className="text-sm text-gray-400">
-            {t('interactionSections.peachBlossom.empty', { defaultValue: '도화살이 없습니다. 강렬한 끌림보다는 차분하고 안정적인 관계를 형성합니다.' })}
+            {t('interactionSections.peachBlossom.empty', {
+              defaultValue:
+                '도화살이 없습니다. 강렬한 끌림보다는 차분하고 안정적인 관계를 형성합니다.',
+            })}
           </p>
         )}
       </div>
@@ -1046,10 +1133,16 @@ function InteractionDisplay({
       <div className="rounded-xl border border-[#d4af37]/20 bg-[#d4af37]/5 p-4">
         <div className="mb-2 flex items-center gap-2">
           <Sparkles className="h-4 w-4 text-[#d4af37]" />
-          <span className="font-medium text-[#d4af37]">{t('interactionSections.samhapBanghap.title', { defaultValue: '삼합·방합 (三合·方合)' })}</span>
+          <span className="font-medium text-[#d4af37]">
+            {t('interactionSections.samhapBanghap.title', {
+              defaultValue: '삼합·방합 (三合·方合)',
+            })}
+          </span>
         </div>
         <p className="mb-3 text-xs text-gray-500">
-          {t('interactionSections.samhapBanghap.description', { defaultValue: '세 지지가 모여 강력한 오행 기운을 형성하는 특별한 결합' })}
+          {t('interactionSections.samhapBanghap.description', {
+            defaultValue: '세 지지가 모여 강력한 오행 기운을 형성하는 특별한 결합',
+          })}
         </p>
         {samhapFormed.length > 0 || banhapFormed.length > 0 || banghapFormed.length > 0 ? (
           <div className="space-y-3">
@@ -1100,16 +1193,23 @@ function InteractionDisplay({
         ) : (
           <p className="text-sm text-gray-400">
             {interpretation?.samhapBanghap?.emptyMessage ||
-              t('interactionSections.samhapBanghap.empty', { defaultValue: '삼합·방합 형성이 없습니다. 특별한 시너지보다는 개별적인 조화를 이룹니다.' })}
+              t('interactionSections.samhapBanghap.empty', {
+                defaultValue:
+                  '삼합·방합 형성이 없습니다. 특별한 시너지보다는 개별적인 조화를 이룹니다.',
+              })}
           </p>
         )}
       </div>
 
       {/* 천간 합 (항상 표시) */}
       <div className="rounded-lg border border-green-500/20 bg-green-500/5 p-3">
-        <div className="mb-2 text-xs font-medium text-green-400">{t('interactionSections.stemCombinations.title', { defaultValue: '천간 합 (天干合)' })}</div>
+        <div className="mb-2 text-xs font-medium text-green-400">
+          {t('interactionSections.stemCombinations.title', { defaultValue: '천간 합 (天干合)' })}
+        </div>
         <p className="mb-2 text-xs text-gray-500">
-          {t('interactionSections.stemCombinations.description', { defaultValue: '두 천간이 만나 새로운 오행 기운을 생성하는 조화로운 관계' })}
+          {t('interactionSections.stemCombinations.description', {
+            defaultValue: '두 천간이 만나 새로운 오행 기운을 생성하는 조화로운 관계',
+          })}
         </p>
         {stemCombinations.length > 0 ? (
           <div className="space-y-2">
@@ -1134,16 +1234,24 @@ function InteractionDisplay({
         ) : (
           <p className="text-sm text-gray-400">
             {interpretation?.stemCombinations?.emptyMessage ||
-              t('interactionSections.stemCombinations.empty', { defaultValue: '천간 합이 없습니다. 표면적 조화보다 내면의 균형이 중요합니다.' })}
+              t('interactionSections.stemCombinations.empty', {
+                defaultValue: '천간 합이 없습니다. 표면적 조화보다 내면의 균형이 중요합니다.',
+              })}
           </p>
         )}
       </div>
 
       {/* 지지 합 (항상 표시) */}
       <div className="rounded-lg border border-blue-500/20 bg-blue-500/5 p-3">
-        <div className="mb-2 text-xs font-medium text-blue-400">{t('interactionSections.branchCombinations.title', { defaultValue: '지지 합 (地支合, 6합)' })}</div>
+        <div className="mb-2 text-xs font-medium text-blue-400">
+          {t('interactionSections.branchCombinations.title', {
+            defaultValue: '지지 합 (地支合, 6합)',
+          })}
+        </div>
         <p className="mb-2 text-xs text-gray-500">
-          {t('interactionSections.branchCombinations.description', { defaultValue: '두 지지가 합쳐져 새로운 오행을 만드는 친밀한 관계' })}
+          {t('interactionSections.branchCombinations.description', {
+            defaultValue: '두 지지가 합쳐져 새로운 오행을 만드는 친밀한 관계',
+          })}
         </p>
         {branchCombinations.length > 0 ? (
           <div className="space-y-2">
@@ -1168,16 +1276,22 @@ function InteractionDisplay({
         ) : (
           <p className="text-sm text-gray-400">
             {interpretation?.branchCombinations?.emptyMessage ||
-              t('interactionSections.branchCombinations.empty', { defaultValue: '지지 합이 없습니다. 감정적 결합보다 이성적 조화가 두드러집니다.' })}
+              t('interactionSections.branchCombinations.empty', {
+                defaultValue: '지지 합이 없습니다. 감정적 결합보다 이성적 조화가 두드러집니다.',
+              })}
           </p>
         )}
       </div>
 
       {/* 지지 충 (항상 표시) */}
       <div className="rounded-lg border border-red-500/20 bg-red-500/5 p-3">
-        <div className="mb-2 text-xs font-medium text-red-400">{t('interactionSections.branchClashes.title', { defaultValue: '지지 충 (地支冲, 6충)' })}</div>
+        <div className="mb-2 text-xs font-medium text-red-400">
+          {t('interactionSections.branchClashes.title', { defaultValue: '지지 충 (地支冲, 6충)' })}
+        </div>
         <p className="mb-2 text-xs text-gray-500">
-          {t('interactionSections.branchClashes.description', { defaultValue: '서로 반대 방향의 기운이 부딪혀 갈등을 일으키는 관계' })}
+          {t('interactionSections.branchClashes.description', {
+            defaultValue: '서로 반대 방향의 기운이 부딪혀 갈등을 일으키는 관계',
+          })}
         </p>
         {branchClashes.length > 0 ? (
           <div className="space-y-2">
@@ -1202,16 +1316,24 @@ function InteractionDisplay({
         ) : (
           <p className="text-sm text-gray-400">
             {interpretation?.branchClashes?.emptyMessage ||
-              t('interactionSections.branchClashes.empty', { defaultValue: '지지 충이 없습니다. 큰 갈등 없이 안정적인 관계가 가능합니다.' })}
+              t('interactionSections.branchClashes.empty', {
+                defaultValue: '지지 충이 없습니다. 큰 갈등 없이 안정적인 관계가 가능합니다.',
+              })}
           </p>
         )}
       </div>
 
       {/* 지지 형 (항상 표시) */}
       <div className="rounded-lg border border-orange-500/20 bg-orange-500/5 p-3">
-        <div className="mb-2 text-xs font-medium text-orange-400">{t('interactionSections.branchPunishments.title', { defaultValue: '지지 형 (地支刑, 3형)' })}</div>
+        <div className="mb-2 text-xs font-medium text-orange-400">
+          {t('interactionSections.branchPunishments.title', {
+            defaultValue: '지지 형 (地支刑, 3형)',
+          })}
+        </div>
         <p className="mb-2 text-xs text-gray-500">
-          {t('interactionSections.branchPunishments.description', { defaultValue: '특정 지지들이 만나 형벌처럼 마찰을 일으키는 관계' })}
+          {t('interactionSections.branchPunishments.description', {
+            defaultValue: '특정 지지들이 만나 형벌처럼 마찰을 일으키는 관계',
+          })}
         </p>
         {branchPunishments.length > 0 ? (
           <div className="space-y-2">
@@ -1236,16 +1358,22 @@ function InteractionDisplay({
         ) : (
           <p className="text-sm text-gray-400">
             {interpretation?.branchPunishments?.emptyMessage ||
-              t('interactionSections.branchPunishments.empty', { defaultValue: '지지 형이 없습니다. 상호 자극보다 부드러운 관계가 유지됩니다.' })}
+              t('interactionSections.branchPunishments.empty', {
+                defaultValue: '지지 형이 없습니다. 상호 자극보다 부드러운 관계가 유지됩니다.',
+              })}
           </p>
         )}
       </div>
 
       {/* 원진 (항상 표시) */}
       <div className="rounded-lg border border-purple-500/20 bg-purple-500/5 p-3">
-        <div className="mb-2 text-xs font-medium text-purple-400">{t('interactionSections.wonjin.title', { defaultValue: '원진 (元嗔)' })}</div>
+        <div className="mb-2 text-xs font-medium text-purple-400">
+          {t('interactionSections.wonjin.title', { defaultValue: '원진 (元嗔)' })}
+        </div>
         <p className="mb-2 text-xs text-gray-500">
-          {t('interactionSections.wonjin.description', { defaultValue: '서로 밀어내는 기운으로 은근한 심리적 갈등을 유발하는 관계' })}
+          {t('interactionSections.wonjin.description', {
+            defaultValue: '서로 밀어내는 기운으로 은근한 심리적 갈등을 유발하는 관계',
+          })}
         </p>
         {branchWonjin.length > 0 ? (
           <div className="space-y-2">
@@ -1274,7 +1402,10 @@ function InteractionDisplay({
         ) : (
           <p className="text-sm text-gray-400">
             {interpretation?.branchWonjin?.emptyMessage ||
-              t('interactionSections.wonjin.empty', { defaultValue: '원진 관계가 없습니다. 심리적 거리감 없이 자연스럽게 가까워질 수 있습니다.' })}
+              t('interactionSections.wonjin.empty', {
+                defaultValue:
+                  '원진 관계가 없습니다. 심리적 거리감 없이 자연스럽게 가까워질 수 있습니다.',
+              })}
           </p>
         )}
       </div>
@@ -1283,7 +1414,13 @@ function InteractionDisplay({
 }
 
 /** 사주 표시 컴포넌트 */
-function PillarDisplay({ pillars, t }: { pillars: Record<string, unknown>; t: ReturnType<typeof useTranslations<'compatibility'>> }) {
+function PillarDisplay({
+  pillars,
+  t,
+}: {
+  pillars: Record<string, unknown>;
+  t: ReturnType<typeof useTranslations<'compatibility'>>;
+}) {
   const positions = ['hour', 'day', 'month', 'year'];
   const positionLabels: Record<string, string> = {
     hour: t('pillarLabels.hour', { defaultValue: '시주' }),

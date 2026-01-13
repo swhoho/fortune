@@ -133,7 +133,10 @@ export default function ConsultationPage() {
                     className="flex h-10 w-10 items-center justify-center rounded-xl"
                     style={{ backgroundColor: `${BRAND_COLORS.primary}15` }}
                   >
-                    <span className="font-serif text-lg font-bold" style={{ color: BRAND_COLORS.primary }}>
+                    <span
+                      className="font-serif text-lg font-bold"
+                      style={{ color: BRAND_COLORS.primary }}
+                    >
                       {selectedProfile.name.charAt(0)}
                     </span>
                   </div>

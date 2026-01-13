@@ -194,7 +194,9 @@ export function DaewunDetailSection({
                 {/* 시작시기 */}
                 <div className="mb-4 flex items-center gap-2 text-sm text-gray-400">
                   <Calendar className="h-4 w-4" />
-                  <span>{t('startTime')}: {formatStartDate(item)}</span>
+                  <span>
+                    {t('startTime')}: {formatStartDate(item)}
+                  </span>
                 </div>
 
                 {/* 순풍/역풍 바 */}

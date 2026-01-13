@@ -8,9 +8,10 @@
  */
 import { Suspense, useEffect, useState, useRef } from 'react';
 import { motion } from 'framer-motion';
-import Link from 'next/link';
-import { useSearchParams } from 'next/navigation';
+import { useSearchParams, useParams } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import { Button } from '@/components/ui/button';
+import { Link } from '@/i18n/routing';
 import { CREDIT_PACKAGES } from '@/lib/portone';
 import { trackPurchase } from '@/lib/analytics';
 
@@ -18,6 +19,9 @@ type VerifyStatus = 'idle' | 'verifying' | 'success' | 'already_processed' | 'er
 
 function PaymentSuccessContent() {
   const searchParams = useSearchParams();
+  const params = useParams();
+  const locale = params.locale as string;
+  const t = useTranslations('paymentSuccess');
   const paymentId = searchParams.get('paymentId');
   const packageId = searchParams.get('packageId');
   const creditsParam = searchParams.get('credits');
@@ -38,7 +42,9 @@ function PaymentSuccessContent() {
         paymentId,
         selectedPackage?.price || 0,
         'KRW',
-        selectedPackage ? [{ item_id: selectedPackage.id, item_name: `${selectedPackage.credits}C 크레딧` }] : undefined
+        selectedPackage
+          ? [{ item_id: selectedPackage.id, item_name: `${selectedPackage.credits}C Credits` }]
+          : undefined
       );
     }
   }, [verifyStatus, paymentId, packageId]);
@@ -75,7 +81,7 @@ function PaymentSuccessContent() {
       // paymentId와 packageId가 없으면 검증 불가
       if (!paymentId || !packageId) {
         setVerifyStatus('error');
-        setErrorMessage('결제 정보가 없습니다.');
+        setErrorMessage(t('error.noInfo'));
         return;
       }
 
@@ -83,7 +89,7 @@ function PaymentSuccessContent() {
       const selectedPackage = CREDIT_PACKAGES.find((p) => p.id === packageId);
       if (!selectedPackage) {
         setVerifyStatus('error');
-        setErrorMessage('유효하지 않은 패키지입니다.');
+        setErrorMessage(t('error.invalidPackage'));
         return;
       }
 
@@ -141,12 +147,12 @@ function PaymentSuccessContent() {
           setCredits(String(selectedPackage.credits + (selectedPackage.bonus || 0)));
         } else {
           setVerifyStatus('error');
-          setErrorMessage(result.error?.message || '결제 검증에 실패했습니다.');
+          setErrorMessage(result.error?.message || t('error.verifyFailed'));
         }
       } catch (err) {
         console.error('Payment verification error:', err);
         setVerifyStatus('error');
-        setErrorMessage('결제 검증 중 오류가 발생했습니다.');
+        setErrorMessage(t('error.verifyError'));
       }
     }
 
@@ -159,7 +165,7 @@ function PaymentSuccessContent() {
         pollingRef.current = null;
       }
     };
-  }, [paymentId, packageId, creditsParam]);
+  }, [paymentId, packageId, creditsParam, t]);
 
   // 검증 중 로딩 UI
   if (verifyStatus === 'verifying') {
@@ -170,8 +176,8 @@ function PaymentSuccessContent() {
           transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
           className="mx-auto mb-6 flex h-24 w-24 items-center justify-center rounded-full border-4 border-[#d4af37] border-t-transparent"
         />
-        <h1 className="mb-2 font-serif text-2xl font-bold text-white">결제 확인 중...</h1>
-        <p className="text-gray-400">잠시만 기다려주세요.</p>
+        <h1 className="mb-2 font-serif text-2xl font-bold text-white">{t('verifying.title')}</h1>
+        <p className="text-gray-400">{t('verifying.subtitle')}</p>
       </div>
     );
   }
@@ -195,19 +201,17 @@ function PaymentSuccessContent() {
             />
           </svg>
         </div>
-        <h1 className="mb-2 font-serif text-2xl font-bold text-white">결제 확인 실패</h1>
+        <h1 className="mb-2 font-serif text-2xl font-bold text-white">{t('error.title')}</h1>
         <p className="mb-4 text-gray-300">{errorMessage}</p>
         {paymentId && (
           <div className="mb-6 rounded-lg border border-[#333] bg-[#1a1a1a] p-4">
-            <p className="text-xs text-gray-400">결제 ID (고객센터 문의 시 필요)</p>
+            <p className="text-xs text-gray-400">{t('error.paymentIdLabel')}</p>
             <p className="truncate font-mono text-sm text-gray-300">{paymentId}</p>
           </div>
         )}
-        <p className="text-sm text-gray-400">
-          결제가 완료되었다면 마이페이지 → 고객센터로 연락 부탁드립니다.
-        </p>
+        <p className="text-sm text-gray-400">{t('error.contactSupport')}</p>
         <Button asChild size="lg" className="mt-6 w-full" variant="outline">
-          <Link href="/home">홈으로 이동</Link>
+          <Link href={`/${locale}/home`}>{t('cta.home')}</Link>
         </Button>
       </div>
     );
@@ -252,7 +256,7 @@ function PaymentSuccessContent() {
         transition={{ delay: 0.3 }}
         className="mb-2 font-serif text-2xl font-bold text-white md:text-3xl"
       >
-        결제가 완료되었습니다!
+        {t('success.title')}
       </motion.h1>
 
       <motion.p
@@ -261,9 +265,9 @@ function PaymentSuccessContent() {
         transition={{ delay: 0.4 }}
         className="mb-8 text-gray-300"
       >
-        {credits ? `${credits}C 크레딧이 충전되었습니다.` : '크레딧이 충전되었습니다.'}
+        {credits ? t('success.charged', { credits }) : t('success.chargedGeneric')}
         <br />
-        이제 사주 분석을 시작할 수 있습니다.
+        {t('success.canStart')}
       </motion.p>
 
       {/* 결제 ID 표시 */}
@@ -274,7 +278,7 @@ function PaymentSuccessContent() {
           transition={{ delay: 0.5 }}
           className="mb-8 rounded-lg border border-[#333] bg-[#1a1a1a] p-4"
         >
-          <p className="text-xs text-gray-400">결제 ID</p>
+          <p className="text-xs text-gray-400">{t('paymentId')}</p>
           <p className="truncate font-mono text-sm text-gray-300">{paymentId}</p>
         </motion.div>
       )}
@@ -291,7 +295,7 @@ function PaymentSuccessContent() {
           size="lg"
           className="w-full bg-gradient-to-r from-[#d4af37] to-[#c19a2e] py-6 text-lg font-semibold text-white shadow-lg transition-all hover:scale-[1.02] hover:shadow-xl"
         >
-          <Link href="/home">홈으로 이동</Link>
+          <Link href={`/${locale}/home`}>{t('cta.home')}</Link>
         </Button>
 
         <Button
@@ -300,7 +304,7 @@ function PaymentSuccessContent() {
           size="lg"
           className="w-full border-[#333] bg-[#1a1a1a] py-6 text-lg text-white hover:bg-[#242424]"
         >
-          <Link href="/profiles">프로필 관리</Link>
+          <Link href={`/${locale}/profiles`}>{t('cta.profiles')}</Link>
         </Button>
       </motion.div>
 
@@ -311,7 +315,7 @@ function PaymentSuccessContent() {
         transition={{ delay: 0.7 }}
         className="mt-6 text-sm text-gray-400"
       >
-        결제 문의는 mypage → 고객센터로 연락 부탁드립니다
+        {t('notice')}
       </motion.p>
     </motion.div>
   );

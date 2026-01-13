@@ -79,19 +79,11 @@ export default function CompatibilityPage() {
 
         {/* 탭 내용 */}
         {activeTab === 'history' ? (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            key="history"
-          >
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} key="history">
             <CompatibilityHistoryList locale={locale} />
           </motion.div>
         ) : (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            key="new"
-          >
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} key="new">
             {/* 유형 선택 카드 */}
             <div className="space-y-4">
               {/* 연인 궁합 */}

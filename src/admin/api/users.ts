@@ -50,8 +50,7 @@ export async function handleUsersSearch(
 
   try {
     // UUID 형식인지 확인 (user_id 검색)
-    const isUUID =
-      /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(q);
+    const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(q);
 
     let query = supabase
       .from('users')

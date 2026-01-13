@@ -87,10 +87,7 @@ export const PORTONE_CHANNELS: Partial<Record<PaymentMethod, string>> = {
  * 결제 수단 메타데이터 (아이콘, 비활성화 여부)
  * 라벨 텍스트는 locales/*.json의 payment.methods에서 관리
  */
-export const PAYMENT_METHOD_META: Record<
-  PaymentMethod,
-  { icon: string; disabled?: boolean }
-> = {
+export const PAYMENT_METHOD_META: Record<PaymentMethod, { icon: string; disabled?: boolean }> = {
   payapp_card: { icon: '💳' },
   kakaopay: { icon: '🟡', disabled: true },
 };

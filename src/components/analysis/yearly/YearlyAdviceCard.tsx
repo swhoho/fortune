@@ -209,7 +209,9 @@ export function YearlyAdviceCard({ yearlyAdvice, year }: YearlyAdviceCardProps) 
                   <Icon className="h-6 w-6 text-white" />
                 </div>
                 <div>
-                  <h4 className="text-lg font-semibold text-white">{getSectionLabel(section.key)}</h4>
+                  <h4 className="text-lg font-semibold text-white">
+                    {getSectionLabel(section.key)}
+                  </h4>
                   <p className="text-sm text-gray-400">{getSectionDesc(section.key)}</p>
                 </div>
               </div>

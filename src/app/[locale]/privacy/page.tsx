@@ -182,8 +182,8 @@ export default function PrivacyPage() {
                 <li>처리정지 요구</li>
               </ul>
               <p className="mt-3 text-gray-400">
-                위 권리 행사는 이메일(goblincallcontact@gmail.com)을 통해 요청하실 수 있으며, 회사는 지체 없이
-                조치하겠습니다.
+                위 권리 행사는 이메일(goblincallcontact@gmail.com)을 통해 요청하실 수 있으며, 회사는
+                지체 없이 조치하겠습니다.
               </p>
             </section>
 

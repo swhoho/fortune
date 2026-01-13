@@ -66,7 +66,9 @@ interface HistoryItem {
 async function fetchSubscriptions(userId: string): Promise<SubscriptionRecord[]> {
   const { data, error } = await supabase
     .from('subscriptions')
-    .select('id, status, current_period_start, current_period_end, price, payment_method, created_at, canceled_at')
+    .select(
+      'id, status, current_period_start, current_period_end, price, payment_method, created_at, canceled_at'
+    )
     .eq('user_id', userId)
     .order('created_at', { ascending: false });
 
@@ -224,11 +226,7 @@ export function SubscriptionHistory() {
   // 기록이 없는 경우
   if (historyItems.length === 0) {
     return (
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="mt-8"
-      >
+      <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="mt-8">
         <div className="mb-4">
           <h2 className="font-serif text-xl font-bold text-white">{t('title')}</h2>
           <p className="mt-1 text-sm text-gray-400">{t('subtitle')}</p>
@@ -256,14 +254,16 @@ export function SubscriptionHistory() {
       </div>
 
       {/* 현재 구독 상태 카드 */}
-      <div className={cn(
-        'rounded-xl p-4',
-        activeSubscription
-          ? isCancellationScheduled
-            ? 'bg-amber-900/10 border border-amber-900/30'  // 취소 예정
-            : 'bg-[#d4af37]/10 border border-[#d4af37]/30'  // 구독중
-          : 'bg-[#242424]'
-      )}>
+      <div
+        className={cn(
+          'rounded-xl p-4',
+          activeSubscription
+            ? isCancellationScheduled
+              ? 'border border-amber-900/30 bg-amber-900/10' // 취소 예정
+              : 'border border-[#d4af37]/30 bg-[#d4af37]/10' // 구독중
+            : 'bg-[#242424]'
+        )}
+      >
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
             {activeSubscription ? (
@@ -277,7 +277,9 @@ export function SubscriptionHistory() {
                     <p className="font-medium text-amber-400">{t('cancelScheduled')}</p>
                     <p className="text-sm text-gray-400">
                       {t('serviceUntil', {
-                        date: format(new Date(activeSubscription.periodEnd), 'yyyy년 M월 d일', { locale: dateLocale }),
+                        date: format(new Date(activeSubscription.periodEnd), 'yyyy년 M월 d일', {
+                          locale: dateLocale,
+                        }),
                       })}
                     </p>
                   </div>
@@ -292,7 +294,9 @@ export function SubscriptionHistory() {
                     <p className="font-medium text-[#d4af37]">{t('subscribing')}</p>
                     <p className="text-sm text-gray-400">
                       {t('nextPayment', {
-                        date: format(new Date(activeSubscription.periodEnd), 'yyyy.MM.dd', { locale: dateLocale }),
+                        date: format(new Date(activeSubscription.periodEnd), 'yyyy.MM.dd', {
+                          locale: dateLocale,
+                        }),
                       })}
                     </p>
                   </div>
@@ -379,9 +383,13 @@ export function SubscriptionHistory() {
                     {/* 무료체험 종료일 */}
                     {item.type === 'trial' && item.trialEndDate && (
                       <span className="text-purple-400">
-                        {t('freeTrialDays', { days: 3 })} ({t('freeTrialEnded', {
-                          date: format(new Date(item.trialEndDate), 'yyyy.MM.dd', { locale: dateLocale }),
-                        })})
+                        {t('freeTrialDays', { days: 3 })} (
+                        {t('freeTrialEnded', {
+                          date: format(new Date(item.trialEndDate), 'yyyy.MM.dd', {
+                            locale: dateLocale,
+                          }),
+                        })}
+                        )
                       </span>
                     )}
                   </div>
@@ -390,10 +398,12 @@ export function SubscriptionHistory() {
               {/* 구독: 결제 수단 + 금액 */}
               {item.type === 'subscription' && (
                 <div className="text-right">
-                  <span className={cn(
-                    'font-semibold',
-                    item.price === 0 ? 'text-purple-400' : 'text-[#d4af37]'
-                  )}>
+                  <span
+                    className={cn(
+                      'font-semibold',
+                      item.price === 0 ? 'text-purple-400' : 'text-[#d4af37]'
+                    )}
+                  >
                     {item.price === 0 ? t('adminGranted') : formatPrice(item.price || 3900)}
                   </span>
                   {item.paymentMethod && item.price !== 0 && (
@@ -417,23 +427,26 @@ export function SubscriptionHistory() {
               {t('cancelDialog.title')}
             </AlertDialogTitle>
             <AlertDialogDescription className="text-gray-400">
-              {activeSubscription && t('cancelDialog.description', {
-                date: format(new Date(activeSubscription.periodEnd), 'yyyy년 M월 d일', { locale: dateLocale }),
-              })}
+              {activeSubscription &&
+                t('cancelDialog.description', {
+                  date: format(new Date(activeSubscription.periodEnd), 'yyyy년 M월 d일', {
+                    locale: dateLocale,
+                  }),
+                })}
             </AlertDialogDescription>
           </AlertDialogHeader>
 
           {/* 취소 후에도 이용 가능한 혜택 안내 */}
           {activeSubscription && (
             <div className="rounded-lg bg-[#242424] p-4">
-              <p className="mb-2 text-sm font-medium text-gray-300">
-                {t('cancelDialog.benefits')}
-              </p>
+              <p className="mb-2 text-sm font-medium text-gray-300">{t('cancelDialog.benefits')}</p>
               <ul className="space-y-1 text-sm text-gray-400">
                 <li className="flex items-center gap-2">
                   <CheckCircle className="h-4 w-4 text-green-400" />
                   {t('cancelDialog.benefitDailyFortune', {
-                    date: format(new Date(activeSubscription.periodEnd), 'M월 d일', { locale: dateLocale }),
+                    date: format(new Date(activeSubscription.periodEnd), 'M월 d일', {
+                      locale: dateLocale,
+                    }),
                   })}
                 </li>
                 <li className="flex items-center gap-2">
