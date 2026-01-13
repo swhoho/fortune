@@ -38,6 +38,7 @@ export async function POST(request: Request) {
 
     console.log('[PayApp Callback] 수신 데이터:', {
       state: data.state,
+      pay_state: data.pay_state,
       mul_no: data.mul_no,
       pay_type: data.pay_type,
       price: data.price,
@@ -45,15 +46,24 @@ export async function POST(request: Request) {
       var2: data.var2,
     });
 
-    // 2. 결제 성공 여부 확인 (state=1)
-    if (data.state !== '1') {
-      console.log('[PayApp Callback] 결제 실패 또는 취소:', data.state);
+    // 2. 결제 성공 여부 확인 (pay_state=4: 결제완료)
+    // pay_state 코드: 1=요청, 4=결제완료, 8/32=요청취소, 9/64=승인취소, 10=결제대기
+    if (data.pay_state !== '4') {
+      console.log('[PayApp Callback] 결제 미완료 또는 취소:', data.pay_state);
       return new Response('SUCCESS', { status: 200 });
     }
 
     // 3. linkkey/linkval 검증
     if (!verifyPayAppFeedback(data)) {
       console.error('[PayApp Callback] 검증 실패: linkkey/linkval 불일치');
+      return new Response('FAIL', { status: 400 });
+    }
+
+    // 3-1. userid 검증
+    const expectedUserId = process.env.PAYAPP_USER_ID;
+    const receivedUserId = formData.get('userid')?.toString();
+    if (expectedUserId && receivedUserId !== expectedUserId) {
+      console.error('[PayApp Callback] 검증 실패: userid 불일치', { expected: expectedUserId, received: receivedUserId });
       return new Response('FAIL', { status: 400 });
     }
 

@@ -66,12 +66,21 @@ export async function POST(request: Request) {
       return new Response('FAIL', { status: 400 });
     }
 
+    // 3-1. userid 검증
+    const expectedUserId = process.env.PAYAPP_USER_ID;
+    const receivedUserId = formData.get('userid')?.toString();
+    if (expectedUserId && receivedUserId !== expectedUserId) {
+      console.error('[PayApp Rebill Callback] 검증 실패: userid 불일치', { expected: expectedUserId, received: receivedUserId });
+      return new Response('FAIL', { status: 400 });
+    }
+
     // 4. 상태별 처리
+    // pay_state 코드: 1=결제요청(카드등록), 4=결제완료, 8=해지
     if (payState === '1') {
-      // 결제 요청 (최초 등록) - 구독 레코드 생성
-      await handleSubscriptionCreated(userId, rebillNo, data.recvphone);
+      // 결제 요청 (카드 등록만 완료, 결제 미완료) - pending 상태로 구독 레코드 생성
+      await handleSubscriptionPending(userId, rebillNo, data.recvphone);
     } else if (payState === '4') {
-      // 결제 완료 (매월 자동결제) - 크레딧 지급
+      // 결제 완료 - 구독 활성화 + 크레딧 지급
       await handlePaymentCompleted(userId, rebillNo, data.mul_no);
     } else if (payState === '8') {
       // 해지
@@ -87,9 +96,10 @@ export async function POST(request: Request) {
 }
 
 /**
- * 구독 생성 처리 (pay_state=1)
+ * 구독 대기 처리 (pay_state=1: 카드 등록만 완료, 결제 미완료)
+ * 결제가 완료되면 pay_state=4 콜백에서 활성화됨
  */
-async function handleSubscriptionCreated(userId: string, rebillNo: string, recvphone: string) {
+async function handleSubscriptionPending(userId: string, rebillNo: string, recvphone: string) {
   // 기존 구독 확인
   const { data: existing } = await supabaseAdmin
     .from('subscriptions')
@@ -102,19 +112,12 @@ async function handleSubscriptionCreated(userId: string, rebillNo: string, recvp
     return;
   }
 
-  // 구독 기간 계산
-  const now = new Date();
-  const periodEnd = new Date(now);
-  periodEnd.setMonth(periodEnd.getMonth() + 1);
-
-  // 구독 레코드 생성
+  // 구독 레코드 생성 (pending 상태 - 결제 완료 전)
   const { data: subscription, error: subError } = await supabaseAdmin
     .from('subscriptions')
     .insert({
       user_id: userId,
-      status: 'active',
-      current_period_start: now.toISOString(),
-      current_period_end: periodEnd.toISOString(),
+      status: 'past_due', // 결제 대기 상태 (pay_state=4에서 active로 변경)
       price: SUBSCRIPTION_PLAN.price,
       payapp_rebill_no: rebillNo,
       payapp_recvphone: recvphone,
@@ -128,34 +131,28 @@ async function handleSubscriptionCreated(userId: string, rebillNo: string, recvp
     return;
   }
 
-  // users 테이블 업데이트
+  // users 테이블 업데이트 (대기 상태)
   await supabaseAdmin
     .from('users')
     .update({
-      subscription_status: 'active',
+      subscription_status: 'past_due',
       subscription_id: subscription.id,
     })
     .eq('id', userId);
 
-  // 최초 크레딧 지급
-  await addCredits({
-    userId,
-    amount: SUBSCRIPTION_PLAN.credits,
-    type: 'subscription',
-    subscriptionId: subscription.id,
-    description: `${SUBSCRIPTION_PLAN.name} 최초 크레딧`,
-    supabase: supabaseAdmin,
-  });
-
-  console.log('[PayApp Rebill] 구독 생성 완료:', {
+  // 크레딧은 pay_state=4 (결제 완료) 시점에 지급
+  console.log('[PayApp Rebill] 구독 대기 등록:', {
     userId,
     rebillNo,
     subscriptionId: subscription.id,
+    status: 'past_due (결제 대기)',
   });
 }
 
 /**
- * 결제 완료 처리 (pay_state=4, 매월 자동결제)
+ * 결제 완료 처리 (pay_state=4)
+ * - 첫 결제: 구독 활성화 (past_due → active) + 크레딧 지급
+ * - 갱신 결제: 구독 기간 연장 + 크레딧 지급
  */
 async function handlePaymentCompleted(userId: string, rebillNo: string, mulNo?: string) {
   // 구독 조회
@@ -184,11 +181,14 @@ async function handlePaymentCompleted(userId: string, rebillNo: string, mulNo?: 
     }
   }
 
-  // 구독 기간 갱신
+  // 구독 기간 설정
   const now = new Date();
   const periodEnd = new Date(now);
   periodEnd.setMonth(periodEnd.getMonth() + 1);
 
+  const isFirstPayment = subscription.status === 'past_due';
+
+  // 구독 활성화 및 기간 갱신
   await supabaseAdmin
     .from('subscriptions')
     .update({
@@ -198,20 +198,37 @@ async function handlePaymentCompleted(userId: string, rebillNo: string, mulNo?: 
     })
     .eq('id', subscription.id);
 
+  // 첫 결제 시 users 테이블도 active로 업데이트
+  if (isFirstPayment) {
+    await supabaseAdmin
+      .from('users')
+      .update({
+        subscription_status: 'active',
+      })
+      .eq('id', userId);
+  }
+
   // 크레딧 지급
+  const description = isFirstPayment
+    ? `${SUBSCRIPTION_PLAN.name} 최초 크레딧`
+    : mulNo
+      ? `PayApp 정기결제 ${mulNo}`
+      : `${SUBSCRIPTION_PLAN.name} 월간 크레딧`;
+
   await addCredits({
     userId,
     amount: SUBSCRIPTION_PLAN.credits,
     type: 'subscription',
     subscriptionId: subscription.id,
-    description: mulNo ? `PayApp 정기결제 ${mulNo}` : `${SUBSCRIPTION_PLAN.name} 월간 크레딧`,
+    description,
     supabase: supabaseAdmin,
   });
 
-  console.log('[PayApp Rebill] 월간 결제 완료:', {
+  console.log('[PayApp Rebill] 결제 완료:', {
     userId,
     rebillNo,
     mulNo,
+    isFirstPayment,
     credits: SUBSCRIPTION_PLAN.credits,
   });
 }
