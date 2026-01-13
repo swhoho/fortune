@@ -763,7 +763,7 @@
       "personalityPattern": "性格パターン",
       "personalityPatternDesc": "結婚後の性格パターン",
       "traits": "恋愛特性",
-      "traitsDesc": "恋愛に関する特性10個",
+      "traitsDesc": "恋愛適性スコア",
       "score": "恋愛点数",
       "traitLabels": {
         "consideration": "思いやり",

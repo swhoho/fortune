@@ -59,7 +59,7 @@ function getDescriptionByScore(description: TraitDescription, value: number): st
 function getLevelLabel(value: number): { label: string; color: string } {
   if (value <= 40) return { label: '낮음', color: 'text-amber-400' };
   if (value <= 60) return { label: '보통', color: 'text-gray-400' };
-  return { label: '높음', color: 'text-red-400' };
+  return { label: '높음', color: 'text-green-400' };
 }
 
 /**
@@ -136,11 +136,11 @@ export function TraitGraph({
           >
             <div className="flex items-center gap-1.5">
               <span className="h-2.5 w-2.5 rounded-sm" style={{ backgroundColor: '#f59e0b' }} />
-              <span>{threshold}%미만</span>
+              <span>{threshold}점 미만</span>
             </div>
             <div className="flex items-center gap-1.5">
-              <span className="h-2.5 w-2.5 rounded-sm" style={{ backgroundColor: '#ef4444' }} />
-              <span>{threshold}%이상</span>
+              <span className="h-2.5 w-2.5 rounded-sm" style={{ backgroundColor: '#22c55e' }} />
+              <span>{threshold}점 이상</span>
             </div>
           </motion.div>
         )}
@@ -195,7 +195,7 @@ export function TraitGraph({
                 if (!trait.description) return null;
                 const level = getLevelLabel(trait.value);
                 const descriptionText = getDescriptionByScore(trait.description, trait.value);
-                const barColor = trait.value < threshold ? '#f59e0b' : '#ef4444';
+                const barColor = trait.value < threshold ? '#f59e0b' : '#22c55e';
 
                 return (
                   <motion.div
@@ -218,7 +218,7 @@ export function TraitGraph({
                             color: barColor,
                           }}
                         >
-                          {trait.value}%
+                          {trait.value}점
                         </span>
                       </div>
                       {/* 레벨 라벨 */}

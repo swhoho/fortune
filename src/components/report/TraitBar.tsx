@@ -34,7 +34,7 @@ export function TraitBar({
 
   // 기준선 기준 색상 결정
   const getBarColor = () => {
-    return clampedValue < threshold ? '#f59e0b' : '#ef4444';
+    return clampedValue < threshold ? '#f59e0b' : '#22c55e';
   };
 
   const barColor = getBarColor();
@@ -86,7 +86,7 @@ export function TraitBar({
         className="w-10 shrink-0 text-right"
       >
         <span className="text-sm font-bold tabular-nums" style={{ color: barColor }}>
-          {clampedValue}%
+          {clampedValue}점
         </span>
       </motion.div>
     </motion.div>
