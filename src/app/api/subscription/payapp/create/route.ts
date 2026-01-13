@@ -53,6 +53,8 @@ export async function POST(request: Request) {
 
     console.log('[PayApp Create] feedbackurl:', `${appUrl}/api/subscription/payapp/callback`);
 
+    // returnurl에 rebill_no를 추가하기 위해 먼저 PayApp 요청 생성
+    // (rebill_no는 응답에서 받으므로 일단 placeholder로 생성)
     const result = await createPayAppRebill({
       goodname: SUBSCRIPTION_PLAN.name,
       goodprice: SUBSCRIPTION_PLAN.price,
@@ -61,7 +63,8 @@ export async function POST(request: Request) {
       rebillCycleMonth: payDay > 28 ? 28 : payDay, // 28일 초과 시 28일로 설정
       rebillExpire: calculateRebillExpireDate(),
       feedbackurl: `${appUrl}/api/subscription/payapp/callback`,
-      returnurl: `${appUrl}/${locale}/daily-fortune/subscribe/success`,
+      // returnurl에 rebill_no 추가 (PayApp에서 치환해줌)
+      returnurl: `${appUrl}/${locale}/daily-fortune/subscribe/success?rebill_no={rebill_no}`,
       userId: user.id,
     });
 
@@ -77,6 +80,8 @@ export async function POST(request: Request) {
         { status: 500 }
       );
     }
+
+    console.log('[PayApp Create] 성공:', { rebillNo: result.rebill_no, payUrl: result.payurl });
 
     return NextResponse.json({
       success: true,

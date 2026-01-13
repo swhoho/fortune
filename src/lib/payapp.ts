@@ -258,6 +258,65 @@ export function verifyPayAppRebillFeedback(data: PayAppRebillFeedbackData): bool
 }
 
 /**
+ * 정기결제 정보 조회 응답 타입
+ */
+export interface PayAppRebillInfoResponse {
+  state: '1' | '0';
+  rebill_state?: string; // 1: 대기, 4: 진행중, 8: 해지
+  rebill_no?: string;
+  goodname?: string;
+  goodprice?: string;
+  recvphone?: string;
+  var1?: string; // userId
+  errorMessage?: string;
+  errno?: string;
+}
+
+/**
+ * PayApp 정기결제 정보 조회 (서버 사이드)
+ * rebill_no로 정기결제 상태 확인
+ */
+export async function getPayAppRebillInfo(rebillNo: string): Promise<PayAppRebillInfoResponse> {
+  const formData = new URLSearchParams();
+  formData.append('cmd', 'rebillInformation');
+  formData.append('userid', PAYAPP_CONFIG.userId);
+  formData.append('linkkey', PAYAPP_CONFIG.linkKey);
+  formData.append('linkval', PAYAPP_CONFIG.linkVal);
+  formData.append('rebill_no', rebillNo);
+
+  const response = await fetch(PAYAPP_CONFIG.apiUrl, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/x-www-form-urlencoded',
+    },
+    body: formData.toString(),
+  });
+
+  const text = await response.text();
+
+  // 응답 파싱
+  const result: Record<string, string> = {};
+  text.split('&').forEach((pair) => {
+    const [key, value] = pair.split('=');
+    if (key && value) {
+      result[key] = decodeURIComponent(value);
+    }
+  });
+
+  return {
+    state: result.state as '1' | '0',
+    rebill_state: result.rebill_state,
+    rebill_no: result.rebill_no,
+    goodname: result.goodname,
+    goodprice: result.goodprice,
+    recvphone: result.recvphone,
+    var1: result.var1,
+    errorMessage: result.errorMessage,
+    errno: result.errno,
+  };
+}
+
+/**
  * 정기결제 만료일 계산 (1년 후)
  */
 export function calculateRebillExpireDate(): string {

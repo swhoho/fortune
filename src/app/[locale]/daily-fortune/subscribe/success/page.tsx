@@ -3,15 +3,26 @@
 /**
  * 구독 완료 페이지
  * PayApp 정기결제 returnurl로 사용
+ * rebill_no로 결제 상태를 직접 확인하고 구독 활성화
  */
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
 import { useTranslations } from 'next-intl';
 import { Button } from '@/components/ui/button';
-import { Crown, Loader2 } from 'lucide-react';
+import { Crown, Loader2, AlertCircle, XCircle } from 'lucide-react';
 
-type VerifyStatus = 'verifying' | 'success' | 'error';
+type VerifyStatus = 'verifying' | 'pending' | 'success' | 'error';
+
+interface VerifyResult {
+  status: VerifyStatus;
+  rebillNo: string | null;
+  message: string | null;
+  errorMessage: string | null;
+}
+
+const MAX_RETRY_COUNT = 10; // 최대 10회 재시도
+const RETRY_INTERVAL = 2000; // 2초 간격
 
 export default function SubscriptionSuccessPage({
   params: { locale },
@@ -19,80 +30,198 @@ export default function SubscriptionSuccessPage({
   params: { locale: string };
 }) {
   const t = useTranslations('dailyFortune');
-  const [status, setStatus] = useState<VerifyStatus>('verifying');
-  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [result, setResult] = useState<VerifyResult>({
+    status: 'verifying',
+    rebillNo: null,
+    message: null,
+    errorMessage: null,
+  });
+  const [retryCount, setRetryCount] = useState(0);
+
+  const verifySubscription = useCallback(async (rebillNo: string): Promise<VerifyResult> => {
+    try {
+      const res = await fetch('/api/subscription/payapp/verify', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ rebillNo }),
+      });
+      const data = await res.json();
+
+      console.log('[Success Page] Verify 응답:', data);
+
+      if (data.success) {
+        if (data.status === 'active') {
+          return {
+            status: 'success',
+            rebillNo: data.rebillNo,
+            message: data.message,
+            errorMessage: null,
+          };
+        } else if (data.status === 'pending') {
+          return {
+            status: 'pending',
+            rebillNo: data.rebillNo,
+            message: data.message,
+            errorMessage: null,
+          };
+        }
+      }
+
+      return {
+        status: 'error',
+        rebillNo: data.rebillNo || rebillNo,
+        message: null,
+        errorMessage: data.error || '결제 확인에 실패했습니다.',
+      };
+    } catch (err) {
+      console.error('[Success Page] Verify 오류:', err);
+      return {
+        status: 'error',
+        rebillNo,
+        message: null,
+        errorMessage: '네트워크 오류가 발생했습니다.',
+      };
+    }
+  }, []);
 
   useEffect(() => {
     async function checkSubscription() {
-      try {
-        // 구독 상태 확인
-        const res = await fetch('/api/subscription/status');
-        const data = await res.json();
+      // sessionStorage에서 rebill_no 가져오기
+      const rebillNo = sessionStorage.getItem('payapp_rebill_no');
 
-        if (data.subscription?.status === 'active') {
-          setStatus('success');
-        } else {
-          // 콜백이 아직 처리되지 않았을 수 있음 - 잠시 대기 후 재확인
-          await new Promise((resolve) => setTimeout(resolve, 3000));
+      if (!rebillNo) {
+        console.log('[Success Page] rebill_no 없음, 구독 상태 확인');
+        // rebill_no가 없으면 기존 구독 상태 확인
+        try {
+          const res = await fetch('/api/subscription/status');
+          const data = await res.json();
 
-          const retryRes = await fetch('/api/subscription/status');
-          const retryData = await retryRes.json();
-
-          if (retryData.subscription?.status === 'active') {
-            setStatus('success');
+          if (data.subscription?.status === 'active') {
+            setResult({
+              status: 'success',
+              rebillNo: null,
+              message: '구독이 활성화되어 있습니다.',
+              errorMessage: null,
+            });
           } else {
-            // 그래도 성공으로 처리 (콜백이 늦게 올 수 있음)
-            setStatus('success');
+            setResult({
+              status: 'error',
+              rebillNo: null,
+              message: null,
+              errorMessage: '결제 정보를 찾을 수 없습니다. 고객센터에 문의해주세요.',
+            });
           }
+        } catch {
+          setResult({
+            status: 'error',
+            rebillNo: null,
+            message: null,
+            errorMessage: '구독 상태 확인 중 오류가 발생했습니다.',
+          });
         }
-      } catch (err) {
-        console.error('Subscription check error:', err);
-        setErrorMessage('구독 상태 확인 중 오류가 발생했습니다.');
-        setStatus('error');
+        return;
+      }
+
+      console.log('[Success Page] rebill_no 발견:', rebillNo);
+
+      // verify API 호출
+      const verifyResult = await verifySubscription(rebillNo);
+      setResult(verifyResult);
+
+      // pending 상태면 폴링 시작
+      if (verifyResult.status === 'pending' && retryCount < MAX_RETRY_COUNT) {
+        setRetryCount((prev) => prev + 1);
+      } else if (verifyResult.status === 'success') {
+        // 성공 시 sessionStorage 정리
+        sessionStorage.removeItem('payapp_rebill_no');
       }
     }
 
     checkSubscription();
-  }, []);
+  }, [retryCount, verifySubscription]);
 
-  // 로딩 UI
-  if (status === 'verifying') {
+  // pending 상태일 때 폴링
+  useEffect(() => {
+    if (result.status === 'pending' && retryCount < MAX_RETRY_COUNT) {
+      const timer = setTimeout(() => {
+        setRetryCount((prev) => prev + 1);
+      }, RETRY_INTERVAL);
+      return () => clearTimeout(timer);
+    }
+
+    // 최대 재시도 횟수 초과 시 성공으로 처리 (콜백이 늦게 올 수 있음)
+    if (result.status === 'pending' && retryCount >= MAX_RETRY_COUNT) {
+      setResult((prev) => ({
+        ...prev,
+        status: 'success',
+        message: '결제가 완료되었습니다. 잠시 후 구독이 활성화됩니다.',
+      }));
+      sessionStorage.removeItem('payapp_rebill_no');
+    }
+  }, [result.status, retryCount]);
+
+  // 로딩/검증 중 UI
+  if (result.status === 'verifying' || result.status === 'pending') {
     return (
       <div className="flex min-h-screen flex-col items-center justify-center bg-[#0a0a0a] px-6">
         <Loader2 className="mb-6 h-12 w-12 animate-spin text-[#d4af37]" />
-        <h1 className="mb-2 font-serif text-xl font-bold text-white">구독 확인 중...</h1>
-        <p className="text-gray-400">잠시만 기다려주세요.</p>
+        <h1 className="mb-2 font-serif text-xl font-bold text-white">
+          {result.status === 'verifying' ? '결제 확인 중...' : '결제 처리 중...'}
+        </h1>
+        <p className="mb-4 text-gray-400">잠시만 기다려주세요.</p>
+        {result.rebillNo && (
+          <p className="text-xs text-gray-500">결제번호: {result.rebillNo}</p>
+        )}
+        {result.status === 'pending' && (
+          <p className="mt-2 text-xs text-gray-500">
+            확인 중... ({retryCount}/{MAX_RETRY_COUNT})
+          </p>
+        )}
       </div>
     );
   }
 
   // 에러 UI
-  if (status === 'error') {
+  if (result.status === 'error') {
     return (
       <div className="flex min-h-screen flex-col items-center justify-center bg-[#0a0a0a] px-6">
         <div className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-red-500/20">
-          <svg
-            className="h-10 w-10 text-red-500"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M6 18L18 6M6 6l12 12"
-            />
-          </svg>
+          <XCircle className="h-10 w-10 text-red-500" />
         </div>
-        <h1 className="mb-2 font-serif text-xl font-bold text-white">구독 확인 실패</h1>
-        <p className="mb-6 text-center text-gray-400">{errorMessage}</p>
-        <p className="mb-6 text-center text-sm text-gray-500">
-          결제가 완료되었다면 마이페이지 → 고객센터로 연락 부탁드립니다.
-        </p>
-        <Button asChild variant="outline">
-          <Link href={`/${locale}/home`}>홈으로 이동</Link>
-        </Button>
+        <h1 className="mb-2 font-serif text-xl font-bold text-white">결제 확인 실패</h1>
+        <p className="mb-4 text-center text-gray-400">{result.errorMessage}</p>
+
+        {/* 결제 번호 표시 */}
+        {result.rebillNo && (
+          <div className="mb-6 rounded-lg border border-[#333] bg-[#1a1a1a] px-4 py-3">
+            <p className="text-xs text-gray-500">결제번호</p>
+            <p className="font-mono text-sm text-white">{result.rebillNo}</p>
+          </div>
+        )}
+
+        <div className="flex items-start gap-2 rounded-lg bg-yellow-500/10 px-4 py-3 mb-6">
+          <AlertCircle className="mt-0.5 h-4 w-4 shrink-0 text-yellow-500" />
+          <p className="text-sm text-yellow-200">
+            결제가 완료되었다면 잠시 후 자동으로 반영됩니다.
+            <br />
+            문제가 지속되면 위 결제번호와 함께 고객센터에 문의해주세요.
+          </p>
+        </div>
+
+        <div className="flex gap-3">
+          <Button asChild variant="outline">
+            <Link href={`/${locale}/home`}>홈으로 이동</Link>
+          </Button>
+          <Button
+            onClick={() => {
+              setRetryCount(0);
+              setResult((prev) => ({ ...prev, status: 'verifying' }));
+            }}
+            className="bg-[#d4af37] text-black hover:bg-[#c19a2e]"
+          >
+            다시 확인
+          </Button>
+        </div>
       </div>
     );
   }
@@ -130,12 +259,23 @@ export default function SubscriptionSuccessPage({
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.4 }}
-          className="mb-8 text-gray-300"
+          className="mb-6 text-gray-300"
         >
-          프리미엄 구독 혜택을 즐겨보세요.
-          <br />
-          매일 개인화된 운세를 확인할 수 있습니다.
+          {result.message || '프리미엄 구독 혜택을 즐겨보세요.'}
         </motion.p>
+
+        {/* 결제 번호 표시 */}
+        {result.rebillNo && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.45 }}
+            className="mb-6 rounded-lg border border-[#333] bg-[#1a1a1a] px-4 py-3"
+          >
+            <p className="text-xs text-gray-500">결제번호</p>
+            <p className="font-mono text-sm text-white">{result.rebillNo}</p>
+          </motion.div>
+        )}
 
         {/* 혜택 목록 */}
         <motion.div

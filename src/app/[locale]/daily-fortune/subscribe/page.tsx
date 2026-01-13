@@ -143,6 +143,10 @@ export default function DailyFortuneSubscribePage({
       const data = await res.json();
 
       if (data.success && data.payUrl) {
+        // rebill_no를 sessionStorage에 저장 (success 페이지에서 사용)
+        if (data.rebillNo) {
+          sessionStorage.setItem('payapp_rebill_no', data.rebillNo);
+        }
         // PayApp 결제창으로 리디렉션
         window.location.href = data.payUrl;
       } else {
