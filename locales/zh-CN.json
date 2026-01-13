@@ -23,6 +23,14 @@
       "profileNew": {
         "title": "添加档案 | 输入出生信息进行分析",
         "description": "请输入出生日期、出生时间和性别，以进行精准的四柱八字分析。"
+      },
+      "dailyFortune": {
+        "title": "今日运势 | 每日更新的AI八字运势",
+        "description": "结合日柱与八字的个人定制今日运势。每天查看新运势。"
+      },
+      "compatibility": {
+        "title": "合婚分析 | AI八字合婚分析",
+        "description": "比较两人八字分析合婚。综合评估天干、地支、五行的调和。"
       }
     }
   },

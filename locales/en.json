@@ -23,6 +23,14 @@
       "profileNew": {
         "title": "Register Profile | Enter Birth Information for Analysis",
         "description": "Enter your birth date, time, and gender for accurate Four Pillars destiny analysis."
+      },
+      "dailyFortune": {
+        "title": "Daily Fortune | AI-Powered Daily Horoscope",
+        "description": "Personalized daily fortune combining your BaZi with today's energy. Check your new fortune every day."
+      },
+      "compatibility": {
+        "title": "Compatibility Analysis | AI BaZi Compatibility",
+        "description": "Compare two people's BaZi to analyze compatibility. Comprehensive evaluation of heavenly stems, earthly branches, and five elements harmony."
       }
     }
   },
