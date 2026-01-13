@@ -1047,6 +1047,18 @@
       "minutes": "About {minutes} min {seconds} sec"
     },
     "tip": "Did you know?",
+    "tips": [
+      "Ziping Zhenchuan, written by Shen Xiaozhan in the Qing Dynasty, is the bible of destiny analysis.",
+      "The Day Master (日干) in your chart represents yourself.",
+      "The more balanced your Five Elements are, the more stable your life can be.",
+      "Major Luck Cycles (大運) represent the major flow of life in 10-year periods.",
+      "The Useful God (用神) is the most needed element in your chart.",
+      "The Ten Gods (十神) represent social relationships and roles.",
+      "Hidden Stems (支藏干) are the heavenly stems hidden within the earthly branches.",
+      "Heavenly Stems represent celestial energy, while Earthly Branches represent terrestrial energy.",
+      "The Year Pillar represents ancestors and childhood, the Month Pillar represents parents and youth.",
+      "The Day Pillar represents yourself and spouse, the Hour Pillar represents children and old age."
+    ],
     "error": {
       "title": "Error during {step}",
       "retryFrom": "Resume from checkpoint",

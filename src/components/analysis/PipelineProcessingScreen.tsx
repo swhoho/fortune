@@ -14,7 +14,7 @@ import { CheckCircle2, Circle, Loader2, AlertCircle, RefreshCcw, Clock } from 'l
 import { useTranslations } from 'next-intl';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
-import { FORTUNE_TIPS, BRAND_COLORS } from '@/lib/constants/colors';
+import { BRAND_COLORS } from '@/lib/constants/colors';
 import type { PipelineStep, StepStatus } from '@/lib/ai/types';
 
 /** 한자 천간 목록 (회전 애니메이션용) */
@@ -123,6 +123,9 @@ export function PipelineProcessingScreen({
   const [currentTipIndex, setCurrentTipIndex] = useState(0);
   const [countdown, setCountdown] = useState(INITIAL_COUNTDOWN_SECONDS);
 
+  // i18n tips 배열 가져오기
+  const tips = t.raw('tips') as string[];
+
   /**
    * 남은 시간 포맷 (i18n)
    */
@@ -148,10 +151,10 @@ export function PipelineProcessingScreen({
   // 팁 로테이션 (5초)
   useEffect(() => {
     const interval = setInterval(() => {
-      setCurrentTipIndex((prev) => (prev + 1) % FORTUNE_TIPS.length);
+      setCurrentTipIndex((prev) => (prev + 1) % tips.length);
     }, 5000);
     return () => clearInterval(interval);
-  }, []);
+  }, [tips.length]);
 
   // 에러 화면
   if (error) {
@@ -314,7 +317,7 @@ export function PipelineProcessingScreen({
             transition={{ duration: 0.3 }}
             className="text-sm text-gray-400"
           >
-            &ldquo;{FORTUNE_TIPS[currentTipIndex]}&rdquo;
+            &ldquo;{tips[currentTipIndex]}&rdquo;
           </motion.p>
         </AnimatePresence>
       </div>
