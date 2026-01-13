@@ -16,12 +16,14 @@ export async function GET() {
 
     const supabase = getSupabaseAdmin();
 
-    // 2. 활성 구독 조회
+    // 2. 활성 또는 대기 중인 구독 조회 (active, past_due)
     const { data: subscription, error } = await supabase
       .from('subscriptions')
       .select('*')
       .eq('user_id', user.id)
-      .eq('status', 'active')
+      .in('status', ['active', 'past_due'])
+      .order('created_at', { ascending: false })
+      .limit(1)
       .single();
 
     if (error && error.code !== 'PGRST116') {
@@ -66,7 +68,7 @@ export async function GET() {
 
     // 5. 활성 구독 반환
     return NextResponse.json({
-      active: true,
+      active: subscription.status === 'active',
       subscription: {
         id: subscription.id,
         status: subscription.status,
@@ -75,6 +77,7 @@ export async function GET() {
         price: subscription.price,
         createdAt: subscription.created_at,
         canceledAt: subscription.canceled_at,
+        payappRebillNo: subscription.payapp_rebill_no,
       },
     });
   } catch (error) {

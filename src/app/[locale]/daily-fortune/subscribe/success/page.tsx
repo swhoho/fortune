@@ -152,41 +152,61 @@ function SubscriptionSuccessContent({ locale }: { locale: string }) {
           const res = await fetch('/api/subscription/status');
           const data = await res.json();
 
+          // eslint-disable-next-line no-console
+          console.log('[Success Page] 구독 상태 API 응답:', data);
+
           if (data.subscription?.status === 'active') {
             setResult({
               status: 'success',
-              rebillNo: data.subscription.payapp_rebill_no || null,
+              rebillNo: data.subscription.payappRebillNo || null,
               message: '구독이 활성화되어 있습니다.',
               errorMessage: null,
             });
-          } else if (data.subscription?.status === 'past_due') {
-            // 결제 대기 상태 - 폴링으로 재확인
-            setResult({
-              status: 'pending',
-              rebillNo: data.subscription.payapp_rebill_no || null,
-              message: '결제 확인 중입니다...',
-              errorMessage: null,
-            });
-          } else {
-            // URL에 mul_no(결제번호)가 있으면 결제는 완료된 것으로 판단
-            const mulNo = searchParams.get('mul_no');
-            if (mulNo) {
+            return;
+          }
+
+          if (data.subscription?.status === 'past_due') {
+            // 결제 대기 상태
+            const apiRebillNo = data.subscription.payappRebillNo;
+            if (apiRebillNo) {
+              // rebill_no가 있으면 verify API로 재시도
+              // eslint-disable-next-line no-console
+              console.log('[Success Page] past_due 상태, rebillNo로 verify 재시도:', apiRebillNo);
+              const verifyResult = await verifySubscription(apiRebillNo);
+              setResult(verifyResult);
+              if (verifyResult.status === 'pending' && retryCount < MAX_RETRY_COUNT) {
+                setRetryCount((prev) => prev + 1);
+              }
+            } else {
+              // rebill_no 없음 - 폴링 대기
               setResult({
                 status: 'pending',
-                rebillNo: mulNo,
-                message: '결제가 완료되었습니다. 구독 활성화 중...',
+                rebillNo: null,
+                message: '결제 확인 중입니다. 잠시만 기다려주세요...',
                 errorMessage: null,
               });
-            } else {
-              setResult({
-                status: 'error',
-                rebillNo: null,
-                message: null,
-                errorMessage: 'cmd+값을+확인+하세요.',
-              });
+              if (retryCount < MAX_RETRY_COUNT) {
+                setRetryCount((prev) => prev + 1);
+              }
             }
+            return;
           }
-        } catch {
+
+          // 구독 없음 - 결제 완료 후 콜백 대기 중일 수 있음
+          // eslint-disable-next-line no-console
+          console.log('[Success Page] 구독 없음, 콜백 대기 중일 수 있음');
+          setResult({
+            status: 'pending',
+            rebillNo: null,
+            message: '결제 확인 중입니다. 잠시만 기다려주세요...',
+            errorMessage: null,
+          });
+          if (retryCount < MAX_RETRY_COUNT) {
+            setRetryCount((prev) => prev + 1);
+          }
+        } catch (err) {
+          // eslint-disable-next-line no-console
+          console.error('[Success Page] 구독 상태 조회 오류:', err);
           setResult({
             status: 'error',
             rebillNo: null,

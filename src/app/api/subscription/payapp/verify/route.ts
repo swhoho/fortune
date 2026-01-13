@@ -64,9 +64,19 @@ export async function POST(request: Request) {
     console.log('[PayApp Verify] PayApp 응답:', rebillInfo);
 
     if (rebillInfo.state !== '1') {
+      // PayApp 내부 에러 메시지를 사용자 친화적으로 변환
+      let errorMsg = rebillInfo.errorMessage || '결제 정보 조회에 실패했습니다.';
+      if (errorMsg.includes('cmd') || errorMsg.includes('값을')) {
+        errorMsg = '결제 정보를 확인할 수 없습니다. 결제번호를 다시 확인해주세요.';
+      }
+      console.error('[PayApp Verify] PayApp 에러:', {
+        rebillNo,
+        errorMessage: rebillInfo.errorMessage,
+        errno: rebillInfo.errno,
+      });
       return NextResponse.json({
         success: false,
-        error: rebillInfo.errorMessage || '결제 정보 조회에 실패했습니다.',
+        error: errorMsg,
         rebillNo,
       });
     }
