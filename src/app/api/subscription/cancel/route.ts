@@ -33,13 +33,14 @@ export async function POST() {
       return NextResponse.json({ error: '활성 구독이 없습니다' }, { status: 400 });
     }
 
-    // 3. 구독 취소 처리 (status: 'canceled', 기간 종료까지 유지)
+    // 3. 구독 취소 처리 (canceled_at만 설정, status는 active 유지)
+    // current_period_end까지는 서비스 이용 가능
     const { error: updateError } = await supabase
       .from('subscriptions')
       .update({
-        status: 'canceled',
         canceled_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),
+        // status는 active 유지! 기간 만료 후 cron에서 expired로 변경
       })
       .eq('id', subscription.id);
 
@@ -48,27 +49,22 @@ export async function POST() {
       return NextResponse.json({ error: '구독 취소에 실패했습니다' }, { status: 500 });
     }
 
-    // 4. users 테이블 구독 상태 업데이트 (canceled = 취소 예정, 기간 종료 시 expired)
-    await supabase
-      .from('users')
-      .update({
-        subscription_status: 'canceled',
-        updated_at: new Date().toISOString(),
-      })
-      .eq('id', user.id);
+    // 4. users 테이블은 업데이트하지 않음 (기간 만료 전까지 active 유지)
 
     console.log(
       `[Subscription] 구독 취소: userId=${user.id}, subscriptionId=${subscription.id}, periodEnd=${subscription.current_period_end}`
     );
 
+    // 취소 예정 상태 반환 (status는 여전히 active지만 canceledAt이 설정됨)
     return NextResponse.json({
       success: true,
-      message: '구독이 취소되었습니다',
+      message: '구독이 취소 예정되었습니다',
       subscription: {
         id: subscription.id,
-        status: 'canceled',
+        status: 'active', // DB 상태와 일치 (기간 만료 전까지 active 유지)
         canceledAt: new Date().toISOString(),
         periodEnd: subscription.current_period_end,
+        willExpireAt: subscription.current_period_end, // 만료 예정일
       },
     });
   } catch (error) {

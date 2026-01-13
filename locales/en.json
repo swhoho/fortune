@@ -1178,6 +1178,8 @@
       "subscribing": "Premium Subscription Active",
       "notSubscribing": "Not subscribed",
       "nextPayment": "Next billing: {date}",
+      "cancelScheduled": "Cancellation Scheduled",
+      "serviceUntil": "Service available until {date}",
       "premiumMembership": "Premium Membership",
       "adminGranted": "Admin Granted",
       "freeTrial": "Free Trial",

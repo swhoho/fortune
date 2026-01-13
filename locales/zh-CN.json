@@ -1020,6 +1020,8 @@
       "subscribing": "高级订阅中",
       "notSubscribing": "未订阅",
       "nextPayment": "下次扣费日：{date}",
+      "cancelScheduled": "取消预定",
+      "serviceUntil": "服务可用至{date}",
       "premiumMembership": "高级会员",
       "adminGranted": "管理员授予",
       "freeTrial": "免费体验",

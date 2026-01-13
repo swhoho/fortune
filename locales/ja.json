@@ -1020,6 +1020,8 @@
       "subscribing": "プレミアムサブスクリプション有効",
       "notSubscribing": "未加入",
       "nextPayment": "次回請求日: {date}",
+      "cancelScheduled": "解約予定",
+      "serviceUntil": "{date}まで利用可能",
       "premiumMembership": "プレミアムメンバーシップ",
       "adminGranted": "管理者付与",
       "freeTrial": "無料体験",

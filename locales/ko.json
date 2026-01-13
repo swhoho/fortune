@@ -1178,6 +1178,8 @@
       "subscribing": "프리미엄 구독 중",
       "notSubscribing": "구독 중이 아닙니다",
       "nextPayment": "다음 결제일: {date}",
+      "cancelScheduled": "구독 취소 예정",
+      "serviceUntil": "{date}까지 이용 가능",
       "premiumMembership": "프리미엄 멤버십",
       "adminGranted": "관리자 지급",
       "freeTrial": "무료체험",

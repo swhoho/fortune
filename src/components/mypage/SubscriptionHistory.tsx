@@ -155,8 +155,10 @@ export function SubscriptionHistory() {
 
   const isLoading = isLoadingSubscriptions || isLoadingTrial;
 
-  // 현재 활성 구독 찾기
+  // 현재 활성 구독 찾기 (취소 예정 포함)
   const activeSubscription = subscriptions.find((s) => s.status === 'active');
+  // 취소 예정 여부 (status는 active지만 canceledAt이 설정된 경우)
+  const isCancellationScheduled = activeSubscription?.canceledAt != null;
 
   // 구독 취소 핸들러
   const handleCancelSubscription = async () => {
@@ -256,24 +258,46 @@ export function SubscriptionHistory() {
       {/* 현재 구독 상태 카드 */}
       <div className={cn(
         'rounded-xl p-4',
-        activeSubscription ? 'bg-[#d4af37]/10 border border-[#d4af37]/30' : 'bg-[#242424]'
+        activeSubscription
+          ? isCancellationScheduled
+            ? 'bg-amber-900/10 border border-amber-900/30'  // 취소 예정
+            : 'bg-[#d4af37]/10 border border-[#d4af37]/30'  // 구독중
+          : 'bg-[#242424]'
       )}>
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
             {activeSubscription ? (
-              <>
-                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#d4af37]/20">
-                  <CheckCircle className="h-5 w-5 text-[#d4af37]" />
-                </div>
-                <div>
-                  <p className="font-medium text-[#d4af37]">{t('subscribing')}</p>
-                  <p className="text-sm text-gray-400">
-                    {t('nextPayment', {
-                      date: format(new Date(activeSubscription.periodEnd), 'yyyy.MM.dd', { locale: dateLocale }),
-                    })}
-                  </p>
-                </div>
-              </>
+              isCancellationScheduled ? (
+                // 취소 예정 상태 (기간 만료 전까지 서비스 이용 가능)
+                <>
+                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-amber-900/20">
+                    <AlertTriangle className="h-5 w-5 text-amber-400" />
+                  </div>
+                  <div>
+                    <p className="font-medium text-amber-400">{t('cancelScheduled')}</p>
+                    <p className="text-sm text-gray-400">
+                      {t('serviceUntil', {
+                        date: format(new Date(activeSubscription.periodEnd), 'yyyy년 M월 d일', { locale: dateLocale }),
+                      })}
+                    </p>
+                  </div>
+                </>
+              ) : (
+                // 정상 구독중 상태
+                <>
+                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#d4af37]/20">
+                    <CheckCircle className="h-5 w-5 text-[#d4af37]" />
+                  </div>
+                  <div>
+                    <p className="font-medium text-[#d4af37]">{t('subscribing')}</p>
+                    <p className="text-sm text-gray-400">
+                      {t('nextPayment', {
+                        date: format(new Date(activeSubscription.periodEnd), 'yyyy.MM.dd', { locale: dateLocale }),
+                      })}
+                    </p>
+                  </div>
+                </>
+              )
             ) : (
               <>
                 <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#333]">
@@ -286,8 +310,8 @@ export function SubscriptionHistory() {
             )}
           </div>
 
-          {/* 구독 취소 버튼 */}
-          {activeSubscription && (
+          {/* 구독 취소 버튼 (이미 취소 예정이면 숨김) */}
+          {activeSubscription && !isCancellationScheduled && (
             <Button
               variant="outline"
               size="sm"
