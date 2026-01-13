@@ -5,8 +5,18 @@
 import { redirect } from 'next/navigation';
 import { checkAdminAuth } from '@/admin/lib/auth';
 
+/** 항상 동적 렌더링 */
+export const dynamic = 'force-dynamic';
+
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
-  const { isAdmin } = await checkAdminAuth();
+  let isAdmin = false;
+
+  try {
+    const result = await checkAdminAuth();
+    isAdmin = result.isAdmin;
+  } catch (error) {
+    console.error('[Admin] Auth check error:', error);
+  }
 
   if (!isAdmin) {
     redirect('/home');

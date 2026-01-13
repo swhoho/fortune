@@ -4,13 +4,38 @@
  * 관리자 메인 페이지
  * 유저 검색 + 상세 조회 + 크레딧 보상 기능
  */
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Shield, ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
-import { UserSearchSection, UserDetailSection } from '@/admin/components';
+
+// 디버깅용 - 동적 import로 컴포넌트 로드
+import dynamic from 'next/dynamic';
+
+const UserSearchSection = dynamic(
+  () => import('@/admin/components/UserSearchSection').then((mod) => mod.UserSearchSection),
+  { ssr: false, loading: () => <div className="text-gray-500">검색 로딩...</div> }
+);
+
+const UserDetailSection = dynamic(
+  () => import('@/admin/components/UserDetailSection').then((mod) => mod.UserDetailSection),
+  { ssr: false, loading: () => <div className="text-gray-500">상세 로딩...</div> }
+);
 
 export default function AdminPage() {
   const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  if (!mounted) {
+    return (
+      <div className="mx-auto max-w-6xl px-4 py-6">
+        <div className="text-white">Admin 페이지 로딩 중...</div>
+      </div>
+    );
+  }
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-6">

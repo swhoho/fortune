@@ -8,17 +8,12 @@ import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import { checkAdminAuth } from '@/admin/lib/auth';
 import { getSupabaseAdmin } from '@/lib/supabase/client';
-import { addCredits } from '@/lib/credits/add';
 import { ADMIN_ERRORS, VALIDATION_ERRORS } from '@/lib/errors/codes';
-
-/** 월간 지급 크레딧 */
-const MONTHLY_CREDITS = 50;
 
 /** 구독 부여 요청 스키마 */
 const grantSubscriptionSchema = z.object({
   userId: z.string().min(1, '유저 ID 필수'),
   months: z.number().min(1, '최소 1개월').max(12, '최대 12개월'),
-  grantCredits: z.boolean().optional().default(true),
   description: z.string().max(200).optional(),
 });
 
@@ -34,8 +29,6 @@ export interface GrantSubscriptionResponse {
   };
   grantedTo: string;
   months: number;
-  creditsAdded: number;
-  newBalance: number;
 }
 
 export interface GrantSubscriptionErrorResponse {
@@ -77,7 +70,7 @@ export async function handleGrantSubscription(
     );
   }
 
-  const { userId, months, grantCredits, description } = result.data;
+  const { userId, months, description } = result.data;
 
   const supabase = getSupabaseAdmin();
 
@@ -172,31 +165,9 @@ export async function handleGrantSubscription(
       })
       .eq('id', userId);
 
-    // 7. 크레딧 지급 (선택)
-    let creditsAdded = 0;
-    let newBalance = 0;
-
-    if (grantCredits) {
-      const totalCredits = MONTHLY_CREDITS * months;
-      const creditResult = await addCredits({
-        userId,
-        amount: totalCredits,
-        type: 'subscription',
-        subscriptionId,
-        expiresInMonths: months,
-        description: description || `관리자 구독 부여 ${months}개월 (by ${adminUser?.email})`,
-        supabase,
-      });
-
-      if (creditResult.success) {
-        creditsAdded = totalCredits;
-        newBalance = creditResult.newBalance;
-      }
-    }
-
-    // 8. 로그 기록
+    // 7. 로그 기록
     console.log(
-      `[Admin] Subscription grant: ${adminUser?.email} -> ${targetUser.email} +${months}M (credits: ${creditsAdded}C)`
+      `[Admin] Subscription grant: ${adminUser?.email} -> ${targetUser.email} +${months}M`
     );
 
     return NextResponse.json({
@@ -209,8 +180,6 @@ export async function handleGrantSubscription(
       },
       grantedTo: targetUser.email,
       months,
-      creditsAdded,
-      newBalance,
     });
   } catch (error) {
     console.error('[Admin] 구독 부여 예외:', error);

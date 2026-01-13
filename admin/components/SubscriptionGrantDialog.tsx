@@ -22,7 +22,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Switch } from '@/components/ui/switch';
 import { toast } from 'sonner';
 
 interface SubscriptionGrantDialogProps {
@@ -46,12 +45,10 @@ export function SubscriptionGrantDialog({
   onSuccess,
 }: SubscriptionGrantDialogProps) {
   const [months, setMonths] = useState('1');
-  const [grantCredits, setGrantCredits] = useState(true);
   const [description, setDescription] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const monthsNum = parseInt(months);
-  const creditsToGrant = grantCredits ? monthsNum * 50 : 0;
 
   const isActive = currentSubscription?.status === 'active';
   const periodEndStr = currentSubscription?.periodEnd
@@ -67,7 +64,6 @@ export function SubscriptionGrantDialog({
         body: JSON.stringify({
           userId,
           months: monthsNum,
-          grantCredits,
           description: description.trim() || undefined,
         }),
       });
@@ -80,7 +76,6 @@ export function SubscriptionGrantDialog({
         onSuccess();
         // 폼 초기화
         setMonths('1');
-        setGrantCredits(true);
         setDescription('');
       } else {
         const data = await res.json();
@@ -150,21 +145,6 @@ export function SubscriptionGrantDialog({
             )}
           </div>
 
-          {/* 크레딧 지급 옵션 */}
-          <div className="flex items-center justify-between rounded-lg bg-[#242424] p-3">
-            <div>
-              <Label htmlFor="grantCredits" className="text-gray-400">
-                구독 크레딧 함께 지급
-              </Label>
-              <p className="text-xs text-gray-500">월 50C × {monthsNum}개월 = {creditsToGrant}C</p>
-            </div>
-            <Switch
-              id="grantCredits"
-              checked={grantCredits}
-              onCheckedChange={setGrantCredits}
-            />
-          </div>
-
           {/* 부여 사유 */}
           <div className="space-y-2">
             <Label htmlFor="description" className="text-gray-400">
@@ -185,9 +165,6 @@ export function SubscriptionGrantDialog({
           <div className="rounded-lg border border-[#d4af37]/30 bg-[#d4af37]/10 p-3">
             <p className="text-sm text-[#d4af37]">
               {isActive ? '기간 연장' : '신규 구독'}: <strong>{monthsNum}개월</strong>
-              {grantCredits && (
-                <span className="ml-2">+ {creditsToGrant}C 지급</span>
-              )}
             </p>
           </div>
         </div>
