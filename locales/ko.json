@@ -1693,7 +1693,10 @@
       "partialMissingDesc": "일부 분석 단계가 실패하여 결과가 불완전할 수 있습니다.",
       "personSaju": "{name}님의 사주",
       "heroTitle": "두 사람의 인연을 분석해보세요",
-      "needSajuDesc": "{profiles}의 기본 사주 분석을 먼저 완료해주세요."
+      "needSajuDesc": "{profiles}의 기본 사주 분석을 먼저 완료해주세요.",
+      "caution": "주의:",
+      "scoreDescription": "100점 만점 기준 · 6개 항목 종합",
+      "noSajuInfo": "사주 정보가 없습니다."
     }
   },
   "errors": {
