@@ -20,7 +20,7 @@ export async function POST(request: Request) {
 
     // 2. 요청 데이터 파싱
     const body = await request.json();
-    const { phoneNumber } = body;
+    const { phoneNumber, locale = 'ko' } = body;
 
     if (!phoneNumber) {
       return NextResponse.json(
@@ -45,9 +45,13 @@ export async function POST(request: Request) {
     }
 
     // 4. PayApp 정기결제 요청 생성
-    const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
+    // request origin을 먼저 시도하고, 없으면 환경변수 사용
+    const origin = request.headers.get('origin');
+    const appUrl = origin || process.env.NEXT_PUBLIC_APP_URL || 'https://mastersinsight.ai';
     const today = new Date();
     const payDay = today.getDate(); // 오늘 날짜를 결제일로 설정
+
+    console.log('[PayApp Create] feedbackurl:', `${appUrl}/api/subscription/payapp/callback`);
 
     const result = await createPayAppRebill({
       goodname: SUBSCRIPTION_PLAN.name,
@@ -57,7 +61,7 @@ export async function POST(request: Request) {
       rebillCycleMonth: payDay > 28 ? 28 : payDay, // 28일 초과 시 28일로 설정
       rebillExpire: calculateRebillExpireDate(),
       feedbackurl: `${appUrl}/api/subscription/payapp/callback`,
-      returnurl: `${appUrl}/ko/daily-fortune/subscribe/success`,
+      returnurl: `${appUrl}/${locale}/daily-fortune/subscribe/success`,
       userId: user.id,
     });
 

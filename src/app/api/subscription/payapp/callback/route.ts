@@ -25,9 +25,19 @@ const supabaseAdmin = createClient(
 );
 
 export async function POST(request: Request) {
+  console.log('[PayApp Rebill Callback] === 콜백 호출됨 ===');
+
   try {
     // 1. FormData 파싱
     const formData = await request.formData();
+
+    // 모든 FormData 키 로깅
+    const allKeys: string[] = [];
+    formData.forEach((value, key) => {
+      allKeys.push(`${key}=${value}`);
+    });
+    console.log('[PayApp Rebill Callback] 전체 FormData:', allKeys.join(', '));
+
     const data: PayAppRebillFeedbackData = {
       state: formData.get('state')?.toString() || '',
       rebill_no: formData.get('rebill_no')?.toString() || '',
@@ -42,19 +52,27 @@ export async function POST(request: Request) {
       linkval: formData.get('linkval')?.toString() || '',
     };
 
-    console.log('[PayApp Rebill Callback] 수신 데이터:', {
+    console.log('[PayApp Rebill Callback] 파싱된 데이터:', {
       state: data.state,
       rebill_no: data.rebill_no,
       pay_state: data.pay_state,
       price: data.price,
       var1: data.var1,
+      linkkey: data.linkkey ? '설정됨' : '없음',
+      linkval: data.linkval ? '설정됨' : '없음',
     });
 
     // 2. linkkey/linkval 검증
     if (!verifyPayAppRebillFeedback(data)) {
-      console.error('[PayApp Rebill Callback] 검증 실패: linkkey/linkval 불일치');
+      console.error('[PayApp Rebill Callback] 검증 실패: linkkey/linkval 불일치', {
+        receivedLinkkey: data.linkkey?.substring(0, 10) + '...',
+        receivedLinkval: data.linkval?.substring(0, 10) + '...',
+        envLinkkey: process.env.PAYAPP_LINK_KEY?.substring(0, 10) + '...',
+        envLinkval: process.env.PAYAPP_LINK_VAL?.substring(0, 10) + '...',
+      });
       return new Response('FAIL', { status: 400 });
     }
+    console.log('[PayApp Rebill Callback] linkkey/linkval 검증 성공');
 
     // 3. 필수 데이터 확인
     const userId = data.var1;

@@ -138,7 +138,7 @@ export default function DailyFortuneSubscribePage({
       const res = await fetch('/api/subscription/payapp/create', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ phoneNumber }),
+        body: JSON.stringify({ phoneNumber, locale }),
       });
       const data = await res.json();
 
