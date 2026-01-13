@@ -5,8 +5,8 @@
  * Supabase Auth (Email + Google) 사용
  */
 import { Suspense, useState } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
-import Link from 'next/link';
+import { useSearchParams } from 'next/navigation';
+import { Link, useRouter } from '@/i18n/routing';
 import { useTranslations } from 'next-intl';
 import { supabase } from '@/lib/supabase/client';
 import { Button } from '@/components/ui/button';

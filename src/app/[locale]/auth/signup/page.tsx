@@ -4,8 +4,7 @@
  * 회원가입 페이지
  */
 import { useState } from 'react';
-import { useRouter } from 'next/navigation';
-import Link from 'next/link';
+import { Link, useRouter } from '@/i18n/routing';
 import { useTranslations } from 'next-intl';
 import { supabase } from '@/lib/supabase/client';
 import { Button } from '@/components/ui/button';
