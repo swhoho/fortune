@@ -1719,7 +1719,10 @@
       "partialMissingDesc": "一部の分析ステップが失敗したため、結果が不完全な可能性があります。",
       "personSaju": "{name}さんの四柱",
       "heroTitle": "二人の縁を分析してみましょう",
-      "needSajuDesc": "{profiles}の基本四柱分析を先に完了してください。"
+      "needSajuDesc": "{profiles}の基本四柱分析を先に完了してください。",
+      "caution": "注意:",
+      "scoreDescription": "100点満点基準・6項目総合",
+      "noSajuInfo": "四柱情報がありません。"
     }
   },
   "glossary": {

@@ -1741,7 +1741,10 @@
       "partialMissingDesc": "Some analysis steps failed, so results may be incomplete.",
       "personSaju": "{name}'s Four Pillars",
       "heroTitle": "Discover the destiny between two people",
-      "needSajuDesc": "Please complete basic saju analysis for {profiles} first."
+      "needSajuDesc": "Please complete basic saju analysis for {profiles} first.",
+      "caution": "Caution:",
+      "scoreDescription": "Based on 100 points · 6 criteria combined",
+      "noSajuInfo": "No saju information available."
     }
   },
   "glossary": {

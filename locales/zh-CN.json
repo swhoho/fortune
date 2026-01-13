@@ -1719,7 +1719,10 @@
       "partialMissingDesc": "部分分析步骤失败，结果可能不完整。",
       "personSaju": "{name}的八字",
       "heroTitle": "分析两人的缘分",
-      "needSajuDesc": "请先完成{profiles}的基本八字分析。"
+      "needSajuDesc": "请先完成{profiles}的基本八字分析。",
+      "caution": "注意：",
+      "scoreDescription": "100分满分・6项综合",
+      "noSajuInfo": "没有八字信息。"
     }
   },
   "glossary": {

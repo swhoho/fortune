@@ -692,7 +692,7 @@ function AnalysisTab({ data }: { data: CompatibilityData }) {
             <div className="mt-4 flex items-start gap-3 rounded-lg border border-[#d4af37]/20 bg-[#d4af37]/5 p-4">
               <MessageCircle className="mt-0.5 h-5 w-5 shrink-0 text-[#d4af37]" />
               <div>
-                <p className="text-sm font-medium text-[#d4af37]">소통 팁</p>
+                <p className="text-sm font-medium text-[#d4af37]">{t('communicationTips', { defaultValue: '소통 팁' })}</p>
                 <p className="mt-1 text-sm text-gray-300">
                   {replaceAB(data.conflictAnalysis.communicationTips, data.nameA, data.nameB)}
                 </p>
@@ -705,7 +705,7 @@ function AnalysisTab({ data }: { data: CompatibilityData }) {
       {/* 결혼 적합도 */}
       {data.marriageFit && (
         <GlassCard className="p-6">
-          <SectionHeader title="결혼 적합도" icon={<Shield className="h-4 w-4" />} />
+          <SectionHeader title={t('sections.marriageFit', { defaultValue: '결혼 적합도' })} icon={<Shield className="h-4 w-4" />} />
           <div className="mb-4 flex items-center gap-4">
             <div
               className="flex h-16 w-16 items-center justify-center rounded-2xl"
@@ -722,9 +722,9 @@ function AnalysisTab({ data }: { data: CompatibilityData }) {
           </div>
           <div className="grid gap-3">
             {[
-              { label: '역할 분담', value: data.marriageFit.roleDistribution },
-              { label: '자녀운', value: data.marriageFit.childFortune },
-              { label: '재물 시너지', value: data.marriageFit.wealthSynergy },
+              { label: t('marriageFitLabels.roleDistribution', { defaultValue: '역할 분담' }), value: data.marriageFit.roleDistribution },
+              { label: t('marriageFitLabels.childFortune', { defaultValue: '자녀운' }), value: data.marriageFit.childFortune },
+              { label: t('marriageFitLabels.wealthSynergy', { defaultValue: '재물 시너지' }), value: data.marriageFit.wealthSynergy },
             ].map((item) => (
               <div
                 key={item.label}
@@ -743,7 +743,7 @@ function AnalysisTab({ data }: { data: CompatibilityData }) {
       {/* 상호 영향 */}
       {data.mutualInfluence && (
         <GlassCard className="p-6">
-          <SectionHeader title="상호 영향" icon={<Zap className="h-4 w-4" />} />
+          <SectionHeader title={t('sections.mutualInfluence', { defaultValue: '상호 영향' })} icon={<Zap className="h-4 w-4" />} />
           <div className="space-y-4">
             {/* A → B */}
             <div className="rounded-xl border border-[#d4af37]/20 bg-[#d4af37]/5 p-4">
@@ -771,7 +771,7 @@ function AnalysisTab({ data }: { data: CompatibilityData }) {
               </p>
               <p className="mt-2 text-xs text-amber-400/80">
                 <Lock className="mr-1 inline-block h-3 w-3" />
-                주의: {replaceAB(data.mutualInfluence.aToB.caution, data.nameA, data.nameB)}
+                {t('ui.caution', { defaultValue: '주의:' })} {replaceAB(data.mutualInfluence.aToB.caution, data.nameA, data.nameB)}
               </p>
             </div>
 
@@ -801,7 +801,7 @@ function AnalysisTab({ data }: { data: CompatibilityData }) {
               </p>
               <p className="mt-2 text-xs text-amber-400/80">
                 <Lock className="mr-1 inline-block h-3 w-3" />
-                주의: {replaceAB(data.mutualInfluence.bToA.caution, data.nameA, data.nameB)}
+                {t('ui.caution', { defaultValue: '주의:' })} {replaceAB(data.mutualInfluence.bToA.caution, data.nameA, data.nameB)}
               </p>
             </div>
 
@@ -820,10 +820,12 @@ function AnalysisTab({ data }: { data: CompatibilityData }) {
 
 /** 비교 탭 */
 function CompareTab({ data }: { data: CompatibilityData }) {
+  const t = useTranslations('compatibility');
+
   return (
     <div className="space-y-6">
       <GlassCard className="p-6">
-        <SectionHeader title="사주 명식 비교" icon={<Users className="h-4 w-4" />} />
+        <SectionHeader title={t('sections.sajuComparison', { defaultValue: '사주 명식 비교' })} icon={<Users className="h-4 w-4" />} />
 
         {data.pillarsA && data.pillarsB ? (
           <div className="grid gap-4 md:grid-cols-2">
@@ -841,9 +843,9 @@ function CompareTab({ data }: { data: CompatibilityData }) {
                 >
                   {truncateName(data.nameA)}
                 </div>
-                <span className="font-medium text-white">{data.nameA || 'A'}의 사주</span>
+                <span className="font-medium text-white">{t('ui.personSaju', { name: data.nameA || 'A', defaultValue: `${data.nameA || 'A'}님의 사주` })}</span>
               </div>
-              <PillarDisplay pillars={data.pillarsA} />
+              <PillarDisplay pillars={data.pillarsA} t={t} />
             </motion.div>
 
             {/* B의 사주 */}
@@ -860,21 +862,21 @@ function CompareTab({ data }: { data: CompatibilityData }) {
                 >
                   {truncateName(data.nameB)}
                 </div>
-                <span className="font-medium text-white">{data.nameB || 'B'}의 사주</span>
+                <span className="font-medium text-white">{t('ui.personSaju', { name: data.nameB || 'B', defaultValue: `${data.nameB || 'B'}님의 사주` })}</span>
               </div>
-              <PillarDisplay pillars={data.pillarsB} />
+              <PillarDisplay pillars={data.pillarsB} t={t} />
             </motion.div>
           </div>
         ) : (
           <div className="py-8 text-center">
-            <p className="text-gray-400">사주 정보가 없습니다.</p>
+            <p className="text-gray-400">{t('ui.noSajuInfo', { defaultValue: '사주 정보가 없습니다.' })}</p>
           </div>
         )}
       </GlassCard>
 
       {/* 간지 상호작용 */}
       <GlassCard className="p-6">
-        <SectionHeader title="간지 상호작용" icon={<Zap className="h-4 w-4" />} />
+        <SectionHeader title={t('sections.interactions', { defaultValue: '간지 상호작용' })} icon={<Zap className="h-4 w-4" />} />
         <InteractionDisplay
           interactions={data.interactions || {}}
           peachBlossom={
@@ -884,6 +886,7 @@ function CompareTab({ data }: { data: CompatibilityData }) {
           interpretation={data.interactionInterpretation}
           nameA={data.nameA}
           nameB={data.nameB}
+          t={t}
         />
       </GlassCard>
     </div>
@@ -947,6 +950,7 @@ function InteractionDisplay({
   interpretation,
   nameA,
   nameB,
+  t,
 }: {
   interactions: Record<string, unknown>;
   peachBlossom?: {
@@ -961,6 +965,7 @@ function InteractionDisplay({
   interpretation?: CompatibilityData['interactionInterpretation'];
   nameA: string;
   nameB: string;
+  t: ReturnType<typeof useTranslations<'compatibility'>>;
 }) {
   // 타입 정의
   type InteractionItem = { name: string; formed?: boolean };
@@ -1008,7 +1013,7 @@ function InteractionDisplay({
         <div className="mb-2 flex items-center gap-2">
           <Heart className="h-4 w-4 text-pink-400" />
           <span className="font-medium text-pink-400">
-            {interpretation?.peachBlossom?.title || '도화살 (桃花煞)'}
+            {interpretation?.peachBlossom?.title || t('interactionSections.peachBlossom.title', { defaultValue: '도화살 (桃花煞)' })}
           </span>
           {peachBlossom && (
             <span className="ml-auto rounded-full bg-pink-500/20 px-2 py-0.5 text-xs text-pink-300">
@@ -1017,7 +1022,7 @@ function InteractionDisplay({
           )}
         </div>
         <p className="mb-2 text-xs text-gray-500">
-          연지/일지 기준으로 특별한 이성 끌림을 나타내는 살(煞)
+          {t('interactionSections.peachBlossom.description', { defaultValue: '연지/일지 기준으로 특별한 이성 끌림을 나타내는 살(煞)' })}
         </p>
         {interpretation?.peachBlossom ? (
           <div className="space-y-2">
@@ -1032,7 +1037,7 @@ function InteractionDisplay({
           </p>
         ) : (
           <p className="text-sm text-gray-400">
-            도화살이 없습니다. 강렬한 끌림보다는 차분하고 안정적인 관계를 형성합니다.
+            {t('interactionSections.peachBlossom.empty', { defaultValue: '도화살이 없습니다. 강렬한 끌림보다는 차분하고 안정적인 관계를 형성합니다.' })}
           </p>
         )}
       </div>
@@ -1041,10 +1046,10 @@ function InteractionDisplay({
       <div className="rounded-xl border border-[#d4af37]/20 bg-[#d4af37]/5 p-4">
         <div className="mb-2 flex items-center gap-2">
           <Sparkles className="h-4 w-4 text-[#d4af37]" />
-          <span className="font-medium text-[#d4af37]">삼합·방합 (三合·方合)</span>
+          <span className="font-medium text-[#d4af37]">{t('interactionSections.samhapBanghap.title', { defaultValue: '삼합·방합 (三合·方合)' })}</span>
         </div>
         <p className="mb-3 text-xs text-gray-500">
-          세 지지가 모여 강력한 오행 기운을 형성하는 특별한 결합
+          {t('interactionSections.samhapBanghap.description', { defaultValue: '세 지지가 모여 강력한 오행 기운을 형성하는 특별한 결합' })}
         </p>
         {samhapFormed.length > 0 || banhapFormed.length > 0 || banghapFormed.length > 0 ? (
           <div className="space-y-3">
@@ -1095,16 +1100,16 @@ function InteractionDisplay({
         ) : (
           <p className="text-sm text-gray-400">
             {interpretation?.samhapBanghap?.emptyMessage ||
-              '삼합·방합 형성이 없습니다. 서로의 개성을 존중하며 각자의 방식으로 관계를 만들어갑니다.'}
+              t('interactionSections.samhapBanghap.empty', { defaultValue: '삼합·방합 형성이 없습니다. 특별한 시너지보다는 개별적인 조화를 이룹니다.' })}
           </p>
         )}
       </div>
 
       {/* 천간 합 (항상 표시) */}
       <div className="rounded-lg border border-green-500/20 bg-green-500/5 p-3">
-        <div className="mb-2 text-xs font-medium text-green-400">천간 합 (天干合)</div>
+        <div className="mb-2 text-xs font-medium text-green-400">{t('interactionSections.stemCombinations.title', { defaultValue: '천간 합 (天干合)' })}</div>
         <p className="mb-2 text-xs text-gray-500">
-          두 천간이 만나 새로운 오행 기운을 생성하는 조화로운 관계
+          {t('interactionSections.stemCombinations.description', { defaultValue: '두 천간이 만나 새로운 오행 기운을 생성하는 조화로운 관계' })}
         </p>
         {stemCombinations.length > 0 ? (
           <div className="space-y-2">
@@ -1129,16 +1134,16 @@ function InteractionDisplay({
         ) : (
           <p className="text-sm text-gray-400">
             {interpretation?.stemCombinations?.emptyMessage ||
-              '천간 합이 없습니다. 서로 다른 방식으로 생각하고 표현하지만, 이 차이가 관계에 다양성을 더합니다.'}
+              t('interactionSections.stemCombinations.empty', { defaultValue: '천간 합이 없습니다. 표면적 조화보다 내면의 균형이 중요합니다.' })}
           </p>
         )}
       </div>
 
       {/* 지지 합 (항상 표시) */}
       <div className="rounded-lg border border-blue-500/20 bg-blue-500/5 p-3">
-        <div className="mb-2 text-xs font-medium text-blue-400">지지 합 (地支合, 6합)</div>
+        <div className="mb-2 text-xs font-medium text-blue-400">{t('interactionSections.branchCombinations.title', { defaultValue: '지지 합 (地支合, 6합)' })}</div>
         <p className="mb-2 text-xs text-gray-500">
-          두 지지가 합쳐져 새로운 오행을 만드는 친밀한 관계
+          {t('interactionSections.branchCombinations.description', { defaultValue: '두 지지가 합쳐져 새로운 오행을 만드는 친밀한 관계' })}
         </p>
         {branchCombinations.length > 0 ? (
           <div className="space-y-2">
@@ -1163,16 +1168,16 @@ function InteractionDisplay({
         ) : (
           <p className="text-sm text-gray-400">
             {interpretation?.branchCombinations?.emptyMessage ||
-              '지지 합이 없습니다. 서로 독립적인 공간을 유지하며 건강한 거리감을 지키는 관계입니다.'}
+              t('interactionSections.branchCombinations.empty', { defaultValue: '지지 합이 없습니다. 감정적 결합보다 이성적 조화가 두드러집니다.' })}
           </p>
         )}
       </div>
 
       {/* 지지 충 (항상 표시) */}
       <div className="rounded-lg border border-red-500/20 bg-red-500/5 p-3">
-        <div className="mb-2 text-xs font-medium text-red-400">지지 충 (地支冲, 6충)</div>
+        <div className="mb-2 text-xs font-medium text-red-400">{t('interactionSections.branchClashes.title', { defaultValue: '지지 충 (地支冲, 6충)' })}</div>
         <p className="mb-2 text-xs text-gray-500">
-          서로 반대 방향의 기운이 부딪혀 갈등을 일으키는 관계
+          {t('interactionSections.branchClashes.description', { defaultValue: '서로 반대 방향의 기운이 부딪혀 갈등을 일으키는 관계' })}
         </p>
         {branchClashes.length > 0 ? (
           <div className="space-y-2">
@@ -1278,13 +1283,13 @@ function InteractionDisplay({
 }
 
 /** 사주 표시 컴포넌트 */
-function PillarDisplay({ pillars }: { pillars: Record<string, unknown> }) {
+function PillarDisplay({ pillars, t }: { pillars: Record<string, unknown>; t: ReturnType<typeof useTranslations<'compatibility'>> }) {
   const positions = ['hour', 'day', 'month', 'year'];
   const positionLabels: Record<string, string> = {
-    hour: '시주',
-    day: '일주',
-    month: '월주',
-    year: '년주',
+    hour: t('pillarLabels.hour', { defaultValue: '시주' }),
+    day: t('pillarLabels.day', { defaultValue: '일주' }),
+    month: t('pillarLabels.month', { defaultValue: '월주' }),
+    year: t('pillarLabels.year', { defaultValue: '년주' }),
   };
 
   // 오행 색상
