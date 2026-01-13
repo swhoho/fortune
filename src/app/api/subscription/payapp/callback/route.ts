@@ -99,7 +99,7 @@ export async function POST(request: Request) {
       await handleSubscriptionPending(userId, rebillNo, data.recvphone);
     } else if (payState === '4') {
       // 결제 완료 - 구독 활성화 + 크레딧 지급
-      await handlePaymentCompleted(userId, rebillNo, data.mul_no);
+      await handlePaymentCompleted(userId, rebillNo, data.mul_no, data.recvphone);
     } else if (payState === '8') {
       // 해지
       await handleSubscriptionCanceled(userId, rebillNo);
@@ -172,16 +172,70 @@ async function handleSubscriptionPending(userId: string, rebillNo: string, recvp
  * - 첫 결제: 구독 활성화 (past_due → active) + 크레딧 지급
  * - 갱신 결제: 구독 기간 연장 + 크레딧 지급
  */
-async function handlePaymentCompleted(userId: string, rebillNo: string, mulNo?: string) {
+async function handlePaymentCompleted(userId: string, rebillNo: string, mulNo?: string, recvphone?: string) {
   // 구독 조회
-  const { data: subscription } = await supabaseAdmin
+  let { data: subscription } = await supabaseAdmin
     .from('subscriptions')
     .select('id, status')
     .eq('payapp_rebill_no', rebillNo)
     .single();
 
+  // 구독이 없으면 새로 생성 (pay_state=1이 안 왔거나 실패한 경우)
   if (!subscription) {
-    console.error('[PayApp Rebill] 구독 없음:', rebillNo);
+    console.log('[PayApp Rebill] 구독 없음, 새로 생성:', rebillNo);
+
+    const now = new Date();
+    const periodEnd = new Date(now);
+    periodEnd.setMonth(periodEnd.getMonth() + 1);
+
+    const { data: newSubscription, error: createError } = await supabaseAdmin
+      .from('subscriptions')
+      .insert({
+        user_id: userId,
+        status: 'active',
+        price: SUBSCRIPTION_PLAN.price,
+        payapp_rebill_no: rebillNo,
+        payapp_recvphone: recvphone || '',
+        payment_method: 'payapp',
+        current_period_start: now.toISOString(),
+        current_period_end: periodEnd.toISOString(),
+      })
+      .select('id, status')
+      .single();
+
+    if (createError) {
+      console.error('[PayApp Rebill] 구독 생성 실패:', createError);
+      return;
+    }
+
+    subscription = newSubscription;
+
+    // users 테이블 업데이트
+    await supabaseAdmin
+      .from('users')
+      .update({
+        subscription_status: 'active',
+        subscription_id: subscription.id,
+      })
+      .eq('id', userId);
+
+    // 크레딧 지급
+    await addCredits({
+      userId,
+      amount: SUBSCRIPTION_PLAN.credits,
+      type: 'subscription',
+      subscriptionId: subscription.id,
+      description: `${SUBSCRIPTION_PLAN.name} 최초 크레딧`,
+      supabase: supabaseAdmin,
+    });
+
+    console.log('[PayApp Rebill] 구독 생성 및 활성화 완료:', {
+      userId,
+      rebillNo,
+      mulNo,
+      subscriptionId: subscription.id,
+      credits: SUBSCRIPTION_PLAN.credits,
+    });
     return;
   }
 
