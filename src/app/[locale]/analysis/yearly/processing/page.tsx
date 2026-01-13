@@ -9,7 +9,7 @@ import { Suspense, useEffect, useState, useCallback, useRef } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Loader2, CheckCircle2, Circle, AlertCircle } from 'lucide-react';
-import { useTranslations } from 'next-intl';
+import { useTranslations, useLocale } from 'next-intl';
 
 import { Button } from '@/components/ui/button';
 import { useYearlyStore, type YearlyLoadingStep } from '@/stores/yearly-store';
@@ -67,6 +67,7 @@ function YearlyProcessingContent() {
   const searchParams = useSearchParams();
   const t = useTranslations('yearly.processing');
   const tCommon = useTranslations('common');
+  const locale = useLocale();
 
   // URL 파라미터에서 데이터 읽기 (store hydration 문제 방지)
   const urlYear = searchParams.get('year');
@@ -249,13 +250,13 @@ function YearlyProcessingContent() {
         analysisData = {
           targetYear,
           profileId: selectedProfileId,
-          language: 'ko',
+          language: locale,
         };
       } else if (existingAnalysisId) {
         analysisData = {
           targetYear,
           existingAnalysisId,
-          language: 'ko',
+          language: locale,
         };
       } else {
         if (!birthDate || !gender) {
@@ -273,7 +274,7 @@ function YearlyProcessingContent() {
           },
           pillars: pillars || undefined,
           daewun: daewun || undefined,
-          language: 'ko',
+          language: locale,
         };
       }
 

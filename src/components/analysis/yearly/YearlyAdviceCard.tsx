@@ -2,11 +2,12 @@
 
 /**
  * 6개 섹션 연간 조언 컴포넌트 (v2.0)
- * 상반기/하반기 구분 + 다크 테마
+ * 상반기/하반기 구분 + 다크 테마 + 다국어 지원
  */
 
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useTranslations } from 'next-intl';
 import {
   Brain,
   Coins,
@@ -16,6 +17,7 @@ import {
   Activity,
   Sparkles,
   ChevronDown,
+  LucideIcon,
 } from 'lucide-react';
 import type { YearlyAdvice, SectionContent } from '@/lib/ai/types';
 
@@ -26,62 +28,64 @@ interface YearlyAdviceCardProps {
   year: number;
 }
 
+/** 섹션 키 타입 */
+type SectionKey =
+  | 'natureAndSoul'
+  | 'wealthAndSuccess'
+  | 'careerAndHonor'
+  | 'documentAndWisdom'
+  | 'relationshipAndLove'
+  | 'healthAndMovement';
+
 /** 6개 섹션 정보 (camelCase 키 - DB 저장 형식과 일치) */
-const SECTIONS = [
+const SECTION_CONFIG: {
+  key: SectionKey;
+  icon: LucideIcon;
+  color: string;
+  bgGlow: string;
+}[] = [
   {
-    key: 'natureAndSoul' as const,
-    label: '본연의 성정',
-    description: '일간 심리학적 접근',
+    key: 'natureAndSoul',
     icon: Brain,
     color: '#8b5cf6', // violet
     bgGlow: 'rgba(139, 92, 246, 0.15)',
   },
   {
-    key: 'wealthAndSuccess' as const,
-    label: '재물과 비즈니스',
-    description: '재성/식상 분석',
+    key: 'wealthAndSuccess',
     icon: Coins,
     color: '#d4af37', // 금색
     bgGlow: 'rgba(212, 175, 55, 0.15)',
   },
   {
-    key: 'careerAndHonor' as const,
-    label: '직업과 명예',
-    description: '관성 분석',
+    key: 'careerAndHonor',
     icon: Briefcase,
     color: '#3b82f6', // blue
     bgGlow: 'rgba(59, 130, 246, 0.15)',
   },
   {
-    key: 'documentAndWisdom' as const,
-    label: '문서와 학업',
-    description: '인성 분석',
+    key: 'documentAndWisdom',
     icon: FileText,
     color: '#10b981', // emerald
     bgGlow: 'rgba(16, 185, 129, 0.15)',
   },
   {
-    key: 'relationshipAndLove' as const,
-    label: '인연과 관계',
-    description: '연애/귀인운',
+    key: 'relationshipAndLove',
     icon: Heart,
     color: '#ec4899', // pink
     bgGlow: 'rgba(236, 72, 153, 0.15)',
   },
   {
-    key: 'healthAndMovement' as const,
-    label: '건강과 이동',
-    description: '건강/역마운',
+    key: 'healthAndMovement',
     icon: Activity,
     color: '#22c55e', // green
     bgGlow: 'rgba(34, 197, 94, 0.15)',
   },
-] as const;
+];
 
-type SectionKey = (typeof SECTIONS)[number]['key'];
 type HalfPeriod = 'firstHalf' | 'secondHalf';
 
 export function YearlyAdviceCard({ yearlyAdvice, year }: YearlyAdviceCardProps) {
+  const t = useTranslations('yearly.adviceCard');
   const [selectedSection, setSelectedSection] = useState<SectionKey>('natureAndSoul'); // 기본으로 열림
   const [selectedHalf, setSelectedHalf] = useState<HalfPeriod>('firstHalf');
 
@@ -89,6 +93,10 @@ export function YearlyAdviceCard({ yearlyAdvice, year }: YearlyAdviceCardProps) 
   const getSectionData = (key: SectionKey): SectionContent | undefined => {
     return yearlyAdvice[key];
   };
+
+  /** 번역된 섹션 라벨/설명 가져오기 */
+  const getSectionLabel = (key: SectionKey) => t(`sections.${key}.label`);
+  const getSectionDesc = (key: SectionKey) => t(`sections.${key}.description`);
 
   return (
     <motion.div
@@ -104,19 +112,21 @@ export function YearlyAdviceCard({ yearlyAdvice, year }: YearlyAdviceCardProps) 
             <Sparkles className="h-5 w-5 text-[#d4af37]" />
           </div>
           <div>
-            <h3 className="font-serif text-lg font-semibold text-white">{year}년 운세 심층 분석</h3>
-            <p className="text-sm text-gray-400">6가지 삶의 영역별 상반기/하반기 흐름</p>
+            <h3 className="font-serif text-lg font-semibold text-white">{t('title', { year })}</h3>
+            <p className="text-sm text-gray-400">{t('subtitle')}</p>
           </div>
         </div>
       </div>
 
       {/* 6개 섹션 그리드 */}
       <div className="grid grid-cols-2 gap-3 p-4 sm:grid-cols-3">
-        {SECTIONS.map((section, index) => {
+        {SECTION_CONFIG.map((section, index) => {
           const Icon = section.icon;
           const isSelected = selectedSection === section.key;
           const data = getSectionData(section.key);
           const hasData = !!data;
+          const label = getSectionLabel(section.key);
+          const description = getSectionDesc(section.key);
 
           return (
             <motion.button
@@ -154,8 +164,8 @@ export function YearlyAdviceCard({ yearlyAdvice, year }: YearlyAdviceCardProps) 
               </div>
 
               {/* 라벨 */}
-              <p className="font-medium text-white">{section.label}</p>
-              <p className="mt-0.5 text-xs text-gray-500">{section.description}</p>
+              <p className="font-medium text-white">{label}</p>
+              <p className="mt-0.5 text-xs text-gray-500">{description}</p>
 
               {/* 선택 표시 */}
               {isSelected && (
@@ -182,7 +192,7 @@ export function YearlyAdviceCard({ yearlyAdvice, year }: YearlyAdviceCardProps) 
         className="overflow-hidden"
       >
         {(() => {
-          const section = SECTIONS.find((s) => s.key === selectedSection);
+          const section = SECTION_CONFIG.find((s) => s.key === selectedSection);
           const data = getSectionData(selectedSection);
           if (!section || !data) return null;
 
@@ -199,8 +209,8 @@ export function YearlyAdviceCard({ yearlyAdvice, year }: YearlyAdviceCardProps) 
                   <Icon className="h-6 w-6 text-white" />
                 </div>
                 <div>
-                  <h4 className="text-lg font-semibold text-white">{section.label}</h4>
-                  <p className="text-sm text-gray-400">{section.description}</p>
+                  <h4 className="text-lg font-semibold text-white">{getSectionLabel(section.key)}</h4>
+                  <p className="text-sm text-gray-400">{getSectionDesc(section.key)}</p>
                 </div>
               </div>
 
@@ -214,7 +224,7 @@ export function YearlyAdviceCard({ yearlyAdvice, year }: YearlyAdviceCardProps) 
                       : 'bg-[#242424] text-gray-400 hover:bg-[#333] hover:text-white'
                   }`}
                 >
-                  상반기 (1~6월)
+                  {t('tabs.firstHalf')}
                 </button>
                 <button
                   onClick={() => setSelectedHalf('secondHalf')}
@@ -224,7 +234,7 @@ export function YearlyAdviceCard({ yearlyAdvice, year }: YearlyAdviceCardProps) 
                       : 'bg-[#242424] text-gray-400 hover:bg-[#333] hover:text-white'
                   }`}
                 >
-                  하반기 (7~12월)
+                  {t('tabs.secondHalf')}
                 </button>
               </div>
 

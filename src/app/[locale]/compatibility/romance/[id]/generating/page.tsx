@@ -44,19 +44,34 @@ type CompatibilityStep =
   | 'saving'
   | 'complete';
 
-const COMPATIBILITY_STEPS: { key: CompatibilityStep; label: string; progress: number }[] = [
-  { key: 'manseryeok_a', label: 'A 만세력 계산', progress: 5 },
-  { key: 'manseryeok_b', label: 'B 만세력 계산', progress: 10 },
-  { key: 'compatibility_score', label: '궁합 점수 계산', progress: 25 },
-  { key: 'trait_scores', label: '연애 스타일 분석', progress: 35 },
-  { key: 'relationship_type', label: '인연의 성격 분석', progress: 50 },
-  { key: 'trait_interpretation', label: '연애 스타일 해석', progress: 60 },
-  { key: 'conflict_analysis', label: '갈등 포인트 분석', progress: 70 },
-  { key: 'marriage_fit', label: '결혼 적합도 분석', progress: 80 },
-  { key: 'mutual_influence', label: '상호 영향 분석', progress: 90 },
-  { key: 'saving', label: '결과 저장', progress: 97 },
-  { key: 'complete', label: '분석 완료', progress: 100 },
+const COMPATIBILITY_STEPS: { key: CompatibilityStep; progress: number }[] = [
+  { key: 'manseryeok_a', progress: 5 },
+  { key: 'manseryeok_b', progress: 10 },
+  { key: 'compatibility_score', progress: 25 },
+  { key: 'trait_scores', progress: 35 },
+  { key: 'relationship_type', progress: 50 },
+  { key: 'trait_interpretation', progress: 60 },
+  { key: 'conflict_analysis', progress: 70 },
+  { key: 'marriage_fit', progress: 80 },
+  { key: 'mutual_influence', progress: 90 },
+  { key: 'saving', progress: 97 },
+  { key: 'complete', progress: 100 },
 ];
+
+/** 단계별 기본 라벨 (다국어 fallback) */
+const STEP_DEFAULT_LABELS: Record<CompatibilityStep, string> = {
+  manseryeok_a: 'A 만세력 계산',
+  manseryeok_b: 'B 만세력 계산',
+  compatibility_score: '궁합 점수 계산',
+  trait_scores: '연애 스타일 분석',
+  relationship_type: '인연의 성격 분석',
+  trait_interpretation: '연애 스타일 해석',
+  conflict_analysis: '갈등 포인트 분석',
+  marriage_fit: '결혼 적합도 분석',
+  mutual_influence: '상호 영향 분석',
+  saving: '결과 저장',
+  complete: '분석 완료',
+};
 
 /** 단계별 예상 시간 (초) */
 const STEP_TIMINGS: Record<CompatibilityStep, { start: number; end: number }> = {
@@ -76,8 +91,8 @@ const STEP_TIMINGS: Record<CompatibilityStep, { start: number; end: number }> = 
 /** 한자 로테이션 */
 const HANJA_CHARS = ['命', '運', '緣', '合'];
 
-/** 분석 팁 */
-const ANALYSIS_TIPS = [
+/** 분석 팁 기본값 (다국어 fallback) */
+const DEFAULT_TIPS = [
   '두 사람의 천간이 합을 이루면 자연스러운 끌림이 있습니다',
   '지지의 조화는 함께하는 일상의 편안함을 나타냅니다',
   '오행의 균형은 서로를 보완하는 관계를 의미합니다',
@@ -156,6 +171,16 @@ export default function CompatibilityGeneratingPage() {
   const [hanjaIndex, setHanjaIndex] = useState(0);
   const [tipIndex, setTipIndex] = useState(0);
 
+  // 다국어 팁 가져오기
+  const tips = (() => {
+    try {
+      const localizedTips = t.raw('generatingTips') as string[];
+      return Array.isArray(localizedTips) && localizedTips.length > 0 ? localizedTips : DEFAULT_TIPS;
+    } catch {
+      return DEFAULT_TIPS;
+    }
+  })();
+
   // 타이머 시작 (1초마다 업데이트)
   useEffect(() => {
     if (!isGenerating) return;
@@ -183,10 +208,10 @@ export default function CompatibilityGeneratingPage() {
   // 팁 로테이션 (5초마다)
   useEffect(() => {
     const interval = setInterval(() => {
-      setTipIndex((prev) => (prev + 1) % ANALYSIS_TIPS.length);
+      setTipIndex((prev) => (prev + 1) % tips.length);
     }, 5000);
     return () => clearInterval(interval);
-  }, []);
+  }, [tips.length]);
 
   // 서버 응답 지연 감지
   useEffect(() => {
@@ -348,7 +373,9 @@ export default function CompatibilityGeneratingPage() {
             <div className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-red-950/30">
               <AlertCircle className="h-10 w-10 text-red-400" />
             </div>
-            <h2 className="mb-2 text-xl font-semibold text-white">분석에 실패했습니다</h2>
+            <h2 className="mb-2 text-xl font-semibold text-white">
+              {t('generatingUI.failed', { defaultValue: '분석에 실패했습니다' })}
+            </h2>
             <p className="mb-6 text-gray-400">{error.message}</p>
 
             <div className="flex gap-3">
@@ -358,7 +385,7 @@ export default function CompatibilityGeneratingPage() {
                 className="flex-1 border-[#333] bg-[#1a1a1a] text-white"
               >
                 <X className="mr-2 h-4 w-4" />
-                취소
+                {t('generatingUI.cancel', { defaultValue: '취소' })}
               </Button>
               {error.retryable && (
                 <Button
@@ -367,7 +394,7 @@ export default function CompatibilityGeneratingPage() {
                   style={{ backgroundColor: BRAND_COLORS.primary, color: '#000' }}
                 >
                   <RefreshCw className="mr-2 h-4 w-4" />
-                  다시 시도
+                  {t('generatingUI.retry', { defaultValue: '다시 시도' })}
                 </Button>
               )}
             </div>
@@ -426,11 +453,16 @@ export default function CompatibilityGeneratingPage() {
               </div>
 
               <h2 className="text-xl font-semibold text-white">
-                {isCompleted ? '분석이 완료되었습니다!' : '두 사람의 운명을 분석하고 있습니다...'}
+                {isCompleted
+                  ? t('generatingUI.completed', { defaultValue: '분석이 완료되었습니다!' })
+                  : t('generatingUI.analyzing', { defaultValue: '두 사람의 운명을 분석하고 있습니다...' })}
               </h2>
               {!isCompleted && (
                 <p className="mt-2 text-gray-400">
-                  예상 남은 시간: <span className="text-[#d4af37]">{remainingTime}초</span>
+                  {t('generatingUI.remainingTime', {
+                    defaultValue: '예상 남은 시간: {seconds}초',
+                    seconds: remainingTime
+                  }).replace('{seconds}', String(remainingTime))}
                 </p>
               )}
             </motion.div>
@@ -442,7 +474,9 @@ export default function CompatibilityGeneratingPage() {
               className="mb-8"
             >
               <div className="mb-2 flex items-center justify-between text-sm">
-                <span className="text-gray-400">진행률</span>
+                <span className="text-gray-400">
+                  {t('progress', { defaultValue: '진행률' })}
+                </span>
                 <span style={{ color: BRAND_COLORS.primary }}>{displayProgress}%</span>
               </div>
               <div className="h-2 overflow-hidden rounded-full bg-[#333]">
@@ -464,7 +498,9 @@ export default function CompatibilityGeneratingPage() {
                 transition={{ delay: 0.3 }}
                 className="mb-6 rounded-lg border border-[#333] bg-[#1a1a1a] p-4"
               >
-                <p className="mb-1 text-xs text-gray-500">분석 팁</p>
+                <p className="mb-1 text-xs text-gray-500">
+                  {t('generatingUI.tipLabel', { defaultValue: '분석 팁' })}
+                </p>
                 <AnimatePresence mode="wait">
                   <motion.p
                     key={tipIndex}
@@ -474,7 +510,7 @@ export default function CompatibilityGeneratingPage() {
                     transition={{ duration: 0.3 }}
                     className="text-sm text-gray-300"
                   >
-                    {ANALYSIS_TIPS[tipIndex]}
+                    {tips[tipIndex % tips.length]}
                   </motion.p>
                 </AnimatePresence>
               </motion.div>
@@ -535,7 +571,7 @@ export default function CompatibilityGeneratingPage() {
                                 : 'text-gray-500'
                         }`}
                       >
-                        {step.label}
+                        {t(`generatingSteps.${step.key}`, { defaultValue: STEP_DEFAULT_LABELS[step.key] })}
                       </span>
                     </div>
                   );
@@ -553,11 +589,13 @@ export default function CompatibilityGeneratingPage() {
                 <div className="mb-2 flex items-center gap-2">
                   <AlertCircle className="h-4 w-4 text-amber-400" />
                   <p className="text-sm font-medium text-amber-400">
-                    서버 응답이 지연되고 있습니다
+                    {t('generatingUI.slowWarning', { defaultValue: '서버 응답이 지연되고 있습니다' })}
                   </p>
                 </div>
                 <p className="mb-3 text-xs text-gray-400">
-                  분석이 진행 중이지만 서버 응답이 늦어지고 있습니다. 잠시 더 기다려주세요.
+                  {t('generatingUI.slowWarningDesc', {
+                    defaultValue: '분석이 진행 중이지만 서버 응답이 늦어지고 있습니다. 잠시 더 기다려주세요.'
+                  })}
                 </p>
                 <Button
                   onClick={() => window.location.reload()}
@@ -566,7 +604,7 @@ export default function CompatibilityGeneratingPage() {
                   className="h-8 border-amber-900/50 bg-transparent text-amber-400 hover:bg-amber-950/50"
                 >
                   <RefreshCw className="mr-1 h-3 w-3" />
-                  새로고침
+                  {t('generatingUI.refresh', { defaultValue: '새로고침' })}
                 </Button>
               </motion.div>
             )}
@@ -580,7 +618,10 @@ export default function CompatibilityGeneratingPage() {
                 className="mt-4 rounded-lg border border-amber-900/50 bg-amber-950/30 p-3"
               >
                 <p className="text-sm text-amber-400">
-                  일부 분석이 실패했습니다: {status.failedSteps.join(', ')}
+                  {t('generatingUI.partialFailed', {
+                    defaultValue: '일부 분석이 실패했습니다: {steps}',
+                    steps: status.failedSteps.join(', ')
+                  }).replace('{steps}', status.failedSteps.join(', '))}
                 </p>
               </motion.div>
             )}

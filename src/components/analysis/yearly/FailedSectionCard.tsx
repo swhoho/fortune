@@ -2,10 +2,11 @@
 
 /**
  * 실패한 섹션 카드 컴포넌트
- * 분석 실패 시 재분석 버튼을 표시
+ * 분석 실패 시 재분석 버튼을 표시 + 다국어 지원
  */
 
 import { motion } from 'framer-motion';
+import { useTranslations } from 'next-intl';
 import { RefreshCw, AlertCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { BRAND_COLORS } from '@/lib/constants/colors';
@@ -33,6 +34,8 @@ export function FailedSectionCard({
   isReanalyzing = false,
   icon,
 }: FailedSectionCardProps) {
+  const t = useTranslations('yearly.failedSection');
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -63,7 +66,7 @@ export function FailedSectionCard({
         <div className="flex flex-col items-center gap-4 sm:flex-row sm:justify-between">
           <div className="flex items-center gap-2 text-amber-400">
             <AlertCircle className="h-5 w-5" />
-            <p className="text-sm font-medium">분석 데이터를 불러올 수 없습니다</p>
+            <p className="text-sm font-medium">{t('errorMessage')}</p>
           </div>
 
           <Button
@@ -73,12 +76,12 @@ export function FailedSectionCard({
             className="h-9 bg-[#d4af37] text-[#0a0a0a] hover:bg-[#e5c048]"
           >
             <RefreshCw className={`mr-1.5 h-4 w-4 ${isReanalyzing ? 'animate-spin' : ''}`} />
-            {isReanalyzing ? '분석 중...' : '재분석'}
+            {isReanalyzing ? t('analyzing') : t('reanalyze')}
           </Button>
         </div>
 
         <p className="mt-3 text-center text-xs text-gray-500 sm:text-left">
-          재분석은 무료로 진행됩니다
+          {t('freeNote')}
         </p>
       </div>
     </motion.div>

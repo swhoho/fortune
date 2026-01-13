@@ -7,6 +7,7 @@
 
 import { motion } from 'framer-motion';
 import { Heart, BarChart3, GitCompare, type LucideIcon } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 
 type TabType = 'score' | 'analysis' | 'compare';
 
@@ -18,16 +19,24 @@ interface TabNavigationProps {
 interface TabConfig {
   id: TabType;
   icon: LucideIcon;
-  label: string;
+  labelKey: string;
+  defaultLabel: string;
 }
 
-const tabs: TabConfig[] = [
-  { id: 'score', icon: BarChart3, label: '궁합점수' },
-  { id: 'analysis', icon: Heart, label: '궁합분석' },
-  { id: 'compare', icon: GitCompare, label: '사주비교' },
+const TAB_CONFIGS: Omit<TabConfig, 'labelKey' | 'defaultLabel'>[] = [
+  { id: 'score', icon: BarChart3 },
+  { id: 'analysis', icon: Heart },
+  { id: 'compare', icon: GitCompare },
 ];
 
+const TAB_LABELS: Record<TabType, { key: string; default: string }> = {
+  score: { key: 'resultTabs.score', default: '궁합점수' },
+  analysis: { key: 'resultTabs.analysis', default: '궁합분석' },
+  compare: { key: 'resultTabs.compare', default: '사주비교' },
+};
+
 export function TabNavigation({ activeTab, onTabChange }: TabNavigationProps) {
+  const t = useTranslations('compatibility');
   return (
     <div className="relative">
       {/* 배경 블러 효과 */}
@@ -38,9 +47,11 @@ export function TabNavigation({ activeTab, onTabChange }: TabNavigationProps) {
 
       {/* 탭 컨테이너 */}
       <div className="relative mx-auto flex max-w-2xl">
-        {tabs.map((tab) => {
+        {TAB_CONFIGS.map((tab) => {
           const isActive = activeTab === tab.id;
           const Icon = tab.icon;
+          const labelConfig = TAB_LABELS[tab.id];
+          const label = t(labelConfig.key, { defaultValue: labelConfig.default });
 
           return (
             <button
@@ -71,7 +82,7 @@ export function TabNavigation({ activeTab, onTabChange }: TabNavigationProps) {
                 <span
                   className={`text-sm font-medium ${isActive ? 'text-[#d4af37]' : 'text-gray-500'}`}
                 >
-                  {tab.label}
+                  {label}
                 </span>
               </motion.div>
 

@@ -7,9 +7,8 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { useParams } from 'next/navigation';
 import { motion } from 'framer-motion';
-import { useTranslations } from 'next-intl';
+import { useTranslations, useLocale } from 'next-intl';
 import { Heart, Users, Lock, History } from 'lucide-react';
 
 import { AppHeader } from '@/components/layout';
@@ -19,8 +18,7 @@ import { cn } from '@/lib/utils';
 
 export default function CompatibilityPage() {
   const router = useRouter();
-  const params = useParams();
-  const locale = (params?.locale as string) || 'ko';
+  const locale = useLocale();
   const t = useTranslations('compatibility');
   const [activeTab, setActiveTab] = useState<'new' | 'history'>('new');
 

@@ -677,6 +677,68 @@
         "fetchFailed": "Failed to fetch analysis results."
       },
       "yearlyFortune": "{year} New Year Fortune"
+    },
+    "adviceCard": {
+      "title": "{year} In-Depth Fortune Analysis",
+      "subtitle": "First & Second Half Trends Across 6 Life Areas",
+      "sections": {
+        "natureAndSoul": {
+          "label": "Essential Nature",
+          "description": "Day Master Psychology"
+        },
+        "wealthAndSuccess": {
+          "label": "Wealth & Business",
+          "description": "Wealth Star Analysis"
+        },
+        "careerAndHonor": {
+          "label": "Career & Honor",
+          "description": "Officer Star Analysis"
+        },
+        "documentAndWisdom": {
+          "label": "Education & Documents",
+          "description": "Resource Star Analysis"
+        },
+        "relationshipAndLove": {
+          "label": "Relationships & Love",
+          "description": "Romance & Noble Fortune"
+        },
+        "healthAndMovement": {
+          "label": "Health & Movement",
+          "description": "Health & Change Fortune"
+        }
+      },
+      "tabs": {
+        "firstHalf": "First Half (Jan-Jun)",
+        "secondHalf": "Second Half (Jul-Dec)"
+      }
+    },
+    "monthlyTimeline": {
+      "title": "{year} Monthly Fortune Trends",
+      "subtitle": "View the 12-month fortune changes at a glance",
+      "avgScore": "Average Score",
+      "monthlyAdvice": "Monthly Advice",
+      "lucky": "Lucky Days",
+      "unlucky": "Caution Days",
+      "months": {
+        "1": "Jan",
+        "2": "Feb",
+        "3": "Mar",
+        "4": "Apr",
+        "5": "May",
+        "6": "Jun",
+        "7": "Jul",
+        "8": "Aug",
+        "9": "Sep",
+        "10": "Oct",
+        "11": "Nov",
+        "12": "Dec"
+      }
+    },
+    "failedSection": {
+      "errorMessage": "Unable to load analysis data",
+      "analyzing": "Analyzing...",
+      "reanalyze": "Re-analyze",
+      "freeNote": "Re-analysis is free"
     }
   },
   "home": {
@@ -1500,6 +1562,178 @@
       "dialogDescription": "Anyone with this link can view both persons' birth chart information and compatibility analysis results. Please only share with people you trust, as this contains sensitive information.",
       "cancel": "Cancel",
       "confirm": "Share"
+    },
+    "resultTabs": {
+      "score": "Compatibility Score",
+      "analysis": "Analysis",
+      "compare": "Chart Comparison"
+    },
+    "buttons": {
+      "back": "Go Back",
+      "goToSajuAnalysis": "Start Saju Analysis",
+      "viewResult": "View Results",
+      "checkProgress": "Check Progress",
+      "freeRetry": "Free Retry",
+      "starting": "Starting analysis...",
+      "start": "Start Compatibility Analysis",
+      "addProfile": "Add Profile"
+    },
+    "cost": {
+      "label": "Analysis Cost",
+      "balance": "Your Credits",
+      "freeRetry": "Free Retry",
+      "freeRetryHint": "Previous analysis failed. You can retry for free.",
+      "insufficientCredits": "Insufficient credits. Please recharge."
+    },
+    "gender": {
+      "male": "M",
+      "female": "F"
+    },
+    "scoreGrade": {
+      "perfect": "Perfect Match",
+      "good": "Great Match",
+      "average": "Average",
+      "needEffort": "Needs Effort",
+      "caution": "Caution"
+    },
+    "scores": {
+      "stemHarmony": {
+        "label": "Heavenly Stem Harmony",
+        "weight": "24%",
+        "description": "Heavenly stems represent outward personality and expression. When two people's stems harmonize, conversation flows naturally, thoughts are easily understood, and there's comfort from the first impression."
+      },
+      "branchHarmony": {
+        "label": "Earthly Branch Harmony",
+        "weight": "24%",
+        "description": "Earthly branches represent inner emotions and subconscious reactions. Harmonious branches bring emotional stability, well-matched daily rhythms, and empathy during conflicts."
+      },
+      "elementBalance": {
+        "label": "Five Elements Balance",
+        "weight": "19%",
+        "description": "The five elements are Wood, Fire, Earth, Metal, and Water. Balanced elements between partners means complementing each other's weaknesses and maintaining stable relationships."
+      },
+      "tenGodCompatibility": {
+        "label": "Ten Gods Compatibility",
+        "weight": "19%",
+        "description": "Ten Gods show what role each person plays for the other. Good compatibility means becoming essential to each other with natural role distribution."
+      },
+      "wunsengSynergy": {
+        "label": "12 Stages Synergy",
+        "weight": "9%",
+        "description": "12 Stages show how your energy changes when with your partner. Good synergy means energizing each other and boosting positive vibes together."
+      },
+      "combinationSynergy": {
+        "label": "Combination Synergy",
+        "weight": "5%",
+        "description": "Triple Harmony (三合) forms powerful elemental energy from three branches, and Directional Harmony (方合) combines same-direction branches. These special combinations create significant synergy when two people are together."
+      }
+    },
+    "traitLabels": {
+      "expression": "Expression",
+      "possessiveness": "Possessiveness",
+      "devotion": "Devotion",
+      "adventure": "Adventure",
+      "stability": "Stability"
+    },
+    "sections": {
+      "detailScores": "Detailed Scores",
+      "traitComparison": "Romance Style Comparison",
+      "relationshipType": "Relationship Nature",
+      "conflictPoints": "Conflict Points",
+      "marriageFit": "Marriage Compatibility",
+      "mutualInfluence": "Mutual Influence",
+      "sajuComparison": "Chart Comparison",
+      "interactions": "Branch Interactions"
+    },
+    "pillarLabels": {
+      "hour": "Hour",
+      "day": "Day",
+      "month": "Month",
+      "year": "Year"
+    },
+    "marriageFitLabels": {
+      "roleDistribution": "Role Distribution",
+      "childFortune": "Children Fortune",
+      "wealthSynergy": "Wealth Synergy"
+    },
+    "interactionSections": {
+      "peachBlossom": {
+        "title": "Peach Blossom (桃花煞)",
+        "description": "A special attraction indicator based on year/day branches",
+        "empty": "No peach blossom present. The relationship forms through calm stability rather than intense attraction."
+      },
+      "samhapBanghap": {
+        "title": "Triple & Directional Harmony",
+        "description": "A special combination where three branches form powerful elemental energy",
+        "empty": "No triple/directional harmony formed. Individual balance takes priority over special synergy."
+      },
+      "stemCombinations": {
+        "title": "Heavenly Stem Combinations",
+        "description": "A harmonious relationship where two stems create new elemental energy",
+        "empty": "No stem combinations. Inner balance matters more than surface harmony."
+      },
+      "branchCombinations": {
+        "title": "Earthly Branch Combinations (6 Harmonies)",
+        "description": "An intimate relationship where two branches combine to create new elements",
+        "empty": "No branch combinations. Rational harmony stands out over emotional bonding."
+      },
+      "branchClashes": {
+        "title": "Earthly Branch Clashes (6 Clashes)",
+        "description": "Opposing energies collide, creating potential conflicts",
+        "empty": "No branch clashes. A stable relationship without major conflicts is possible."
+      },
+      "branchPunishments": {
+        "title": "Earthly Branch Punishments (3 Punishments)",
+        "description": "Specific branches meeting cause friction like punishment",
+        "empty": "No branch punishments. A smooth relationship without mutual provocation."
+      },
+      "wonjin": {
+        "title": "Fundamental Opposition (元嗔)",
+        "description": "Repelling energies causing subtle psychological conflicts",
+        "empty": "No fundamental opposition. Natural relationship without psychological discomfort."
+      }
+    },
+    "generatingSteps": {
+      "manseryeok_a": "Calculating A's Calendar",
+      "manseryeok_b": "Calculating B's Calendar",
+      "compatibility_score": "Calculating Compatibility Score",
+      "trait_scores": "Analyzing Romance Styles",
+      "relationship_type": "Analyzing Relationship Nature",
+      "trait_interpretation": "Interpreting Romance Styles",
+      "conflict_analysis": "Analyzing Conflict Points",
+      "marriage_fit": "Analyzing Marriage Compatibility",
+      "mutual_influence": "Analyzing Mutual Influence",
+      "saving": "Saving Results",
+      "complete": "Analysis Complete"
+    },
+    "generatingTips": [
+      "When two people's heavenly stems combine, there's natural attraction",
+      "Branch harmony indicates comfort in daily life together",
+      "Balanced elements mean a complementary relationship",
+      "Ten gods compatibility shows natural role distribution",
+      "12 stages synergy reflects the energy received from your partner"
+    ],
+    "generatingUI": {
+      "analyzing": "Analyzing the destiny of two people...",
+      "completed": "Analysis complete!",
+      "remainingTime": "Estimated time remaining: {seconds}s",
+      "tipLabel": "Analysis Tip",
+      "failed": "Analysis failed",
+      "cancel": "Cancel",
+      "retry": "Retry",
+      "slowWarning": "Server response is delayed",
+      "slowWarningDesc": "Analysis is in progress but the server is responding slowly. Please wait a moment longer.",
+      "refresh": "Refresh",
+      "partialFailed": "Some analyses failed: {steps}"
+    },
+    "ui": {
+      "loadingResult": "Loading compatibility results...",
+      "pointsBasis": "Based on 100 points · {count} factors combined",
+      "partialMissing": "Partial Analysis Missing",
+      "partialMissingDesc": "Some analysis steps failed, so results may be incomplete.",
+      "personSaju": "{name}'s Four Pillars",
+      "heroTitle": "Discover the destiny between two people",
+      "needSajuDesc": "Please complete basic saju analysis for {profiles} first."
     }
   },
   "glossary": {

@@ -677,6 +677,68 @@
         "fetchFailed": "분석 결과를 불러올 수 없습니다."
       },
       "yearlyFortune": "{year}년 신년 운세"
+    },
+    "adviceCard": {
+      "title": "{year}년 운세 심층 분석",
+      "subtitle": "6가지 삶의 영역별 상반기/하반기 흐름",
+      "sections": {
+        "natureAndSoul": {
+          "label": "본연의 성정",
+          "description": "일간 심리학적 접근"
+        },
+        "wealthAndSuccess": {
+          "label": "재물과 비즈니스",
+          "description": "재성/식상 분석"
+        },
+        "careerAndHonor": {
+          "label": "직업과 명예",
+          "description": "관성 분석"
+        },
+        "documentAndWisdom": {
+          "label": "문서와 학업",
+          "description": "인성 분석"
+        },
+        "relationshipAndLove": {
+          "label": "인연과 관계",
+          "description": "연애/귀인운"
+        },
+        "healthAndMovement": {
+          "label": "건강과 이동",
+          "description": "건강/역마운"
+        }
+      },
+      "tabs": {
+        "firstHalf": "상반기 (1~6월)",
+        "secondHalf": "하반기 (7~12월)"
+      }
+    },
+    "monthlyTimeline": {
+      "title": "{year}년 월별 운세 흐름",
+      "subtitle": "12개월 운세 변화를 한눈에 확인하세요",
+      "avgScore": "평균 점수",
+      "monthlyAdvice": "이달의 조언",
+      "lucky": "길일",
+      "unlucky": "주의일",
+      "months": {
+        "1": "1월",
+        "2": "2월",
+        "3": "3월",
+        "4": "4월",
+        "5": "5월",
+        "6": "6월",
+        "7": "7월",
+        "8": "8월",
+        "9": "9월",
+        "10": "10월",
+        "11": "11월",
+        "12": "12월"
+      }
+    },
+    "failedSection": {
+      "errorMessage": "분석 데이터를 불러올 수 없습니다",
+      "analyzing": "분석 중...",
+      "reanalyze": "재분석",
+      "freeNote": "재분석은 무료로 진행됩니다"
     }
   },
   "home": {
@@ -1452,6 +1514,178 @@
       "dialogDescription": "이 링크를 통해 누구나 두 사람의 사주 정보와 궁합 분석 결과를 볼 수 있습니다. 민감한 정보가 포함되어 있으니 신뢰할 수 있는 분에게만 공유해 주세요.",
       "cancel": "취소",
       "confirm": "공유하기"
+    },
+    "resultTabs": {
+      "score": "궁합점수",
+      "analysis": "궁합분석",
+      "compare": "사주비교"
+    },
+    "buttons": {
+      "back": "돌아가기",
+      "goToSajuAnalysis": "사주 분석 하기",
+      "viewResult": "결과 보기",
+      "checkProgress": "진행 상황 확인",
+      "freeRetry": "무료 재시도",
+      "starting": "분석 시작 중...",
+      "start": "궁합 분석 시작",
+      "addProfile": "프로필 추가하기"
+    },
+    "cost": {
+      "label": "분석 비용",
+      "balance": "보유 크레딧",
+      "freeRetry": "무료 재시도",
+      "freeRetryHint": "이전 분석이 실패했습니다. 무료로 재시도할 수 있습니다.",
+      "insufficientCredits": "크레딧이 부족합니다. 크레딧을 충전해주세요."
+    },
+    "gender": {
+      "male": "남",
+      "female": "여"
+    },
+    "scoreGrade": {
+      "perfect": "천생연분",
+      "good": "좋은 인연",
+      "average": "보통",
+      "needEffort": "노력 필요",
+      "caution": "주의"
+    },
+    "scores": {
+      "stemHarmony": {
+        "label": "천간 조화",
+        "weight": "24%",
+        "description": "천간은 사주에서 겉으로 드러나는 성격과 표현 방식을 나타냅니다. 두 사람의 천간이 조화를 이루면 대화 스타일이 자연스럽게 맞고, 서로의 생각을 쉽게 이해하며, 첫인상부터 편안함을 느낍니다."
+      },
+      "branchHarmony": {
+        "label": "지지 조화",
+        "weight": "24%",
+        "description": "지지는 사주에서 내면의 감정과 무의식적 반응을 나타냅니다. 두 사람의 지지가 조화를 이루면 함께 있을 때 정서적으로 안정감을 느끼고, 일상의 리듬이 잘 맞으며, 갈등 상황에서도 감정적 공감대가 형성됩니다."
+      },
+      "elementBalance": {
+        "label": "오행 균형",
+        "weight": "19%",
+        "description": "오행은 목(木)·화(火)·토(土)·금(金)·수(水) 다섯 가지 기운입니다. 두 사람의 오행이 균형을 이루면 서로의 부족한 부분을 채워주고, 한쪽으로 치우치지 않은 안정적인 관계를 유지할 수 있습니다."
+      },
+      "tenGodCompatibility": {
+        "label": "십신 호환성",
+        "weight": "19%",
+        "description": "십신(十神)은 상대방이 나에게 어떤 역할을 하는지 나타냅니다. 십신 호환성이 좋으면 서로에게 필요한 존재가 되고, 관계 안에서 자연스러운 역할 분담이 이루어집니다."
+      },
+      "wunsengSynergy": {
+        "label": "12운성 시너지",
+        "weight": "9%",
+        "description": "12운성은 상대방 곁에서 내 기운이 어떻게 변화하는지 보여줍니다. 시너지가 좋으면 함께 있을 때 서로에게 활력을 주고, 긍정적인 에너지가 상승합니다."
+      },
+      "combinationSynergy": {
+        "label": "삼합/방합 시너지",
+        "weight": "5%",
+        "description": "삼합(三合)은 세 개의 지지가 모여 강력한 오행 기운을 형성하고, 방합(方合)은 같은 방위의 지지가 결합합니다. 이러한 특별한 결합이 있으면 두 사람이 함께할 때 큰 시너지 효과가 발생합니다."
+      }
+    },
+    "traitLabels": {
+      "expression": "표현력",
+      "possessiveness": "독점욕",
+      "devotion": "헌신도",
+      "adventure": "모험심",
+      "stability": "안정추구"
+    },
+    "sections": {
+      "detailScores": "상세 점수",
+      "traitComparison": "연애 스타일 비교",
+      "relationshipType": "인연의 성격",
+      "conflictPoints": "갈등 포인트",
+      "marriageFit": "결혼 적합도",
+      "mutualInfluence": "상호 영향",
+      "sajuComparison": "사주 명식 비교",
+      "interactions": "간지 상호작용"
+    },
+    "pillarLabels": {
+      "hour": "시주",
+      "day": "일주",
+      "month": "월주",
+      "year": "년주"
+    },
+    "marriageFitLabels": {
+      "roleDistribution": "역할 분담",
+      "childFortune": "자녀운",
+      "wealthSynergy": "재물 시너지"
+    },
+    "interactionSections": {
+      "peachBlossom": {
+        "title": "도화살 (桃花煞)",
+        "description": "연지/일지 기준으로 특별한 이성 끌림을 나타내는 살(煞)",
+        "empty": "도화살이 없습니다. 강렬한 끌림보다는 차분하고 안정적인 관계를 형성합니다."
+      },
+      "samhapBanghap": {
+        "title": "삼합·방합 (三合·方合)",
+        "description": "세 지지가 모여 강력한 오행 기운을 형성하는 특별한 결합",
+        "empty": "삼합·방합 형성이 없습니다. 특별한 시너지보다는 개별적인 조화를 이룹니다."
+      },
+      "stemCombinations": {
+        "title": "천간 합 (天干合)",
+        "description": "두 천간이 만나 새로운 오행 기운을 생성하는 조화로운 관계",
+        "empty": "천간 합이 없습니다. 표면적 조화보다 내면의 균형이 중요합니다."
+      },
+      "branchCombinations": {
+        "title": "지지 합 (地支合, 6합)",
+        "description": "두 지지가 합쳐져 새로운 오행을 만드는 친밀한 관계",
+        "empty": "지지 합이 없습니다. 감정적 결합보다 이성적 조화가 두드러집니다."
+      },
+      "branchClashes": {
+        "title": "지지 충 (地支冲, 6충)",
+        "description": "서로 반대 방향의 기운이 부딪혀 갈등을 일으키는 관계",
+        "empty": "지지 충이 없습니다. 큰 갈등 없이 안정적인 관계가 가능합니다."
+      },
+      "branchPunishments": {
+        "title": "지지 형 (地支刑, 3형)",
+        "description": "특정 지지들이 만나 형벌처럼 마찰을 일으키는 관계",
+        "empty": "지지 형이 없습니다. 상호 자극보다 부드러운 관계가 유지됩니다."
+      },
+      "wonjin": {
+        "title": "원진 (元嗔)",
+        "description": "서로 밀어내는 기운으로 은근한 심리적 갈등을 유발하는 관계",
+        "empty": "원진 관계가 없습니다. 심리적 불편함 없이 자연스러운 관계가 가능합니다."
+      }
+    },
+    "generatingSteps": {
+      "manseryeok_a": "A 만세력 계산",
+      "manseryeok_b": "B 만세력 계산",
+      "compatibility_score": "궁합 점수 계산",
+      "trait_scores": "연애 스타일 분석",
+      "relationship_type": "인연의 성격 분석",
+      "trait_interpretation": "연애 스타일 해석",
+      "conflict_analysis": "갈등 포인트 분석",
+      "marriage_fit": "결혼 적합도 분석",
+      "mutual_influence": "상호 영향 분석",
+      "saving": "결과 저장",
+      "complete": "분석 완료"
+    },
+    "generatingTips": [
+      "두 사람의 천간이 합을 이루면 자연스러운 끌림이 있습니다",
+      "지지의 조화는 함께하는 일상의 편안함을 나타냅니다",
+      "오행의 균형은 서로를 보완하는 관계를 의미합니다",
+      "십신 호환성은 관계에서의 역할 분담을 보여줍니다",
+      "12운성 시너지는 상대방에게 받는 에너지를 나타냅니다"
+    ],
+    "generatingUI": {
+      "analyzing": "두 사람의 운명을 분석하고 있습니다...",
+      "completed": "분석이 완료되었습니다!",
+      "remainingTime": "예상 남은 시간: {seconds}초",
+      "tipLabel": "분석 팁",
+      "failed": "분석에 실패했습니다",
+      "cancel": "취소",
+      "retry": "다시 시도",
+      "slowWarning": "서버 응답이 지연되고 있습니다",
+      "slowWarningDesc": "분석이 진행 중이지만 서버 응답이 늦어지고 있습니다. 잠시 더 기다려주세요.",
+      "refresh": "새로고침",
+      "partialFailed": "일부 분석이 실패했습니다: {steps}"
+    },
+    "ui": {
+      "loadingResult": "궁합 결과를 불러오는 중...",
+      "pointsBasis": "100점 만점 기준 · {count}개 항목 종합",
+      "partialMissing": "분석 일부 누락",
+      "partialMissingDesc": "일부 분석 단계가 실패하여 결과가 불완전할 수 있습니다.",
+      "personSaju": "{name}님의 사주",
+      "heroTitle": "두 사람의 인연을 분석해보세요",
+      "needSajuDesc": "{profiles}의 기본 사주 분석을 먼저 완료해주세요."
     }
   },
   "errors": {

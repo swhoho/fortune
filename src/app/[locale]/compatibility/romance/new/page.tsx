@@ -8,7 +8,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
-import { useTranslations } from 'next-intl';
+import { useTranslations, useLocale } from 'next-intl';
 import {
   Heart,
   Sparkles,
@@ -46,6 +46,7 @@ interface ExistingAnalysis {
 export default function CompatibilityRomanceNewPage() {
   const router = useRouter();
   const t = useTranslations('compatibility');
+  const locale = useLocale();
   const { data: user } = useUserProfile();
   const { data: profiles, isLoading: profilesLoading } = useProfiles();
 
@@ -115,7 +116,7 @@ export default function CompatibilityRomanceNewPage() {
           profileIdA: selectedProfileA.id,
           profileIdB: selectedProfileB.id,
           analysisType: 'romance',
-          language: 'ko',
+          language: locale,
         }),
       });
 
@@ -129,7 +130,7 @@ export default function CompatibilityRomanceNewPage() {
           });
           return;
         }
-        throw new Error(data.error || '분석 시작에 실패했습니다');
+        throw new Error(data.error || t('errors.analysisFailed'));
       }
 
       if (data.status === 'completed' && data.analysisId) {
@@ -140,7 +141,7 @@ export default function CompatibilityRomanceNewPage() {
       router.push(`/compatibility/romance/${data.analysisId}/generating`);
     } catch (error) {
       console.error('궁합 분석 시작 실패:', error);
-      alert(error instanceof Error ? error.message : '분석 시작에 실패했습니다');
+      alert(error instanceof Error ? error.message : t('errors.analysisFailed'));
     } finally {
       setIsSubmitting(false);
     }
@@ -183,9 +184,14 @@ export default function CompatibilityRomanceNewPage() {
           className="flex flex-col items-center text-center"
         >
           <AlertCircle className="mb-4 h-16 w-16 text-red-400" />
-          <h2 className="mb-2 text-xl font-semibold text-white">기본 사주 분석이 필요합니다</h2>
+          <h2 className="mb-2 text-xl font-semibold text-white">
+            {t('errors.needSaju', { defaultValue: '기본 사주 분석이 필요합니다' })}
+          </h2>
           <p className="mb-6 max-w-sm text-gray-400">
-            {sajuRequiredError.missingProfiles.join(', ')}의 기본 사주 분석을 먼저 완료해주세요.
+            {t('ui.needSajuDesc', {
+              defaultValue: '{profiles}의 기본 사주 분석을 먼저 완료해주세요.',
+              profiles: sajuRequiredError.missingProfiles.join(', ')
+            })}
           </p>
           <div className="flex gap-3">
             <Button
@@ -193,14 +199,14 @@ export default function CompatibilityRomanceNewPage() {
               onClick={() => setSajuRequiredError(null)}
               className="border-[#333] bg-[#1a1a1a] text-white hover:bg-[#242424]"
             >
-              돌아가기
+              {t('buttons.back', { defaultValue: '돌아가기' })}
             </Button>
             <Button
               onClick={handleGoToSajuAnalysis}
               style={{ backgroundColor: '#d4af37', color: '#000' }}
               className="hover:opacity-90"
             >
-              사주 분석 하기
+              {t('buttons.goToSajuAnalysis', { defaultValue: '사주 분석 하기' })}
             </Button>
           </div>
         </motion.div>
@@ -212,7 +218,7 @@ export default function CompatibilityRomanceNewPage() {
   const getButtonConfig = () => {
     if (existingAnalysis?.isCompleted) {
       return {
-        text: '결과 보기',
+        text: t('buttons.viewResult', { defaultValue: '결과 보기' }),
         icon: <ExternalLink className="mr-2 h-5 w-5" />,
         action: () => router.push(`/compatibility/romance/${existingAnalysis.analysisId}`),
         disabled: false,
@@ -224,7 +230,7 @@ export default function CompatibilityRomanceNewPage() {
     }
     if (existingAnalysis?.isProcessing) {
       return {
-        text: '진행 상황 확인',
+        text: t('buttons.checkProgress', { defaultValue: '진행 상황 확인' }),
         icon: <Loader2 className="mr-2 h-5 w-5" />,
         action: () =>
           router.push(`/compatibility/romance/${existingAnalysis.analysisId}/generating`),
@@ -237,7 +243,7 @@ export default function CompatibilityRomanceNewPage() {
     }
     if (isFreeRetry) {
       return {
-        text: '무료 재시도',
+        text: t('buttons.freeRetry', { defaultValue: '무료 재시도' }),
         icon: <RefreshCw className="mr-2 h-5 w-5" />,
         action: handleStart,
         disabled: !canStart || isSubmitting,
@@ -250,7 +256,9 @@ export default function CompatibilityRomanceNewPage() {
       };
     }
     return {
-      text: isSubmitting ? '분석 시작 중...' : '궁합 분석 시작',
+      text: isSubmitting
+        ? t('buttons.starting', { defaultValue: '분석 시작 중...' })
+        : t('buttons.start', { defaultValue: '궁합 분석 시작' }),
       icon: isSubmitting ? (
         <Loader2 className="mr-2 h-5 w-5 animate-spin" />
       ) : (
@@ -332,7 +340,7 @@ export default function CompatibilityRomanceNewPage() {
               WebkitTextFillColor: 'transparent',
             }}
           >
-            두 사람의 인연을 분석해보세요
+            {t('ui.heroTitle', { defaultValue: '두 사람의 인연을 분석해보세요' })}
           </motion.h1>
           <motion.p
             initial={{ opacity: 0 }}
@@ -462,7 +470,9 @@ export default function CompatibilityRomanceNewPage() {
                   </div>
                   <div>
                     <p className="text-sm text-gray-400">
-                      {isFreeRetry ? '무료 재시도' : '분석 비용'}
+                      {isFreeRetry
+                        ? t('cost.freeRetry', { defaultValue: '무료 재시도' })
+                        : t('cost.label', { defaultValue: '분석 비용' })}
                     </p>
                     <p
                       className={`text-xl font-bold ${isFreeRetry ? 'text-green-400' : 'text-[#d4af37]'}`}
@@ -472,7 +482,9 @@ export default function CompatibilityRomanceNewPage() {
                   </div>
                 </div>
                 <div className="text-right">
-                  <p className="text-sm text-gray-400">보유 크레딧</p>
+                  <p className="text-sm text-gray-400">
+                    {t('cost.balance', { defaultValue: '보유 크레딧' })}
+                  </p>
                   <p
                     className={`text-xl font-bold ${hasEnoughCredits ? 'text-green-400' : 'text-red-400'}`}
                   >
@@ -490,7 +502,9 @@ export default function CompatibilityRomanceNewPage() {
                 >
                   <RefreshCw className="h-4 w-4 shrink-0 text-green-400" />
                   <p className="text-sm text-green-400">
-                    이전 분석이 실패했습니다. 무료로 재시도할 수 있습니다.
+                    {t('cost.freeRetryHint', {
+                      defaultValue: '이전 분석이 실패했습니다. 무료로 재시도할 수 있습니다.'
+                    })}
                   </p>
                 </motion.div>
               )}
@@ -504,7 +518,9 @@ export default function CompatibilityRomanceNewPage() {
                 >
                   <AlertTriangle className="h-4 w-4 shrink-0 text-red-400" />
                   <p className="text-sm text-red-400">
-                    크레딧이 부족합니다. 크레딧을 충전해주세요.
+                    {t('cost.insufficientCredits', {
+                      defaultValue: '크레딧이 부족합니다. 크레딧을 충전해주세요.'
+                    })}
                   </p>
                 </motion.div>
               )}
@@ -518,7 +534,9 @@ export default function CompatibilityRomanceNewPage() {
                     className="mt-4 flex items-center gap-2 rounded-lg bg-amber-950/30 p-3"
                   >
                     <AlertTriangle className="h-4 w-4 shrink-0 text-amber-400" />
-                    <p className="text-sm text-amber-400">서로 다른 두 프로필을 선택해주세요.</p>
+                    <p className="text-sm text-amber-400">
+                      {t('selectDifferent', { defaultValue: '서로 다른 두 프로필을 선택해주세요.' })}
+                    </p>
                   </motion.div>
                 )}
 
@@ -530,7 +548,9 @@ export default function CompatibilityRomanceNewPage() {
                   className="mt-4 flex items-center justify-center gap-2 py-2"
                 >
                   <Loader2 className="h-4 w-4 animate-spin text-gray-400" />
-                  <p className="text-sm text-gray-400">기존 분석 확인 중...</p>
+                  <p className="text-sm text-gray-400">
+                    {t('checkingExisting', { defaultValue: '기존 분석 확인 중...' })}
+                  </p>
                 </motion.div>
               )}
             </GlassCard>
@@ -573,7 +593,7 @@ export default function CompatibilityRomanceNewPage() {
             transition={{ delay: 0.7 }}
             className="mt-4 text-center text-sm text-gray-500"
           >
-            분석에는 약 30~60초가 소요됩니다
+            {t('notice', { defaultValue: '분석에는 약 30~60초가 소요됩니다' })}
           </motion.p>
         )}
       </div>
@@ -601,6 +621,7 @@ function ProfileGrid({
   loading,
   color,
 }: ProfileGridProps) {
+  const t = useTranslations('compatibility');
   const colorStyles = {
     gold: {
       border: 'rgba(212, 175, 55, 0.5)',
@@ -637,13 +658,15 @@ function ProfileGrid({
         style={{ borderColor: 'rgba(255, 255, 255, 0.15)' }}
       >
         <User className="mx-auto mb-3 h-10 w-10 text-gray-500" />
-        <p className="text-sm text-gray-400">등록된 프로필이 없습니다</p>
+        <p className="text-sm text-gray-400">
+          {t('noProfiles', { defaultValue: '등록된 프로필이 없습니다' })}
+        </p>
         <Button
           variant="link"
           className="mt-3 text-[#d4af37] hover:text-[#e0c040]"
           onClick={() => (window.location.href = '/profiles/new')}
         >
-          프로필 추가하기
+          {t('buttons.addProfile', { defaultValue: '프로필 추가하기' })}
         </Button>
       </div>
     );
@@ -684,7 +707,9 @@ function ProfileGrid({
 
             <p className="truncate font-medium text-white">{profile.name}</p>
             <p className="mt-1 text-xs text-gray-500">
-              {profile.birthDate} ({profile.gender === 'male' ? '남' : '여'})
+              {profile.birthDate} ({profile.gender === 'male'
+                ? t('gender.male', { defaultValue: '남' })
+                : t('gender.female', { defaultValue: '여' })})
             </p>
           </motion.button>
         );

@@ -8,7 +8,7 @@
 import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useTranslations } from 'next-intl';
+import { useTranslations, useLocale } from 'next-intl';
 import {
   Heart,
   Sparkles,
@@ -195,7 +195,7 @@ export default function CompatibilityResultPage() {
   const params = useParams();
   const router = useRouter();
   const analysisId = params.id as string;
-  const locale = (params?.locale as string) || 'ko';
+  const locale = useLocale();
   const t = useTranslations('compatibility');
 
   const [activeTab, setActiveTab] = useState<TabType>('score');
@@ -240,7 +240,7 @@ export default function CompatibilityResultPage() {
         const result = await response.json();
 
         if (!response.ok) {
-          throw new Error(result.error?.message || '데이터를 불러올 수 없습니다');
+          throw new Error(result.error?.message || t('errors.loadFailed', { defaultValue: '데이터를 불러올 수 없습니다' }));
         }
 
         if (result.status !== 'completed') {
@@ -250,7 +250,7 @@ export default function CompatibilityResultPage() {
 
         setData(result.data);
       } catch (err) {
-        setError(err instanceof Error ? err.message : '오류가 발생했습니다');
+        setError(err instanceof Error ? err.message : t('errors.unknown', { defaultValue: '오류가 발생했습니다' }));
       } finally {
         setLoading(false);
       }
@@ -261,11 +261,11 @@ export default function CompatibilityResultPage() {
 
   // 총점 등급
   const getScoreGrade = (score: number) => {
-    if (score >= 85) return { label: '천생연분', color: '#ef4444' };
-    if (score >= 70) return { label: '좋은 인연', color: '#d4af37' };
-    if (score >= 55) return { label: '보통', color: '#eab308' };
-    if (score >= 40) return { label: '노력 필요', color: '#f97316' };
-    return { label: '주의', color: '#8b5cf6' };
+    if (score >= 85) return { label: t('scoreGrade.perfect', { defaultValue: '천생연분' }), color: '#ef4444' };
+    if (score >= 70) return { label: t('scoreGrade.good', { defaultValue: '좋은 인연' }), color: '#d4af37' };
+    if (score >= 55) return { label: t('scoreGrade.average', { defaultValue: '보통' }), color: '#eab308' };
+    if (score >= 40) return { label: t('scoreGrade.needEffort', { defaultValue: '노력 필요' }), color: '#f97316' };
+    return { label: t('scoreGrade.caution', { defaultValue: '주의' }), color: '#8b5cf6' };
   };
 
   if (loading) {
@@ -282,7 +282,7 @@ export default function CompatibilityResultPage() {
               <Loader2 className="h-12 w-12 text-[#d4af37]" />
             </div>
           </div>
-          <p className="text-sm text-gray-400">궁합 결과를 불러오는 중...</p>
+          <p className="text-sm text-gray-400">{t('ui.loadingResult', { defaultValue: '궁합 결과를 불러오는 중...' })}</p>
         </motion.div>
       </div>
     );
@@ -292,16 +292,16 @@ export default function CompatibilityResultPage() {
     return (
       <div className="min-h-screen bg-[#050508]">
         <CosmicBackground />
-        <AppHeader title="궁합 결과" />
+        <AppHeader title={t('result.title', { defaultValue: '궁합 결과' })} />
         <div className="mx-auto max-w-2xl px-4 py-12">
           <GlassCard variant="warning" className="p-8 text-center">
             <AlertCircle className="mx-auto mb-4 h-14 w-14 text-amber-400" />
-            <p className="mb-6 text-lg text-gray-300">{error || '데이터를 불러올 수 없습니다'}</p>
+            <p className="mb-6 text-lg text-gray-300">{error || t('ui.errorLoadData', { defaultValue: '데이터를 불러올 수 없습니다' })}</p>
             <Button
               onClick={() => router.push('/compatibility')}
               className="bg-[#d4af37] px-8 py-3 font-semibold text-black hover:bg-[#c9a227]"
             >
-              돌아가기
+              {t('buttons.back', { defaultValue: '돌아가기' })}
             </Button>
           </GlassCard>
         </div>
@@ -388,7 +388,7 @@ export default function CompatibilityResultPage() {
             transition={{ delay: 1 }}
             className="mt-4 text-sm text-gray-400"
           >
-            100점 만점 기준 · 5개 항목 종합
+            {t('ui.scoreDescription', { defaultValue: '100점 만점 기준 · 5개 항목 종합' })}
           </motion.p>
 
           {/* 하트 장식 */}
@@ -462,9 +462,9 @@ export default function CompatibilityResultPage() {
             <div className="flex items-start gap-3">
               <AlertCircle className="mt-0.5 h-5 w-5 shrink-0 text-amber-400" />
               <div>
-                <p className="text-sm font-medium text-amber-400">분석 일부 누락</p>
+                <p className="text-sm font-medium text-amber-400">{t('ui.partialAnalysis', { defaultValue: '분석 일부 누락' })}</p>
                 <p className="mt-1 text-xs text-gray-400">
-                  일부 분석 단계가 실패하여 결과가 불완전할 수 있습니다.
+                  {t('ui.partialAnalysisDesc', { defaultValue: '일부 분석 단계가 실패하여 결과가 불완전할 수 있습니다.' })}
                 </p>
               </div>
             </div>
@@ -480,54 +480,72 @@ export default function CompatibilityResultPage() {
 
 /** 점수 탭 */
 function ScoreTab({ data }: { data: CompatibilityData }) {
+  const t = useTranslations('compatibility');
+
+  /** 점수 항목 기본값 */
+  const DEFAULT_DESCRIPTIONS = {
+    stemHarmony:
+      "천간은 사주에서 겉으로 드러나는 성격과 표현 방식을 나타냅니다. 두 사람의 천간이 '합(合)'을 이루면 처음 만났을 때 \"아, 이 사람이다\"라는 느낌을 받으며 자연스럽게 끌립니다. 예를 들어 '갑기합(甲己合)'은 서로의 생각을 존중하고 안정감을 주는 관계이며, '을경합(乙庚合)'은 의리와 신뢰로 맺어지는 인연입니다. 반대로 '극(剋)' 관계가 있으면 대화할 때 의견 충돌이 잦거나 서로의 방식이 달라 답답함을 느낄 수 있습니다. 천간 점수가 높으면 첫인상부터 호감이 가고 대화가 잘 통하며, 점수가 낮더라도 서로의 차이를 이해하려는 노력으로 극복할 수 있습니다.",
+    branchHarmony:
+      "지지는 사주에서 내면의 감정과 무의식적 반응, 그리고 일상생활의 습관을 나타냅니다. 두 사람의 지지에 '합(合)'이 많으면 함께 있을 때 편안하고 정서적으로 깊이 연결됩니다. '육합(六合)'은 서로를 이해하고 배려하는 따뜻한 관계를, '삼합(三合)'은 같은 방향을 향해 함께 나아가는 동반자 관계를 의미합니다. 반면 '충(冲)'이 있으면 사소한 일에도 감정 충돌이 생기기 쉽고, 서로의 생활 방식이 맞지 않아 스트레스를 받을 수 있습니다. '원진(元嗔)'은 설명하기 어려운 심리적 거리감을 느끼게 하여 가까워지려 해도 어딘가 벽이 느껴지는 관계입니다. 지지 점수가 높으면 오래 함께해도 지치지 않는 편안한 인연입니다.",
+    elementBalance:
+      "오행은 목(木, 나무)·화(火, 불)·토(土, 흙)·금(金, 쇠)·수(水, 물) 다섯 가지 기운으로, 사람의 성격과 에너지 특성을 나타냅니다. 내가 부족한 기운을 상대가 가지고 있으면 서로 보완하는 이상적인 궁합이 됩니다. 예를 들어 급하고 열정적인 화(火) 기운이 강한 사람에게는 차분하고 유연한 수(水) 기운의 상대가 균형을 잡아주고, 우유부단한 수(水) 기운의 사람에게는 결단력 있는 금(金) 기운의 상대가 방향을 제시해줍니다. 반대로 같은 오행이 과다하면 그 기운의 단점이 증폭될 수 있어 주의가 필요합니다. 오행 균형 점수가 높으면 서로의 부족한 부분을 자연스럽게 채워주는 '음양조화'의 관계입니다.",
+    tenGodCompatibility:
+      "십신(十神)은 상대방이 나에게 어떤 존재로 느껴지는지를 나타내는 관계의 언어입니다. 상대가 나의 '정재(正財)'나 '정관(正官)'이면 안정적이고 책임감 있는 관계로 결혼 궁합에 좋습니다. '편재(偏財)'는 함께 있으면 즐겁고 활력이 생기는 관계이며, '편관(偏官)'은 강렬하고 열정적인 끌림을 의미합니다. '식신(食神)'은 함께 있으면 편안하고 나를 있는 그대로 표현할 수 있게 해주며, '상관(傷官)'은 자극적이고 새로운 경험을 선사합니다. 상대가 나에게 긍정적인 십신일수록 함께하면 마음이 편안해지고 서로 성장하게 됩니다. 십신 호환성이 높으면 상대와 함께할 때 내가 더 나은 사람이 되는 느낌을 받습니다.",
+    wunsengSynergy:
+      "12운성은 상대방 곁에서 내 기운이 어떻게 변화하는지를 나타냅니다. 사람의 기운은 태어나서 성장하고 쇠퇴하는 12단계의 순환을 거치는데, 상대방의 사주가 나의 어떤 단계에 해당하는지에 따라 관계의 역학이 달라집니다. '건록(建祿)'이나 '제왕(帝旺)'에 해당하면 상대와 있을 때 자신감이 생기고 에너지가 충전되어 무엇이든 할 수 있을 것 같은 느낌을 받습니다. 반대로 '사(死)'·'묘(墓)'·'절(絶)'에 해당하면 상대에게 맞추느라 지치거나, 나다움을 잃고 위축될 수 있습니다. 12운성 시너지가 높으면 상대와 함께할 때 내 잠재력이 최대로 발휘되는 '상승 궁합'입니다.",
+    combinationSynergy:
+      '삼합(三合)은 세 개의 지지가 모여 하나의 강력한 오행 기운을 형성하는 특별한 조합입니다. 두 사람의 사주가 합쳐져 삼합이 완성되면, 따로 있을 때보다 함께 있을 때 훨씬 더 큰 에너지와 시너지가 생깁니다. 마치 "둘이 만나니까 일이 술술 풀린다"는 느낌이 드는 운명적 인연입니다. 방합(方合)은 같은 계절의 세 지지가 모여 그 계절의 기운을 극대화하는 조합으로, 함께하면 특정 분야에서 놀라운 성과를 낼 수 있습니다. 반합(半合)은 삼합의 두 요소만 갖춘 상태로, 완전한 삼합보다는 약하지만 여전히 긍정적인 시너지를 제공합니다. 이 점수가 높으면 두 사람이 만나 새로운 가능성을 여는 \'창조적 궁합\'입니다.',
+  };
+
   const scoreItems = [
     {
-      label: '천간 조화',
+      key: 'stemHarmony',
+      label: t('scores.stemHarmony.label', { defaultValue: '천간 조화' }),
       score: data.scores.stemHarmony?.score ?? 0,
-      weight: '24%',
+      weight: t('scores.stemHarmony.weight', { defaultValue: '24%' }),
       icon: <TrendingUp className="h-4 w-4" />,
-      description:
-        "천간은 사주에서 겉으로 드러나는 성격과 표현 방식을 나타냅니다. 두 사람의 천간이 '합(合)'을 이루면 처음 만났을 때 \"아, 이 사람이다\"라는 느낌을 받으며 자연스럽게 끌립니다. 예를 들어 '갑기합(甲己合)'은 서로의 생각을 존중하고 안정감을 주는 관계이며, '을경합(乙庚合)'은 의리와 신뢰로 맺어지는 인연입니다. 반대로 '극(剋)' 관계가 있으면 대화할 때 의견 충돌이 잦거나 서로의 방식이 달라 답답함을 느낄 수 있습니다. 천간 점수가 높으면 첫인상부터 호감이 가고 대화가 잘 통하며, 점수가 낮더라도 서로의 차이를 이해하려는 노력으로 극복할 수 있습니다.",
+      description: t('scores.stemHarmony.description', { defaultValue: DEFAULT_DESCRIPTIONS.stemHarmony }),
     },
     {
-      label: '지지 조화',
+      key: 'branchHarmony',
+      label: t('scores.branchHarmony.label', { defaultValue: '지지 조화' }),
       score: data.scores.branchHarmony?.score ?? 0,
-      weight: '24%',
+      weight: t('scores.branchHarmony.weight', { defaultValue: '24%' }),
       icon: <Users className="h-4 w-4" />,
-      description:
-        "지지는 사주에서 내면의 감정과 무의식적 반응, 그리고 일상생활의 습관을 나타냅니다. 두 사람의 지지에 '합(合)'이 많으면 함께 있을 때 편안하고 정서적으로 깊이 연결됩니다. '육합(六合)'은 서로를 이해하고 배려하는 따뜻한 관계를, '삼합(三合)'은 같은 방향을 향해 함께 나아가는 동반자 관계를 의미합니다. 반면 '충(冲)'이 있으면 사소한 일에도 감정 충돌이 생기기 쉽고, 서로의 생활 방식이 맞지 않아 스트레스를 받을 수 있습니다. '원진(元嗔)'은 설명하기 어려운 심리적 거리감을 느끼게 하여 가까워지려 해도 어딘가 벽이 느껴지는 관계입니다. 지지 점수가 높으면 오래 함께해도 지치지 않는 편안한 인연입니다.",
+      description: t('scores.branchHarmony.description', { defaultValue: DEFAULT_DESCRIPTIONS.branchHarmony }),
     },
     {
-      label: '오행 균형',
+      key: 'elementBalance',
+      label: t('scores.elementBalance.label', { defaultValue: '오행 균형' }),
       score: data.scores.elementBalance?.score ?? 0,
-      weight: '19%',
+      weight: t('scores.elementBalance.weight', { defaultValue: '19%' }),
       icon: <Compass className="h-4 w-4" />,
-      description:
-        "오행은 목(木, 나무)·화(火, 불)·토(土, 흙)·금(金, 쇠)·수(水, 물) 다섯 가지 기운으로, 사람의 성격과 에너지 특성을 나타냅니다. 내가 부족한 기운을 상대가 가지고 있으면 서로 보완하는 이상적인 궁합이 됩니다. 예를 들어 급하고 열정적인 화(火) 기운이 강한 사람에게는 차분하고 유연한 수(水) 기운의 상대가 균형을 잡아주고, 우유부단한 수(水) 기운의 사람에게는 결단력 있는 금(金) 기운의 상대가 방향을 제시해줍니다. 반대로 같은 오행이 과다하면 그 기운의 단점이 증폭될 수 있어 주의가 필요합니다. 오행 균형 점수가 높으면 서로의 부족한 부분을 자연스럽게 채워주는 '음양조화'의 관계입니다.",
+      description: t('scores.elementBalance.description', { defaultValue: DEFAULT_DESCRIPTIONS.elementBalance }),
     },
     {
-      label: '십신 호환성',
+      key: 'tenGodCompatibility',
+      label: t('scores.tenGodCompatibility.label', { defaultValue: '십신 호환성' }),
       score: data.scores.tenGodCompatibility?.score ?? 0,
-      weight: '19%',
+      weight: t('scores.tenGodCompatibility.weight', { defaultValue: '19%' }),
       icon: <Heart className="h-4 w-4" />,
-      description:
-        "십신(十神)은 상대방이 나에게 어떤 존재로 느껴지는지를 나타내는 관계의 언어입니다. 상대가 나의 '정재(正財)'나 '정관(正官)'이면 안정적이고 책임감 있는 관계로 결혼 궁합에 좋습니다. '편재(偏財)'는 함께 있으면 즐겁고 활력이 생기는 관계이며, '편관(偏官)'은 강렬하고 열정적인 끌림을 의미합니다. '식신(食神)'은 함께 있으면 편안하고 나를 있는 그대로 표현할 수 있게 해주며, '상관(傷官)'은 자극적이고 새로운 경험을 선사합니다. 상대가 나에게 긍정적인 십신일수록 함께하면 마음이 편안해지고 서로 성장하게 됩니다. 십신 호환성이 높으면 상대와 함께할 때 내가 더 나은 사람이 되는 느낌을 받습니다.",
+      description: t('scores.tenGodCompatibility.description', { defaultValue: DEFAULT_DESCRIPTIONS.tenGodCompatibility }),
     },
     {
-      label: '12운성 시너지',
+      key: 'wunsengSynergy',
+      label: t('scores.wunsengSynergy.label', { defaultValue: '12운성 시너지' }),
       score: data.scores.wunsengSynergy?.score ?? 0,
-      weight: '9%',
+      weight: t('scores.wunsengSynergy.weight', { defaultValue: '9%' }),
       icon: <Sparkles className="h-4 w-4" />,
-      description:
-        "12운성은 상대방 곁에서 내 기운이 어떻게 변화하는지를 나타냅니다. 사람의 기운은 태어나서 성장하고 쇠퇴하는 12단계의 순환을 거치는데, 상대방의 사주가 나의 어떤 단계에 해당하는지에 따라 관계의 역학이 달라집니다. '건록(建祿)'이나 '제왕(帝旺)'에 해당하면 상대와 있을 때 자신감이 생기고 에너지가 충전되어 무엇이든 할 수 있을 것 같은 느낌을 받습니다. 반대로 '사(死)'·'묘(墓)'·'절(絶)'에 해당하면 상대에게 맞추느라 지치거나, 나다움을 잃고 위축될 수 있습니다. 12운성 시너지가 높으면 상대와 함께할 때 내 잠재력이 최대로 발휘되는 '상승 궁합'입니다.",
+      description: t('scores.wunsengSynergy.description', { defaultValue: DEFAULT_DESCRIPTIONS.wunsengSynergy }),
     },
     {
-      label: '삼합/방합 시너지',
+      key: 'combinationSynergy',
+      label: t('scores.combinationSynergy.label', { defaultValue: '삼합/방합 시너지' }),
       score: data.scores.combinationSynergy?.score ?? 0,
-      weight: '5%',
+      weight: t('scores.combinationSynergy.weight', { defaultValue: '5%' }),
       icon: <Zap className="h-4 w-4" />,
-      description:
-        '삼합(三合)은 세 개의 지지가 모여 하나의 강력한 오행 기운을 형성하는 특별한 조합입니다. 두 사람의 사주가 합쳐져 삼합이 완성되면, 따로 있을 때보다 함께 있을 때 훨씬 더 큰 에너지와 시너지가 생깁니다. 마치 "둘이 만나니까 일이 술술 풀린다"는 느낌이 드는 운명적 인연입니다. 방합(方合)은 같은 계절의 세 지지가 모여 그 계절의 기운을 극대화하는 조합으로, 함께하면 특정 분야에서 놀라운 성과를 낼 수 있습니다. 반합(半合)은 삼합의 두 요소만 갖춘 상태로, 완전한 삼합보다는 약하지만 여전히 긍정적인 시너지를 제공합니다. 이 점수가 높으면 두 사람이 만나 새로운 가능성을 여는 \'창조적 궁합\'입니다.',
+      description: t('scores.combinationSynergy.description', { defaultValue: DEFAULT_DESCRIPTIONS.combinationSynergy }),
     },
   ];
 
@@ -535,10 +553,10 @@ function ScoreTab({ data }: { data: CompatibilityData }) {
     <div className="space-y-6">
       {/* 6개 항목 점수 */}
       <GlassCard className="p-6">
-        <SectionHeader title="상세 점수" icon={<TrendingUp className="h-4 w-4" />} />
+        <SectionHeader title={t('sections.detailScores', { defaultValue: '상세 점수' })} icon={<TrendingUp className="h-4 w-4" />} />
         <div className="space-y-5">
           {scoreItems.map((item, index) => (
-            <div key={item.label}>
+            <div key={item.key}>
               <ScoreBar
                 score={item.score}
                 label={item.label}
@@ -553,10 +571,10 @@ function ScoreTab({ data }: { data: CompatibilityData }) {
 
       {/* 연애 스타일 비교 */}
       <GlassCard className="p-6">
-        <SectionHeader title="연애 스타일 비교" icon={<Heart className="h-4 w-4" />} />
+        <SectionHeader title={t('sections.traitComparison', { defaultValue: '연애 스타일 비교' })} icon={<Heart className="h-4 w-4" />} />
         <div className="grid gap-3 sm:grid-cols-2">
           <DualScoreBar
-            label="표현력"
+            label={t('traitLabels.expression', { defaultValue: '표현력' })}
             scoreA={data.traitScoresA.expression}
             scoreB={data.traitScoresB.expression}
             nameA={data.nameA}
@@ -564,7 +582,7 @@ function ScoreTab({ data }: { data: CompatibilityData }) {
             delay={0}
           />
           <DualScoreBar
-            label="독점욕"
+            label={t('traitLabels.possessiveness', { defaultValue: '독점욕' })}
             scoreA={data.traitScoresA.possessiveness}
             scoreB={data.traitScoresB.possessiveness}
             nameA={data.nameA}
@@ -572,7 +590,7 @@ function ScoreTab({ data }: { data: CompatibilityData }) {
             delay={0.1}
           />
           <DualScoreBar
-            label="헌신도"
+            label={t('traitLabels.devotion', { defaultValue: '헌신도' })}
             scoreA={data.traitScoresA.devotion}
             scoreB={data.traitScoresB.devotion}
             nameA={data.nameA}
@@ -580,7 +598,7 @@ function ScoreTab({ data }: { data: CompatibilityData }) {
             delay={0.2}
           />
           <DualScoreBar
-            label="모험심"
+            label={t('traitLabels.adventure', { defaultValue: '모험심' })}
             scoreA={data.traitScoresA.adventure}
             scoreB={data.traitScoresB.adventure}
             nameA={data.nameA}
@@ -588,7 +606,7 @@ function ScoreTab({ data }: { data: CompatibilityData }) {
             delay={0.3}
           />
           <DualScoreBar
-            label="안정추구"
+            label={t('traitLabels.stability', { defaultValue: '안정추구' })}
             scoreA={data.traitScoresA.stability}
             scoreB={data.traitScoresB.stability}
             nameA={data.nameA}
@@ -603,12 +621,14 @@ function ScoreTab({ data }: { data: CompatibilityData }) {
 
 /** 분석 탭 */
 function AnalysisTab({ data }: { data: CompatibilityData }) {
+  const t = useTranslations('compatibility');
+
   return (
     <div className="space-y-6">
       {/* 인연의 성격 */}
       {data.relationshipType && (
         <GlassCard variant="highlight" className="p-6">
-          <SectionHeader title="인연의 성격" icon={<Sparkles className="h-4 w-4" />} />
+          <SectionHeader title={t('sections.relationshipType', { defaultValue: '인연의 성격' })} icon={<Sparkles className="h-4 w-4" />} />
           <div className="mb-4 flex flex-wrap gap-2">
             {data.relationshipType.keywords.map((keyword, i) => (
               <motion.span
@@ -642,7 +662,7 @@ function AnalysisTab({ data }: { data: CompatibilityData }) {
       {/* 갈등 포인트 */}
       {data.conflictAnalysis && data.conflictAnalysis.conflictPoints.length > 0 && (
         <GlassCard className="p-6">
-          <SectionHeader title="갈등 포인트" icon={<Flame className="h-4 w-4" />} />
+          <SectionHeader title={t('sections.conflictPoints', { defaultValue: '갈등 포인트' })} icon={<Flame className="h-4 w-4" />} />
           <div className="space-y-3">
             {data.conflictAnalysis.conflictPoints.map((point, i) => (
               <motion.div

@@ -45,6 +45,7 @@ function getRetryStepStatuses(retryFromStep: string): Record<PipelineStep, StepS
 /** 리포트 생성 요청 스키마 */
 const generateReportSchema = z.object({
   retryFromStep: z.string().optional(),
+  language: z.enum(['ko', 'en', 'ja', 'zh-CN', 'zh-TW']).optional().default('ko'),
 });
 
 /**
@@ -1039,6 +1040,9 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
     const retryFromStep = validationResult.success
       ? validationResult.data.retryFromStep
       : undefined;
+    const language = validationResult.success
+      ? validationResult.data.language
+      : 'ko';
 
     // 1. 프로필 조회 및 소유권 확인
     const { data: profile, error: profileError } = await supabase
@@ -1246,7 +1250,7 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
           birth_time: profile.birth_time || '12:00',
           gender: profile.gender,
           calendar_type: profile.calendar_type || 'solar',
-          language: 'ko',
+          language: language,
           retry_from_step: retryFromStep,
           existing_pillars: existingReport?.pillars,
           existing_daewun: existingReport?.daewun,

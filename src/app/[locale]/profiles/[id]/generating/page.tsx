@@ -10,6 +10,7 @@
 
 import { useEffect, useState, useCallback, useRef } from 'react';
 import { useRouter } from '@/i18n/routing';
+import { useLocale } from 'next-intl';
 import {
   PipelineProcessingScreen,
   PIPELINE_STEPS,
@@ -89,6 +90,7 @@ function calculateSimulatedState(elapsedSeconds: number): {
 
 export default function GeneratingPage({ params }: PageProps) {
   const router = useRouter();
+  const locale = useLocale();
 
   const [profileId, setProfileId] = useState<string>('');
   const [status, setStatus] = useState<ReportStatusResponse | null>(null);
@@ -155,8 +157,11 @@ export default function GeneratingPage({ params }: PageProps) {
       // 리포트 생성 시작 (비동기로 - 응답 대기하지 않음)
       fetch(`/api/profiles/${profileId}/report`, {
         method: 'POST',
-        headers: retryFromStep ? { 'Content-Type': 'application/json' } : undefined,
-        body: retryFromStep ? JSON.stringify({ retryFromStep }) : undefined,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          retryFromStep: retryFromStep || undefined,
+          language: locale,
+        }),
       })
         .then(async (startRes) => {
           if (!startRes.ok) {
@@ -191,7 +196,7 @@ export default function GeneratingPage({ params }: PageProps) {
           isRequestingRef.current = false;
         });
     },
-    [profileId, router]
+    [profileId, router, locale]
   );
 
   /**

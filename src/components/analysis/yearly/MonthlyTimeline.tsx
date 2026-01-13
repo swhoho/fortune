@@ -2,7 +2,7 @@
 
 /**
  * 월별 운세 타임라인 컴포넌트
- * Task 20: 12개월 운세 흐름 AreaChart + 월별 상세
+ * Task 20: 12개월 운세 흐름 AreaChart + 월별 상세 + 다국어 지원
  */
 
 import { useState } from 'react';
@@ -17,6 +17,7 @@ import {
   ReferenceLine,
 } from 'recharts';
 import { motion } from 'framer-motion';
+import { useTranslations } from 'next-intl';
 import { TrendingUp, TrendingDown, Minus } from 'lucide-react';
 import { BRAND_COLORS } from '@/lib/constants/colors';
 import type { MonthlyFortune } from '@/lib/ai/types';
@@ -28,21 +29,8 @@ interface MonthlyTimelineProps {
   year: number;
 }
 
-/** 월 이름 */
-const MONTH_NAMES = [
-  '1월',
-  '2월',
-  '3월',
-  '4월',
-  '5월',
-  '6월',
-  '7월',
-  '8월',
-  '9월',
-  '10월',
-  '11월',
-  '12월',
-];
+/** 월 번호 배열 */
+const MONTHS = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12] as const;
 
 /** 점수에 따른 색상 */
 function getScoreColor(score: number): string {
@@ -97,13 +85,17 @@ function CustomTooltip({
 }
 
 export function MonthlyTimeline({ monthlyFortunes, year }: MonthlyTimelineProps) {
+  const t = useTranslations('yearly.monthlyTimeline');
   const [expandedMonth, setExpandedMonth] = useState<number>(1); // 1월 기본 선택
   const currentMonth = new Date().getMonth() + 1;
   const currentYear = new Date().getFullYear();
 
+  /** 월 이름 가져오기 */
+  const getMonthName = (month: number) => t(`months.${month}`);
+
   const chartData = monthlyFortunes.map((m) => ({
     ...m,
-    monthName: MONTH_NAMES[m.month - 1],
+    monthName: getMonthName(m.month),
   }));
 
   const selectMonth = (month: number) => {
@@ -125,13 +117,13 @@ export function MonthlyTimeline({ monthlyFortunes, year }: MonthlyTimelineProps)
       {/* 헤더 */}
       <div className="mb-6 flex items-center justify-between">
         <div>
-          <h3 className="font-serif text-lg font-semibold text-white">{year}년 월별 운세 흐름</h3>
-          <p className="text-sm text-gray-400">12개월 운세 변화를 한눈에 확인하세요</p>
+          <h3 className="font-serif text-lg font-semibold text-white">{t('title', { year })}</h3>
+          <p className="text-sm text-gray-400">{t('subtitle')}</p>
         </div>
         <div className="text-right">
-          <p className="text-sm text-gray-400">평균 점수</p>
+          <p className="text-sm text-gray-400">{t('avgScore')}</p>
           <p className="text-2xl font-bold" style={{ color: getScoreColor(avgScore) }}>
-            {avgScore}점
+            {avgScore}
           </p>
         </div>
       </div>
@@ -163,7 +155,7 @@ export function MonthlyTimeline({ monthlyFortunes, year }: MonthlyTimelineProps)
             <ReferenceLine y={50} stroke="#333" strokeDasharray="3 3" />
             {year === currentYear && (
               <ReferenceLine
-                x={MONTH_NAMES[currentMonth - 1]}
+                x={getMonthName(currentMonth)}
                 stroke={BRAND_COLORS.primary}
                 strokeWidth={2}
               />
@@ -202,7 +194,7 @@ export function MonthlyTimeline({ monthlyFortunes, year }: MonthlyTimelineProps)
                 }`}
               >
                 <div className="flex items-center justify-between">
-                  <span className="text-sm font-medium text-gray-300">{fortune.month}월</span>
+                  <span className="text-sm font-medium text-gray-300">{getMonthName(fortune.month)}</span>
                   <TrendIcon score={fortune.score} />
                 </div>
                 <p
@@ -233,7 +225,7 @@ export function MonthlyTimeline({ monthlyFortunes, year }: MonthlyTimelineProps)
             <div className="rounded-xl border border-[#333] bg-[#111111] p-5">
               <div className="mb-4">
                 <h4 className="font-serif text-lg font-semibold text-white">
-                  {expandedMonth}월 -{' '}
+                  {getMonthName(expandedMonth)} -{' '}
                   <span style={{ color: BRAND_COLORS.primary }}>{fortune.theme}</span>
                 </h4>
                 <p className="mt-1 text-sm text-gray-400">{fortune.overview}</p>
@@ -260,7 +252,7 @@ export function MonthlyTimeline({ monthlyFortunes, year }: MonthlyTimelineProps)
               {/* 조언 */}
               {fortune.advice && (
                 <div className="rounded-lg bg-[#1a1a1a] p-4">
-                  <p className="text-sm font-medium text-gray-300">이달의 조언</p>
+                  <p className="text-sm font-medium text-gray-300">{t('monthlyAdvice')}</p>
                   <p className="mt-1 text-sm text-gray-400">{fortune.advice}</p>
                 </div>
               )}
@@ -268,15 +260,15 @@ export function MonthlyTimeline({ monthlyFortunes, year }: MonthlyTimelineProps)
               {/* 길일/흉일 요약 */}
               <div className="mt-4 grid grid-cols-2 gap-4">
                 <div className="rounded-lg bg-green-900/20 p-3">
-                  <p className="text-xs font-medium text-green-400">길일</p>
+                  <p className="text-xs font-medium text-green-400">{t('lucky')}</p>
                   <p className="text-lg font-bold text-green-500">
-                    {fortune.luckyDays?.length || 0}일
+                    {fortune.luckyDays?.length || 0}
                   </p>
                 </div>
                 <div className="rounded-lg bg-red-900/20 p-3">
-                  <p className="text-xs font-medium text-red-400">주의일</p>
+                  <p className="text-xs font-medium text-red-400">{t('unlucky')}</p>
                   <p className="text-lg font-bold text-red-500">
-                    {fortune.unluckyDays?.length || 0}일
+                    {fortune.unluckyDays?.length || 0}
                   </p>
                 </div>
               </div>

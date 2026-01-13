@@ -662,6 +662,68 @@
       },
       "yearlyFortune": "{year}年新年運勢",
       "monthlyAdvice": "月別アドバイス"
+    },
+    "adviceCard": {
+      "title": "{year}年運勢詳細分析",
+      "subtitle": "6つの人生領域における上半期/下半期の流れ",
+      "sections": {
+        "natureAndSoul": {
+          "label": "本来の性情",
+          "description": "日干心理学的アプローチ"
+        },
+        "wealthAndSuccess": {
+          "label": "財運とビジネス",
+          "description": "財星/食傷分析"
+        },
+        "careerAndHonor": {
+          "label": "職業と名誉",
+          "description": "官星分析"
+        },
+        "documentAndWisdom": {
+          "label": "文書と学業",
+          "description": "印星分析"
+        },
+        "relationshipAndLove": {
+          "label": "縁と人間関係",
+          "description": "恋愛/貴人運"
+        },
+        "healthAndMovement": {
+          "label": "健康と移動",
+          "description": "健康/駅馬運"
+        }
+      },
+      "tabs": {
+        "firstHalf": "上半期 (1~6月)",
+        "secondHalf": "下半期 (7~12月)"
+      }
+    },
+    "monthlyTimeline": {
+      "title": "{year}年月別運勢の流れ",
+      "subtitle": "12ヶ月の運勢変化を一目で確認",
+      "avgScore": "平均スコア",
+      "monthlyAdvice": "今月のアドバイス",
+      "lucky": "吉日",
+      "unlucky": "注意日",
+      "months": {
+        "1": "1月",
+        "2": "2月",
+        "3": "3月",
+        "4": "4月",
+        "5": "5月",
+        "6": "6月",
+        "7": "7月",
+        "8": "8月",
+        "9": "9月",
+        "10": "10月",
+        "11": "11月",
+        "12": "12月"
+      }
+    },
+    "failedSection": {
+      "errorMessage": "分析データを読み込めません",
+      "analyzing": "分析中...",
+      "reanalyze": "再分析",
+      "freeNote": "再分析は無料です"
     }
   },
   "home": {
@@ -1478,6 +1540,178 @@
       "dialogDescription": "このリンクを通じて誰でも二人の四柱情報と相性分析結果を見ることができます。機密情報が含まれていますので、信頼できる方にのみ共有してください。",
       "cancel": "キャンセル",
       "confirm": "共有する"
+    },
+    "resultTabs": {
+      "score": "相性スコア",
+      "analysis": "相性分析",
+      "compare": "四柱比較"
+    },
+    "buttons": {
+      "back": "戻る",
+      "goToSajuAnalysis": "四柱分析へ",
+      "viewResult": "結果を見る",
+      "checkProgress": "進行状況を確認",
+      "freeRetry": "無料で再試行",
+      "starting": "分析開始中...",
+      "start": "相性分析を開始",
+      "addProfile": "プロフィールを追加"
+    },
+    "cost": {
+      "label": "分析費用",
+      "balance": "保有クレジット",
+      "freeRetry": "無料再試行",
+      "freeRetryHint": "前回の分析が失敗しました。無料で再試行できます。",
+      "insufficientCredits": "クレジットが不足しています。チャージしてください。"
+    },
+    "gender": {
+      "male": "男",
+      "female": "女"
+    },
+    "scoreGrade": {
+      "perfect": "天生の縁",
+      "good": "良縁",
+      "average": "普通",
+      "needEffort": "努力必要",
+      "caution": "注意"
+    },
+    "scores": {
+      "stemHarmony": {
+        "label": "天干調和",
+        "weight": "24%",
+        "description": "天干は四柱で表に現れる性格と表現方法を示します。二人の天干が調和すると、会話スタイルが自然に合い、お互いの考えを理解しやすく、第一印象から心地よさを感じます。"
+      },
+      "branchHarmony": {
+        "label": "地支調和",
+        "weight": "24%",
+        "description": "地支は四柱で内面の感情と無意識の反応を示します。二人の地支が調和すると、一緒にいるとき感情的に安心感を感じ、日常のリズムがよく合い、葛藤状況でも感情的な共感が形成されます。"
+      },
+      "elementBalance": {
+        "label": "五行バランス",
+        "weight": "19%",
+        "description": "五行は木・火・土・金・水の五つの気です。二人の五行がバランスを取ると、お互いの不足を補い、偏りのない安定した関係を維持できます。"
+      },
+      "tenGodCompatibility": {
+        "label": "十神互換性",
+        "weight": "19%",
+        "description": "十神は相手が自分にとってどのような役割をするかを示します。十神の互換性が良いと、お互いに必要な存在となり、関係の中で自然な役割分担ができます。"
+      },
+      "wunsengSynergy": {
+        "label": "十二運星シナジー",
+        "weight": "9%",
+        "description": "十二運星は相手のそばで自分の気がどう変化するかを示します。シナジーが良いと、一緒にいるときお互いに活力を与え、ポジティブなエネルギーが上昇します。"
+      },
+      "combinationSynergy": {
+        "label": "三合/方合シナジー",
+        "weight": "5%",
+        "description": "三合は三つの地支が集まって強力な五行の気を形成し、方合は同じ方位の地支が結合します。このような特別な結合があると、二人が一緒にいるとき大きなシナジー効果が生まれます。"
+      }
+    },
+    "traitLabels": {
+      "expression": "表現力",
+      "possessiveness": "独占欲",
+      "devotion": "献身度",
+      "adventure": "冒険心",
+      "stability": "安定志向"
+    },
+    "sections": {
+      "detailScores": "詳細スコア",
+      "traitComparison": "恋愛スタイル比較",
+      "relationshipType": "縁の性格",
+      "conflictPoints": "葛藤ポイント",
+      "marriageFit": "結婚適合度",
+      "mutualInfluence": "相互影響",
+      "sajuComparison": "四柱命式比較",
+      "interactions": "干支相互作用"
+    },
+    "pillarLabels": {
+      "hour": "時柱",
+      "day": "日柱",
+      "month": "月柱",
+      "year": "年柱"
+    },
+    "marriageFitLabels": {
+      "roleDistribution": "役割分担",
+      "childFortune": "子供運",
+      "wealthSynergy": "財運シナジー"
+    },
+    "interactionSections": {
+      "peachBlossom": {
+        "title": "桃花煞 (とうかさつ)",
+        "description": "年支/日支を基準に特別な異性への惹きを示す煞",
+        "empty": "桃花煞がありません。強烈な惹きよりも落ち着いて安定した関係を形成します。"
+      },
+      "samhapBanghap": {
+        "title": "三合・方合",
+        "description": "三つの地支が集まり強力な五行の気を形成する特別な結合",
+        "empty": "三合・方合の形成がありません。特別なシナジーより個別の調和を重視します。"
+      },
+      "stemCombinations": {
+        "title": "天干合",
+        "description": "二つの天干が出会い新しい五行の気を生成する調和的な関係",
+        "empty": "天干合がありません。表面的な調和より内面のバランスが重要です。"
+      },
+      "branchCombinations": {
+        "title": "地支合（六合）",
+        "description": "二つの地支が合わさり新しい五行を作る親密な関係",
+        "empty": "地支合がありません。感情的な結合より理性的な調和が際立ちます。"
+      },
+      "branchClashes": {
+        "title": "地支冲（六冲）",
+        "description": "お互い反対方向の気がぶつかり葛藤を引き起こす関係",
+        "empty": "地支冲がありません。大きな葛藤なく安定した関係が可能です。"
+      },
+      "branchPunishments": {
+        "title": "地支刑（三刑）",
+        "description": "特定の地支が出会い刑罰のように摩擦を起こす関係",
+        "empty": "地支刑がありません。相互刺激より穏やかな関係が維持されます。"
+      },
+      "wonjin": {
+        "title": "元嗔 (げんしん)",
+        "description": "お互いを押し返す気で密かな心理的葛藤を誘発する関係",
+        "empty": "元嗔関係がありません。心理的な不快感なく自然な関係が可能です。"
+      }
+    },
+    "generatingSteps": {
+      "manseryeok_a": "Aの万年暦計算",
+      "manseryeok_b": "Bの万年暦計算",
+      "compatibility_score": "相性スコア計算",
+      "trait_scores": "恋愛スタイル分析",
+      "relationship_type": "縁の性格分析",
+      "trait_interpretation": "恋愛スタイル解釈",
+      "conflict_analysis": "葛藤ポイント分析",
+      "marriage_fit": "結婚適合度分析",
+      "mutual_influence": "相互影響分析",
+      "saving": "結果保存",
+      "complete": "分析完了"
+    },
+    "generatingTips": [
+      "二人の天干が合を成すと自然な惹きがあります",
+      "地支の調和は一緒にいる日常の心地よさを示します",
+      "五行のバランスはお互いを補う関係を意味します",
+      "十神の互換性は関係での役割分担を示します",
+      "十二運星シナジーは相手から受けるエネルギーを示します"
+    ],
+    "generatingUI": {
+      "analyzing": "二人の運命を分析しています...",
+      "completed": "分析が完了しました！",
+      "remainingTime": "予想残り時間：{seconds}秒",
+      "tipLabel": "分析のヒント",
+      "failed": "分析に失敗しました",
+      "cancel": "キャンセル",
+      "retry": "再試行",
+      "slowWarning": "サーバー応答が遅延しています",
+      "slowWarningDesc": "分析は進行中ですがサーバー応答が遅れています。もう少しお待ちください。",
+      "refresh": "更新",
+      "partialFailed": "一部の分析が失敗しました：{steps}"
+    },
+    "ui": {
+      "loadingResult": "相性結果を読み込み中...",
+      "pointsBasis": "100点満点基準・{count}項目総合",
+      "partialMissing": "分析一部欠落",
+      "partialMissingDesc": "一部の分析ステップが失敗したため、結果が不完全な可能性があります。",
+      "personSaju": "{name}さんの四柱",
+      "heroTitle": "二人の縁を分析してみましょう",
+      "needSajuDesc": "{profiles}の基本四柱分析を先に完了してください。"
     }
   },
   "glossary": {

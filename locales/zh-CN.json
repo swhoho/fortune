@@ -662,6 +662,68 @@
       },
       "yearlyFortune": "{year}年新年运势",
       "monthlyAdvice": "月度建议"
+    },
+    "adviceCard": {
+      "title": "{year}年运势深度分析",
+      "subtitle": "6大人生领域上半年/下半年趋势",
+      "sections": {
+        "natureAndSoul": {
+          "label": "本性特质",
+          "description": "日主心理学分析"
+        },
+        "wealthAndSuccess": {
+          "label": "财运与事业",
+          "description": "财星/食伤分析"
+        },
+        "careerAndHonor": {
+          "label": "职业与名誉",
+          "description": "官星分析"
+        },
+        "documentAndWisdom": {
+          "label": "文书与学业",
+          "description": "印星分析"
+        },
+        "relationshipAndLove": {
+          "label": "缘分与关系",
+          "description": "恋爱/贵人运"
+        },
+        "healthAndMovement": {
+          "label": "健康与出行",
+          "description": "健康/驿马运"
+        }
+      },
+      "tabs": {
+        "firstHalf": "上半年 (1~6月)",
+        "secondHalf": "下半年 (7~12月)"
+      }
+    },
+    "monthlyTimeline": {
+      "title": "{year}年月度运势走势",
+      "subtitle": "一览12个月运势变化",
+      "avgScore": "平均分数",
+      "monthlyAdvice": "本月建议",
+      "lucky": "吉日",
+      "unlucky": "注意日",
+      "months": {
+        "1": "1月",
+        "2": "2月",
+        "3": "3月",
+        "4": "4月",
+        "5": "5月",
+        "6": "6月",
+        "7": "7月",
+        "8": "8月",
+        "9": "9月",
+        "10": "10月",
+        "11": "11月",
+        "12": "12月"
+      }
+    },
+    "failedSection": {
+      "errorMessage": "无法加载分析数据",
+      "analyzing": "分析中...",
+      "reanalyze": "重新分析",
+      "freeNote": "重新分析是免费的"
     }
   },
   "home": {
@@ -1478,6 +1540,178 @@
       "dialogDescription": "任何人都可以通过此链接查看两人的八字信息和配对分析结果。请仅与您信任的人分享，因为其中包含敏感信息。",
       "cancel": "取消",
       "confirm": "分享"
+    },
+    "resultTabs": {
+      "score": "合婚分数",
+      "analysis": "合婚分析",
+      "compare": "八字比较"
+    },
+    "buttons": {
+      "back": "返回",
+      "goToSajuAnalysis": "进行八字分析",
+      "viewResult": "查看结果",
+      "checkProgress": "查看进度",
+      "freeRetry": "免费重试",
+      "starting": "分析开始中...",
+      "start": "开始合婚分析",
+      "addProfile": "添加档案"
+    },
+    "cost": {
+      "label": "分析费用",
+      "balance": "持有积分",
+      "freeRetry": "免费重试",
+      "freeRetryHint": "上次分析失败了，可以免费重试。",
+      "insufficientCredits": "积分不足，请充值。"
+    },
+    "gender": {
+      "male": "男",
+      "female": "女"
+    },
+    "scoreGrade": {
+      "perfect": "天作之合",
+      "good": "良缘",
+      "average": "普通",
+      "needEffort": "需要努力",
+      "caution": "注意"
+    },
+    "scores": {
+      "stemHarmony": {
+        "label": "天干调和",
+        "weight": "24%",
+        "description": "天干代表八字中外显的性格和表达方式。两人天干调和时，对话风格自然契合，容易理解对方想法，初次见面就感到舒适。"
+      },
+      "branchHarmony": {
+        "label": "地支调和",
+        "weight": "24%",
+        "description": "地支代表八字中内在的情感和潜意识反应。两人地支调和时，相处时感到情感安定，日常节奏合拍，冲突时也能产生情感共鸣。"
+      },
+      "elementBalance": {
+        "label": "五行平衡",
+        "weight": "19%",
+        "description": "五行是木、火、土、金、水五种能量。两人五行平衡时，可以互补不足，维持不偏不倚的稳定关系。"
+      },
+      "tenGodCompatibility": {
+        "label": "十神相合",
+        "weight": "19%",
+        "description": "十神表示对方对我来说扮演什么角色。十神相合好时，成为彼此需要的存在，关系中自然形成角色分工。"
+      },
+      "wunsengSynergy": {
+        "label": "十二运星协同",
+        "weight": "9%",
+        "description": "十二运星显示在对方身边我的能量如何变化。协同好时，相处时互相给予活力，正能量上升。"
+      },
+      "combinationSynergy": {
+        "label": "三合/方合协同",
+        "weight": "5%",
+        "description": "三合是三个地支聚集形成强大五行能量，方合是同方位地支结合。有这种特别结合时，两人在一起会产生巨大协同效应。"
+      }
+    },
+    "traitLabels": {
+      "expression": "表达力",
+      "possessiveness": "占有欲",
+      "devotion": "奉献度",
+      "adventure": "冒险心",
+      "stability": "稳定追求"
+    },
+    "sections": {
+      "detailScores": "详细分数",
+      "traitComparison": "恋爱风格比较",
+      "relationshipType": "缘分性格",
+      "conflictPoints": "冲突点",
+      "marriageFit": "结婚适合度",
+      "mutualInfluence": "相互影响",
+      "sajuComparison": "八字命式比较",
+      "interactions": "干支相互作用"
+    },
+    "pillarLabels": {
+      "hour": "时柱",
+      "day": "日柱",
+      "month": "月柱",
+      "year": "年柱"
+    },
+    "marriageFitLabels": {
+      "roleDistribution": "角色分工",
+      "childFortune": "子女运",
+      "wealthSynergy": "财运协同"
+    },
+    "interactionSections": {
+      "peachBlossom": {
+        "title": "桃花煞",
+        "description": "以年支/日支为基准显示特别异性吸引力的煞",
+        "empty": "没有桃花煞。形成的是平静稳定的关系，而非强烈的吸引。"
+      },
+      "samhapBanghap": {
+        "title": "三合·方合",
+        "description": "三个地支聚集形成强大五行能量的特别结合",
+        "empty": "没有三合·方合形成。重视个别调和而非特别协同。"
+      },
+      "stemCombinations": {
+        "title": "天干合",
+        "description": "两个天干相遇生成新五行能量的调和关系",
+        "empty": "没有天干合。内在平衡比表面调和更重要。"
+      },
+      "branchCombinations": {
+        "title": "地支合（六合）",
+        "description": "两个地支合而成新五行的亲密关系",
+        "empty": "没有地支合。理性调和比情感结合更突出。"
+      },
+      "branchClashes": {
+        "title": "地支冲（六冲）",
+        "description": "相反方向的能量碰撞引发冲突的关系",
+        "empty": "没有地支冲。可以维持没有大冲突的稳定关系。"
+      },
+      "branchPunishments": {
+        "title": "地支刑（三刑）",
+        "description": "特定地支相遇如刑罚般产生摩擦的关系",
+        "empty": "没有地支刑。维持温和关系而非相互刺激。"
+      },
+      "wonjin": {
+        "title": "元嗔",
+        "description": "相互排斥的能量引发微妙心理冲突的关系",
+        "empty": "没有元嗔关系。可以形成没有心理不适的自然关系。"
+      }
+    },
+    "generatingSteps": {
+      "manseryeok_a": "A万年历计算",
+      "manseryeok_b": "B万年历计算",
+      "compatibility_score": "合婚分数计算",
+      "trait_scores": "恋爱风格分析",
+      "relationship_type": "缘分性格分析",
+      "trait_interpretation": "恋爱风格解读",
+      "conflict_analysis": "冲突点分析",
+      "marriage_fit": "结婚适合度分析",
+      "mutual_influence": "相互影响分析",
+      "saving": "保存结果",
+      "complete": "分析完成"
+    },
+    "generatingTips": [
+      "两人天干合时会有自然的吸引力",
+      "地支调和表示日常相处的舒适度",
+      "五行平衡意味着互补的关系",
+      "十神相合显示关系中的角色分工",
+      "十二运星协同反映从对方获得的能量"
+    ],
+    "generatingUI": {
+      "analyzing": "正在分析两人的命运...",
+      "completed": "分析完成！",
+      "remainingTime": "预计剩余时间：{seconds}秒",
+      "tipLabel": "分析提示",
+      "failed": "分析失败",
+      "cancel": "取消",
+      "retry": "重试",
+      "slowWarning": "服务器响应延迟",
+      "slowWarningDesc": "分析正在进行，但服务器响应较慢。请稍候。",
+      "refresh": "刷新",
+      "partialFailed": "部分分析失败：{steps}"
+    },
+    "ui": {
+      "loadingResult": "正在加载合婚结果...",
+      "pointsBasis": "100分满分基准·{count}项综合",
+      "partialMissing": "部分分析缺失",
+      "partialMissingDesc": "部分分析步骤失败，结果可能不完整。",
+      "personSaju": "{name}的八字",
+      "heroTitle": "分析两人的缘分",
+      "needSajuDesc": "请先完成{profiles}的基本八字分析。"
     }
   },
   "glossary": {
