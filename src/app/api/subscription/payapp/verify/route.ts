@@ -1,17 +1,15 @@
 /**
- * PayApp 정기결제 상태 확인 및 구독 활성화 API
+ * PayApp 정기결제 상태 확인 API
  * POST /api/subscription/payapp/verify
  *
- * success 페이지에서 rebill_no로 결제 상태를 확인하고
- * 결제가 완료되었으면 구독 레코드 생성
+ * success 페이지에서 rebill_no로 구독 상태를 DB에서 확인
+ * (PayApp rebillInformation API는 존재하지 않으므로 DB만 조회)
  */
 import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { createClient as createServerClient } from '@/lib/supabase/server';
-import { getPayAppRebillInfo, SUBSCRIPTION_PLAN } from '@/lib/payapp';
-import { addCredits } from '@/lib/credits/add';
 
-// Service role 클라이언트 (구독 생성용)
+// Service role 클라이언트
 const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
   process.env.SUPABASE_SERVICE_ROLE_KEY!
@@ -40,150 +38,74 @@ export async function POST(request: Request) {
       );
     }
 
-    console.log('[PayApp Verify] 조회 시작:', { rebillNo, userId: user.id });
+    console.log('[PayApp Verify] DB 조회 시작:', { rebillNo, userId: user.id });
 
-    // 3. 이미 처리된 구독인지 확인
-    const { data: existingSubscription } = await supabaseAdmin
+    // 3. DB에서 구독 조회 (rebill_no로)
+    const { data: subscription } = await supabaseAdmin
       .from('subscriptions')
-      .select('id, status')
+      .select('id, status, user_id, current_period_start, current_period_end')
       .eq('payapp_rebill_no', rebillNo)
       .single();
 
-    if (existingSubscription) {
-      console.log('[PayApp Verify] 이미 존재하는 구독:', existingSubscription);
-      return NextResponse.json({
-        success: true,
-        status: existingSubscription.status,
-        rebillNo,
-        message: '이미 처리된 결제입니다.',
+    if (subscription) {
+      // 구독 존재 - 상태에 따라 응답
+      console.log('[PayApp Verify] 구독 발견:', {
+        subscriptionId: subscription.id,
+        status: subscription.status
       });
-    }
 
-    // 4. PayApp API로 정기결제 상태 조회
-    const rebillInfo = await getPayAppRebillInfo(rebillNo);
-    console.log('[PayApp Verify] PayApp 응답:', rebillInfo);
-
-    if (rebillInfo.state !== '1') {
-      // PayApp 내부 에러 메시지를 사용자 친화적으로 변환
-      let errorMsg = rebillInfo.errorMessage || '결제 정보 조회에 실패했습니다.';
-      if (errorMsg.includes('cmd') || errorMsg.includes('값을')) {
-        errorMsg = '결제 정보를 확인할 수 없습니다. 결제번호를 다시 확인해주세요.';
-      }
-      console.error('[PayApp Verify] PayApp 에러:', {
-        rebillNo,
-        errorMessage: rebillInfo.errorMessage,
-        errno: rebillInfo.errno,
-      });
-      return NextResponse.json({
-        success: false,
-        error: errorMsg,
-        rebillNo,
-      });
-    }
-
-    // 5. userId 검증 (var1에 저장된 userId와 현재 사용자 일치 확인)
-    if (rebillInfo.var1 && rebillInfo.var1 !== user.id) {
-      console.error('[PayApp Verify] userId 불일치:', { expected: user.id, received: rebillInfo.var1 });
-      return NextResponse.json({
-        success: false,
-        error: '결제 정보가 일치하지 않습니다.',
-        rebillNo,
-      }, { status: 403 });
-    }
-
-    // 6. rebill_state 확인
-    // rebill_state: 1=대기, 4=진행중(결제 완료), 8=해지
-    const rebillState = rebillInfo.rebill_state;
-
-    if (rebillState === '4') {
-      // 결제 진행중 (카드 등록 및 결제 완료)
-      // 구독 레코드 생성
-      const now = new Date();
-      const periodEnd = new Date(now);
-      periodEnd.setMonth(periodEnd.getMonth() + 1);
-
-      const { data: subscription, error: subError } = await supabaseAdmin
-        .from('subscriptions')
-        .insert({
-          user_id: user.id,
+      if (subscription.status === 'active') {
+        return NextResponse.json({
+          success: true,
           status: 'active',
-          price: SUBSCRIPTION_PLAN.price,
-          payapp_rebill_no: rebillNo,
-          payapp_recvphone: rebillInfo.recvphone || '',
-          payment_method: 'payapp',
-          current_period_start: now.toISOString(),
-          current_period_end: periodEnd.toISOString(),
-        })
-        .select('id')
-        .single();
-
-      if (subError) {
-        console.error('[PayApp Verify] 구독 생성 실패:', subError);
+          rebillNo,
+          subscriptionId: subscription.id,
+          message: '구독이 활성화되어 있습니다.',
+        });
+      } else if (subscription.status === 'past_due') {
+        return NextResponse.json({
+          success: true,
+          status: 'pending',
+          rebillNo,
+          message: '결제 확인 중입니다. 잠시만 기다려주세요.',
+        });
+      } else if (subscription.status === 'canceled') {
         return NextResponse.json({
           success: false,
-          error: '구독 생성에 실패했습니다.',
+          status: 'canceled',
           rebillNo,
-        }, { status: 500 });
+          error: '해지된 구독입니다.',
+        });
       }
+    }
 
-      // users 테이블 업데이트
-      await supabaseAdmin
-        .from('users')
-        .update({
-          subscription_status: 'active',
-          subscription_id: subscription.id,
-        })
-        .eq('id', user.id);
+    // 4. 구독이 없으면 user_id로 활성 구독 확인 (callback이 다른 rebill_no로 저장했을 수 있음)
+    const { data: userSubscription } = await supabaseAdmin
+      .from('subscriptions')
+      .select('id, status, payapp_rebill_no')
+      .eq('user_id', user.id)
+      .eq('status', 'active')
+      .single();
 
-      // 크레딧 지급
-      await addCredits({
-        userId: user.id,
-        amount: SUBSCRIPTION_PLAN.credits,
-        type: 'subscription',
-        subscriptionId: subscription.id,
-        description: `${SUBSCRIPTION_PLAN.name} 최초 크레딧`,
-        supabase: supabaseAdmin,
-      });
-
-      console.log('[PayApp Verify] 구독 활성화 완료:', {
-        userId: user.id,
-        rebillNo,
-        subscriptionId: subscription.id,
-        credits: SUBSCRIPTION_PLAN.credits,
-      });
-
+    if (userSubscription) {
+      console.log('[PayApp Verify] 사용자의 활성 구독 발견:', userSubscription);
       return NextResponse.json({
         success: true,
         status: 'active',
-        rebillNo,
-        subscriptionId: subscription.id,
-        message: '구독이 성공적으로 활성화되었습니다.',
-      });
-    } else if (rebillState === '1') {
-      // 대기 상태 (카드 등록만 완료, 결제 미완료)
-      return NextResponse.json({
-        success: true,
-        status: 'pending',
-        rebillNo,
-        message: '결제 대기 중입니다. 잠시 후 다시 확인해주세요.',
-      });
-    } else if (rebillState === '8') {
-      // 해지됨
-      return NextResponse.json({
-        success: false,
-        status: 'canceled',
-        rebillNo,
-        error: '해지된 결제입니다.',
-      });
-    } else {
-      // 알 수 없는 상태
-      return NextResponse.json({
-        success: false,
-        rebillNo,
-        rebillState,
-        error: `알 수 없는 결제 상태입니다: ${rebillState}`,
+        rebillNo: userSubscription.payapp_rebill_no || rebillNo,
+        subscriptionId: userSubscription.id,
+        message: '구독이 활성화되어 있습니다.',
       });
     }
+
+    // 5. 구독 없음 - callback 대기 중
+    console.log('[PayApp Verify] 구독 없음, callback 대기 중:', rebillNo);
+    return NextResponse.json({
+      success: true,
+      status: 'pending',
+      rebillNo,
+      message: '결제 확인 중입니다. 잠시만 기다려주세요.',
+    });
   } catch (error) {
     console.error('[PayApp Verify] 처리 오류:', error);
     return NextResponse.json(
