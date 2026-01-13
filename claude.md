@@ -90,6 +90,9 @@ python/
 | `docs/daily_analysis.md` | 오늘의 운세 시스템 |
 | `docs/payment.md` | 결제, 크레딧 유효기간, 구독 시스템 |
 | `docs/app.md` | Android 앱 출시 가이드 (Capacitor, Google Play Billing) |
+| `docs/i18n.md` | 다국어 시스템 (next-intl, 5개 언어) |
+| `docs/analysis_patterns.md` | 분석 파이프라인 공통 패턴 (정규화 + 검증) |
+| `docs/analytics.md` | GA4 + AARRR 프레임워크 기반 분석 시스템 |
 
 ## 핵심 기능
 

@@ -5,12 +5,14 @@
  * Supabase Auth 사용 (NextAuth 제거됨)
  */
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Toaster } from '@/components/ui/sonner';
 import { CrispChat } from '@/components/crisp-chat';
 import { Analytics } from '@vercel/analytics/react';
 import { isInAppBrowser, openInExternalBrowser } from '@/lib/browser-detect';
 import { useViewportHeight } from '@/hooks/use-viewport-height';
+import { supabase } from '@/lib/supabase/client';
+import { trackSignUp } from '@/lib/analytics';
 
 /**
  * 인앱 브라우저 감지 시 외부 브라우저로 리다이렉트
@@ -30,6 +32,38 @@ function InAppBrowserRedirect() {
  */
 function ViewportHeightManager() {
   useViewportHeight();
+  return null;
+}
+
+/**
+ * GA4 회원가입 이벤트 추적
+ * - SIGNED_IN 이벤트 감지 시 신규 유저인지 확인
+ * - created_at이 1분 이내면 신규 가입으로 간주
+ */
+function AuthStateManager() {
+  const trackedRef = useRef(false);
+
+  useEffect(() => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      async (event, session) => {
+        if (event === 'SIGNED_IN' && session?.user && !trackedRef.current) {
+          const createdAt = new Date(session.user.created_at);
+          const now = new Date();
+          const diffMs = now.getTime() - createdAt.getTime();
+
+          // 1분(60초) 이내에 생성된 유저면 신규 가입
+          if (diffMs < 60000) {
+            trackedRef.current = true;
+            const provider = session.user.app_metadata?.provider || 'email';
+            trackSignUp(provider);
+          }
+        }
+      }
+    );
+
+    return () => subscription.unsubscribe();
+  }, []);
+
   return null;
 }
 
@@ -54,6 +88,7 @@ export function Providers({ children }: ProvidersProps) {
     <QueryClientProvider client={queryClient}>
       <InAppBrowserRedirect />
       <ViewportHeightManager />
+      <AuthStateManager />
       {children}
       <Toaster />
       <CrispChat />

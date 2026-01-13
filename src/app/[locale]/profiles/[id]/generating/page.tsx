@@ -16,6 +16,7 @@ import {
   PIPELINE_STEPS,
 } from '@/components/analysis/PipelineProcessingScreen';
 import type { PipelineStep, StepStatus } from '@/lib/ai/types';
+import { trackCompleteAnalysis } from '@/lib/analytics';
 
 /** 폴링 간격 (ms) */
 const POLLING_INTERVAL = 3000;
@@ -178,6 +179,8 @@ export default function GeneratingPage({ params }: PageProps) {
 
           // completed 상태면 리포트 페이지로 이동
           if (data.status === 'completed' && data.redirectUrl) {
+            // GA4: 분석 완료 이벤트 (이미 완료된 리포트)
+            trackCompleteAnalysis(profileId, false);
             router.push(data.redirectUrl);
             return;
           }
@@ -224,6 +227,8 @@ export default function GeneratingPage({ params }: PageProps) {
       if (data.status === 'completed') {
         if (timerRef.current) clearInterval(timerRef.current);
         setError(null); // 에러 상태 초기화
+        // GA4: 분석 완료 이벤트
+        trackCompleteAnalysis(profileId, false);
         router.push(`/profiles/${profileId}/report`);
         return;
       }

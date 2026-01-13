@@ -31,6 +31,7 @@
     "@capacitor/core": "^8.0.0",
     "@capgo/native-purchases": "^8.0.10",
     "@google/generative-ai": "^0.24.1",
+    "@next/third-parties": "^16.1.1",
     "@portone/browser-sdk": "^0.1.2",
     "@radix-ui/react-alert-dialog": "^1.1.15",
     "@radix-ui/react-dialog": "^1.1.15",

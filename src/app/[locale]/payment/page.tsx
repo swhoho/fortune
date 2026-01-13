@@ -8,6 +8,7 @@
  */
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import { motion } from 'framer-motion';
 import * as PortOne from '@portone/browser-sdk/v2';
 import { Button } from '@/components/ui/button';
@@ -19,7 +20,7 @@ import {
   SERVICE_CREDITS,
   PORTONE_CONFIG,
   PORTONE_CHANNELS,
-  PAYMENT_METHOD_LABELS,
+  PAYMENT_METHOD_META,
   generatePaymentId,
   type CreditPackage,
   type PaymentMethod,
@@ -37,20 +38,21 @@ import { AppHeader, Footer } from '@/components/layout';
 /** 결제 수단 목록 (순서대로 표시) */
 const PAYMENT_METHODS: PaymentMethod[] = ['payapp_card', 'kakaopay'];
 
-/** Analysis Includes */
-const analysisIncludes = [
-  '평생 총운 분석',
-  '성격 및 기질 분석',
-  '오행 균형 분석',
-  '10년 대운 흐름',
-  '직업 적성 및 재물운',
-  '연애/결혼운',
-  '건강 및 수명',
-];
+/** Analysis Includes 키 목록 */
+const ANALYSIS_INCLUDE_KEYS = [
+  'lifetimeFortune',
+  'personality',
+  'fiveElements',
+  'tenYearLuck',
+  'careerWealth',
+  'loveMarriage',
+  'healthLongevity',
+] as const;
 
 export default function PaymentPage({ params: { locale } }: { params: { locale: string } }) {
   const router = useRouter();
   const { user } = useAuth();
+  const t = useTranslations('payment');
   const { focusArea, question } = useOnboardingStore();
   const [selectedPackage, setSelectedPackage] = useState<CreditPackage | null>(
     CREDIT_PACKAGES.find((p) => p.popular) || null
@@ -80,7 +82,7 @@ export default function PaymentPage({ params: { locale } }: { params: { locale: 
       const result = await response.json();
 
       if (!result.success) {
-        throw new Error(result.error || '결제 요청 생성에 실패했습니다');
+        throw new Error(result.error || t('errors.createFailed'));
       }
 
       // PayApp 결제 페이지로 리다이렉트
@@ -103,14 +105,14 @@ export default function PaymentPage({ params: { locale } }: { params: { locale: 
 
     // 환경변수 검증
     if (!storeId) {
-      setError('결제 설정 오류: Store ID가 설정되지 않았습니다.');
+      setError(t('errors.storeIdMissing'));
       setIsLoading(false);
       console.error('PORTONE_CONFIG.storeId is empty. Check NEXT_PUBLIC_PORTONE_STORE_ID env var.');
       return;
     }
 
     if (!channelKey) {
-      setError('결제 설정 오류: Channel Key가 설정되지 않았습니다.');
+      setError(t('errors.channelKeyMissing'));
       setIsLoading(false);
       console.error('Channel key is empty for method:', selectedMethod);
       return;
@@ -122,14 +124,14 @@ export default function PaymentPage({ params: { locale } }: { params: { locale: 
       user?.user_metadata?.full_name ||
       user?.user_metadata?.name ||
       user?.email?.split('@')[0] ||
-      '구매자';
+      'Customer';
 
     // PortOne SDK 결제 요청
     const response = await PortOne.requestPayment({
       storeId,
       channelKey,
       paymentId,
-      orderName: `${selectedPackage.credits}C 크레딧`,
+      orderName: `${selectedPackage.credits}C Credits`,
       totalAmount: selectedPackage.price,
       currency: 'CURRENCY_KRW',
       payMethod: selectedMethod === 'kakaopay' ? 'EASY_PAY' : 'CARD',
@@ -142,7 +144,7 @@ export default function PaymentPage({ params: { locale } }: { params: { locale: 
 
     // 결제 오류 확인
     if (response?.code) {
-      throw new Error(response.message || '결제가 취소되었습니다');
+      throw new Error(response.message || t('errors.cancelled'));
     }
 
     // 결제 성공 - 서버에서 검증
@@ -159,7 +161,7 @@ export default function PaymentPage({ params: { locale } }: { params: { locale: 
     const verifyResult = await verifyResponse.json();
 
     if (!verifyResult.success) {
-      throw new Error(verifyResult.error?.message || '결제 검증에 실패했습니다');
+      throw new Error(verifyResult.error?.message || t('errors.verifyFailed'));
     }
 
     // 성공 페이지로 이동
@@ -180,7 +182,7 @@ export default function PaymentPage({ params: { locale } }: { params: { locale: 
     try {
       // 로그인 확인
       if (!user?.email) {
-        setError('로그인이 필요합니다.');
+        setError(t('errors.loginRequired'));
         setIsLoading(false);
         return;
       }
@@ -195,16 +197,19 @@ export default function PaymentPage({ params: { locale } }: { params: { locale: 
       await handlePortOneCheckout();
     } catch (err) {
       console.error('Checkout error:', err);
-      setError(err instanceof Error ? err.message : '결제 중 오류가 발생했습니다');
+      setError(err instanceof Error ? err.message : t('errors.generic'));
     } finally {
       setIsLoading(false);
     }
   };
 
+  // 결제수단 라벨 가져오기
+  const getMethodLabel = (method: PaymentMethod) => t(`methods.${method}`);
+
   return (
     <div className="flex min-h-screen flex-col bg-[#0a0a0a]">
       {/* 헤더 */}
-      <AppHeader title="크레딧 충전" />
+      <AppHeader title={t('header.title')} />
 
       {/* 1. Hero Content */}
       <HeroSection currentLocale={locale} />
@@ -228,7 +233,7 @@ export default function PaymentPage({ params: { locale } }: { params: { locale: 
           >
             {/* 타이틀 */}
             <h2 className="mb-8 text-center font-serif text-3xl font-bold text-white">
-              Start Your Analysis
+              {t('startAnalysis')}
             </h2>
 
             <div className="grid gap-12 lg:grid-cols-2">
@@ -237,7 +242,7 @@ export default function PaymentPage({ params: { locale } }: { params: { locale: 
                 {focusArea ? (
                   <div className="h-full rounded-2xl border border-[#d4af37]/30 bg-[#1a1a1a]/80 p-8 backdrop-blur-sm">
                     <div className="mb-6 flex items-center justify-between">
-                      <h3 className="text-xl font-semibold text-white">전체 사주 분석</h3>
+                      <h3 className="text-xl font-semibold text-white">{t('fullAnalysis')}</h3>
                       <span className="rounded-full bg-[#d4af37]/10 px-4 py-1.5 text-sm font-bold text-[#d4af37]">
                         {requiredCredits} Credits
                       </span>
@@ -246,7 +251,7 @@ export default function PaymentPage({ params: { locale } }: { params: { locale: 
                     <div className="mb-8 rounded-xl bg-[#242424]/50 p-4">
                       <p className="flex items-center gap-2 text-sm text-gray-300">
                         <span className="text-[#d4af37]">●</span>
-                        집중 분석 영역:{' '}
+                        {t('focusAreaLabel')}:{' '}
                         <span className="font-semibold text-white">
                           {FocusAreaLabel[focusArea]}
                         </span>
@@ -261,15 +266,15 @@ export default function PaymentPage({ params: { locale } }: { params: { locale: 
 
                     <div className="space-y-4">
                       <p className="text-sm font-medium uppercase tracking-widest text-gray-400">
-                        Included in Report
+                        {t('includedInReport')}
                       </p>
                       <div className="space-y-3">
-                        {analysisIncludes.map((item) => (
-                          <div key={item} className="flex items-center gap-3 text-gray-300">
+                        {ANALYSIS_INCLUDE_KEYS.map((key) => (
+                          <div key={key} className="flex items-center gap-3 text-gray-300">
                             <div className="flex h-5 w-5 items-center justify-center rounded-full bg-[#d4af37]/20">
                               <span className="text-xs text-[#d4af37]">✓</span>
                             </div>
-                            <span>{item}</span>
+                            <span>{t(`analysisIncludes.${key}`)}</span>
                           </div>
                         ))}
                       </div>
@@ -299,13 +304,15 @@ export default function PaymentPage({ params: { locale } }: { params: { locale: 
                     >
                       {pkg.popular && (
                         <span className="absolute -top-3 right-4 rounded-full bg-[#d4af37] px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-black">
-                          Popular
+                          {t('labels.popular')}
                         </span>
                       )}
                       <div>
                         <p className="mb-1 text-2xl font-bold text-white">{pkg.credits}C</p>
                         {pkg.bonus && (
-                          <p className="text-xs font-medium text-[#d4af37]">+{pkg.bonus} Bonus</p>
+                          <p className="text-xs font-medium text-[#d4af37]">
+                            {t('labels.bonus', { amount: pkg.bonus })}
+                          </p>
                         )}
                       </div>
                       <div className="mt-4 border-t border-white/10 pt-3">
@@ -332,10 +339,13 @@ export default function PaymentPage({ params: { locale } }: { params: { locale: 
                   {/* 텍스트 */}
                   <div className="mx-4 flex-1">
                     <p className="text-sm font-medium text-white">
-                      커피 한 잔 가격으로 <span className="text-[#d4af37]">매일 운세분석</span> + <span className="text-[#d4af37]">50C</span>
+                      {t.rich('subscription.promo', {
+                        daily: () => <span className="text-[#d4af37]">{t('subscription.daily')}</span>,
+                        credits: () => <span className="text-[#d4af37]">{t('subscription.credits')}</span>,
+                      })}
                     </p>
                     <p className="mt-0.5 text-xs text-gray-400">
-                      개인화 조언 · 무제한 오늘의 운세
+                      {t('subscription.subtext')}
                     </p>
                   </div>
 
@@ -350,11 +360,11 @@ export default function PaymentPage({ params: { locale } }: { params: { locale: 
 
                 {/* 결제 수단 선택 */}
                 <div className="mb-6">
-                  <p className="mb-3 text-sm font-medium text-gray-400">결제 수단</p>
+                  <p className="mb-3 text-sm font-medium text-gray-400">{t('checkout.method')}</p>
                   <div className="grid grid-cols-2 gap-2">
                     {PAYMENT_METHODS.map((method) => {
-                      const label = PAYMENT_METHOD_LABELS[method];
-                      const isDisabled = label.disabled;
+                      const meta = PAYMENT_METHOD_META[method];
+                      const isDisabled = meta.disabled;
                       return (
                         <button
                           key={method}
@@ -368,11 +378,11 @@ export default function PaymentPage({ params: { locale } }: { params: { locale: 
                                 : 'border-[#333] bg-[#1a1a1a] text-gray-400 hover:border-[#444]'
                           }`}
                         >
-                          <span className="text-lg">{label.icon}</span>
-                          <span className="text-xs">{label.ko}</span>
+                          <span className="text-lg">{meta.icon}</span>
+                          <span className="text-xs">{getMethodLabel(method)}</span>
                           {isDisabled && (
                             <span className="absolute -top-2 right-1 rounded bg-gray-700 px-1.5 py-0.5 text-[10px] text-gray-400">
-                              준비중
+                              {t('checkout.preparing')}
                             </span>
                           )}
                         </button>
@@ -386,13 +396,13 @@ export default function PaymentPage({ params: { locale } }: { params: { locale: 
                   {selectedPackage ? (
                     <>
                       <div className="mb-4 flex items-center justify-between text-sm">
-                        <span className="text-gray-400">Total Credits</span>
+                        <span className="text-gray-400">{t('summary.totalCredits')}</span>
                         <span className="text-lg font-bold text-[#d4af37]">
                           {selectedPackage.credits + (selectedPackage.bonus || 0)} C
                         </span>
                       </div>
                       <div className="mb-6 flex items-center justify-between border-t border-white/10 pt-4">
-                        <span className="text-gray-300">Total Price</span>
+                        <span className="text-gray-300">{t('summary.totalPrice')}</span>
                         <span className="text-2xl font-bold text-white">
                           ₩{selectedPackage.price.toLocaleString()}
                         </span>
@@ -411,18 +421,18 @@ export default function PaymentPage({ params: { locale } }: { params: { locale: 
                         className="w-full bg-gradient-to-r from-[#d4af37] to-[#b08d2b] py-6 text-lg font-bold text-black hover:from-[#e5bd43] hover:to-[#c19a2e] disabled:opacity-50"
                       >
                         {isLoading
-                          ? '결제 진행 중...'
-                          : `${PAYMENT_METHOD_LABELS[selectedMethod].ko}로 결제`}
+                          ? t('checkout.processing')
+                          : t('checkout.payWith', { method: getMethodLabel(selectedMethod) })}
                       </Button>
                       <p className="mt-3 text-center text-xs text-gray-500">
                         {selectedMethod === 'payapp_card'
-                          ? 'PayApp 안전결제'
-                          : 'PortOne 안전결제 • 카카오페이'}
+                          ? t('security.payapp')
+                          : t('security.portone')}
                       </p>
                     </>
                   ) : (
                     <div className="py-4 text-center text-gray-500">
-                      Select a package to continue
+                      {t('summary.selectPackage')}
                     </div>
                   )}
                 </div>

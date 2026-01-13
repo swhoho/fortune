@@ -6,6 +6,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import type { ProfileResponse, ProfileListResponse, ProfileSingleResponse } from '@/types/profile';
 import type { CreateProfileInput, UpdateProfileInput } from '@/lib/validations/profile';
 import { handleApiError } from '@/lib/errors/handler';
+import { trackCreateProfile } from '@/lib/analytics';
 
 /** Query Keys */
 export const profileKeys = {
@@ -83,8 +84,10 @@ export function useCreateProfile() {
 
       return (await res.json()) as ProfileSingleResponse;
     },
-    onSuccess: () => {
+    onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: profileKeys.lists() });
+      // GA4: 프로필 생성 이벤트 (첫 프로필이면 is_first=true)
+      trackCreateProfile(data.data?.isPrimary ?? false);
     },
   });
 }

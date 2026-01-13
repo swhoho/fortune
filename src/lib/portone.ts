@@ -9,7 +9,6 @@
  */
 export interface CreditPackage {
   id: string;
-  name: string;
   credits: number;
   price: number; // KRW
   bonus?: number;
@@ -19,19 +18,16 @@ export interface CreditPackage {
 export const CREDIT_PACKAGES: CreditPackage[] = [
   {
     id: 'basic',
-    name: '베이직',
     credits: 30,
     price: 3000, // ₩3,000
   },
   {
     id: 'starter',
-    name: '스타터',
     credits: 50,
     price: 5000, // ₩5,000
   },
   {
     id: 'popular',
-    name: '인기',
     credits: 100,
     price: 10000, // ₩10,000
     bonus: 10,
@@ -39,7 +35,6 @@ export const CREDIT_PACKAGES: CreditPackage[] = [
   },
   {
     id: 'premium',
-    name: '프리미엄',
     credits: 200,
     price: 20000, // ₩20,000
     bonus: 30,
@@ -89,14 +84,15 @@ export const PORTONE_CHANNELS: Partial<Record<PaymentMethod, string>> = {
 };
 
 /**
- * 결제 수단 라벨 (UI 표시용)
+ * 결제 수단 메타데이터 (아이콘, 비활성화 여부)
+ * 라벨 텍스트는 locales/*.json의 payment.methods에서 관리
  */
-export const PAYMENT_METHOD_LABELS: Record<
+export const PAYMENT_METHOD_META: Record<
   PaymentMethod,
-  { ko: string; icon: string; disabled?: boolean }
+  { icon: string; disabled?: boolean }
 > = {
-  payapp_card: { ko: '신용카드', icon: '💳' },
-  kakaopay: { ko: '카카오페이', icon: '🟡', disabled: true },
+  payapp_card: { icon: '💳' },
+  kakaopay: { icon: '🟡', disabled: true },
 };
 
 /**

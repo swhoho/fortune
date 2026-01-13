@@ -12,6 +12,7 @@ import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { CREDIT_PACKAGES } from '@/lib/portone';
+import { trackPurchase } from '@/lib/analytics';
 
 type VerifyStatus = 'idle' | 'verifying' | 'success' | 'already_processed' | 'error';
 
@@ -26,6 +27,21 @@ function PaymentSuccessContent() {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const pollingRef = useRef<NodeJS.Timeout | null>(null);
   const pollingCountRef = useRef(0);
+  const trackedRef = useRef(false);
+
+  // GA4 purchase 이벤트 (결제 성공 시 1회만)
+  useEffect(() => {
+    if (verifyStatus === 'success' && !trackedRef.current && paymentId) {
+      trackedRef.current = true;
+      const selectedPackage = packageId ? CREDIT_PACKAGES.find((p) => p.id === packageId) : null;
+      trackPurchase(
+        paymentId,
+        selectedPackage?.price || 0,
+        'KRW',
+        selectedPackage ? [{ item_id: selectedPackage.id, item_name: `${selectedPackage.credits}C 크레딧` }] : undefined
+      );
+    }
+  }, [verifyStatus, paymentId, packageId]);
 
   // PayApp 결제 상태 확인 (폴링)
   const checkPayAppStatus = async (pid: string, pkgId: string): Promise<boolean> => {
