@@ -1202,16 +1202,16 @@ function InteractionDisplay({
         ) : (
           <p className="text-sm text-gray-400">
             {interpretation?.branchClashes?.emptyMessage ||
-              '지지 충이 없습니다. 감정적으로 부딪히는 일이 적어 평화롭게 소통할 수 있는 관계입니다.'}
+              t('interactionSections.branchClashes.empty', { defaultValue: '지지 충이 없습니다. 큰 갈등 없이 안정적인 관계가 가능합니다.' })}
           </p>
         )}
       </div>
 
       {/* 지지 형 (항상 표시) */}
       <div className="rounded-lg border border-orange-500/20 bg-orange-500/5 p-3">
-        <div className="mb-2 text-xs font-medium text-orange-400">지지 형 (地支刑, 3형)</div>
+        <div className="mb-2 text-xs font-medium text-orange-400">{t('interactionSections.branchPunishments.title', { defaultValue: '지지 형 (地支刑, 3형)' })}</div>
         <p className="mb-2 text-xs text-gray-500">
-          특정 지지들이 만나 형벌처럼 마찰을 일으키는 관계
+          {t('interactionSections.branchPunishments.description', { defaultValue: '특정 지지들이 만나 형벌처럼 마찰을 일으키는 관계' })}
         </p>
         {branchPunishments.length > 0 ? (
           <div className="space-y-2">
@@ -1236,16 +1236,16 @@ function InteractionDisplay({
         ) : (
           <p className="text-sm text-gray-400">
             {interpretation?.branchPunishments?.emptyMessage ||
-              '지지 형이 없습니다. 서로에게 날카롭게 상처 주는 기운이 없어 편안하게 지낼 수 있습니다.'}
+              t('interactionSections.branchPunishments.empty', { defaultValue: '지지 형이 없습니다. 상호 자극보다 부드러운 관계가 유지됩니다.' })}
           </p>
         )}
       </div>
 
       {/* 원진 (항상 표시) */}
       <div className="rounded-lg border border-purple-500/20 bg-purple-500/5 p-3">
-        <div className="mb-2 text-xs font-medium text-purple-400">원진 (元嗔, 원진)</div>
+        <div className="mb-2 text-xs font-medium text-purple-400">{t('interactionSections.wonjin.title', { defaultValue: '원진 (元嗔)' })}</div>
         <p className="mb-2 text-xs text-gray-500">
-          서로 밀어내는 기운으로 은근한 심리적 갈등을 유발하는 관계
+          {t('interactionSections.wonjin.description', { defaultValue: '서로 밀어내는 기운으로 은근한 심리적 갈등을 유발하는 관계' })}
         </p>
         {branchWonjin.length > 0 ? (
           <div className="space-y-2">
@@ -1274,7 +1274,7 @@ function InteractionDisplay({
         ) : (
           <p className="text-sm text-gray-400">
             {interpretation?.branchWonjin?.emptyMessage ||
-              '원진 관계가 없습니다. 마음속 깊은 곳에서 느껴지는 거리감 없이 자연스럽게 가까워질 수 있습니다.'}
+              t('interactionSections.wonjin.empty', { defaultValue: '원진 관계가 없습니다. 심리적 거리감 없이 자연스럽게 가까워질 수 있습니다.' })}
           </p>
         )}
       </div>
