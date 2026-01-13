@@ -8,3 +8,4 @@ export { PurchaseHistoryTable } from './PurchaseHistoryTable';
 export { CreditHistoryTable } from './CreditHistoryTable';
 export { AIUsageTable } from './AIUsageTable';
 export { CreditRewardDialog } from './CreditRewardDialog';
+export { SubscriptionGrantDialog } from './SubscriptionGrantDialog';

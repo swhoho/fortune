@@ -3,16 +3,17 @@
 /**
  * 유저 정보 카드 컴포넌트
  */
-import { User, Mail, Calendar, Coins, Gift } from 'lucide-react';
+import { User, Mail, Calendar, Coins, Gift, Crown } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import type { UserDetail } from '@/admin/api/user-detail';
 
 interface UserInfoCardProps {
   user: UserDetail;
   onReward: () => void;
+  onSubscription: () => void;
 }
 
-export function UserInfoCard({ user, onReward }: UserInfoCardProps) {
+export function UserInfoCard({ user, onReward, onSubscription }: UserInfoCardProps) {
   const formatDate = (dateString: string | null) => {
     if (!dateString) return '-';
     return new Date(dateString).toLocaleDateString('ko-KR', {
@@ -40,13 +41,23 @@ export function UserInfoCard({ user, onReward }: UserInfoCardProps) {
           </div>
         </div>
 
-        <Button
-          onClick={onReward}
-          className="bg-[#d4af37] text-white hover:bg-[#c19a2e]"
-        >
-          <Gift className="mr-2 h-4 w-4" />
-          크레딧 보상
-        </Button>
+        <div className="flex gap-2">
+          <Button
+            onClick={onSubscription}
+            variant="outline"
+            className="border-[#d4af37] text-[#d4af37] hover:bg-[#d4af37]/10"
+          >
+            <Crown className="mr-2 h-4 w-4" />
+            구독 부여
+          </Button>
+          <Button
+            onClick={onReward}
+            className="bg-[#d4af37] text-white hover:bg-[#c19a2e]"
+          >
+            <Gift className="mr-2 h-4 w-4" />
+            크레딧 보상
+          </Button>
+        </div>
       </div>
 
       {/* 상세 정보 그리드 */}

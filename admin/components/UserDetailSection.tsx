@@ -12,6 +12,7 @@ import { PurchaseHistoryTable } from './PurchaseHistoryTable';
 import { CreditHistoryTable } from './CreditHistoryTable';
 import { AIUsageTable } from './AIUsageTable';
 import { CreditRewardDialog } from './CreditRewardDialog';
+import { SubscriptionGrantDialog } from './SubscriptionGrantDialog';
 import type { AdminTab, UserDetailResponse } from '@/admin/api/user-detail';
 
 interface UserDetailSectionProps {
@@ -24,6 +25,7 @@ export function UserDetailSection({ userId }: UserDetailSectionProps) {
   const [data, setData] = useState<UserDetailResponse | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [isRewardOpen, setIsRewardOpen] = useState(false);
+  const [isSubscriptionOpen, setIsSubscriptionOpen] = useState(false);
 
   const fetchData = async () => {
     setIsLoading(true);
@@ -72,7 +74,11 @@ export function UserDetailSection({ userId }: UserDetailSectionProps) {
   return (
     <div className="space-y-6">
       {/* 유저 정보 카드 */}
-      <UserInfoCard user={data.user} onReward={() => setIsRewardOpen(true)} />
+      <UserInfoCard
+        user={data.user}
+        onReward={() => setIsRewardOpen(true)}
+        onSubscription={() => setIsSubscriptionOpen(true)}
+      />
 
       {/* 탭 */}
       <div className="rounded-2xl bg-[#1a1a1a] p-6">
@@ -163,6 +169,18 @@ export function UserDetailSection({ userId }: UserDetailSectionProps) {
         userEmail={data.user.email}
         open={isRewardOpen}
         onOpenChange={setIsRewardOpen}
+        onSuccess={handleRewardSuccess}
+      />
+
+      {/* 구독 부여 다이얼로그 */}
+      <SubscriptionGrantDialog
+        userId={userId}
+        userEmail={data.user.email}
+        currentSubscription={{
+          status: data.user.subscription_status,
+        }}
+        open={isSubscriptionOpen}
+        onOpenChange={setIsSubscriptionOpen}
         onSuccess={handleRewardSuccess}
       />
     </div>
