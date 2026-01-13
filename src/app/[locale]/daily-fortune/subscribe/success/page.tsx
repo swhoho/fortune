@@ -222,6 +222,30 @@ function SubscriptionSuccessContent({ locale }: { locale: string }) {
 
       // verify API 호출
       const verifyResult = await verifySubscription(rebillNo);
+
+      // verify 실패 시 구독 상태 API로 fallback (callback이 이미 처리했을 수 있음)
+      if (verifyResult.status === 'error') {
+        // eslint-disable-next-line no-console
+        console.log('[Success Page] verify 실패, 구독 상태 API로 fallback');
+        try {
+          const statusRes = await fetch('/api/subscription/status');
+          const statusData = await statusRes.json();
+
+          if (statusData.subscription?.status === 'active') {
+            setResult({
+              status: 'success',
+              rebillNo: statusData.subscription.payappRebillNo || rebillNo,
+              message: '구독이 활성화되었습니다.',
+              errorMessage: null,
+            });
+            sessionStorage.removeItem('payapp_rebill_no');
+            return;
+          }
+        } catch {
+          // fallback 실패 시 원래 에러 표시
+        }
+      }
+
       setResult(verifyResult);
 
       // pending 상태면 폴링 시작
