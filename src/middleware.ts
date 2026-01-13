@@ -39,6 +39,11 @@ const publicDynamicPatterns = [
 const intlMiddleware = createMiddleware(routing);
 
 export default async function middleware(request: NextRequest) {
+  // 0. /admin 경로는 i18n 처리 없이 직접 접근 허용
+  if (request.nextUrl.pathname.startsWith('/admin')) {
+    return updateSession(request);
+  }
+
   // 1. Supabase 세션 리프레시 (쿠키 갱신)
   // updateSession은 내부적으로 res.cookies.set을 수행한 response를 반환합니다.
   const response = await updateSession(request);
