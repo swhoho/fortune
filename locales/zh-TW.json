@@ -766,7 +766,8 @@
   "report": {
     "navigation": {
       "saju": "四柱",
-      "daewun": "大運"
+      "daewun": "大運",
+      "consultation": "諮詢"
     },
     "profile": {
       "title": "檔案資訊",
@@ -790,11 +791,20 @@
       "whatIs": "什麼是大運？",
       "description": "人生盛衰的指南針",
       "startDate": "開始時間：{date}",
+      "startTime": "開始時間",
+      "startDateFull": "{year}年{month}月{day}日左右起",
+      "startDateYear": "{year}年左右起",
       "scoreBasis": "評分依據",
-      "current": "目前大運",
+      "current": "目前",
       "scrollHint": "左右滑動查看",
       "previous": "上一個大運",
-      "next": "下一個大運"
+      "next": "下一個大運",
+      "explanation1": "大運是每5-10年週期變化的運勢，由於週期較長，人們往往不易察覺，但它對人生成敗有著重大影響。",
+      "explanation2": "順風比例高、逆風比例低意味著應該積極向前，活躍行動；順風比例低、逆風比例高則意味著應該退後準備，努力積累。",
+      "explanation3": "即使處於順風期，如果沒有準備，收穫也會有限；即使處於逆風期，如果一直準備和努力，也能獲得一定的成果，請牢記這一點。",
+      "pendingAnalysis": "大運詳細分析等待中... (生成新報告時將包含)",
+      "detailedAnalysis": "分期詳細分析 (即將推出)",
+      "detailedAnalysisDesc": "查看每個週期初期/中期/後期的詳細運勢"
     },
     "personality": {
       "title": "性格與特徵",
@@ -809,7 +819,10 @@
       "inner": "內在性格",
       "innerDesc": "熟悉後一起工作或旅行時才能了解的真實性格",
       "social": "人際關係",
-      "socialDesc": "家庭宮的環境狀況與人際關係風格"
+      "socialDesc": "家庭宮的環境狀況與人際關係風格",
+      "socialDetail": "人際關係詳情",
+      "strengths": "優勢",
+      "weaknesses": "劣勢"
     },
     "characteristics": {
       "title": "八字特徵",
@@ -838,6 +851,11 @@
       "traits": "戀愛特性",
       "traitsDesc": "我的戀愛適性分數",
       "score": "戀愛分數",
+      "style": "戀愛風格",
+      "idealPartner": "理想類型",
+      "compatibilityPoints": "緣分要點",
+      "warnings": "戀愛注意事項",
+      "advice": "戀愛建議",
       "traitLabels": {
         "consideration": "體貼",
         "humor": "幽默感",
@@ -849,16 +867,24 @@
         "financial": "理財能力",
         "reliability": "可靠性",
         "expression": "表達力"
-      },
-      "style": "戀愛風格",
-      "advice": "戀愛建議"
+      }
     },
     "aptitude": {
-      "title": "工作能力與適性",
-      "workAbility": "工作處理能力",
+      "title": "適性與職業",
+      "workAbility": "職場能力",
       "workAbilityDesc": "各階段能力比例",
       "traits": "特徵圖",
       "traitsDesc": "把握適性的10個特徵",
+      "keywordsLabel": "適性關鍵詞",
+      "keywords": "表示您適性的關鍵詞",
+      "talentDetail": "才能詳情",
+      "talentBasis": "各才能的依據和水準",
+      "talentUsage": "才能利用度",
+      "currentLevel": "目前水準",
+      "potential": "潛力",
+      "growthPotential": "成長空間",
+      "recommendedJobs": "推薦職業",
+      "avoidFields": "應避免的領域",
       "workLabels": {
         "planning": "策劃/研究",
         "perseverance": "毅力/精力",
@@ -877,11 +903,7 @@
         "adventure": "冒險心",
         "business": "商業感覺",
         "reliability": "可靠性"
-      },
-      "keywords": "表示您適性的關鍵詞",
-      "talentBasis": "各才能的依據和水準",
-      "currentLevel": "目前水準",
-      "potential": "潛力"
+      }
     },
     "empty": "沒有可顯示的特性",
     "noData": "無法載入分析資料",

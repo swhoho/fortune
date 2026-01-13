@@ -1,21 +1,13 @@
 'use client';
 
 import { motion } from 'framer-motion';
+import { useTranslations } from 'next-intl';
 
 /** 탭 타입 정의 */
 export type ReportTabType = 'saju' | 'daewun' | 'consultation';
 
-/** 탭 정의 */
-interface TabItem {
-  id: ReportTabType;
-  label: string;
-}
-
-const TABS: TabItem[] = [
-  { id: 'saju', label: '사주' },
-  { id: 'daewun', label: '대운' },
-  { id: 'consultation', label: '상담' },
-];
+/** 탭 ID 배열 */
+const TAB_IDS: ReportTabType[] = ['saju', 'daewun', 'consultation'];
 
 interface ReportNavigationProps {
   /** 현재 활성 탭 */
@@ -38,6 +30,8 @@ export function ReportNavigation({
   showDaewunIndicator = false,
   className = '',
 }: ReportNavigationProps) {
+  const t = useTranslations('report.navigation');
+
   return (
     <motion.nav
       initial={{ opacity: 0, y: -20 }}
@@ -47,13 +41,13 @@ export function ReportNavigation({
     >
       <div className="mx-auto max-w-4xl px-4">
         <div className="flex items-center justify-center gap-2 py-3">
-          {TABS.map((tab) => {
-            const isActive = activeTab === tab.id;
+          {TAB_IDS.map((tabId) => {
+            const isActive = activeTab === tabId;
 
             return (
               <motion.button
-                key={tab.id}
-                onClick={() => onTabChange(tab.id)}
+                key={tabId}
+                onClick={() => onTabChange(tabId)}
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
                 className={`relative px-6 py-2 text-base font-medium transition-all ${
@@ -61,9 +55,9 @@ export function ReportNavigation({
                 }`}
               >
                 <span className="relative">
-                  {tab.label}
+                  {t(tabId)}
                   {/* 대운 탭 미확인 표시 */}
-                  {tab.id === 'daewun' && showDaewunIndicator && !isActive && (
+                  {tabId === 'daewun' && showDaewunIndicator && !isActive && (
                     <motion.span
                       initial={{ scale: 0 }}
                       animate={{ scale: 1 }}

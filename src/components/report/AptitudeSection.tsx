@@ -1,6 +1,7 @@
 'use client';
 
 import { motion } from 'framer-motion';
+import { useTranslations } from 'next-intl';
 import { KeywordBadge } from './KeywordBadge';
 import { ContentCard } from './ContentCard';
 import { TraitGraph, type TraitItem } from './TraitGraph';
@@ -53,6 +54,7 @@ interface AptitudeSectionProps {
  * 8. 일자리 능력 - TraitGraph
  */
 export function AptitudeSection({ data, className = '' }: AptitudeSectionProps) {
+  const t = useTranslations('report.aptitude');
   const {
     keywords,
     mainTalent,
@@ -87,7 +89,7 @@ export function AptitudeSection({ data, className = '' }: AptitudeSectionProps) 
         transition={{ duration: 0.4 }}
         className="flex items-center gap-3"
       >
-        <h2 className="font-serif text-xl font-bold text-white">적성과 직업</h2>
+        <h2 className="font-serif text-xl font-bold text-white">{t('title')}</h2>
         <div className="h-px flex-1 bg-gradient-to-r from-[#d4af37]/50 to-transparent" />
       </motion.div>
 
@@ -101,9 +103,9 @@ export function AptitudeSection({ data, className = '' }: AptitudeSectionProps) 
         >
           <div className="mb-4 flex items-center gap-3">
             <span className="inline-flex items-center rounded-md bg-[#d4af37] px-2.5 py-1 text-xs font-bold text-[#1a1a1a]">
-              적성키워드
+              {t('keywordsLabel')}
             </span>
-            <span className="text-sm text-gray-400">당신의 적성을 표시하는 키워드</span>
+            <span className="text-sm text-gray-400">{t('keywords')}</span>
           </div>
           <div className="flex flex-wrap gap-2">
             {keywords.map((keyword, index) => (
@@ -132,9 +134,9 @@ export function AptitudeSection({ data, className = '' }: AptitudeSectionProps) 
         >
           <div className="mb-4 flex items-center gap-3">
             <span className="inline-flex items-center rounded-md bg-[#d4af37]/20 px-2.5 py-1 text-xs font-bold text-[#d4af37]">
-              재능 상세
+              {t('talentDetail')}
             </span>
-            <span className="text-sm text-gray-400">각 재능의 근거와 수준</span>
+            <span className="text-sm text-gray-400">{t('talentBasis')}</span>
           </div>
           <div className="space-y-4">
             {extended!.talents!.map((talent, idx) => (
@@ -187,14 +189,14 @@ export function AptitudeSection({ data, className = '' }: AptitudeSectionProps) 
         >
           <div className="mb-4 flex items-center gap-3">
             <span className="inline-flex items-center rounded-md bg-emerald-500/20 px-2.5 py-1 text-xs font-bold text-emerald-400">
-              재능 활용도
+              {t('talentUsage')}
             </span>
           </div>
           <div className="space-y-4">
             {/* 현재 수준 */}
             <div className="space-y-2">
               <div className="flex items-center justify-between">
-                <span className="text-sm text-gray-400">현재 수준</span>
+                <span className="text-sm text-gray-400">{t('currentLevel')}</span>
                 <span className="text-sm font-bold text-blue-400">
                   {extended!.talentUsage!.currentLevel}%
                 </span>
@@ -211,7 +213,7 @@ export function AptitudeSection({ data, className = '' }: AptitudeSectionProps) 
             {/* 잠재력 */}
             <div className="space-y-2">
               <div className="flex items-center justify-between">
-                <span className="text-sm text-gray-400">잠재력</span>
+                <span className="text-sm text-gray-400">{t('potential')}</span>
                 <span className="text-sm font-bold text-emerald-400">
                   {extended!.talentUsage!.potential}%
                 </span>
@@ -241,7 +243,7 @@ export function AptitudeSection({ data, className = '' }: AptitudeSectionProps) 
                 />
               </svg>
               <span className="text-sm text-gray-300">
-                성장 여력:{' '}
+                {t('growthPotential')}:{' '}
                 <span className="font-bold text-amber-400">
                   {extended!.talentUsage!.potential - extended!.talentUsage!.currentLevel}%
                 </span>
@@ -272,7 +274,7 @@ export function AptitudeSection({ data, className = '' }: AptitudeSectionProps) 
         >
           <div className="mb-4 flex items-center gap-3">
             <span className="inline-flex items-center rounded-md bg-[#d4af37]/20 px-2.5 py-1 text-xs font-bold text-[#d4af37]">
-              추천직종
+              {t('recommendedJobs')}
             </span>
           </div>
           {/* 적합도가 있는 경우 상세 표시 */}
@@ -340,7 +342,7 @@ export function AptitudeSection({ data, className = '' }: AptitudeSectionProps) 
                   d="M6 18L18 6M6 6l12 12"
                 />
               </svg>
-              피해야 할 분야
+              {t('avoidFields')}
             </span>
           </div>
           <div className="space-y-3">
@@ -396,8 +398,8 @@ export function AptitudeSection({ data, className = '' }: AptitudeSectionProps) 
       {/* 8. 일자리 능력 그래프 */}
       {jobAbilityTraits.length > 0 && (
         <TraitGraph
-          title="일자리 능력"
-          subtitle="각 단계별 능력 비율"
+          title={t('workAbility')}
+          subtitle={t('workAbilityDesc')}
           traits={jobAbilityTraits}
           threshold={50}
           showLegend={true}

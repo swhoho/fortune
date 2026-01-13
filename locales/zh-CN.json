@@ -259,10 +259,14 @@
   "payment": {
     "title": "支付",
     "subtitle": "充值积分开始分析",
+    "header": {
+      "title": "积分充值"
+    },
     "fullAnalysis": "四柱八字全面分析",
     "focusAreaLabel": "集中分析领域",
     "concernLabel": "问题",
     "includes": "包含内容",
+    "includedInReport": "报告包含内容",
     "analysisIncludes": {
       "lifetimeFortune": "终身运势分析",
       "personality": "性格分析",
@@ -272,7 +276,43 @@
       "loveMarriage": "爱情与婚姻运",
       "healthLongevity": "健康与寿命"
     },
+    "startAnalysis": "开始分析",
     "creditCharge": "积分充值",
+    "packages": {
+      "basic": "基础",
+      "starter": "入门",
+      "popular": "热门",
+      "premium": "高级"
+    },
+    "labels": {
+      "popular": "热门",
+      "bonus": "+{amount} 奖励"
+    },
+    "subscription": {
+      "promo": "一杯咖啡的价格：{daily} + {credits}",
+      "daily": "每日运势分析",
+      "credits": "50C",
+      "subtext": "个性化建议·无限今日运势"
+    },
+    "checkout": {
+      "method": "支付方式",
+      "processing": "支付处理中...",
+      "payWith": "使用{method}支付",
+      "preparing": "即将推出"
+    },
+    "methods": {
+      "payapp_card": "信用卡",
+      "kakaopay": "KakaoPay"
+    },
+    "summary": {
+      "totalCredits": "总积分",
+      "totalPrice": "总价格",
+      "selectPackage": "请选择套餐"
+    },
+    "security": {
+      "payapp": "PayApp安全支付",
+      "portone": "PortOne安全支付·KakaoPay"
+    },
     "popular": "热门",
     "bonus": "奖励",
     "currentCredits": "当前积分",
@@ -285,8 +325,41 @@
     "errors": {
       "sessionFailed": "支付会话创建失败",
       "noUrl": "未收到支付URL",
-      "generic": "支付过程中发生错误"
+      "generic": "支付过程中发生错误",
+      "loginRequired": "请先登录。",
+      "storeIdMissing": "支付配置错误：Store ID未设置。",
+      "channelKeyMissing": "支付配置错误：Channel Key未设置。",
+      "createFailed": "支付请求创建失败",
+      "cancelled": "支付已取消",
+      "verifyFailed": "支付验证失败"
     }
+  },
+  "paymentSuccess": {
+    "verifying": {
+      "title": "支付确认中...",
+      "subtitle": "请稍候。"
+    },
+    "error": {
+      "title": "支付确认失败",
+      "noInfo": "没有支付信息。",
+      "invalidPackage": "无效的套餐。",
+      "verifyFailed": "支付验证失败。",
+      "verifyError": "支付验证过程中发生错误。",
+      "paymentIdLabel": "支付ID（联系客服时需要）",
+      "contactSupport": "如果支付已完成，请通过我的页面联系客服。"
+    },
+    "success": {
+      "title": "支付完成！",
+      "charged": "已充值{credits}C积分。",
+      "chargedGeneric": "积分已充值。",
+      "canStart": "现在可以开始八字分析了。"
+    },
+    "cta": {
+      "home": "返回首页",
+      "profiles": "管理档案"
+    },
+    "paymentId": "支付ID",
+    "notice": "支付问题请通过我的页面联系客服"
   },
   "mypage": {
     "title": "我的页面",
@@ -766,7 +839,8 @@
   "report": {
     "navigation": {
       "saju": "四柱",
-      "daewun": "大运"
+      "daewun": "大运",
+      "consultation": "咨询"
     },
     "profile": {
       "title": "档案信息",
@@ -790,11 +864,20 @@
       "whatIs": "什么是大运？",
       "description": "人生盛衰的指南针",
       "startDate": "开始时间：{date}",
+      "startTime": "开始时间",
+      "startDateFull": "{year}年{month}月{day}日左右起",
+      "startDateYear": "{year}年左右起",
       "scoreBasis": "评分依据",
-      "current": "当前大运",
+      "current": "当前",
       "scrollHint": "左右滑动查看",
       "previous": "上一个大运",
-      "next": "下一个大运"
+      "next": "下一个大运",
+      "explanation1": "大运是每5-10年周期变化的运势，由于周期较长，人们往往不易察觉，但它对人生成败有着重大影响。",
+      "explanation2": "顺风比例高、逆风比例低意味着应该积极向前，活跃行动；顺风比例低、逆风比例高则意味着应该退后准备，努力积累。",
+      "explanation3": "即使处于顺风期，如果没有准备，收获也会有限；即使处于逆风期，如果一直准备和努力，也能获得一定的成果，请牢记这一点。",
+      "pendingAnalysis": "大运详细分析等待中... (生成新报告时将包含)",
+      "detailedAnalysis": "分期详细分析 (即将推出)",
+      "detailedAnalysisDesc": "查看每个周期初期/中期/后期的详细运势"
     },
     "personality": {
       "title": "性格与特征",
@@ -809,7 +892,10 @@
       "inner": "内在性格",
       "innerDesc": "熟悉后一起工作或旅行时才能了解的真实性格",
       "social": "人际关系",
-      "socialDesc": "家庭宫的环境状况与人际关系风格"
+      "socialDesc": "家庭宫的环境状况与人际关系风格",
+      "socialDetail": "人际关系详情",
+      "strengths": "优势",
+      "weaknesses": "劣势"
     },
     "characteristics": {
       "title": "八字特征",
@@ -838,6 +924,11 @@
       "traits": "恋爱特性",
       "traitsDesc": "我的恋爱适性分数",
       "score": "恋爱分数",
+      "style": "恋爱风格",
+      "idealPartner": "理想类型",
+      "compatibilityPoints": "缘分要点",
+      "warnings": "恋爱注意事项",
+      "advice": "恋爱建议",
       "traitLabels": {
         "consideration": "体贴",
         "humor": "幽默感",
@@ -849,16 +940,24 @@
         "financial": "理财能力",
         "reliability": "可靠性",
         "expression": "表达力"
-      },
-      "style": "恋爱风格",
-      "advice": "恋爱建议"
+      }
     },
     "aptitude": {
-      "title": "工作能力与适性",
-      "workAbility": "工作处理能力",
+      "title": "适性与职业",
+      "workAbility": "职场能力",
       "workAbilityDesc": "各阶段能力比例",
       "traits": "特征图",
       "traitsDesc": "把握适性的10个特征",
+      "keywordsLabel": "适性关键词",
+      "keywords": "表示您适性的关键词",
+      "talentDetail": "才能详情",
+      "talentBasis": "各才能的依据和水平",
+      "talentUsage": "才能利用度",
+      "currentLevel": "当前水平",
+      "potential": "潜力",
+      "growthPotential": "成长空间",
+      "recommendedJobs": "推荐职业",
+      "avoidFields": "应避免的领域",
       "workLabels": {
         "planning": "策划/研究",
         "perseverance": "毅力/精力",
@@ -877,11 +976,7 @@
         "adventure": "冒险心",
         "business": "商业感觉",
         "reliability": "可靠性"
-      },
-      "keywords": "表示您适性的关键词",
-      "talentBasis": "各才能的依据和水平",
-      "currentLevel": "当前水平",
-      "potential": "潜力"
+      }
     },
     "empty": "没有可显示的特性",
     "noData": "无法加载分析数据",

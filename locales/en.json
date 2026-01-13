@@ -274,10 +274,14 @@
   "payment": {
     "title": "Payment",
     "subtitle": "Recharge credits to start your analysis",
+    "header": {
+      "title": "Credit Packages"
+    },
     "fullAnalysis": "Full Destiny Analysis",
     "focusAreaLabel": "Focus Area",
     "concernLabel": "Concern",
     "includes": "Includes",
+    "includedInReport": "Included in Report",
     "analysisIncludes": {
       "lifetimeFortune": "Lifetime fortune analysis",
       "personality": "Personality analysis",
@@ -287,7 +291,43 @@
       "loveMarriage": "Love & marriage fortune",
       "healthLongevity": "Health & longevity"
     },
+    "startAnalysis": "Start Your Analysis",
     "creditCharge": "Credit Packages",
+    "packages": {
+      "basic": "Basic",
+      "starter": "Starter",
+      "popular": "Popular",
+      "premium": "Premium"
+    },
+    "labels": {
+      "popular": "Popular",
+      "bonus": "+{amount} Bonus"
+    },
+    "subscription": {
+      "promo": "For the price of a coffee: {daily} + {credits}",
+      "daily": "Daily Fortune",
+      "credits": "50C",
+      "subtext": "Personalized advice · Unlimited daily fortune"
+    },
+    "checkout": {
+      "method": "Payment Method",
+      "processing": "Processing payment...",
+      "payWith": "Pay with {method}",
+      "preparing": "Coming soon"
+    },
+    "methods": {
+      "payapp_card": "Credit Card",
+      "kakaopay": "KakaoPay"
+    },
+    "summary": {
+      "totalCredits": "Total Credits",
+      "totalPrice": "Total Price",
+      "selectPackage": "Select a package to continue"
+    },
+    "security": {
+      "payapp": "PayApp Secure Payment",
+      "portone": "PortOne Secure Payment · KakaoPay"
+    },
     "popular": "Popular",
     "bonus": "Bonus",
     "currentCredits": "Current Credits",
@@ -300,8 +340,41 @@
     "errors": {
       "sessionFailed": "Failed to create payment session",
       "noUrl": "Payment URL not received",
-      "generic": "An error occurred during payment"
+      "generic": "An error occurred during payment",
+      "loginRequired": "Please sign in to continue.",
+      "storeIdMissing": "Payment configuration error: Store ID not set.",
+      "channelKeyMissing": "Payment configuration error: Channel Key not set.",
+      "createFailed": "Failed to create payment request",
+      "cancelled": "Payment was cancelled",
+      "verifyFailed": "Payment verification failed"
     }
+  },
+  "paymentSuccess": {
+    "verifying": {
+      "title": "Verifying payment...",
+      "subtitle": "Please wait a moment."
+    },
+    "error": {
+      "title": "Payment Verification Failed",
+      "noInfo": "No payment information found.",
+      "invalidPackage": "Invalid package selected.",
+      "verifyFailed": "Payment verification failed.",
+      "verifyError": "An error occurred during verification.",
+      "paymentIdLabel": "Payment ID (needed for support)",
+      "contactSupport": "If your payment was completed, please contact support via My Page."
+    },
+    "success": {
+      "title": "Payment Complete!",
+      "charged": "{credits}C credits have been added.",
+      "chargedGeneric": "Credits have been added to your account.",
+      "canStart": "You can now start your destiny analysis."
+    },
+    "cta": {
+      "home": "Go to Home",
+      "profiles": "Manage Profiles"
+    },
+    "paymentId": "Payment ID",
+    "notice": "For payment inquiries, please contact support via My Page"
   },
   "mypage": {
     "title": "My Page",
@@ -783,7 +856,8 @@
     "noData": "Unable to load analysis data",
     "navigation": {
       "saju": "Four Pillars",
-      "daewun": "Luck Cycles"
+      "daewun": "Luck Cycles",
+      "consultation": "Consultation"
     },
     "profile": {
       "title": "Profile Information",
@@ -804,14 +878,23 @@
     "daewun": {
       "title": "Major Luck Cycles",
       "subtitle": "10-year fortune cycle",
-      "current": "Current Cycle",
+      "current": "Current",
       "scrollHint": "Scroll left and right",
       "previous": "Previous cycle",
       "next": "Next cycle",
       "whatIs": "What are Major Luck Cycles?",
       "description": "Your life's compass of rise and fall",
       "startDate": "Start: {date}",
-      "scoreBasis": "Score Basis"
+      "startTime": "Start Time",
+      "startDateFull": "From around {month}/{day}/{year}",
+      "startDateYear": "From around {year}",
+      "scoreBasis": "Score Basis",
+      "explanation1": "Major Luck Cycles change every 5-10 years. Due to their long duration, people often don't notice them, but they greatly influence life success.",
+      "explanation2": "A high favorable wind ratio and low headwind ratio means it's time to advance and be active. Conversely, high headwind and low favorable wind suggests a time to retreat and prepare.",
+      "explanation3": "Even during favorable times, without preparation the gains may be limited. Even during headwinds, consistent effort can yield meaningful results.",
+      "pendingAnalysis": "Detailed cycle analysis pending... (Will be included when generating new report)",
+      "detailedAnalysis": "Detailed Period Analysis (Coming Soon)",
+      "detailedAnalysisDesc": "Check detailed fortune for early/mid/late periods of each cycle"
     },
     "personality": {
       "title": "Personality & Traits",
@@ -826,7 +909,10 @@
       "inner": "Inner Personality",
       "innerDesc": "The true personality revealed after getting close",
       "social": "Social Style",
-      "socialDesc": "Family environment and interpersonal relationship style"
+      "socialDesc": "Family environment and interpersonal relationship style",
+      "socialDetail": "Social Style Details",
+      "strengths": "Strengths",
+      "weaknesses": "Weaknesses"
     },
     "characteristics": {
       "title": "Destiny Characteristics",
@@ -856,6 +942,9 @@
       "traitsDesc": "My romance aptitude score",
       "score": "Romance Score",
       "style": "Romance Style",
+      "idealPartner": "Ideal Partner",
+      "compatibilityPoints": "Compatibility Points",
+      "warnings": "Cautions",
       "advice": "Romance Advice",
       "traitLabels": {
         "consideration": "Consideration",
@@ -871,15 +960,21 @@
       }
     },
     "aptitude": {
-      "title": "Work Ability & Aptitude",
-      "workAbility": "Work Ability",
+      "title": "Aptitude & Career",
+      "workAbility": "Job Skills",
       "workAbilityDesc": "Ability ratio by stage",
       "traits": "Trait Graph",
       "traitsDesc": "10 traits to understand your aptitude",
+      "keywordsLabel": "Aptitude Keywords",
       "keywords": "Keywords for your aptitude",
+      "talentDetail": "Talent Details",
       "talentBasis": "Talent basis and levels",
+      "talentUsage": "Talent Utilization",
       "currentLevel": "Current Level",
       "potential": "Potential",
+      "growthPotential": "Growth Potential",
+      "recommendedJobs": "Recommended Jobs",
+      "avoidFields": "Fields to Avoid",
       "workLabels": {
         "planning": "Planning/Research",
         "perseverance": "Perseverance",

@@ -259,10 +259,14 @@
   "payment": {
     "title": "決済",
     "subtitle": "クレジットをチャージして分析を始めましょう",
+    "header": {
+      "title": "クレジットチャージ"
+    },
     "fullAnalysis": "四柱推命フル分析",
     "focusAreaLabel": "集中分析エリア",
     "concernLabel": "お悩み",
     "includes": "含まれる内容",
+    "includedInReport": "レポートに含まれる内容",
     "analysisIncludes": {
       "lifetimeFortune": "一生の総運分析",
       "personality": "性格・気質分析",
@@ -272,7 +276,43 @@
       "loveMarriage": "恋愛・結婚運",
       "healthLongevity": "健康・寿命"
     },
+    "startAnalysis": "分析を始める",
     "creditCharge": "クレジットチャージ",
+    "packages": {
+      "basic": "ベーシック",
+      "starter": "スターター",
+      "popular": "人気",
+      "premium": "プレミアム"
+    },
+    "labels": {
+      "popular": "人気",
+      "bonus": "+{amount} ボーナス"
+    },
+    "subscription": {
+      "promo": "コーヒー1杯の価格で {daily} + {credits}",
+      "daily": "毎日の運勢分析",
+      "credits": "50C",
+      "subtext": "パーソナライズされたアドバイス・無制限の今日の運勢"
+    },
+    "checkout": {
+      "method": "決済方法",
+      "processing": "決済処理中...",
+      "payWith": "{method}で決済",
+      "preparing": "準備中"
+    },
+    "methods": {
+      "payapp_card": "クレジットカード",
+      "kakaopay": "カカオペイ"
+    },
+    "summary": {
+      "totalCredits": "合計クレジット",
+      "totalPrice": "合計金額",
+      "selectPackage": "パッケージを選択してください"
+    },
+    "security": {
+      "payapp": "PayApp安全決済",
+      "portone": "PortOne安全決済・カカオペイ"
+    },
     "popular": "人気",
     "bonus": "ボーナス",
     "currentCredits": "現在のクレジット",
@@ -285,8 +325,41 @@
     "errors": {
       "sessionFailed": "決済セッションの作成に失敗しました",
       "noUrl": "決済URLを受け取れませんでした",
-      "generic": "決済中にエラーが発生しました"
+      "generic": "決済中にエラーが発生しました",
+      "loginRequired": "ログインが必要です。",
+      "storeIdMissing": "決済設定エラー：Store IDが設定されていません。",
+      "channelKeyMissing": "決済設定エラー：Channel Keyが設定されていません。",
+      "createFailed": "決済リクエストの作成に失敗しました",
+      "cancelled": "決済がキャンセルされました",
+      "verifyFailed": "決済の検証に失敗しました"
     }
+  },
+  "paymentSuccess": {
+    "verifying": {
+      "title": "決済確認中...",
+      "subtitle": "しばらくお待ちください。"
+    },
+    "error": {
+      "title": "決済確認に失敗しました",
+      "noInfo": "決済情報がありません。",
+      "invalidPackage": "無効なパッケージです。",
+      "verifyFailed": "決済の検証に失敗しました。",
+      "verifyError": "決済検証中にエラーが発生しました。",
+      "paymentIdLabel": "決済ID（サポートへのお問い合わせ時に必要）",
+      "contactSupport": "決済が完了した場合は、マイページのサポートまでご連絡ください。"
+    },
+    "success": {
+      "title": "決済が完了しました！",
+      "charged": "{credits}Cクレジットがチャージされました。",
+      "chargedGeneric": "クレジットがチャージされました。",
+      "canStart": "四柱推命分析を始められます。"
+    },
+    "cta": {
+      "home": "ホームへ移動",
+      "profiles": "プロフィール管理"
+    },
+    "paymentId": "決済ID",
+    "notice": "決済に関するお問い合わせはマイページのサポートまでご連絡ください"
   },
   "mypage": {
     "title": "マイページ",
@@ -766,7 +839,8 @@
   "report": {
     "navigation": {
       "saju": "四柱",
-      "daewun": "大運"
+      "daewun": "大運",
+      "consultation": "相談"
     },
     "profile": {
       "title": "プロフィール情報",
@@ -790,11 +864,20 @@
       "whatIs": "大運とは？",
       "description": "人生の盛衰を示す羅針盤",
       "startDate": "開始時期: {date}",
+      "startTime": "開始時期",
+      "startDateFull": "{year}年{month}月{day}日頃から",
+      "startDateYear": "{year}年頃から",
       "scoreBasis": "スコアの根拠",
-      "current": "現在の大運",
+      "current": "現在",
       "scrollHint": "左右にスクロールしてください",
       "previous": "前の大運",
-      "next": "次の大運"
+      "next": "次の大運",
+      "explanation1": "大運は長くて10年、短くて5年周期で変わる運で、周期が長いため人々はあまり気づきませんが、人生の成功に大きな影響を与えます。",
+      "explanation2": "順風の比率が高く逆風の比率が低ければ前進して活発に活動するべきで、順風の比率が低く逆風の比率が高ければ後退して準備に努めるべきです。",
+      "explanation3": "順風でも準備がなければ得るものは少なく、逆風でも準備と努力をしてきたなら最低限の成果を得られることを心に留めてください。",
+      "pendingAnalysis": "大運詳細分析待機中... (新しいレポート生成時に含まれます)",
+      "detailedAnalysis": "期間別詳細分析 (実装予定)",
+      "detailedAnalysisDesc": "初期/中期/後期の各期間の詳細運勢を確認してください"
     },
     "personality": {
       "title": "性格と特徴",
@@ -809,7 +892,10 @@
       "inner": "内面性格",
       "innerDesc": "親しくなって一緒に仕事や旅行をすると分かる本当の性格",
       "social": "対人関係",
-      "socialDesc": "家族宮の環境と対人関係スタイル"
+      "socialDesc": "家族宮の環境と対人関係スタイル",
+      "socialDetail": "対人関係の詳細",
+      "strengths": "強み",
+      "weaknesses": "弱み"
     },
     "characteristics": {
       "title": "四柱特徴",
@@ -838,6 +924,11 @@
       "traits": "恋愛特性",
       "traitsDesc": "恋愛適性スコア",
       "score": "恋愛点数",
+      "style": "恋愛スタイル",
+      "idealPartner": "理想のタイプ",
+      "compatibilityPoints": "相性ポイント",
+      "warnings": "恋愛注意事項",
+      "advice": "恋愛アドバイス",
       "traitLabels": {
         "consideration": "思いやり",
         "humor": "ユーモア",
@@ -849,16 +940,24 @@
         "financial": "財テク",
         "reliability": "信頼性",
         "expression": "表現力"
-      },
-      "style": "恋愛スタイル",
-      "advice": "恋愛アドバイス"
+      }
     },
     "aptitude": {
-      "title": "業務能力と適性",
-      "workAbility": "仕事処理能力",
+      "title": "適性と職業",
+      "workAbility": "仕事スキル",
       "workAbilityDesc": "各段階別の能力比率",
       "traits": "特徴グラフ",
       "traitsDesc": "適性を把握する特徴10個",
+      "keywordsLabel": "適性キーワード",
+      "keywords": "あなたの適性を表すキーワード",
+      "talentDetail": "才能の詳細",
+      "talentBasis": "各才能の根拠とレベル",
+      "talentUsage": "才能の活用度",
+      "currentLevel": "現在のレベル",
+      "potential": "潜在力",
+      "growthPotential": "成長余地",
+      "recommendedJobs": "推奨職種",
+      "avoidFields": "避けるべき分野",
       "workLabels": {
         "planning": "企画/研究",
         "perseverance": "根気/精力",
@@ -877,11 +976,7 @@
         "adventure": "冒険心",
         "business": "ビジネス感覚",
         "reliability": "信頼性"
-      },
-      "keywords": "あなたの適性を表すキーワード",
-      "talentBasis": "各才能の根拠とレベル",
-      "currentLevel": "現在のレベル",
-      "potential": "潜在力"
+      }
     },
     "empty": "表示する特性がありません",
     "noData": "分析データを読み込めません",

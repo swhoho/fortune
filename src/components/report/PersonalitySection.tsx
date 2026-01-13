@@ -1,6 +1,7 @@
 'use client';
 
 import { motion } from 'framer-motion';
+import { useTranslations } from 'next-intl';
 import { PersonalityCard } from './PersonalityCard';
 import type { WillpowerData, PersonalityCardData, PersonalityExtendedData } from '@/types/report';
 
@@ -36,6 +37,8 @@ export function PersonalitySection({
   onReanalyze,
   reanalyzingSection,
 }: PersonalitySectionProps) {
+  const t = useTranslations('report.personality');
+
   // 확장 데이터 존재 여부
   const hasExtendedSocialStyle = extended?.socialStyleDetail;
   const hasSocialType = hasExtendedSocialStyle && extended.socialStyleDetail?.type;
@@ -63,7 +66,7 @@ export function PersonalitySection({
         className="flex items-center gap-3"
       >
         <div className="h-6 w-1 rounded-full bg-[#d4af37]" />
-        <h2 className="font-serif text-xl font-bold text-white">성격과 특징</h2>
+        <h2 className="font-serif text-xl font-bold text-white">{t('title')}</h2>
       </motion.div>
 
       {/* 성격 카드 - 전체 너비 세로 배치 */}
@@ -109,7 +112,7 @@ export function PersonalitySection({
           >
             <div className="mb-4 flex items-center gap-3">
               <span className="inline-flex items-center rounded-md bg-[#d4af37]/20 px-2.5 py-1 text-xs font-bold text-[#d4af37]">
-                대인관계 상세
+                {t('socialDetail')}
               </span>
               {hasSocialType && (
                 <span className="rounded-full bg-[#2a2a2a] px-3 py-1 text-sm text-gray-300">
@@ -133,7 +136,7 @@ export function PersonalitySection({
                         clipRule="evenodd"
                       />
                     </svg>
-                    <span className="text-sm font-bold text-emerald-400">강점</span>
+                    <span className="text-sm font-bold text-emerald-400">{t('strengths')}</span>
                   </div>
                   <ul className="space-y-1.5">
                     {extended!.socialStyleDetail!.strengths!.map((strength, idx) => (
@@ -169,7 +172,7 @@ export function PersonalitySection({
                         d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
                       />
                     </svg>
-                    <span className="text-sm font-bold text-amber-400">약점</span>
+                    <span className="text-sm font-bold text-amber-400">{t('weaknesses')}</span>
                   </div>
                   <ul className="space-y-1.5">
                     {extended!.socialStyleDetail!.weaknesses!.map((weakness, idx) => (
