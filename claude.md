@@ -250,6 +250,7 @@ python/
 - **문서 우선**: 코드 작성 전 관련 문서 확인
 - **핵심만 기록**: 추후 개발에 꼭 필요한 내용만 문서화
 - **Python Code-First**: 타입은 Pydantic → OpenAPI → TS 자동 생성
+- **i18n 필수**: UI 텍스트 하드코딩 금지, 반드시 `messages/*.json` + `useTranslations()` 사용
 
 ## 리팩토링 v2.1 - 완료
 

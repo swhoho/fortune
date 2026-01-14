@@ -5,7 +5,7 @@
  */
 import { Capacitor } from '@capacitor/core';
 import { App } from '@capacitor/app';
-import { GoogleAuth } from '@codetrix-studio/capacitor-google-auth';
+import { SocialLogin } from '@capgo/capacitor-social-login';
 import { supabase } from '@/lib/supabase/client';
 
 /** 앱 URL Scheme */
@@ -19,20 +19,26 @@ export function isNativeApp(): boolean {
 }
 
 /**
- * GoogleAuth 플러그인 초기화
+ * SocialLogin 플러그인 초기화
  * - 앱 시작 시 한 번만 호출
  */
-export function initGoogleAuth() {
+export async function initGoogleAuth() {
   if (!isNativeApp()) return;
 
-  GoogleAuth.initialize({
-    clientId: '321465412948-a37e3qo8hq5t0c745gbmieoggam689t2.apps.googleusercontent.com',
-    scopes: ['profile', 'email'],
-    grantOfflineAccess: true,
-  });
+  try {
+    await SocialLogin.initialize({
+      google: {
+        webClientId: '321465412948-a37e3qo8hq5t0c745gbmieoggam689t2.apps.googleusercontent.com',
+        mode: 'online',
+      },
+    });
 
-  // eslint-disable-next-line no-console
-  console.log('[GoogleAuth] Initialized');
+    // eslint-disable-next-line no-console
+    console.log('[SocialLogin] Initialized');
+  } catch (error) {
+    // eslint-disable-next-line no-console
+    console.error('[SocialLogin] Initialization failed:', error);
+  }
 }
 
 /**
@@ -46,22 +52,32 @@ export async function signInWithGoogleNative(): Promise<{
 }> {
   try {
     // eslint-disable-next-line no-console
-    console.log('[GoogleAuth] Starting native sign-in...');
+    console.log('[SocialLogin] Starting native sign-in...');
 
     // 1. 네이티브 Google Sign-In
-    const result = await GoogleAuth.signIn();
+    const result = await SocialLogin.login({
+      provider: 'google',
+      options: {
+        scopes: ['email', 'profile'],
+      },
+    });
 
     // eslint-disable-next-line no-console
-    console.log('[GoogleAuth] Sign-in result:', result);
+    console.log('[SocialLogin] Sign-in result:', result);
 
-    const idToken = result.authentication?.idToken;
+    // Google은 online 모드로 초기화했으므로 responseType이 'online'이어야 함
+    if (result.result.responseType !== 'online') {
+      return { success: false, error: 'offline 모드 응답은 지원하지 않습니다' };
+    }
+
+    const idToken = result.result.idToken;
 
     if (!idToken) {
       return { success: false, error: 'ID 토큰을 받지 못했습니다' };
     }
 
     // eslint-disable-next-line no-console
-    console.log('[GoogleAuth] Got ID token, exchanging with Supabase...');
+    console.log('[SocialLogin] Got ID token, exchanging with Supabase...');
 
     // 2. Supabase에 ID 토큰으로 로그인
     const { error } = await supabase.auth.signInWithIdToken({
@@ -71,19 +87,23 @@ export async function signInWithGoogleNative(): Promise<{
 
     if (error) {
       // eslint-disable-next-line no-console
-      console.error('[GoogleAuth] Supabase signInWithIdToken failed:', error.message);
+      console.error('[SocialLogin] Supabase signInWithIdToken failed:', error.message);
       return { success: false, error: error.message };
     }
 
     // eslint-disable-next-line no-console
-    console.log('[GoogleAuth] Login successful!');
+    console.log('[SocialLogin] Login successful!');
     return { success: true };
   } catch (error) {
     // eslint-disable-next-line no-console
-    console.error('[GoogleAuth] Sign-in failed:', error);
+    console.error('[SocialLogin] Sign-in failed:', error);
 
     // 사용자가 취소한 경우
-    if (String(error).includes('canceled') || String(error).includes('cancelled')) {
+    if (
+      String(error).includes('canceled') ||
+      String(error).includes('cancelled') ||
+      String(error).includes('The user canceled')
+    ) {
       return { success: false, error: 'cancelled' };
     }
 
