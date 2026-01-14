@@ -105,7 +105,15 @@ export async function POST(request: NextRequest) {
 
       // 개발 환경에서는 Google API 없이도 테스트 가능
       if (process.env.NODE_ENV === 'production') {
-        return NextResponse.json({ error: 'Google Play 검증 실패' }, { status: 400 });
+        // 디버깅용: 상세 에러 메시지 반환
+        const errorMessage = googleError instanceof Error ? googleError.message : String(googleError);
+        console.error('[Google Play Verify] 상세 에러:', errorMessage);
+        return NextResponse.json({
+          error: 'Google Play 검증 실패',
+          details: errorMessage,
+          packageName: 'app.fortune30.saju',
+          productId,
+        }, { status: 400 });
       }
       console.warn('개발 환경: Google Play 검증 스킵');
     }
