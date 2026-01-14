@@ -194,7 +194,8 @@ export default function PaymentPage({ params: { locale } }: { params: { locale: 
       if (isNativeApp()) {
         const result = await purchaseGoogleCredits(selectedPackage, user.id);
         if (result.success) {
-          router.push(`/${locale}/payment/success?credits=${selectedPackage.credits + (selectedPackage.bonus || 0)}`);
+          // Capacitor WebView에서 router.push 대신 location.href 사용 (더 안정적)
+          window.location.href = `/${locale}/payment/success?credits=${selectedPackage.credits + (selectedPackage.bonus || 0)}`;
         } else {
           setError(result.error || t('errors.generic'));
         }
