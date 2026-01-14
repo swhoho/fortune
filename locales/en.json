@@ -158,10 +158,22 @@
         }
       },
       "timeline": {
-        "2026": { "event": "Full Analysis", "icon": "🎯" },
-        "2027": { "event": "New Year Fortune", "icon": "🌟" },
-        "2028": { "event": "Career Consult", "icon": "💼" },
-        "2029": { "event": "Marriage Match", "icon": "💕" }
+        "2026": {
+          "event": "Full Analysis",
+          "icon": "🎯"
+        },
+        "2027": {
+          "event": "New Year Fortune",
+          "icon": "🌟"
+        },
+        "2028": {
+          "event": "Career Consult",
+          "icon": "💼"
+        },
+        "2029": {
+          "event": "Marriage Match",
+          "icon": "💕"
+        }
       },
       "startNow": {
         "title": "Start your analysis now",
@@ -562,30 +574,96 @@
       "water": "Water"
     },
     "stems": {
-      "甲": { "name": "Jia Wood", "meaning": "Energy of a great tree. Symbolizes beginnings, growth, and progressive energy." },
-      "乙": { "name": "Yi Wood", "meaning": "Energy of grass and vines. Symbolizes flexible adaptability and delicacy." },
-      "丙": { "name": "Bing Fire", "meaning": "Energy of the sun. Symbolizes bright passion and vitality." },
-      "丁": { "name": "Ding Fire", "meaning": "Energy of candlelight. Symbolizes focus and inner warmth." },
-      "戊": { "name": "Wu Earth", "meaning": "Energy of mountains. Symbolizes stability, trust, and solidity." },
-      "己": { "name": "Ji Earth", "meaning": "Energy of farmland. Symbolizes inclusiveness and consideration." },
-      "庚": { "name": "Geng Metal", "meaning": "Energy of rock and iron. Symbolizes strong will and decisiveness." },
-      "辛": { "name": "Xin Metal", "meaning": "Energy of jewels. Symbolizes refinement and sharp insight." },
-      "壬": { "name": "Ren Water", "meaning": "Energy of the ocean. Symbolizes broad tolerance and wisdom." },
-      "癸": { "name": "Gui Water", "meaning": "Energy of dew. Symbolizes delicate sensitivity and adaptability." }
+      "甲": {
+        "name": "Jia Wood",
+        "meaning": "Energy of a great tree. Symbolizes beginnings, growth, and progressive energy."
+      },
+      "乙": {
+        "name": "Yi Wood",
+        "meaning": "Energy of grass and vines. Symbolizes flexible adaptability and delicacy."
+      },
+      "丙": {
+        "name": "Bing Fire",
+        "meaning": "Energy of the sun. Symbolizes bright passion and vitality."
+      },
+      "丁": {
+        "name": "Ding Fire",
+        "meaning": "Energy of candlelight. Symbolizes focus and inner warmth."
+      },
+      "戊": {
+        "name": "Wu Earth",
+        "meaning": "Energy of mountains. Symbolizes stability, trust, and solidity."
+      },
+      "己": {
+        "name": "Ji Earth",
+        "meaning": "Energy of farmland. Symbolizes inclusiveness and consideration."
+      },
+      "庚": {
+        "name": "Geng Metal",
+        "meaning": "Energy of rock and iron. Symbolizes strong will and decisiveness."
+      },
+      "辛": {
+        "name": "Xin Metal",
+        "meaning": "Energy of jewels. Symbolizes refinement and sharp insight."
+      },
+      "壬": {
+        "name": "Ren Water",
+        "meaning": "Energy of the ocean. Symbolizes broad tolerance and wisdom."
+      },
+      "癸": {
+        "name": "Gui Water",
+        "meaning": "Energy of dew. Symbolizes delicate sensitivity and adaptability."
+      }
     },
     "branches": {
-      "子": { "name": "Zi Water", "meaning": "Energy of new beginnings. A time of opportunity and possibility." },
-      "丑": { "name": "Chou Earth", "meaning": "Time of savings and accumulation. Good for strengthening foundations." },
-      "寅": { "name": "Yin Wood", "meaning": "Time of active movement. Favorable for challenges and expansion." },
-      "卯": { "name": "Mao Wood", "meaning": "Time of growth and development. Good for connections and cooperation." },
-      "辰": { "name": "Chen Earth", "meaning": "Turning point of change. Facing a new phase." },
-      "巳": { "name": "Si Fire", "meaning": "Fruition of wisdom and planning. Favorable for intellectual work." },
-      "午": { "name": "Wu Fire", "meaning": "Peak period. Overflowing with passion and vitality." },
-      "未": { "name": "Wei Earth", "meaning": "Time of maturity and stability. Good for achieving results." },
-      "申": { "name": "Shen Metal", "meaning": "Time of change and new beginnings. Decisions are needed." },
-      "酉": { "name": "You Metal", "meaning": "Time of harvest and fruition. Receiving rewards for efforts." },
-      "戌": { "name": "Xu Earth", "meaning": "Time of completion and organization. Closing one chapter." },
-      "亥": { "name": "Hai Water", "meaning": "Time of rest and recharging. Preparing for the next phase." }
+      "子": {
+        "name": "Zi Water",
+        "meaning": "Energy of new beginnings. A time of opportunity and possibility."
+      },
+      "丑": {
+        "name": "Chou Earth",
+        "meaning": "Time of savings and accumulation. Good for strengthening foundations."
+      },
+      "寅": {
+        "name": "Yin Wood",
+        "meaning": "Time of active movement. Favorable for challenges and expansion."
+      },
+      "卯": {
+        "name": "Mao Wood",
+        "meaning": "Time of growth and development. Good for connections and cooperation."
+      },
+      "辰": {
+        "name": "Chen Earth",
+        "meaning": "Turning point of change. Facing a new phase."
+      },
+      "巳": {
+        "name": "Si Fire",
+        "meaning": "Fruition of wisdom and planning. Favorable for intellectual work."
+      },
+      "午": {
+        "name": "Wu Fire",
+        "meaning": "Peak period. Overflowing with passion and vitality."
+      },
+      "未": {
+        "name": "Wei Earth",
+        "meaning": "Time of maturity and stability. Good for achieving results."
+      },
+      "申": {
+        "name": "Shen Metal",
+        "meaning": "Time of change and new beginnings. Decisions are needed."
+      },
+      "酉": {
+        "name": "You Metal",
+        "meaning": "Time of harvest and fruition. Receiving rewards for efforts."
+      },
+      "戌": {
+        "name": "Xu Earth",
+        "meaning": "Time of completion and organization. Closing one chapter."
+      },
+      "亥": {
+        "name": "Hai Water",
+        "meaning": "Time of rest and recharging. Preparing for the next phase."
+      }
     },
     "animals": {
       "monkey": "Monkey",
@@ -855,9 +933,12 @@
     "empty": "No traits to display",
     "noData": "Unable to load analysis data",
     "navigation": {
-      "saju": "Four Pillars",
-      "daewun": "Luck Cycles",
-      "consultation": "Consultation"
+      "saju": "Chart",
+      "personality": "Personality",
+      "characteristics": "Traits",
+      "aptitude": "Aptitude",
+      "wealth": "Wealth",
+      "romance": "Romance"
     },
     "profile": {
       "title": "Profile Information",
@@ -994,14 +1075,6 @@
         "business": "Business Sense",
         "reliability": "Reliability"
       }
-    },
-    "navigation": {
-      "saju": "Chart",
-      "personality": "Personality",
-      "characteristics": "Traits",
-      "aptitude": "Aptitude",
-      "wealth": "Wealth",
-      "romance": "Romance"
     },
     "actions": {
       "exportPdf": "Export PDF",
@@ -1542,7 +1615,8 @@
       "timeout": "Fortune generation timed out",
       "trialFailed": "Failed to start free trial",
       "generic": "An error occurred"
-    }
+    },
+    "retry": "Retry"
   },
   "errors": {
     "AUTH_UNAUTHORIZED": "Please sign in to continue",
