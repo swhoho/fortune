@@ -5,7 +5,7 @@
  */
 import { Capacitor } from '@capacitor/core';
 import { NativePurchases, PURCHASE_TYPE } from '@capgo/native-purchases';
-import type { CreditPackage } from './stripe';
+import type { CreditPackage } from './portone';
 
 /**
  * Google Play 상품 ID 매핑 (일회성 구매)
