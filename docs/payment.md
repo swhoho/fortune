@@ -6,7 +6,7 @@
 **Last Updated**: 2026-01-14
 **현재 사용**: PayApp (신용카드1)
 **구독**: PayApp 정기결제 (실결제 연동)
-**Android 앱**: Google Play Billing (준비중)
+**Android 앱**: Google Play Billing (설정 완료)
 
 ---
 
@@ -16,10 +16,10 @@
 |------|------|
 | **신용카드** | PayApp (실결제 연동) |
 | **카카오페이** | 준비중 (PortOne) |
-| **Google Play (Android)** | 코드 준비 완료 (Play Console 설정 필요) |
+| **Google Play (Android)** | ✅ 설정 완료 (크레딧 4개 + 구독 1개) |
 
 > PayApp으로 신용카드 결제 실연동 완료. 카카오페이는 추후 연동 예정.
-> Android 앱용 Google Play Billing 코드 준비 완료.
+> Android 앱용 Google Play Billing 설정 완료 (Play Console 상품 등록, 서비스 계정 연결).
 
 ---
 
@@ -336,7 +336,7 @@ Vercel Cron으로 매일 자정(UTC 00:00 = KST 09:00) 실행됩니다.
 
 ---
 
-## 8. Google Play Billing (Android 앱 - 준비중)
+## 8. Google Play Billing (Android 앱 - 설정 완료)
 
 > Android 앱에서 Google Play 결제를 통한 크레딧 구매 및 구독 시스템
 
@@ -344,9 +344,11 @@ Vercel Cron으로 매일 자정(UTC 00:00 = KST 09:00) 실행됩니다.
 
 | 항목 | 상태 |
 |------|------|
-| **크레딧 구매 (일회성)** | 코드 준비 완료 |
-| **구독 (정기결제)** | 코드 준비 완료 |
-| **Play Console 설정** | 미완료 |
+| **크레딧 구매 (일회성)** | ✅ 완료 |
+| **구독 (정기결제)** | ✅ 완료 |
+| **Play Console 상품 등록** | ✅ 완료 (4개 크레딧 + 1개 구독) |
+| **서비스 계정 연결** | ✅ 완료 |
+| **Vercel 환경변수** | ✅ 완료 |
 
 ### 8.2 환경변수
 
@@ -774,7 +776,7 @@ credit_transactions에 새 비용으로 차감 기록
 
 | 버전 | 날짜 | 변경 내용 |
 |------|------|----------|
-| 3.5.0 | 2026-01-14 | 패키지명 수정 (`app.fortune30.saju`), Google Play 구독 문서 상세화 |
+| 3.5.0 | 2026-01-14 | Google Play Billing 설정 완료 (Play Console 상품등록, 서비스 계정 연결, Vercel 환경변수), 패키지명 수정 (`app.fortune30.saju`) |
 | 3.4.0 | 2026-01-13 | 웹 구독 가격 변경 (₩3,900 → ₩2,900), Google Play는 ₩3,900 유지 |
 | 3.3.0 | 2026-01-13 | 가격 변경 가이드 추가 (구독/크레딧 패키지/서비스 비용), 체크리스트 템플릿 |
 | 3.2.0 | 2026-01-12 | Google Play Billing 준비 (크레딧 구매 + 구독), 문서화 |
