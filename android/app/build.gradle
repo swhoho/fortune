@@ -3,12 +3,19 @@ apply plugin: 'com.android.application'
 android {
     namespace = "app.fortune30.saju"
     compileSdk = rootProject.ext.compileSdkVersion
+
+    // Java 17 호환성 설정 (Capacitor 플러그인 Java 21 요구사항 오버라이드)
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+
     defaultConfig {
         applicationId "app.fortune30.saju"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 4
-        versionName "1.3.0"
+        versionCode 5
+        versionName "1.4.0"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         aaptOptions {
              // Files and dirs to omit from the packaged assets dir, modified to accommodate modern web apps.

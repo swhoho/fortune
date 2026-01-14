@@ -22,6 +22,18 @@ allprojects {
         google()
         mavenCentral()
     }
+
+    // 모든 서브프로젝트에 Java 17 적용 (Java 21 미설치 환경 대응)
+    afterEvaluate { project ->
+        if (project.hasProperty('android')) {
+            project.android {
+                compileOptions {
+                    sourceCompatibility JavaVersion.VERSION_17
+                    targetCompatibility JavaVersion.VERSION_17
+                }
+            }
+        }
+    }
 }
 
 task clean(type: Delete) {

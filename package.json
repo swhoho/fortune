@@ -32,6 +32,7 @@
     "@capacitor/cli": "^8.0.0",
     "@capacitor/core": "^8.0.0",
     "@capgo/native-purchases": "^8.0.10",
+    "@codetrix-studio/capacitor-google-auth": "^3.4.0-rc.4",
     "@google/generative-ai": "^0.24.1",
     "@next/third-parties": "^16.1.1",
     "@portone/browser-sdk": "^0.1.2",

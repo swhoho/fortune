@@ -5,7 +5,7 @@ import { supabase } from '@/lib/supabase/client';
 import { Loader2 } from 'lucide-react';
 import { useSearchParams } from 'next/navigation';
 import { isKakaoTalkBrowser, openInExternalBrowser } from '@/lib/browser-detect';
-import { isNativeApp, NATIVE_OAUTH_CALLBACK, openOAuthBrowser } from '@/lib/capacitor-auth';
+import { isNativeApp, signInWithGoogleNative } from '@/lib/capacitor-auth';
 
 interface GoogleSignInButtonProps {
   text?: string;
@@ -37,32 +37,26 @@ function GoogleSignInButtonInner({
 
     try {
       if (isNativeApp()) {
-        // Capacitor 앱: skipBrowserRedirect + Browser.open() 사용
-        // PKCE code_verifier가 WebView에 유지되어야 하므로 인앱 브라우저 필수
-        const { data, error } = await supabase.auth.signInWithOAuth({
-          provider: 'google',
-          options: {
-            redirectTo: `${NATIVE_OAUTH_CALLBACK}?next=${encodeURIComponent(next)}`,
-            skipBrowserRedirect: true, // 자동 redirect 방지
-            queryParams: {
-              access_type: 'offline',
-              prompt: 'consent',
-            },
-          },
-        });
+        // Capacitor 앱: 네이티브 Google Sign-In 사용
+        // - 외부 브라우저 없이 네이티브 UI 표시
+        // - ID 토큰으로 Supabase 로그인
+        const result = await signInWithGoogleNative();
 
-        if (error) {
-          console.error('Google login error:', error);
-          setIsLoading(false);
-          return;
-        }
-
-        if (data?.url) {
-          // 인앱 브라우저(Chrome Custom Tab)로 열기
-          await openOAuthBrowser(data.url);
+        if (result.success) {
+          // eslint-disable-next-line no-console
+          console.log('[GoogleSignIn] Native login successful, redirecting to:', next);
+          window.location.href = next;
+        } else if (result.error === 'cancelled') {
+          // 사용자가 취소한 경우 - 아무것도 하지 않음
+          // eslint-disable-next-line no-console
+          console.log('[GoogleSignIn] User cancelled login');
+        } else {
+          // eslint-disable-next-line no-console
+          console.error('[GoogleSignIn] Native login failed:', result.error);
+          // TODO: 에러 토스트 표시
         }
       } else {
-        // 웹: 기존 방식 유지
+        // 웹: 기존 OAuth 방식 유지
         const { error } = await supabase.auth.signInWithOAuth({
           provider: 'google',
           options: {
@@ -76,11 +70,11 @@ function GoogleSignInButtonInner({
 
         if (error) {
           console.error('Google login error:', error);
-          setIsLoading(false);
         }
       }
     } catch (error) {
       console.error('Google login exception:', error);
+    } finally {
       setIsLoading(false);
     }
   };

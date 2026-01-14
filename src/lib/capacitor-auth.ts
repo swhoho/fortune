@@ -1,18 +1,15 @@
 /**
- * Capacitor 앱 OAuth 딥링크 처리
- * - 앱에서 OAuth 로그인 후 딥링크로 돌아올 때 세션 교환
- * - @capacitor/browser로 인앱 브라우저 사용 (PKCE 호환)
+ * Capacitor 앱 인증 및 딥링크 처리
+ * - 네이티브 Google Sign-In (외부 브라우저 없이)
+ * - 딥링크 핸들러 (결제 등)
  */
 import { Capacitor } from '@capacitor/core';
 import { App } from '@capacitor/app';
-import { Browser } from '@capacitor/browser';
+import { GoogleAuth } from '@codetrix-studio/capacitor-google-auth';
 import { supabase } from '@/lib/supabase/client';
 
 /** 앱 URL Scheme */
 export const APP_URL_SCHEME = 'app.fortune30.saju';
-
-/** OAuth 콜백 URL (Capacitor 앱용) */
-export const NATIVE_OAUTH_CALLBACK = `${APP_URL_SCHEME}://auth/callback`;
 
 /**
  * Capacitor 네이티브 앱 여부 확인
@@ -22,18 +19,82 @@ export function isNativeApp(): boolean {
 }
 
 /**
- * OAuth용 인앱 브라우저 열기
- * - Chrome Custom Tab 사용 (Android)
- * - PKCE code_verifier가 WebView와 공유됨
+ * GoogleAuth 플러그인 초기화
+ * - 앱 시작 시 한 번만 호출
  */
-export async function openOAuthBrowser(url: string): Promise<void> {
-  await Browser.open({ url });
+export function initGoogleAuth() {
+  if (!isNativeApp()) return;
+
+  GoogleAuth.initialize({
+    clientId: '321465412948-a37e3qo8hq5t0c745gbmieoggam689t2.apps.googleusercontent.com',
+    scopes: ['profile', 'email'],
+    grantOfflineAccess: true,
+  });
+
+  // eslint-disable-next-line no-console
+  console.log('[GoogleAuth] Initialized');
+}
+
+/**
+ * 네이티브 Google Sign-In (Capacitor 앱 전용)
+ * - 외부 브라우저 없이 네이티브 UI 사용
+ * - ID 토큰으로 Supabase 로그인
+ */
+export async function signInWithGoogleNative(): Promise<{
+  success: boolean;
+  error?: string;
+}> {
+  try {
+    // eslint-disable-next-line no-console
+    console.log('[GoogleAuth] Starting native sign-in...');
+
+    // 1. 네이티브 Google Sign-In
+    const result = await GoogleAuth.signIn();
+
+    // eslint-disable-next-line no-console
+    console.log('[GoogleAuth] Sign-in result:', result);
+
+    const idToken = result.authentication?.idToken;
+
+    if (!idToken) {
+      return { success: false, error: 'ID 토큰을 받지 못했습니다' };
+    }
+
+    // eslint-disable-next-line no-console
+    console.log('[GoogleAuth] Got ID token, exchanging with Supabase...');
+
+    // 2. Supabase에 ID 토큰으로 로그인
+    const { error } = await supabase.auth.signInWithIdToken({
+      provider: 'google',
+      token: idToken,
+    });
+
+    if (error) {
+      // eslint-disable-next-line no-console
+      console.error('[GoogleAuth] Supabase signInWithIdToken failed:', error.message);
+      return { success: false, error: error.message };
+    }
+
+    // eslint-disable-next-line no-console
+    console.log('[GoogleAuth] Login successful!');
+    return { success: true };
+  } catch (error) {
+    // eslint-disable-next-line no-console
+    console.error('[GoogleAuth] Sign-in failed:', error);
+
+    // 사용자가 취소한 경우
+    if (String(error).includes('canceled') || String(error).includes('cancelled')) {
+      return { success: false, error: 'cancelled' };
+    }
+
+    return { success: false, error: String(error) };
+  }
 }
 
 /**
  * 딥링크 핸들러 설정
  * - 앱 시작 시 한 번만 호출
- * - OAuth 콜백 URL을 감지하여 세션 교환
+ * - 결제 완료 등 앱으로 돌아올 때 처리
  */
 export function setupDeepLinkHandler() {
   // 네이티브 앱이 아니면 무시
@@ -43,37 +104,19 @@ export function setupDeepLinkHandler() {
     // eslint-disable-next-line no-console
     console.log('[Capacitor] Deep link received:', url);
 
-    // OAuth 콜백 URL 감지: app.fortune30.saju://auth/callback?code=xxx
-    if (url.includes('auth') && url.includes('code=')) {
-      try {
-        // 인앱 브라우저 닫기 (중요!)
-        await Browser.close();
+    // URL 파싱 (커스텀 스킴을 https로 변환하여 URL 객체 생성)
+    const urlObj = new URL(url.replace(`${APP_URL_SCHEME}://`, 'https://placeholder/'));
+    const path = urlObj.pathname;
 
-        // URL 파싱 (커스텀 스킴을 https로 변환하여 URL 객체 생성)
-        const urlObj = new URL(url.replace(`${APP_URL_SCHEME}://`, 'https://placeholder/'));
-        const code = urlObj.searchParams.get('code');
-        const next = urlObj.searchParams.get('next') || '/home';
+    // 결제 완료 딥링크 처리 (예: app.fortune30.saju://payment/success)
+    if (path.includes('payment')) {
+      const status = urlObj.searchParams.get('status');
+      const next = urlObj.searchParams.get('next') || '/home';
 
-        if (code) {
-          // eslint-disable-next-line no-console
-          console.log('[Capacitor] Exchanging OAuth code for session...');
-
-          const { error } = await supabase.auth.exchangeCodeForSession(code);
-
-          if (error) {
-            // eslint-disable-next-line no-console
-            console.error('[Capacitor] Session exchange failed:', error.message);
-            window.location.href = '/auth/error';
-          } else {
-            // eslint-disable-next-line no-console
-            console.log('[Capacitor] Session exchange successful, redirecting to:', next);
-            window.location.href = next;
-          }
-        }
-      } catch (err) {
-        // eslint-disable-next-line no-console
-        console.error('[Capacitor] Deep link handling error:', err);
-        window.location.href = '/auth/error';
+      if (status === 'success') {
+        window.location.href = next;
+      } else {
+        window.location.href = '/payment/failed';
       }
     }
   });

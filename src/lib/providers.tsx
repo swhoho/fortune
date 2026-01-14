@@ -13,7 +13,7 @@ import { isInAppBrowser, openInExternalBrowser } from '@/lib/browser-detect';
 import { useViewportHeight } from '@/hooks/use-viewport-height';
 import { supabase } from '@/lib/supabase/client';
 import { trackSignUp } from '@/lib/analytics';
-import { setupDeepLinkHandler } from '@/lib/capacitor-auth';
+import { setupDeepLinkHandler, initGoogleAuth } from '@/lib/capacitor-auth';
 
 /**
  * 인앱 브라우저 감지 시 외부 브라우저로 리다이렉트
@@ -37,11 +37,15 @@ function ViewportHeightManager() {
 }
 
 /**
- * Capacitor 앱 딥링크 핸들러 설정
- * - OAuth 콜백 URL을 감지하여 세션 교환
+ * Capacitor 앱 초기화
+ * - GoogleAuth 플러그인 초기화
+ * - 딥링크 핸들러 설정
  */
-function CapacitorDeepLinkManager() {
+function CapacitorInitManager() {
   useEffect(() => {
+    // GoogleAuth 플러그인 초기화 (네이티브 앱에서만)
+    initGoogleAuth();
+    // 딥링크 핸들러 설정 (결제 완료 등)
     setupDeepLinkHandler();
   }, []);
 
@@ -101,7 +105,7 @@ export function Providers({ children }: ProvidersProps) {
     <QueryClientProvider client={queryClient}>
       <InAppBrowserRedirect />
       <ViewportHeightManager />
-      <CapacitorDeepLinkManager />
+      <CapacitorInitManager />
       <AuthStateManager />
       {children}
       <Toaster />
