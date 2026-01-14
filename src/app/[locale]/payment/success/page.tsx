@@ -14,6 +14,7 @@ import { Button } from '@/components/ui/button';
 import { Link } from '@/i18n/routing';
 import { CREDIT_PACKAGES } from '@/lib/portone';
 import { trackPurchase } from '@/lib/analytics';
+import { useInvalidateCredits } from '@/hooks/use-credits';
 
 type VerifyStatus = 'idle' | 'verifying' | 'success' | 'already_processed' | 'error';
 
@@ -32,6 +33,14 @@ function PaymentSuccessContent() {
   const pollingRef = useRef<NodeJS.Timeout | null>(null);
   const pollingCountRef = useRef(0);
   const trackedRef = useRef(false);
+  const invalidateCredits = useInvalidateCredits();
+
+  // 결제 성공 시 크레딧 캐시 즉시 무효화
+  useEffect(() => {
+    if (verifyStatus === 'success' || verifyStatus === 'already_processed') {
+      invalidateCredits();
+    }
+  }, [verifyStatus, invalidateCredits]);
 
   // GA4 purchase 이벤트 (결제 성공 시 1회만)
   useEffect(() => {
