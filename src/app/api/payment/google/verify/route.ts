@@ -91,6 +91,14 @@ export async function POST(request: NextRequest) {
           token: purchaseToken,
         });
       }
+
+      // 상품 소비 (consume) - 소모성 상품 재구매 가능하게 함
+      // Google Play에서 일회성 상품은 consume 처리해야 동일 상품 재구매 가능
+      await androidPublisher.purchases.products.consume({
+        packageName,
+        productId,
+        token: purchaseToken,
+      });
     } catch (googleError) {
       console.error('Google Play API 오류:', googleError);
 
