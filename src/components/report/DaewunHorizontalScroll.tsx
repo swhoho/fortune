@@ -88,6 +88,12 @@ export function DaewunHorizontalScroll({
           content={tGlossary('daewun.description')}
           iconSize={12}
         />
+        <InfoTooltip
+          title={tGlossary('sibiWunsung.title')}
+          content={tGlossary('sibiWunsung.description')}
+          image="/images/glossary/sibi-wunsung.png"
+          iconSize={12}
+        />
       </div>
 
       {/* 좌측 스크롤 버튼 */}

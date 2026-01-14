@@ -278,6 +278,12 @@ export function BasicAnalysisSection({ data, className = '' }: BasicAnalysisSect
             content={tGlossary('usefulGodSection.description')}
             iconSize={12}
           />
+          <InfoTooltip
+            title={tGlossary('sipsung.title')}
+            content={tGlossary('sipsung.description')}
+            image="/images/glossary/sipsung.png"
+            iconSize={12}
+          />
         </div>
 
         {/* 용신/희신/기신 카드들 */}

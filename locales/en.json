@@ -1203,6 +1203,7 @@
       "nameMaxLength": "Name must be 50 characters or less",
       "invalidDate": "Please enter a valid date",
       "genderRequired": "Please select a gender",
+      "invalidCalendarType": "Please select a valid calendar type",
       "futureDateNotAllowed": "Future dates are not allowed"
     },
     "list": {
@@ -1950,6 +1951,34 @@
     "usefulGodSection": {
       "title": "What is Useful/Unfavorable God?",
       "description": "This shows the energies you need (Useful God) and should avoid (Unfavorable God). Touch each item for detailed explanations."
+    },
+    "manseryeok": {
+      "title": "Manseryeok (Ten Thousand Year Calendar)",
+      "description": "An ancient astronomical calculation that converts your birth date and time into cosmic coordinates. Like GPS translates location into coordinates, Manseryeok transforms your birth moment into 8 Chinese characters, drawing your destiny map."
+    },
+    "sajupaja": {
+      "title": "Four Pillars of Destiny",
+      "description": "Your unique destiny DNA composed of four pillars (Year·Month·Day·Hour) with two characters each, totaling eight characters. The upper row (Heavenly Stems) shows 'the visible you', while the lower row (Earthly Branches) holds 'your inner potential'."
+    },
+    "myOheng": {
+      "title": "My Element",
+      "description": "Among the five energies (Wood·Fire·Earth·Metal·Water), this represents 'the real you'. Based on your Day Master (birth day's Heavenly Stem), this element determines your basic personality and energy color."
+    },
+    "chungan": {
+      "title": "Heavenly Stems (天干)",
+      "description": "Ten types of heavenly energy (甲乙丙丁戊己庚辛壬癸). These are the upper characters in your chart, showing your outward tendencies and conscious behavior patterns—like your facial expressions."
+    },
+    "jiji": {
+      "title": "Earthly Branches (地支)",
+      "description": "Twelve types of earthly energy (子丑寅卯辰巳午未申酉戌亥). These are the lower characters in your chart, containing your inner emotions and subconscious instincts—like your heart's stories."
+    },
+    "sipsung": {
+      "title": "Ten Gods (十星)",
+      "description": "A classification of relationships between you (Day Master) and other characters into 10 types. Each represents different life areas: family, wealth, career, and knowledge."
+    },
+    "sibiWunsung": {
+      "title": "Twelve Life Stages (十二運星)",
+      "description": "Shows the 12-stage cycle of life: from conception→nurturing→growth→...→grave→extinction. The stage appearing in your Major Cycles indicates the energy intensity of that period."
     }
   }
 }
