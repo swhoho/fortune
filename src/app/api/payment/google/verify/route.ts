@@ -93,13 +93,7 @@ export async function POST(request: NextRequest) {
         });
       }
 
-      // 상품 소비 (consume) - 소모성 상품 재구매 가능하게 함
-      // Google Play에서 일회성 상품은 consume 처리해야 동일 상품 재구매 가능
-      await androidPublisher.purchases.products.consume({
-        packageName,
-        productId,
-        token: purchaseToken,
-      });
+      // NOTE: consume은 DB 저장 성공 후에 실행 (아래에서 처리)
     } catch (googleError) {
       console.error('Google Play API 오류:', googleError);
 
@@ -155,6 +149,23 @@ export async function POST(request: NextRequest) {
     if (!creditsAdded) {
       console.error('[Google Play Verify] 크레딧 지급 실패');
       return NextResponse.json({ error: '크레딧 지급 실패' }, { status: 500 });
+    }
+
+    // 모든 DB 작업 성공 후 상품 소비 (consume) - 소모성 상품 재구매 가능하게 함
+    // Google Play에서 일회성 상품은 consume 처리해야 동일 상품 재구매 가능
+    // NOTE: 이 시점에서 consume 실패해도 크레딧은 이미 지급됨 (사용자에게 유리하게 처리)
+    try {
+      const androidPublisher = await getAndroidPublisher();
+      const packageName = 'app.fortune30.saju';
+      await androidPublisher.purchases.products.consume({
+        packageName,
+        productId,
+        token: purchaseToken,
+      });
+      console.log('[Google Play Verify] 상품 consume 완료');
+    } catch (consumeError) {
+      // consume 실패는 크레딧 지급에 영향 없음 (로그만 기록)
+      console.warn('[Google Play Verify] consume 실패 (크레딧은 지급됨):', consumeError);
     }
 
     console.log('[Google Play Verify] 구매 완료:', {
