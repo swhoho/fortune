@@ -23,17 +23,20 @@ export const viewport: Viewport = {
 
 /**
  * 기본 폰트 (Geist)
+ * display: 'swap' 추가 - FOUT 허용으로 FCP 개선
  */
 const geistSans = localFont({
   src: '../fonts/GeistVF.woff',
   variable: '--font-geist-sans',
   weight: '100 900',
+  display: 'swap',
 });
 
 const geistMono = localFont({
   src: '../fonts/GeistMonoVF.woff',
   variable: '--font-geist-mono',
   weight: '100 900',
+  display: 'swap',
 });
 
 /**

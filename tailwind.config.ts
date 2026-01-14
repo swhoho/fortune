@@ -73,7 +73,28 @@ const config: Config = {
   			lg: 'var(--radius)',
   			md: 'calc(var(--radius) - 2px)',
   			sm: 'calc(var(--radius) - 4px)'
-  		}
+  		},
+  		/* 성능 최적화: framer-motion 대체 CSS 애니메이션 */
+  		animation: {
+  			'fade-in': 'fadeIn 0.5s ease-out forwards',
+  			'fade-in-slow': 'fadeIn 1.5s ease-out forwards',
+  			'slide-up': 'slideUp 0.5s ease-out forwards',
+  			'scale-in': 'scaleIn 0.5s ease-out forwards',
+  		},
+  		keyframes: {
+  			fadeIn: {
+  				'0%': { opacity: '0' },
+  				'100%': { opacity: '1' },
+  			},
+  			slideUp: {
+  				'0%': { opacity: '0', transform: 'translateY(20px)' },
+  				'100%': { opacity: '1', transform: 'translateY(0)' },
+  			},
+  			scaleIn: {
+  				'0%': { opacity: '0', transform: 'scale(0.8)' },
+  				'100%': { opacity: '1', transform: 'scale(1)' },
+  			},
+  		},
   	}
   },
   plugins: [require("tailwindcss-animate")],

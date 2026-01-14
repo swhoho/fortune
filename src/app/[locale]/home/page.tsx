@@ -1,5 +1,7 @@
 import type { Metadata } from 'next';
 import { getTranslations } from 'next-intl/server';
+import { redirect } from 'next/navigation';
+import { createClient } from '@/lib/supabase/server';
 import { HomePageClient } from '@/components/home/HomePageClient';
 import { BreadcrumbJsonLd } from '@/components/seo/JsonLd';
 
@@ -39,6 +41,15 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
  */
 export default async function HomePage({ params }: Props) {
   const { locale } = await params;
+
+  // 서버 사이드 인증 확인 (클라이언트 워터폴 제거)
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+
+  if (!user) {
+    redirect(`/${locale}/auth/signin?callbackUrl=/${locale}/home`);
+  }
+
   const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://masters-insight.ai';
   const localePath = locale === 'ko' ? '' : `/${locale}`;
 

@@ -17,6 +17,13 @@ const nextConfig = {
   // 빌드 출력 최적화 (Vercel 배포용)
   output: 'standalone',
 
+  // lucide-react 트리쉐이킹 최적화 (FCP 개선)
+  modularizeImports: {
+    'lucide-react': {
+      transform: 'lucide-react/dist/esm/icons/{{kebabCase member}}',
+    },
+  },
+
   // 실험적 기능
   experimental: {
     // CSS 최적화

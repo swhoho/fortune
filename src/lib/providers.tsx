@@ -6,9 +6,15 @@
  */
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { useState, useEffect, useRef } from 'react';
+import dynamic from 'next/dynamic';
 import { Toaster } from '@/components/ui/sonner';
-import { CrispChat } from '@/components/crisp-chat';
 import { Analytics } from '@vercel/analytics/react';
+
+// CrispChat 지연 로드 (FCP 개선)
+const CrispChat = dynamic(
+  () => import('@/components/crisp-chat').then((mod) => ({ default: mod.CrispChat })),
+  { ssr: false }
+);
 import { isInAppBrowser, openInExternalBrowser } from '@/lib/browser-detect';
 import { useViewportHeight } from '@/hooks/use-viewport-height';
 import { supabase } from '@/lib/supabase/client';
