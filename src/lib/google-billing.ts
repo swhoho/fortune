@@ -27,6 +27,14 @@ export const GOOGLE_SUBSCRIPTION_IDS = {
 } as const;
 
 /**
+ * Google Play 구독 Base Plan ID 매핑
+ * Android 구독 결제 시 planIdentifier 필수
+ */
+export const GOOGLE_SUBSCRIPTION_PLAN_IDS = {
+  premium_monthly: 'monthly-plan', // Base Plan ID (Play Console에서 설정)
+} as const;
+
+/**
  * 상품별 크레딧 수량 (보너스 포함)
  */
 export const GOOGLE_CREDIT_AMOUNTS: Record<string, number> = {
@@ -306,11 +314,13 @@ export async function purchaseGoogleSubscription(userId: string): Promise<{
   }
 
   const productId = GOOGLE_SUBSCRIPTION_IDS.premium_monthly;
+  const planId = GOOGLE_SUBSCRIPTION_PLAN_IDS.premium_monthly;
 
   try {
-    // 구독 결제 실행
+    // 구독 결제 실행 (Android는 planIdentifier 필수)
     const result = await NativePurchases.purchaseProduct({
       productIdentifier: productId,
+      planIdentifier: planId, // Android 구독 필수: Base Plan ID
       productType: PURCHASE_TYPE.SUBS,
       quantity: 1,
     });
