@@ -7,6 +7,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { google } from 'googleapis';
 import { createClient } from '@supabase/supabase-js';
+import { addCredits } from '@/lib/credits/add';
 
 // 상품별 크레딧 매핑
 const CREDIT_AMOUNTS: Record<string, number> = {
@@ -110,51 +111,52 @@ export async function POST(request: NextRequest) {
     }
 
     // 구매 기록 저장
-    const { error: insertError } = await supabase.from('purchases').insert({
-      user_id: userId,
-      amount: 0, // Google Play에서 직접 처리
-      credits: creditsToAdd,
-      stripe_session_id: purchaseToken, // purchaseToken을 고유 ID로 저장
-      status: 'completed',
-      payment_method: 'google_play',
-    });
+    const { data: purchase, error: insertError } = await supabase
+      .from('purchases')
+      .insert({
+        user_id: userId,
+        amount: 0, // Google Play에서 직접 처리
+        credits: creditsToAdd,
+        stripe_session_id: purchaseToken, // purchaseToken을 고유 ID로 저장
+        status: 'completed',
+        payment_method: 'google_play',
+      })
+      .select('id')
+      .single();
 
-    if (insertError) {
-      console.error('구매 기록 저장 실패:', insertError);
+    if (insertError || !purchase) {
+      console.error('[Google Play Verify] 구매 기록 저장 실패:', insertError);
       return NextResponse.json({ error: '구매 기록 저장 실패' }, { status: 500 });
     }
 
-    // 사용자 크레딧 업데이트
-    const { data: userData, error: userError } = await supabase
-      .from('users')
-      .select('credits')
-      .eq('id', userId)
-      .single();
+    // 크레딧 지급 (addCredits 사용 - credit_transactions 기록)
+    const { success: creditsAdded, newBalance } = await addCredits({
+      userId,
+      amount: creditsToAdd,
+      type: 'purchase',
+      purchaseId: purchase.id,
+      expiresInMonths: 24, // 2년 유효
+      description: `${productId} 구매 (Google Play)`,
+      supabase,
+    });
 
-    if (userError) {
-      console.error('사용자 조회 실패:', userError);
-      return NextResponse.json({ error: '사용자 조회 실패' }, { status: 500 });
+    if (!creditsAdded) {
+      console.error('[Google Play Verify] 크레딧 지급 실패');
+      return NextResponse.json({ error: '크레딧 지급 실패' }, { status: 500 });
     }
 
-    const newCredits = (userData?.credits || 0) + creditsToAdd;
-
-    const { error: updateError } = await supabase
-      .from('users')
-      .update({
-        credits: newCredits,
-        updated_at: new Date().toISOString(),
-      })
-      .eq('id', userId);
-
-    if (updateError) {
-      console.error('크레딧 업데이트 실패:', updateError);
-      return NextResponse.json({ error: '크레딧 업데이트 실패' }, { status: 500 });
-    }
+    console.log('[Google Play Verify] 구매 완료:', {
+      userId,
+      productId,
+      credits: creditsToAdd,
+      newBalance,
+      purchaseId: purchase.id,
+    });
 
     return NextResponse.json({
       success: true,
       credits: creditsToAdd,
-      newBalance: newCredits,
+      newBalance,
       orderId,
     });
   } catch (error) {
