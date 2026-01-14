@@ -13,7 +13,13 @@ import { CreditHistoryTable } from './CreditHistoryTable';
 import { AIUsageTable } from './AIUsageTable';
 import { CreditRewardDialog } from './CreditRewardDialog';
 import { SubscriptionGrantDialog } from './SubscriptionGrantDialog';
-import type { AdminTab, UserDetailResponse } from '@/admin/api/user-detail';
+import type {
+  AdminTab,
+  UserDetailResponse,
+  PurchaseRecord,
+  CreditRecord,
+  AIUsageRecord,
+} from '@/admin/api/user-detail';
 
 interface UserDetailSectionProps {
   userId: string;
@@ -27,7 +33,26 @@ export function UserDetailSection({ userId }: UserDetailSectionProps) {
   const [isRewardOpen, setIsRewardOpen] = useState(false);
   const [isSubscriptionOpen, setIsSubscriptionOpen] = useState(false);
 
-  const fetchData = async () => {
+  useEffect(() => {
+    const fetchData = async () => {
+      setIsLoading(true);
+      try {
+        const res = await fetch(`/api/admin/users/${userId}?tab=${tab}&page=${page}&limit=20`);
+        if (res.ok) {
+          const json = await res.json();
+          setData(json);
+        }
+      } catch (error) {
+        console.error('유저 상세 조회 오류:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchData();
+  }, [userId, tab, page]);
+
+  const refetch = async () => {
     setIsLoading(true);
     try {
       const res = await fetch(`/api/admin/users/${userId}?tab=${tab}&page=${page}&limit=20`);
@@ -42,17 +67,13 @@ export function UserDetailSection({ userId }: UserDetailSectionProps) {
     }
   };
 
-  useEffect(() => {
-    fetchData();
-  }, [userId, tab, page]);
-
   const handleTabChange = (value: string) => {
     setTab(value as AdminTab);
     setPage(1);
   };
 
   const handleRewardSuccess = () => {
-    fetchData();
+    refetch();
   };
 
   if (isLoading && !data) {
@@ -115,13 +136,13 @@ export function UserDetailSection({ userId }: UserDetailSectionProps) {
           {!isLoading && (
             <>
               <TabsContent value="purchases">
-                <PurchaseHistoryTable records={data.records as any} />
+                <PurchaseHistoryTable records={data.records as PurchaseRecord[]} />
               </TabsContent>
               <TabsContent value="credits">
-                <CreditHistoryTable records={data.records as any} />
+                <CreditHistoryTable records={data.records as CreditRecord[]} />
               </TabsContent>
               <TabsContent value="ai_usage">
-                <AIUsageTable records={data.records as any} />
+                <AIUsageTable records={data.records as AIUsageRecord[]} />
               </TabsContent>
             </>
           )}

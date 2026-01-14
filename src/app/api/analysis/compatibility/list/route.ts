@@ -27,7 +27,7 @@ interface CompatibilityListItem {
  * GET /api/analysis/compatibility/list
  * 사용자의 궁합 분석 목록 조회
  */
-export async function GET(request: NextRequest) {
+export async function GET(_request: NextRequest) {
   try {
     // 1. 인증 확인 (필수)
     const user = await getAuthenticatedUser();

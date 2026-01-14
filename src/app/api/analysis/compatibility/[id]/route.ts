@@ -5,7 +5,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getAuthenticatedUser } from '@/lib/supabase/server';
 import { getSupabaseAdmin } from '@/lib/supabase/client';
-import { AUTH_ERRORS, API_ERRORS, createErrorResponse, getStatusCode } from '@/lib/errors/codes';
+import { API_ERRORS, createErrorResponse, getStatusCode } from '@/lib/errors/codes';
 
 /**
  * snake_case → camelCase 변환 (재귀)

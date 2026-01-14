@@ -70,7 +70,7 @@ export async function handleGrantSubscription(
     );
   }
 
-  const { userId, months, description } = result.data;
+  const { userId, months } = result.data;
 
   const supabase = getSupabaseAdmin();
 

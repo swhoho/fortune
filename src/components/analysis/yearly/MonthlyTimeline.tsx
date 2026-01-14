@@ -29,9 +29,6 @@ interface MonthlyTimelineProps {
   year: number;
 }
 
-/** 월 번호 배열 */
-const MONTHS = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12] as const;
-
 /** 점수에 따른 색상 */
 function getScoreColor(score: number): string {
   if (score >= 70) return '#22c55e';
