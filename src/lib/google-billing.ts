@@ -148,11 +148,12 @@ export async function purchaseGoogleCredits(
   }
 
   try {
-    // 결제 실행
+    // 결제 실행 (isConsumable: true로 소모성 상품 재구매 가능하게 함)
     const result = await NativePurchases.purchaseProduct({
       productIdentifier: productId,
       productType: PURCHASE_TYPE.INAPP,
       quantity: 1,
+      isConsumable: true, // 소모성 상품: 구매 후 consume 처리하여 재구매 가능
     });
 
     if (!result.purchaseToken) {
