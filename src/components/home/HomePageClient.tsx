@@ -21,19 +21,18 @@ export function HomePageClient() {
       <main className="relative flex-1">
         {/* 배경 그래디언트 장식 */}
         <div className="pointer-events-none absolute inset-0 overflow-hidden">
-          {/* 우상단 금색 글로우 */}
+          {/* 우상단 금색 글로우 (정적 - 애니메이션 불필요) */}
           <div
-            className="absolute -right-32 -top-32 h-80 w-80 rounded-full blur-3xl animate-fade-in-slow opacity-40"
+            className="absolute -right-32 -top-32 h-80 w-80 rounded-full blur-3xl opacity-40"
             style={{
               background: `radial-gradient(circle, ${BRAND_COLORS.primary}30 0%, transparent 70%)`,
             }}
           />
-          {/* 좌하단 금색 글로우 */}
+          {/* 좌하단 금색 글로우 (정적 - 애니메이션 불필요) */}
           <div
-            className="absolute -bottom-40 -left-40 h-96 w-96 rounded-full blur-3xl animate-fade-in-slow opacity-25"
+            className="absolute -bottom-40 -left-40 h-96 w-96 rounded-full blur-3xl opacity-25"
             style={{
               background: `radial-gradient(circle, ${BRAND_COLORS.primary}20 0%, transparent 70%)`,
-              animationDelay: '0.3s',
             }}
           />
         </div>
@@ -45,13 +44,13 @@ export function HomePageClient() {
 
           {/* 로고 영역 */}
           <div
-            className="px-6 py-8 animate-slide-up"
+            className="px-6 py-8 opacity-0 animate-slide-up"
             style={{ animationDelay: '0.1s' }}
           >
             <div className="flex items-center gap-4">
               {/* 로고 아이콘 (한자 '命') */}
               <div
-                className="flex h-16 w-16 items-center justify-center rounded-2xl animate-scale-in"
+                className="flex h-16 w-16 items-center justify-center rounded-2xl opacity-0 animate-scale-in"
                 style={{
                   backgroundColor: `${BRAND_COLORS.primary}15`,
                   boxShadow: `0 0 40px ${BRAND_COLORS.primary}20`,
@@ -71,7 +70,7 @@ export function HomePageClient() {
 
           {/* 오늘의 운세 카드 - 최상단 */}
           <section
-            className="px-6 pb-4 animate-slide-up"
+            className="px-6 pb-4 opacity-0 animate-slide-up"
             style={{ animationDelay: '0.3s' }}
           >
             <DailyFortuneCard />
