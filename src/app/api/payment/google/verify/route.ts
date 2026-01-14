@@ -134,7 +134,11 @@ export async function POST(request: NextRequest) {
 
     if (insertError || !purchase) {
       console.error('[Google Play Verify] 구매 기록 저장 실패:', insertError);
-      return NextResponse.json({ error: '구매 기록 저장 실패' }, { status: 500 });
+      return NextResponse.json({
+        error: '구매 기록 저장 실패',
+        details: insertError?.message || 'purchase is null',
+        code: insertError?.code,
+      }, { status: 500 });
     }
 
     // 크레딧 지급 (addCredits 사용 - credit_transactions 기록)
