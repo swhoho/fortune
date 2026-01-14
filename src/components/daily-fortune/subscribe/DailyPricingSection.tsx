@@ -5,6 +5,7 @@ import { motion } from 'framer-motion';
 import { useTranslations } from 'next-intl';
 import { Check, Crown, X, AlertCircle, Phone, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { isNativeApp } from '@/lib/google-billing';
 
 interface SubscriptionStatus {
   isSubscribed: boolean;
@@ -17,7 +18,7 @@ interface DailyPricingSectionProps {
   locale: string;
   subscriptionStatus: SubscriptionStatus | null;
   onStartTrial: () => void;
-  onSubscribe: (phoneNumber: string) => void;
+  onSubscribe: (phoneNumber?: string) => void;
   isLoading?: boolean;
   error?: string | null;
   onErrorDismiss?: () => void;
@@ -68,6 +69,13 @@ export function DailyPricingSection({
 
   /** 구독 버튼 클릭 핸들러 */
   const handleSubscribeClick = () => {
+    // 앱 환경: 휴대폰 번호 없이 바로 구독
+    if (isNativeApp()) {
+      onSubscribe();
+      return;
+    }
+
+    // 웹 환경: 휴대폰 번호 검증 후 구독
     const numbers = phoneNumber.replace(/[^0-9]/g, '');
     if (numbers.length < 10 || numbers.length > 11) {
       setPhoneError(t('phoneError'));
@@ -145,7 +153,20 @@ export function DailyPricingSection({
               </Button>
               <p className="text-center text-xs text-gray-500">{t('cta.trialNotice')}</p>
             </div>
+          ) : isNativeApp() ? (
+            // 앱 환경: 휴대폰 입력 없이 바로 Google Play 구독 버튼
+            <div className="space-y-3">
+              <Button
+                onClick={handleSubscribeClick}
+                disabled={isLoading}
+                className="w-full bg-gradient-to-r from-[#d4af37] to-amber-500 py-6 text-base font-semibold text-black hover:from-amber-500 hover:to-[#d4af37] disabled:opacity-50"
+              >
+                {isLoading ? <Loader2 className="h-5 w-5 animate-spin" /> : t('cta.googlePlay')}
+              </Button>
+              <p className="text-center text-xs text-gray-500">{t('cta.googlePlayNotice')}</p>
+            </div>
           ) : (
+            // 웹 환경: 휴대폰 번호 입력 + PayApp 정기결제
             <div className="space-y-4">
               {/* 휴대폰 번호 입력 */}
               <div className="space-y-2">

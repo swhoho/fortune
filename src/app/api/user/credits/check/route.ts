@@ -15,7 +15,7 @@ import {
   createErrorResponse,
   getStatusCode,
 } from '@/lib/errors/codes';
-import { getExpiringCredits, getNearestExpiringCredits } from '@/lib/credits';
+import { getExpiringCredits, getNearestExpiringCredits, getAvailableCredits } from '@/lib/credits';
 
 /**
  * 쿼리 파라미터 스키마
@@ -73,7 +73,8 @@ export async function GET(request: NextRequest) {
       return NextResponse.json(error, { status: getStatusCode(PROFILE_ERRORS.NOT_FOUND) });
     }
 
-    const currentCredits = userData.credits ?? 0;
+    // credit_transactions 기반 실제 사용 가능 크레딧 계산 (만료 제외)
+    const currentCredits = await getAvailableCredits(userId, supabase);
 
     // 4. 만료 예정 크레딧 조회 (30일 이내)
     const expiringInfo = await getExpiringCredits(userId, 30, supabase);

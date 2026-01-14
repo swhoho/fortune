@@ -34,6 +34,7 @@ import {
 } from '@/components/payment/PaymentSections';
 import { ExampleCarousel } from '@/components/payment/ExampleCarousel';
 import { AppHeader, Footer } from '@/components/layout';
+import { isNativeApp, purchaseGoogleCredits } from '@/lib/google-billing';
 
 /** 결제 수단 목록 (순서대로 표시) */
 const PAYMENT_METHODS: PaymentMethod[] = ['payapp_card', 'kakaopay'];
@@ -171,7 +172,9 @@ export default function PaymentPage({ params: { locale } }: { params: { locale: 
   };
 
   /**
-   * 결제 요청 (수단별 분기)
+   * 결제 요청 (플랫폼/수단별 분기)
+   * - 앱: Google Play IAP
+   * - 웹: PayApp / PortOne
    */
   const handleCheckout = async () => {
     if (!selectedPackage) return;
@@ -181,13 +184,25 @@ export default function PaymentPage({ params: { locale } }: { params: { locale: 
 
     try {
       // 로그인 확인
-      if (!user?.email) {
+      if (!user?.email || !user?.id) {
         setError(t('errors.loginRequired'));
         setIsLoading(false);
         return;
       }
 
-      // PayApp 결제 (신용카드1)
+      // 앱 환경: Google Play IAP
+      if (isNativeApp()) {
+        const result = await purchaseGoogleCredits(selectedPackage, user.id);
+        if (result.success) {
+          router.push(`/${locale}/payment/success?credits=${selectedPackage.credits + (selectedPackage.bonus || 0)}`);
+        } else {
+          setError(result.error || t('errors.generic'));
+        }
+        return;
+      }
+
+      // 웹 환경: PayApp / PortOne
+      // PayApp 결제 (신용카드)
       if (selectedMethod === 'payapp_card') {
         await handlePayAppCheckout();
         return;
@@ -360,38 +375,40 @@ export default function PaymentPage({ params: { locale } }: { params: { locale: 
                   </div>
                 </motion.div>
 
-                {/* 결제 수단 선택 */}
-                <div className="mb-6">
-                  <p className="mb-3 text-sm font-medium text-gray-400">{t('checkout.method')}</p>
-                  <div className="grid grid-cols-2 gap-2">
-                    {PAYMENT_METHODS.map((method) => {
-                      const meta = PAYMENT_METHOD_META[method];
-                      const isDisabled = meta.disabled;
-                      return (
-                        <button
-                          key={method}
-                          onClick={() => !isDisabled && setSelectedMethod(method)}
-                          disabled={isDisabled}
-                          className={`relative flex flex-col items-center justify-center gap-1 rounded-lg border-2 px-3 py-3 text-sm font-medium transition-all ${
-                            isDisabled
-                              ? 'cursor-not-allowed border-[#222] bg-[#111] text-gray-600'
-                              : selectedMethod === method
-                                ? 'border-[#d4af37] bg-[#d4af37]/10 text-white'
-                                : 'border-[#333] bg-[#1a1a1a] text-gray-400 hover:border-[#444]'
-                          }`}
-                        >
-                          <span className="text-lg">{meta.icon}</span>
-                          <span className="text-xs">{getMethodLabel(method)}</span>
-                          {isDisabled && (
-                            <span className="absolute -top-2 right-1 rounded bg-gray-700 px-1.5 py-0.5 text-[10px] text-gray-400">
-                              {t('checkout.preparing')}
-                            </span>
-                          )}
-                        </button>
-                      );
-                    })}
+                {/* 결제 수단 선택 (웹 환경에서만 표시) */}
+                {!isNativeApp() && (
+                  <div className="mb-6">
+                    <p className="mb-3 text-sm font-medium text-gray-400">{t('checkout.method')}</p>
+                    <div className="grid grid-cols-2 gap-2">
+                      {PAYMENT_METHODS.map((method) => {
+                        const meta = PAYMENT_METHOD_META[method];
+                        const isDisabled = meta.disabled;
+                        return (
+                          <button
+                            key={method}
+                            onClick={() => !isDisabled && setSelectedMethod(method)}
+                            disabled={isDisabled}
+                            className={`relative flex flex-col items-center justify-center gap-1 rounded-lg border-2 px-3 py-3 text-sm font-medium transition-all ${
+                              isDisabled
+                                ? 'cursor-not-allowed border-[#222] bg-[#111] text-gray-600'
+                                : selectedMethod === method
+                                  ? 'border-[#d4af37] bg-[#d4af37]/10 text-white'
+                                  : 'border-[#333] bg-[#1a1a1a] text-gray-400 hover:border-[#444]'
+                            }`}
+                          >
+                            <span className="text-lg">{meta.icon}</span>
+                            <span className="text-xs">{getMethodLabel(method)}</span>
+                            {isDisabled && (
+                              <span className="absolute -top-2 right-1 rounded bg-gray-700 px-1.5 py-0.5 text-[10px] text-gray-400">
+                                {t('checkout.preparing')}
+                              </span>
+                            )}
+                          </button>
+                        );
+                      })}
+                    </div>
                   </div>
-                </div>
+                )}
 
                 {/* Summary & CTA */}
                 <div className="mt-auto rounded-xl border border-white/5 bg-[#1a1a1a] p-6">
@@ -424,12 +441,16 @@ export default function PaymentPage({ params: { locale } }: { params: { locale: 
                       >
                         {isLoading
                           ? t('checkout.processing')
-                          : t('checkout.payWith', { method: getMethodLabel(selectedMethod) })}
+                          : isNativeApp()
+                            ? t('checkout.googlePlay')
+                            : t('checkout.payWith', { method: getMethodLabel(selectedMethod) })}
                       </Button>
                       <p className="mt-3 text-center text-xs text-gray-500">
-                        {selectedMethod === 'payapp_card'
-                          ? t('security.payapp')
-                          : t('security.portone')}
+                        {isNativeApp()
+                          ? t('security.googlePlay')
+                          : selectedMethod === 'payapp_card'
+                            ? t('security.payapp')
+                            : t('security.portone')}
                       </p>
                     </>
                   ) : (

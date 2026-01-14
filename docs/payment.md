@@ -2,24 +2,66 @@
 
 > Master's Insight AI 결제, 크레딧, 구독 시스템 문서
 
-**Version**: 3.5.0
+**Version**: 3.6.0
 **Last Updated**: 2026-01-14
-**현재 사용**: PayApp (신용카드1)
-**구독**: PayApp 정기결제 (실결제 연동)
-**Android 앱**: Google Play Billing (설정 완료)
+**웹 결제**: PayApp (신용카드)
+**웹 구독**: PayApp 정기결제 (실결제 연동)
+**앱 결제**: Google Play Billing (크레딧 + 구독)
 
 ---
 
 ## 현재 상태
 
-| 항목 | 상태 |
-|------|------|
-| **신용카드** | PayApp (실결제 연동) |
-| **카카오페이** | 준비중 (PortOne) |
-| **Google Play (Android)** | ✅ 설정 완료 (크레딧 4개 + 구독 1개) |
+| 플랫폼 | 크레딧 구매 | 구독 |
+|--------|-------------|------|
+| **웹** | PayApp (신용카드) | PayApp 정기결제 (₩2,900/월) |
+| **앱 (Android)** | Google Play IAP | Google Play 구독 (₩3,900/월) |
 
-> PayApp으로 신용카드 결제 실연동 완료. 카카오페이는 추후 연동 예정.
-> Android 앱용 Google Play Billing 설정 완료 (Play Console 상품 등록, 서비스 계정 연결).
+> 웹과 앱에서 동일한 페이지에 접근해도 플랫폼에 따라 자동으로 결제 수단이 분기됩니다.
+> `isNativeApp()` 함수로 Capacitor 네이티브 환경 여부를 감지합니다.
+
+---
+
+## 플랫폼별 결제 분기
+
+### 분기 로직
+
+```typescript
+import { isNativeApp, purchaseGoogleCredits, purchaseGoogleSubscription } from '@/lib/google-billing';
+
+// 크레딧 구매
+if (isNativeApp()) {
+  // 앱: Google Play IAP
+  await purchaseGoogleCredits(selectedPackage, userId);
+} else {
+  // 웹: PayApp 신용카드
+  await handlePayAppCheckout();
+}
+
+// 구독
+if (isNativeApp()) {
+  // 앱: Google Play 구독 (휴대폰 번호 입력 불필요)
+  await purchaseGoogleSubscription(userId);
+} else {
+  // 웹: PayApp 정기결제 (휴대폰 번호 필요)
+  await payappSubscribe(phoneNumber);
+}
+```
+
+### 분기 적용 파일
+
+| 파일 | 분기 내용 |
+|------|----------|
+| `src/app/[locale]/payment/page.tsx` | 크레딧 결제 분기, 앱에서 결제 수단 선택 UI 숨김 |
+| `src/app/[locale]/daily-fortune/subscribe/page.tsx` | 구독 결제 분기 |
+| `src/components/daily-fortune/subscribe/DailyPricingSection.tsx` | 앱에서 휴대폰 번호 입력 UI 숨김 |
+
+### UI 차이
+
+| 환경 | 결제 페이지 | 구독 페이지 |
+|------|------------|------------|
+| **웹** | 결제 수단 선택 (신용카드/카카오페이) | 휴대폰 번호 입력 → 구독 버튼 |
+| **앱** | 패키지 선택만 (Google Play 단일 결제) | 구독 버튼만 (휴대폰 입력 없음) |
 
 ---
 
@@ -502,23 +544,44 @@ if (isNativeApp()) {
 }
 ```
 
-### 8.10 실시간 개발자 알림 (RTDN) - 추후 구현
+### 8.10 실시간 개발자 알림 (RTDN) - ✅ 구현 완료
 
-Google Play에서 구독 상태 변경 시 실시간 알림을 받으려면 Cloud Pub/Sub 설정이 필요합니다.
+Google Play에서 구독 상태 변경 시 실시간 알림을 받아 처리합니다.
 
 ```
-[Google Play] → [Cloud Pub/Sub] → [Push Endpoint] → [서버 처리]
+[Google Play] → [Cloud Pub/Sub] → [POST /api/payment/google/webhook] → [DB 업데이트]
 ```
 
-**알림 유형**:
-| notificationType | 설명 |
-|------------------|------|
-| 2 | SUBSCRIPTION_RENEWED - 갱신 |
-| 3 | SUBSCRIPTION_CANCELED - 취소 |
-| 12 | SUBSCRIPTION_REVOKED - 환불 |
-| 13 | SUBSCRIPTION_EXPIRED - 만료 |
+#### 알림 타입 및 처리
 
-> 현재는 앱에서 구독 상태를 확인하는 방식으로 구현. RTDN은 추후 필요 시 추가.
+| # | notificationType | 설명 | DB 처리 | 크레딧 |
+|---|------------------|------|---------|--------|
+| 1 | RECOVERED | 복구 (ON_HOLD→결제성공) | status='active' | - |
+| 2 | RENEWED | 월간 갱신 | period 갱신 | +50C |
+| 3 | CANCELED | 사용자 취소 | canceled_at 설정 | - |
+| 4 | PURCHASED | 최초 구매 | (클라이언트 처리) | +50C |
+| 5 | ON_HOLD | 계정 보류 | status='past_due' | - |
+| 6 | IN_GRACE_PERIOD | 유예 기간 | 상태 유지 | - |
+| 7 | RESTARTED | 재시작 | canceled_at=null | - |
+| 10 | PAUSED | 일시정지 | status='paused' | - |
+| 12 | REVOKED | 환불 | 즉시 서비스 중단 | - |
+| 13 | EXPIRED | 만료 | status='expired' | - |
+
+#### 관련 파일
+
+```
+src/app/api/payment/google/webhook/route.ts     # RTDN 웹훅 엔드포인트
+src/lib/google-subscription-handler.ts          # 알림 타입별 처리 로직
+```
+
+#### Cloud Pub/Sub 설정 (필수)
+
+상세 가이드는 `docs/app.md` 참조
+
+1. Google Cloud Console에서 Pub/Sub 토픽 생성
+2. Push 구독 생성 (엔드포인트: `/api/payment/google/webhook`)
+3. Play Console에서 RTDN 토픽 연결
+4. 테스트 알림으로 연결 확인
 
 ---
 
@@ -776,6 +839,7 @@ credit_transactions에 새 비용으로 차감 기록
 
 | 버전 | 날짜 | 변경 내용 |
 |------|------|----------|
+| 3.6.0 | 2026-01-14 | 웹/앱 결제 분기 구현 (payment/page.tsx, subscribe/page.tsx, DailyPricingSection.tsx) - `isNativeApp()` 기반 플랫폼 감지 |
 | 3.5.0 | 2026-01-14 | Google Play Billing 설정 완료 (Play Console 상품등록, 서비스 계정 연결, Vercel 환경변수), 패키지명 수정 (`app.fortune30.saju`) |
 | 3.4.0 | 2026-01-13 | 웹 구독 가격 변경 (₩3,900 → ₩2,900), Google Play는 ₩3,900 유지 |
 | 3.3.0 | 2026-01-13 | 가격 변경 가이드 추가 (구독/크레딧 패키지/서비스 비용), 체크리스트 템플릿 |

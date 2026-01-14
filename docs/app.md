@@ -17,7 +17,7 @@ Master's Insight AI의 Capacitor Android 앱 구현 및 출시 가이드입니�
                ↓
 ┌─────────────────────────────────────────┐
 │      Vercel (Next.js Frontend)          │
-│  URL: https://masters-insight.ai        │
+│  URL: https://fortune-rosy.vercel.app        │
 ├─────────────────────────────────────────┤
 │ - 모든 UI/UX 웹에서 처리                │
 │ - API Routes 정상 작동                  │
@@ -61,7 +61,7 @@ const config: CapacitorConfig = {
   appName: "Master's Insight",
   webDir: 'www',
   server: {
-    url: 'https://masters-insight.ai',  // 프로덕션 URL
+    url: 'https://fortune-rosy.vercel.app',  // 프로덕션 URL
     cleartext: false,
   },
   android: {
@@ -344,7 +344,7 @@ Google Play Console > 테스트 > 내부 테스트
 - [ ] 앱 이름 (30자): Master's Insight - AI 사주
 - [ ] 간단한 설명 (80자): 30년 명리학 거장이 인정한 AI 사주 분석
 - [ ] 상세 설명 (4000자): 앱 기능 설명
-- [ ] 개인정보처리방침 URL: https://masters-insight.ai/privacy
+- [ ] 개인정보처리방침 URL: https://fortune-rosy.vercel.app/privacy
 - [ ] 카테고리: 라이프스타일
 
 #### 5.2 콘텐츠 등급
@@ -405,12 +405,99 @@ npm run cap:build
 
 ---
 
+## Cloud Pub/Sub 설정 (RTDN)
+
+Google Play 구독 이벤트(갱신, 취소, 환불 등)를 실시간으로 받기 위한 설정입니다.
+
+### Step 1: Google Cloud 프로젝트 확인
+
+1. [Google Cloud Console](https://console.cloud.google.com) 접속
+2. 기존 서비스 계정이 있는 프로젝트 선택
+   - `GOOGLE_SERVICE_ACCOUNT_JSON`의 `project_id` 확인
+3. 프로젝트 ID 기록 (예: `masters-insight-xxxxx`)
+
+### Step 2: Pub/Sub API 활성화
+
+1. 검색창에 "Pub/Sub" 입력
+2. "Cloud Pub/Sub API" 선택
+3. "사용" 버튼 클릭 (이미 활성화면 스킵)
+
+### Step 3: Pub/Sub 토픽 생성
+
+1. Pub/Sub → 주제 → "+ 주제 만들기"
+2. 설정:
+   - 주제 ID: `play-billing-notifications`
+   - 기본 구독 추가: **체크 해제**
+3. "만들기" 클릭
+4. 전체 이름 복사: `projects/YOUR_PROJECT/topics/play-billing-notifications`
+
+### Step 4: Push 구독 생성
+
+1. 생성된 토픽 클릭 → "구독" 탭 → "+ 구독 만들기"
+2. 설정:
+   - 구독 ID: `play-billing-webhook`
+   - 전송 유형: **푸시**
+   - 엔드포인트 URL: `https://fortune-rosy.vercel.app/api/payment/google/webhook`
+   - 만료: 만료되지 않음
+   - 확인 기한: 60초
+3. "만들기" 클릭
+
+### Step 5: 서비스 계정 권한 부여
+
+1. IAM 및 관리자 → IAM
+2. 기존 서비스 계정 찾기 (`GOOGLE_SERVICE_ACCOUNT_JSON`의 `client_email`)
+3. "수정" (연필 아이콘) 클릭
+4. "+ 다른 역할 추가"
+5. "Pub/Sub 구독자" 역할 추가
+6. "저장"
+
+### Step 6: Play Console 연결
+
+1. [Google Play Console](https://play.google.com/console) → 앱 선택 (`app.fortune30.saju`)
+2. 수익 창출 → 수익 창출 설정
+3. "Google Cloud Pub/Sub 주제 이름" 입력:
+   ```
+   projects/YOUR_PROJECT/topics/play-billing-notifications
+   ```
+4. "테스트 알림 보내기" 클릭
+5. 연결 확인 후 "변경사항 저장"
+
+### Step 7: 연결 테스트
+
+1. Vercel에 웹훅 엔드포인트 배포 확인
+2. Play Console에서 "테스트 알림 보내기"
+3. Vercel 로그 또는 `/api/payment/google/webhook` GET 요청으로 확인
+
+```bash
+# 엔드포인트 상태 확인
+curl https://fortune-rosy.vercel.app/api/payment/google/webhook
+```
+
+### 알림 처리 흐름
+
+```
+[사용자가 Play Store에서 구독 취소]
+         ↓
+[Google Play → RTDN 발송]
+         ↓
+[Cloud Pub/Sub 토픽]
+         ↓
+[Push → /api/payment/google/webhook]
+         ↓
+[google-subscription-handler.ts 처리]
+         ↓
+[DB 업데이트: subscriptions, users]
+```
+
+---
+
 ## 참고 자료
 
 - [Capacitor 공식 문서](https://capacitorjs.com/docs)
 - [Google Play Billing 라이브러리](https://developer.android.com/google/play/billing)
 - [@capgo/native-purchases](https://github.com/Cap-go/capacitor-purchases)
 - [Google Play Console 가이드](https://support.google.com/googleplay/android-developer)
+- [RTDN 가이드](https://developer.android.com/google/play/billing/rtdn-reference)
 
 ---
 

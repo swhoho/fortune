@@ -325,6 +325,7 @@
       "method": "결제 수단",
       "processing": "결제 진행 중...",
       "payWith": "{method}로 결제",
+      "googlePlay": "Google Play로 결제",
       "preparing": "준비중"
     },
     "methods": {
@@ -338,7 +339,8 @@
     },
     "security": {
       "payapp": "PayApp 안전결제",
-      "portone": "PortOne 안전결제 · 카카오페이"
+      "portone": "PortOne 안전결제 · 카카오페이",
+      "googlePlay": "Google Play 안전결제"
     },
     "popular": "인기",
     "bonus": "보너스",
@@ -1560,8 +1562,10 @@
           "startTrial": "3일 무료체험 시작하기",
           "trialNotice": "무료체험 후 자동 결제 없음",
           "subscribe": "구독 시작하기",
+          "googlePlay": "Google Play로 구독",
           "trialActive": "무료체험 {days}일 남음",
-          "paymentNotice": "정기결제 구독 · 언제든 해지 가능"
+          "paymentNotice": "정기결제 구독 · 언제든 해지 가능",
+          "googlePlayNotice": "Google Play 정기결제 · 언제든 해지 가능"
         }
       }
     },

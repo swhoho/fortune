@@ -325,6 +325,7 @@
       "method": "付款方式",
       "processing": "付款處理中...",
       "payWith": "使用{method}付款",
+      "googlePlay": "使用Google Play付款",
       "preparing": "準備中"
     },
     "methods": {
@@ -338,7 +339,8 @@
     },
     "security": {
       "payapp": "PayApp 安全付款",
-      "portone": "PortOne 安全付款 · KakaoPay"
+      "portone": "PortOne 安全付款 · KakaoPay",
+      "googlePlay": "Google Play 安全付款"
     },
     "popular": "熱門",
     "bonus": "獎勵",
@@ -1424,8 +1426,10 @@
           "startTrial": "開始3天免費試用",
           "trialNotice": "試用後無自動扣費",
           "subscribe": "開始訂閱",
+          "googlePlay": "透過Google Play訂閱",
           "trialActive": "剩餘{days}天",
-          "paymentNotice": "定期訂閱 · 隨時可取消"
+          "paymentNotice": "定期訂閱 · 隨時可取消",
+          "googlePlayNotice": "Google Play定期訂閱 · 隨時可取消"
         }
       }
     },

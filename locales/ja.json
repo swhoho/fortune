@@ -325,6 +325,7 @@
       "method": "決済方法",
       "processing": "決済処理中...",
       "payWith": "{method}で決済",
+      "googlePlay": "Google Playで決済",
       "preparing": "準備中"
     },
     "methods": {
@@ -338,7 +339,8 @@
     },
     "security": {
       "payapp": "PayApp安全決済",
-      "portone": "PortOne安全決済・カカオペイ"
+      "portone": "PortOne安全決済・カカオペイ",
+      "googlePlay": "Google Play安全決済"
     },
     "popular": "人気",
     "bonus": "ボーナス",
@@ -1424,8 +1426,10 @@
           "startTrial": "3日間無料体験を始める",
           "trialNotice": "無料体験後の自動課金なし",
           "subscribe": "購読を開始する",
+          "googlePlay": "Google Playで購読",
           "trialActive": "残り{days}日",
-          "paymentNotice": "定期課金購読・いつでも解約可能"
+          "paymentNotice": "定期課金購読・いつでも解約可能",
+          "googlePlayNotice": "Google Play定期購読・いつでも解約可能"
         }
       }
     },

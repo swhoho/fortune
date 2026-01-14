@@ -44,7 +44,8 @@ export function InsufficientCreditsDialog({
 }: InsufficientCreditsDialogProps) {
   const t = useTranslations('credits');
   const router = useRouter();
-  const shortfall = required - current;
+  // 방어적 코딩: shortfall이 음수가 되지 않도록 보호
+  const shortfall = Math.max(0, required - current);
 
   const handleCharge = () => {
     if (onCharge) {

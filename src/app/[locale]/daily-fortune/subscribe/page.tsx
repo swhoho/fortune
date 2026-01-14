@@ -16,6 +16,7 @@ import {
   DailyPricingSection,
 } from '@/components/daily-fortune/subscribe';
 import { Loader2 } from 'lucide-react';
+import { isNativeApp, purchaseGoogleSubscription } from '@/lib/google-billing';
 
 interface SubscriptionStatus {
   isSubscribed: boolean;
@@ -125,8 +126,12 @@ export default function DailyFortuneSubscribePage({
     }
   };
 
-  /** 구독 시작 (PayApp 정기결제) */
-  const handleSubscribe = async (phoneNumber: string) => {
+  /**
+   * 구독 시작 (플랫폼별 분기)
+   * - 앱: Google Play 구독
+   * - 웹: PayApp 정기결제
+   */
+  const handleSubscribe = async (phoneNumber?: string) => {
     if (!user) {
       router.push(`/${locale}/auth/signin?redirect=/daily-fortune/subscribe`);
       return;
@@ -134,7 +139,27 @@ export default function DailyFortuneSubscribePage({
 
     setIsProcessing(true);
     setError(null);
+
     try {
+      // 앱 환경: Google Play 구독
+      if (isNativeApp()) {
+        const result = await purchaseGoogleSubscription(user.id);
+        if (result.success) {
+          router.push(`/${locale}/home`);
+        } else {
+          setError(result.error || '구독에 실패했습니다.');
+        }
+        setIsProcessing(false);
+        return;
+      }
+
+      // 웹 환경: PayApp 정기결제
+      if (!phoneNumber) {
+        setError('휴대폰 번호를 입력해주세요.');
+        setIsProcessing(false);
+        return;
+      }
+
       const res = await fetch('/api/subscription/payapp/create', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },

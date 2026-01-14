@@ -325,6 +325,7 @@
       "method": "Payment Method",
       "processing": "Processing payment...",
       "payWith": "Pay with {method}",
+      "googlePlay": "Pay with Google Play",
       "preparing": "Coming soon"
     },
     "methods": {
@@ -338,7 +339,8 @@
     },
     "security": {
       "payapp": "PayApp Secure Payment",
-      "portone": "PortOne Secure Payment · KakaoPay"
+      "portone": "PortOne Secure Payment · KakaoPay",
+      "googlePlay": "Google Play Secure Payment"
     },
     "popular": "Popular",
     "bonus": "Bonus",
@@ -1560,8 +1562,10 @@
           "startTrial": "Start 3-Day Free Trial",
           "trialNotice": "No auto-charge after trial",
           "subscribe": "Start Subscription",
+          "googlePlay": "Subscribe with Google Play",
           "trialActive": "{days} days left",
-          "paymentNotice": "Recurring subscription · Cancel anytime"
+          "paymentNotice": "Recurring subscription · Cancel anytime",
+          "googlePlayNotice": "Google Play subscription · Cancel anytime"
         }
       }
     },
