@@ -28,7 +28,7 @@ export async function initGoogleAuth() {
   try {
     await SocialLogin.initialize({
       google: {
-        webClientId: '321465412948-a37e3qo8hq5t0c745gbmieoggam689t2.apps.googleusercontent.com',
+        webClientId: '951109288825-vlkuvn4fqdkqig6nt812e1tj84ok6jid.apps.googleusercontent.com',
         mode: 'online',
       },
     });

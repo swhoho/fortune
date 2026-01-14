@@ -5,5 +5,5 @@
     <string name="package_name">app.fortune30.saju</string>
     <string name="custom_url_scheme">app.fortune30.saju</string>
     <!-- Google Sign-In Web Client ID (Supabase OAuth와 동일) -->
-    <string name="server_client_id">321465412948-a37e3qo8hq5t0c745gbmieoggam689t2.apps.googleusercontent.com</string>
+    <string name="server_client_id">951109288825-vlkuvn4fqdkqig6nt812e1tj84ok6jid.apps.googleusercontent.com</string>
 </resources>
