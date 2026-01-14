@@ -48,8 +48,11 @@ export function LandingPageClient() {
 
   return (
     <div className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden bg-[#0a0a0a]">
-      {/* 언어 스위처 */}
-      <div className="absolute right-4 top-4 z-20">
+      {/* 언어 스위처 - Safe Area 적용 (Capacitor 앱용) */}
+      <div
+        className="absolute right-4 z-20"
+        style={{ top: 'max(1rem, env(safe-area-inset-top, 0px))' }}
+      >
         <LanguageSwitcher />
       </div>
 

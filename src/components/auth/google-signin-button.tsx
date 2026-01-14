@@ -5,6 +5,7 @@ import { supabase } from '@/lib/supabase/client';
 import { Loader2 } from 'lucide-react';
 import { useSearchParams } from 'next/navigation';
 import { isKakaoTalkBrowser, openInExternalBrowser } from '@/lib/browser-detect';
+import { isNativeApp, NATIVE_OAUTH_CALLBACK } from '@/lib/capacitor-auth';
 
 interface GoogleSignInButtonProps {
   text?: string;
@@ -35,10 +36,16 @@ function GoogleSignInButtonInner({
     setIsLoading(true);
 
     try {
+      // Capacitor 앱이면 커스텀 URL 스킴 사용 (딥링크로 앱 복귀)
+      // 웹이면 기존 웹 콜백 URL 사용
+      const redirectTo = isNativeApp()
+        ? `${NATIVE_OAUTH_CALLBACK}?next=${encodeURIComponent(next)}`
+        : `${window.location.origin}/api/auth/callback?next=${encodeURIComponent(next)}`;
+
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-          redirectTo: `${window.location.origin}/api/auth/callback?next=${encodeURIComponent(next)}`,
+          redirectTo,
           queryParams: {
             access_type: 'offline',
             prompt: 'consent',

@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding='utf-8'?>
 <resources>
-    <string name="app_name">Master\'s Insight</string>
-    <string name="title_activity_main">Master\'s Insight</string>
-    <string name="package_name">ai.mastersinsight.app</string>
-    <string name="custom_url_scheme">ai.mastersinsight.app</string>
+    <string name="app_name">사주 30년</string>
+    <string name="title_activity_main">사주 30년</string>
+    <string name="package_name">app.fortune30.saju</string>
+    <string name="custom_url_scheme">app.fortune30.saju</string>
 </resources>
