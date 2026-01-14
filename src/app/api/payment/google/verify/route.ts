@@ -151,8 +151,22 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: '크레딧 지급 실패' }, { status: 500 });
     }
 
-    // NOTE: consume은 클라이언트(@capgo/native-purchases)에서 isConsumable: true로 자동 처리됨
-    // 서버에서 중복 호출하면 "not owned by user" 에러 발생하므로 제거
+    // 상품 소비 (consume) - 소모성 상품 재구매 가능하게 함
+    // 클라이언트에서 이미 consume 처리했을 수 있으므로 에러 무시
+    try {
+      const androidPublisher = await getAndroidPublisher();
+      const packageName = 'app.fortune30.saju';
+      await androidPublisher.purchases.products.consume({
+        packageName,
+        productId,
+        token: purchaseToken,
+      });
+      console.log('[Google Play Verify] 상품 consume 완료');
+    } catch (consumeError) {
+      // 이미 consumed된 경우 에러 발생 - 무시 (재구매는 이미 가능한 상태)
+      console.warn('[Google Play Verify] consume 스킵 (이미 처리됨):',
+        consumeError instanceof Error ? consumeError.message : consumeError);
+    }
 
     console.log('[Google Play Verify] 구매 완료:', {
       userId,
