@@ -2,8 +2,8 @@
 
 > Master's Insight AI 결제, 크레딧, 구독 시스템 문서
 
-**Version**: 3.4.0
-**Last Updated**: 2026-01-13
+**Version**: 3.5.0
+**Last Updated**: 2026-01-14
 **현재 사용**: PayApp (신용카드1)
 **구독**: PayApp 정기결제 (실결제 연동)
 **Android 앱**: Google Play Billing (준비중)
@@ -437,7 +437,7 @@ ALTER TABLE subscriptions ADD COLUMN google_order_id TEXT;
 
 #### Step 1: Google Play Console 설정
 
-1. **앱 등록**: Google Play Console에 앱 생성 (패키지명: `ai.mastersinsight.app`)
+1. **앱 등록**: Google Play Console에 앱 생성 (패키지명: `app.fortune30.saju`)
 2. **인앱 상품 등록**: 수익 창출 > 인앱 상품 > 관리형 제품
    - `credits_30`, `credits_50`, `credits_100`, `credits_200`
 3. **구독 상품 등록**: 수익 창출 > 구독
@@ -774,6 +774,7 @@ credit_transactions에 새 비용으로 차감 기록
 
 | 버전 | 날짜 | 변경 내용 |
 |------|------|----------|
+| 3.5.0 | 2026-01-14 | 패키지명 수정 (`app.fortune30.saju`), Google Play 구독 문서 상세화 |
 | 3.4.0 | 2026-01-13 | 웹 구독 가격 변경 (₩3,900 → ₩2,900), Google Play는 ₩3,900 유지 |
 | 3.3.0 | 2026-01-13 | 가격 변경 가이드 추가 (구독/크레딧 패키지/서비스 비용), 체크리스트 템플릿 |
 | 3.2.0 | 2026-01-12 | Google Play Billing 준비 (크레딧 구매 + 구독), 문서화 |

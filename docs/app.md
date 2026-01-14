@@ -7,7 +7,7 @@ Master's Insight AI의 Capacitor Android 앱 구현 및 출시 가이드입니�
 ```
 ┌─────────────────────────────────────────┐
 │     Android App (Capacitor WebView)     │
-│  Package: ai.mastersinsight.app         │
+│  Package: app.fortune30.saju            │
 ├─────────────────────────────────────────┤
 │ - WebView: Vercel 웹사이트 로드         │
 │ - 네이티브: Google Play Billing         │
@@ -57,7 +57,7 @@ fortune/
 
 ```typescript
 const config: CapacitorConfig = {
-  appId: 'ai.mastersinsight.app',
+  appId: 'app.fortune30.saju',
   appName: "Master's Insight",
   webDir: 'www',
   server: {
@@ -87,12 +87,20 @@ const config: CapacitorConfig = {
 
 ### 상품 ID 매핑
 
+**크레딧 패키지 (일회성 구매)**:
+
 | 패키지 | Google 상품 ID | 크레딧 | 가격 (KRW) |
 |--------|----------------|--------|------------|
 | basic | credits_30 | 30 | ₩3,000 |
 | starter | credits_50 | 50 | ₩5,000 |
 | popular | credits_100 | 110 (+10 보너스) | ₩10,000 |
 | premium | credits_200 | 230 (+30 보너스) | ₩20,000 |
+
+**구독 상품**:
+
+| 플랜 | Google 상품 ID | 가격 | 혜택 |
+|------|----------------|------|------|
+| 프리미엄 | `subscription_premium_monthly` | ₩3,900/월 | 오늘의 운세 무제한 + 월 50C |
 
 ### 결제 플로우
 
@@ -121,7 +129,7 @@ export function isNativeApp(): boolean {
   return Capacitor.isNativePlatform();
 }
 
-// 결제 실행
+// 크레딧 결제 실행
 export async function purchaseGoogleCredits(packageInfo, userId) {
   const result = await NativePurchases.purchaseProduct({
     productIdentifier: productId,
@@ -136,6 +144,50 @@ export async function purchaseGoogleCredits(packageInfo, userId) {
     userId,
   });
 }
+
+// 구독 결제 실행
+export async function purchaseGoogleSubscription(userId) {
+  const result = await NativePurchases.purchaseProduct({
+    productIdentifier: 'subscription_premium_monthly',
+    productType: PURCHASE_TYPE.SUBS,
+    quantity: 1,
+  });
+
+  // 서버 검증
+  await verifyGoogleSubscription({
+    purchaseToken: result.purchaseToken,
+    productId: 'subscription_premium_monthly',
+    userId,
+  });
+}
+```
+
+### 구독 결제 플로우
+
+```
+1. 사용자가 구독 시작 버튼 클릭
+2. isNativeApp() 확인
+   ├─ true: purchaseGoogleSubscription() 호출
+   └─ false: PayApp 정기결제 (기존)
+3. Google Play 구독 UI 표시
+4. 결제 완료 → purchaseToken 반환
+5. /api/payment/google/subscription 호출
+   ├─ Google Play Developer API로 검증
+   ├─ subscriptions 테이블에 기록
+   ├─ users.subscription_status 업데이트
+   └─ 월 50C 크레딧 지급
+6. 성공 응답 → UI 업데이트
+```
+
+### 파일 구조
+
+```
+src/
+├── lib/
+│   └── google-billing.ts              # Google Play Billing 클라이언트
+└── app/api/payment/google/
+    ├── verify/route.ts                # 크레딧 구매 검증 API
+    └── subscription/route.ts          # 구독 검증 API
 ```
 
 ---
@@ -145,21 +197,32 @@ export async function purchaseGoogleCredits(packageInfo, userId) {
 ### 1. Google Play Console 설정 (필수)
 
 #### 1.1 앱 등록
-- [ ] Google Play Console에 앱 생성
-- [ ] 패키지명: `ai.mastersinsight.app`
-- [ ] 앱 카테고리: 라이프스타일
+- [x] Google Play Console에 앱 생성
+- [x] 패키지명: `app.fortune30.saju`
+- [x] 앱 카테고리: 라이프스타일
 
 #### 1.2 인앱 상품 등록
 ```
 Google Play Console > 수익 창출 > 인앱 상품 > 관리형 제품
 ```
 
-| 상품 ID | 이름 | 가격 |
-|---------|------|------|
-| credits_30 | 30 크레딧 | ₩3,000 |
-| credits_50 | 50 크레딧 | ₩5,000 |
-| credits_100 | 100+10 크레딧 | ₩10,000 |
-| credits_200 | 200+30 크레딧 | ₩20,000 |
+| 상품 ID | 이름 | 가격 | 유형 |
+|---------|------|------|------|
+| credits_30 | 30 크레딧 | ₩3,000 | 관리형 제품 |
+| credits_50 | 50 크레딧 | ₩5,000 | 관리형 제품 |
+| credits_100 | 100+10 크레딧 | ₩10,000 | 관리형 제품 |
+| credits_200 | 200+30 크레딧 | ₩20,000 | 관리형 제품 |
+
+#### 1.2.1 구독 상품 등록
+```
+Google Play Console > 수익 창출 > 구독
+```
+
+| 상품 ID | 이름 | 가격 | 기간 |
+|---------|------|------|------|
+| subscription_premium_monthly | 프리미엄 구독 | ₩3,900 | 월간 |
+
+> **구독 설정**: 기본 요금제 추가 필요 (₩3,900/월)
 
 #### 1.3 서비스 계정 설정 (Google Play Developer API)
 
@@ -351,4 +414,4 @@ npm run cap:build
 
 ---
 
-**Last Updated:** 2026-01-07
+**Last Updated:** 2026-01-14

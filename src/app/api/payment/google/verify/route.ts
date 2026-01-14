@@ -70,7 +70,7 @@ export async function POST(request: NextRequest) {
     // Google Play Developer API로 구매 검증
     try {
       const androidPublisher = await getAndroidPublisher();
-      const packageName = 'ai.mastersinsight.app';
+      const packageName = 'app.fortune30.saju';
 
       const purchaseResult = await androidPublisher.purchases.products.get({
         packageName,

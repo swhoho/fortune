@@ -89,7 +89,7 @@ export async function POST(request: NextRequest) {
 
     try {
       const androidPublisher = await getAndroidPublisher();
-      const packageName = 'ai.mastersinsight.app';
+      const packageName = 'app.fortune30.saju';
 
       const subscriptionResult = await androidPublisher.purchases.subscriptions.get({
         packageName,
