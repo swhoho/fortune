@@ -1,9 +1,11 @@
 /**
  * Capacitor 앱 OAuth 딥링크 처리
  * - 앱에서 OAuth 로그인 후 딥링크로 돌아올 때 세션 교환
+ * - @capacitor/browser로 인앱 브라우저 사용 (PKCE 호환)
  */
 import { Capacitor } from '@capacitor/core';
 import { App } from '@capacitor/app';
+import { Browser } from '@capacitor/browser';
 import { supabase } from '@/lib/supabase/client';
 
 /** 앱 URL Scheme */
@@ -17,6 +19,15 @@ export const NATIVE_OAUTH_CALLBACK = `${APP_URL_SCHEME}://auth/callback`;
  */
 export function isNativeApp(): boolean {
   return Capacitor.isNativePlatform();
+}
+
+/**
+ * OAuth용 인앱 브라우저 열기
+ * - Chrome Custom Tab 사용 (Android)
+ * - PKCE code_verifier가 WebView와 공유됨
+ */
+export async function openOAuthBrowser(url: string): Promise<void> {
+  await Browser.open({ url });
 }
 
 /**
@@ -35,6 +46,9 @@ export function setupDeepLinkHandler() {
     // OAuth 콜백 URL 감지: app.fortune30.saju://auth/callback?code=xxx
     if (url.includes('auth') && url.includes('code=')) {
       try {
+        // 인앱 브라우저 닫기 (중요!)
+        await Browser.close();
+
         // URL 파싱 (커스텀 스킴을 https로 변환하여 URL 객체 생성)
         const urlObj = new URL(url.replace(`${APP_URL_SCHEME}://`, 'https://placeholder/'));
         const code = urlObj.searchParams.get('code');

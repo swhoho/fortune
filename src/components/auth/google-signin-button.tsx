@@ -5,7 +5,7 @@ import { supabase } from '@/lib/supabase/client';
 import { Loader2 } from 'lucide-react';
 import { useSearchParams } from 'next/navigation';
 import { isKakaoTalkBrowser, openInExternalBrowser } from '@/lib/browser-detect';
-import { isNativeApp, NATIVE_OAUTH_CALLBACK } from '@/lib/capacitor-auth';
+import { isNativeApp, NATIVE_OAUTH_CALLBACK, openOAuthBrowser } from '@/lib/capacitor-auth';
 
 interface GoogleSignInButtonProps {
   text?: string;
@@ -36,26 +36,48 @@ function GoogleSignInButtonInner({
     setIsLoading(true);
 
     try {
-      // Capacitor 앱이면 커스텀 URL 스킴 사용 (딥링크로 앱 복귀)
-      // 웹이면 기존 웹 콜백 URL 사용
-      const redirectTo = isNativeApp()
-        ? `${NATIVE_OAUTH_CALLBACK}?next=${encodeURIComponent(next)}`
-        : `${window.location.origin}/api/auth/callback?next=${encodeURIComponent(next)}`;
-
-      const { error } = await supabase.auth.signInWithOAuth({
-        provider: 'google',
-        options: {
-          redirectTo,
-          queryParams: {
-            access_type: 'offline',
-            prompt: 'consent',
+      if (isNativeApp()) {
+        // Capacitor 앱: skipBrowserRedirect + Browser.open() 사용
+        // PKCE code_verifier가 WebView에 유지되어야 하므로 인앱 브라우저 필수
+        const { data, error } = await supabase.auth.signInWithOAuth({
+          provider: 'google',
+          options: {
+            redirectTo: `${NATIVE_OAUTH_CALLBACK}?next=${encodeURIComponent(next)}`,
+            skipBrowserRedirect: true, // 자동 redirect 방지
+            queryParams: {
+              access_type: 'offline',
+              prompt: 'consent',
+            },
           },
-        },
-      });
+        });
 
-      if (error) {
-        console.error('Google login error:', error);
-        setIsLoading(false);
+        if (error) {
+          console.error('Google login error:', error);
+          setIsLoading(false);
+          return;
+        }
+
+        if (data?.url) {
+          // 인앱 브라우저(Chrome Custom Tab)로 열기
+          await openOAuthBrowser(data.url);
+        }
+      } else {
+        // 웹: 기존 방식 유지
+        const { error } = await supabase.auth.signInWithOAuth({
+          provider: 'google',
+          options: {
+            redirectTo: `${window.location.origin}/api/auth/callback?next=${encodeURIComponent(next)}`,
+            queryParams: {
+              access_type: 'offline',
+              prompt: 'consent',
+            },
+          },
+        });
+
+        if (error) {
+          console.error('Google login error:', error);
+          setIsLoading(false);
+        }
       }
     } catch (error) {
       console.error('Google login exception:', error);
