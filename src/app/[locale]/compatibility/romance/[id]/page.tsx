@@ -426,8 +426,11 @@ export default function CompatibilityResultPage() {
         </div>
       </motion.section>
 
-      {/* 탭 네비게이션 */}
-      <div className="sticky top-0 z-20 bg-[#050508]/80 backdrop-blur-lg">
+      {/* 탭 네비게이션 - Safe Area 적용 + AppHeader 아래 위치 */}
+      <div
+        className="sticky z-20 bg-[#050508]/80 backdrop-blur-lg"
+        style={{ top: 'calc(4rem + env(safe-area-inset-top, 0px))' }}
+      >
         <TabNavigation activeTab={activeTab} onTabChange={setActiveTab} />
       </div>
 

@@ -37,7 +37,8 @@ export function ReportNavigation({
       initial={{ opacity: 0, y: -20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4, delay: 0.2 }}
-      className={`sticky top-16 z-20 border-b border-[#333] bg-[#0a0a0a]/90 backdrop-blur-sm ${className}`}
+      className={`sticky z-20 border-b border-[#333] bg-[#0a0a0a]/90 backdrop-blur-sm ${className}`}
+      style={{ top: 'calc(4rem + env(safe-area-inset-top, 0px))' }}
     >
       <div className="mx-auto max-w-4xl px-4">
         <div className="flex items-center justify-center gap-2 py-3">

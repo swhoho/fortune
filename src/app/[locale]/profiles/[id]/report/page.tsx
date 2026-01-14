@@ -531,8 +531,11 @@ export default function ProfileReportPage({ params }: PageProps) {
               transition={{ duration: 0.3 }}
               className="fixed inset-x-0 top-0 z-50 flex h-[var(--vh,100vh)] flex-col bg-[#0a0a0a] md:relative md:inset-auto md:z-auto md:block md:h-auto"
             >
-              {/* 모바일 헤더 (뒤로가기) */}
-              <div className="flex items-center gap-3 border-b border-[#333] px-4 py-3 md:hidden">
+              {/* 모바일 헤더 (뒤로가기) - Safe Area 적용 */}
+              <div
+                className="flex items-center gap-3 border-b border-[#333] px-4 py-3 md:hidden"
+                style={{ paddingTop: 'calc(0.75rem + env(safe-area-inset-top, 0px))' }}
+              >
                 <button
                   onClick={() => setActiveTab('saju')}
                   className="rounded-md p-1 text-gray-400 hover:bg-[#242424] hover:text-white"

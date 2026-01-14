@@ -19,7 +19,7 @@ const config: CapacitorConfig = {
       releaseType: 'AAB', // Google Play용 Android App Bundle
     },
     // 딥링크 설정
-    webContentsDebuggingEnabled: process.env.NODE_ENV === 'development',
+    webContentsDebuggingEnabled: true, // 디버깅용 임시 활성화
   },
   plugins: {
     // Google Play Billing (Phase 3에서 추가)

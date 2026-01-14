@@ -78,6 +78,7 @@ export function AppHeader({
         sticky && 'sticky top-0',
         className
       )}
+      style={{ paddingTop: 'env(safe-area-inset-top, 0px)' }}
     >
       <div className="mx-auto flex max-w-3xl items-center justify-between px-4 py-3">
         {/* 좌측: Home + Back (고정 너비로 중앙 정렬 보장) */}

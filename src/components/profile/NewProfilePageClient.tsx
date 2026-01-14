@@ -36,8 +36,11 @@ export function NewProfilePageClient() {
 
   return (
     <div className="min-h-screen bg-[#0a0a0a]">
-      {/* 헤더 */}
-      <header className="sticky top-0 z-10 border-b border-[#333] bg-[#111111]/90 backdrop-blur-sm">
+      {/* 헤더 - Safe Area 적용 */}
+      <header
+        className="sticky top-0 z-10 border-b border-[#333] bg-[#111111]/90 backdrop-blur-sm"
+        style={{ paddingTop: 'env(safe-area-inset-top, 0px)' }}
+      >
         <div className="mx-auto flex max-w-2xl items-center justify-between px-6 py-4">
           <div className="flex items-center gap-1 sm:gap-2">
             <Button

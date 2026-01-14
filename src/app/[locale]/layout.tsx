@@ -2,12 +2,24 @@ import { NextIntlClientProvider, hasLocale } from 'next-intl';
 import { getMessages, setRequestLocale } from 'next-intl/server';
 import { notFound } from 'next/navigation';
 import localFont from 'next/font/local';
-import type { Metadata } from 'next';
+import type { Metadata, Viewport } from 'next';
 import { SpeedInsights } from '@vercel/speed-insights/next';
 import { GoogleAnalytics } from '@next/third-parties/google';
 import { routing, locales } from '@/i18n/routing';
 import { Providers } from '@/lib/providers';
 import { OrganizationJsonLd, WebSiteJsonLd } from '@/components/seo/JsonLd';
+
+/**
+ * Viewport 설정 (Capacitor 앱 Safe Area 지원)
+ * - viewportFit: 'cover'로 env(safe-area-inset-*) CSS 변수 활성화
+ */
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
+  viewportFit: 'cover',
+};
 
 /**
  * 기본 폰트 (Geist)
