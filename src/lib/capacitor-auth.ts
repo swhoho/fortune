@@ -4,7 +4,7 @@
  */
 import { Capacitor } from '@capacitor/core';
 import { App } from '@capacitor/app';
-import { createClient } from '@/lib/supabase/client';
+import { supabase } from '@/lib/supabase/client';
 
 /** 앱 URL Scheme */
 export const APP_URL_SCHEME = 'app.fortune30.saju';
@@ -29,6 +29,7 @@ export function setupDeepLinkHandler() {
   if (!isNativeApp()) return;
 
   App.addListener('appUrlOpen', async ({ url }) => {
+    // eslint-disable-next-line no-console
     console.log('[Capacitor] Deep link received:', url);
 
     // OAuth 콜백 URL 감지: app.fortune30.saju://auth/callback?code=xxx
@@ -40,25 +41,29 @@ export function setupDeepLinkHandler() {
         const next = urlObj.searchParams.get('next') || '/home';
 
         if (code) {
+          // eslint-disable-next-line no-console
           console.log('[Capacitor] Exchanging OAuth code for session...');
 
-          const supabase = createClient();
           const { error } = await supabase.auth.exchangeCodeForSession(code);
 
           if (error) {
+            // eslint-disable-next-line no-console
             console.error('[Capacitor] Session exchange failed:', error.message);
             window.location.href = '/auth/error';
           } else {
+            // eslint-disable-next-line no-console
             console.log('[Capacitor] Session exchange successful, redirecting to:', next);
             window.location.href = next;
           }
         }
       } catch (err) {
+        // eslint-disable-next-line no-console
         console.error('[Capacitor] Deep link handling error:', err);
         window.location.href = '/auth/error';
       }
     }
   });
 
+  // eslint-disable-next-line no-console
   console.log('[Capacitor] Deep link handler registered');
 }
