@@ -341,40 +341,36 @@ export default function PaymentPage({ params: { locale } }: { params: { locale: 
                 </div>
 
                 {/* 구독 프로모션 배너 */}
-                <motion.div
+                <motion.button
                   onClick={() => router.push(`/${locale}/daily-fortune/subscribe`)}
                   whileHover={{ scale: 1.01 }}
                   whileTap={{ scale: 0.99 }}
-                  className="mt-4 flex cursor-pointer items-center justify-between rounded-xl border border-[#d4af37]/40 bg-gradient-to-r from-[#1a1a1a] to-[#242424] p-4 transition-all hover:border-[#d4af37] hover:shadow-[0_0_15px_rgba(212,175,55,0.2)]"
+                  className="mt-4 w-full cursor-pointer rounded-xl border border-[#d4af37]/40 bg-gradient-to-r from-[#1a1a1a] to-[#242424] p-4 text-left transition-all hover:border-[#d4af37] hover:shadow-[0_0_15px_rgba(212,175,55,0.2)]"
+                  aria-label={t('subscription.subtext')}
                 >
-                  {/* 아이콘 */}
-                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#d4af37]/10">
-                    <Coffee className="h-5 w-5 text-[#d4af37]" />
+                  {/* 상단: 크레딧 + 혜택 */}
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#d4af37]/10">
+                        <Coffee className="h-5 w-5 text-[#d4af37]" />
+                      </div>
+                      <div>
+                        <p className="flex items-center gap-2 text-base font-bold text-white">
+                          <span className="text-[#d4af37]">50C</span>
+                          <span className="text-gray-400">+</span>
+                          <span>30일 운세</span>
+                        </p>
+                        <p className="text-xs text-gray-400">{t('subscription.subtext')}</p>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <span className="rounded-full bg-[#d4af37]/20 px-3 py-1.5 text-sm font-bold text-[#f5d76e]">
+                        ₩2,900/월
+                      </span>
+                      <ChevronRight className="h-5 w-5 text-gray-400" />
+                    </div>
                   </div>
-
-                  {/* 텍스트 */}
-                  <div className="mx-4 flex-1">
-                    <p className="text-sm font-medium text-white">
-                      {t.rich('subscription.promo', {
-                        daily: () => (
-                          <span className="text-[#d4af37]">{t('subscription.daily')}</span>
-                        ),
-                        credits: () => (
-                          <span className="text-[#d4af37]">{t('subscription.credits')}</span>
-                        ),
-                      })}
-                    </p>
-                    <p className="mt-0.5 text-xs text-gray-400">{t('subscription.subtext')}</p>
-                  </div>
-
-                  {/* 가격 + 화살표 */}
-                  <div className="flex shrink-0 items-center gap-2">
-                    <span className="rounded-full bg-[#d4af37]/20 px-3 py-1 text-sm font-bold text-[#d4af37]">
-                      ₩2,900/월
-                    </span>
-                    <ChevronRight className="h-5 w-5 text-gray-400" />
-                  </div>
-                </motion.div>
+                </motion.button>
 
                 {/* 결제 수단 선택 (웹 환경에서만 표시) */}
                 {!isNativeApp() && (
