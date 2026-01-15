@@ -73,7 +73,10 @@ export default function ConsultationPage() {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0, x: -20 }}
             className="mx-auto max-w-lg px-4"
-            style={{ paddingTop: 'calc(2rem + env(safe-area-inset-top, 0px))', paddingBottom: '2rem' }}
+            style={{
+              paddingTop: 'calc(2rem + env(safe-area-inset-top, 0px))',
+              paddingBottom: '2rem',
+            }}
           >
             {/* 헤더 */}
             <div className="mb-8">
