@@ -102,6 +102,7 @@ export async function GET(request: NextRequest) {
 
     // 7. 필요 크레딧 미지정 시 현재 잔액 + 만료 정보 반환
     return NextResponse.json({
+      userId,  // v5.0: DailyFortuneCard 캐싱용 userId 추가
       current: currentCredits,
       expiringSoon: expiringInfo.total,
       nearestExpiry: nearestExpiring.expiresAt,

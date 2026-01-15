@@ -59,7 +59,93 @@ interface DailyFortuneData {
   lucky_direction?: string;
 }
 
-type CardState = 'loading' | 'subscription' | 'generating' | 'ready' | 'error';
+type CardState = 'idle' | 'loading' | 'subscription' | 'generating' | 'ready' | 'error';
+
+// ============================================
+// Local Storage 캐싱 유틸리티 (Gemini 검증 완료)
+// ============================================
+
+/**
+ * 로컬 시간 기준 날짜 반환 (UTC 아님!)
+ * toISOString()은 UTC 기준이므로 한국 새벽 1시 = UTC 전날 오후 4시 문제 발생
+ */
+const getLocalTodayDate = (): string => {
+  const d = new Date();
+  const year = d.getFullYear();
+  const month = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+};
+
+/**
+ * 캐시 키 생성 (userId + profileId + localDate)
+ * 다른 계정/프로필 로그인 시 자동으로 다른 캐시 참조
+ */
+const getCacheKey = (userId: string, profileId: string): string => {
+  return `fortune_${userId}_${profileId}_${getLocalTodayDate()}`;
+};
+
+/**
+ * Local Storage에서 오늘의 운세 캐시 조회
+ */
+const getCachedFortune = (userId: string, profileId: string): DailyFortuneData | null => {
+  // SSR 환경 체크
+  if (typeof window === 'undefined') return null;
+
+  const cacheKey = getCacheKey(userId, profileId);
+  const cached = localStorage.getItem(cacheKey);
+  if (!cached) return null;
+
+  try {
+    const { date, data } = JSON.parse(cached);
+    const today = getLocalTodayDate();
+
+    // 날짜 기반 유효성 검사 (이중 검증)
+    if (date !== today) {
+      localStorage.removeItem(cacheKey);
+      return null;
+    }
+
+    return data;
+  } catch (e) {
+    // JSON 파싱 실패 시 손상된 데이터 삭제
+    console.error('[DailyFortune] 캐시 파싱 오류:', e);
+    localStorage.removeItem(cacheKey);
+    return null;
+  }
+};
+
+/**
+ * Local Storage에 오늘의 운세 캐시 저장
+ */
+const setCachedFortune = (userId: string, profileId: string, data: DailyFortuneData): void => {
+  if (typeof window === 'undefined') return;
+
+  try {
+    const cacheKey = getCacheKey(userId, profileId);
+    const today = getLocalTodayDate();
+    localStorage.setItem(cacheKey, JSON.stringify({ date: today, data }));
+  } catch (e) {
+    // localStorage 용량 초과 등 예외 처리
+    console.error('[DailyFortune] 캐시 저장 오류:', e);
+  }
+};
+
+/**
+ * 오래된 캐시 정리 (앱 초기 진입 시 1회 호출)
+ */
+const cleanupOldCaches = (): void => {
+  if (typeof window === 'undefined') return;
+
+  const todayKeyFragment = getLocalTodayDate();
+
+  Object.keys(localStorage).forEach((key) => {
+    // fortune_ 키이면서 오늘 날짜가 포함되지 않은 경우 삭제
+    if (key.startsWith('fortune_') && !key.includes(todayKeyFragment)) {
+      localStorage.removeItem(key);
+    }
+  });
+};
 
 /** 단계별 라벨 (다국어) */
 const STEP_LABELS: Record<string, Record<string, string>> = {
@@ -127,7 +213,8 @@ export function DailyFortuneCard() {
   const locale = useLocale();
   const router = useRouter();
 
-  const [state, setState] = useState<CardState>('loading');
+  // v5.0: 초기 상태는 'idle' (SSR Hydration 안전)
+  const [state, setState] = useState<CardState>('idle');
   const [data, setData] = useState<DailyFortuneResponse | null>(null);
   const [error, setError] = useState<string | null>(null);
 
@@ -135,6 +222,10 @@ export function DailyFortuneCard() {
   const [progress, setProgress] = useState(0);
   const [currentStep, setCurrentStep] = useState('');
   const [isNavigatingToDetail, setIsNavigatingToDetail] = useState(false);
+
+  // v5.0: 캐싱을 위한 사용자/프로필 ID
+  const [userId, setUserId] = useState<string | null>(null);
+  const [profileId, setProfileId] = useState<string | null>(null);
 
   /** 데이터 조회 */
   const fetchFortune = useCallback(async () => {
@@ -154,12 +245,21 @@ export function DailyFortuneCard() {
         throw new Error(json.message || '운세 조회에 실패했습니다');
       }
 
+      // v5.0: userId, profileId 저장 (캐싱용)
+      if (json.profile?.id) {
+        setProfileId(json.profile.id);
+      }
+
       setData(json);
 
       if (json.needsGeneration && !json.data) {
         // 운세 생성 필요
         await generateFortune(json);
       } else {
+        // v5.0: 캐시 저장 (캐시된 데이터 또는 새로 생성된 데이터)
+        if (json.data && userId && json.profile?.id) {
+          setCachedFortune(userId, json.profile.id, json.data);
+        }
         setState('ready');
       }
     } catch (err) {
@@ -167,7 +267,7 @@ export function DailyFortuneCard() {
       setError(err instanceof Error ? err.message : '오류가 발생했습니다');
       setState('error');
     }
-  }, []);
+  }, [userId]);
 
   /** 운세 생성 (v3.0: 진행률 폴링) */
   const generateFortune = async (fetchedData: DailyFortuneResponse) => {
@@ -194,6 +294,10 @@ export function DailyFortuneCard() {
       if (postRes.ok) {
         const json: DailyFortuneResponse = await postRes.json();
         if (json.data) {
+          // v5.0: 캐시 저장
+          if (userId && profileId) {
+            setCachedFortune(userId, profileId, json.data);
+          }
           setData((prev) => (prev ? { ...prev, data: json.data, cached: false } : json));
           setProgress(100);
           setState('ready');
@@ -221,6 +325,10 @@ export function DailyFortuneCard() {
           }
 
           if (statusJson.status === 'completed' && statusJson.result) {
+            // v5.0: 캐시 저장
+            if (userId && profileId) {
+              setCachedFortune(userId, profileId, statusJson.result);
+            }
             setData((prev) =>
               prev
                 ? { ...prev, data: statusJson.result, cached: false }
@@ -292,12 +400,79 @@ export function DailyFortuneCard() {
   // v4.0: 날짜는 클라이언트에서만 계산 (hydration 오류 방지)
   const [dateStr, setDateStr] = useState('');
 
+  // v5.0: 초기화 - 자동 fetch 제거, 캐시 확인만 수행
   useEffect(() => {
-    fetchFortune();
     // 클라이언트에서만 날짜 설정
     const today = new Date();
     setDateStr(`${today.getFullYear()}년 ${today.getMonth() + 1}월 ${today.getDate()}일`);
-  }, [fetchFortune]);
+
+    // 오래된 캐시 정리
+    cleanupOldCaches();
+
+    // 사용자 정보 가져오기 (Supabase에서)
+    const initializeUser = async () => {
+      try {
+        // 간단한 API 호출로 사용자 정보 확인
+        const res = await fetch('/api/user/credits/check');
+        if (res.ok) {
+          const data = await res.json();
+          if (data.userId) {
+            setUserId(data.userId);
+          }
+        }
+      } catch (err) {
+        console.error('[DailyFortune] 사용자 정보 조회 실패:', err);
+      }
+    };
+
+    initializeUser();
+  }, []);
+
+  // v5.0: userId가 설정되면 캐시 확인
+  useEffect(() => {
+    if (!userId) return;
+
+    const checkCache = async () => {
+      // 먼저 대표 프로필 ID를 가져와야 함
+      try {
+        const res = await fetch('/api/daily-fortune');
+        const json: DailyFortuneResponse = await res.json();
+
+        if (!res.ok) {
+          if (res.status === 403 && json.requireSubscription) {
+            setData(json);
+            setState('subscription');
+            return;
+          }
+          // 다른 에러는 idle 상태 유지
+          return;
+        }
+
+        const fetchedProfileId = json.profile?.id;
+        if (fetchedProfileId) {
+          setProfileId(fetchedProfileId);
+
+          // Local Storage 캐시 확인
+          const cached = getCachedFortune(userId, fetchedProfileId);
+          if (cached) {
+            // 캐시 히트 - 즉시 표시
+            setData({ ...json, data: cached, cached: true });
+            setState('ready');
+            return;
+          }
+        }
+
+        // 캐시 미스 - idle 상태 유지 (버튼 표시)
+        setData(json);
+        setState('idle');
+      } catch (err) {
+        console.error('[DailyFortune] 캐시 확인 오류:', err);
+        setState('idle');
+      }
+    };
+
+    checkCache();
+  }, [userId]);
 
   return (
     <motion.div
@@ -336,6 +511,31 @@ export function DailyFortuneCard() {
       {/* 콘텐츠 */}
       <div className="p-5">
         <AnimatePresence mode="wait">
+          {/* v5.0: idle 상태 - 버튼 표시 */}
+          {state === 'idle' && (
+            <motion.div
+              key="idle"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="flex flex-col items-center justify-center py-8"
+            >
+              <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-[#d4af37]/10">
+                <Sparkles className="h-8 w-8 text-[#d4af37]" />
+              </div>
+              <p className="mb-2 text-center text-sm text-gray-400">
+                {t('idleDescription')}
+              </p>
+              <Button
+                onClick={fetchFortune}
+                className="mt-4 w-full bg-gradient-to-r from-[#d4af37] to-[#f5d77a] text-[#0a0a0a] font-medium hover:from-[#c9a432] hover:to-[#e5c76a]"
+              >
+                <Sparkles className="mr-2 h-4 w-4" />
+                {t('getFortuneButton')}
+              </Button>
+            </motion.div>
+          )}
+
           {/* 로딩 */}
           {state === 'loading' && (
             <motion.div
@@ -346,7 +546,7 @@ export function DailyFortuneCard() {
               className="flex flex-col items-center justify-center py-10"
             >
               <div className="h-10 w-10 animate-spin rounded-full border-4 border-[#333] border-t-[#d4af37]" />
-              <p className="mt-4 text-sm text-gray-400">운세를 불러오는 중...</p>
+              <p className="mt-4 text-sm text-gray-400">{t('loading')}</p>
             </motion.div>
           )}
 
