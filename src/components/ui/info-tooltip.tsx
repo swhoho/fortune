@@ -97,9 +97,10 @@ export function InfoTooltip({ content, title, image, iconSize = 14, className = 
 
       <Popover.Portal>
         <Popover.Content
-          className={`z-50 max-h-[400px] overflow-y-auto rounded-lg border border-[#333] bg-[#1a1a1a] p-4 shadow-xl animate-in fade-in-0 zoom-in-95 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95 ${hasImage ? 'w-[320px] max-w-[90vw]' : 'max-w-sm'}`}
+          className={`z-50 max-h-[400px] overflow-y-auto rounded-lg border border-[#333] bg-[#1a1a1a] p-4 shadow-xl animate-in fade-in-0 zoom-in-95 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95 ${hasImage ? 'w-[min(320px,calc(100vw-32px))]' : 'max-w-[min(384px,calc(100vw-32px))]'}`}
           sideOffset={8}
           align="center"
+          collisionPadding={16}
           onMouseEnter={handleMouseEnter}
           onMouseLeave={handleMouseLeave}
           onInteractOutside={() => setOpen(false)}
