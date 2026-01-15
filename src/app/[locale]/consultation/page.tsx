@@ -72,7 +72,8 @@ export default function ConsultationPage() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0, x: -20 }}
-            className="mx-auto max-w-lg px-4 py-8"
+            className="mx-auto max-w-lg px-4"
+            style={{ paddingTop: 'calc(2rem + env(safe-area-inset-top, 0px))', paddingBottom: '2rem' }}
           >
             {/* 헤더 */}
             <div className="mb-8">
@@ -119,7 +120,10 @@ export default function ConsultationPage() {
             className="flex h-screen flex-col"
           >
             {/* 상담 헤더 */}
-            <div className="shrink-0 border-b border-[#333] bg-[#111111] px-4 py-3">
+            <div
+              className="shrink-0 border-b border-[#333] bg-[#111111] px-4 pb-3"
+              style={{ paddingTop: 'calc(0.75rem + env(safe-area-inset-top, 0px))' }}
+            >
               <div className="mx-auto flex max-w-4xl items-center gap-4">
                 <button
                   onClick={handleBack}

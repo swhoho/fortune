@@ -74,10 +74,19 @@ export function ChatInput({
   };
 
   /**
-   * 키 핸들러 (Enter로 전송, Shift+Enter로 줄바꿈)
+   * 키 핸들러
+   * - PC: Enter로 전송, Shift+Enter로 줄바꿈
+   * - 모바일: Enter로 줄바꿈, 전송 버튼으로만 전송
    */
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
+    // 모바일 감지 (터치 디바이스)
+    const isMobile =
+      typeof window !== 'undefined' &&
+      ('ontouchstart' in window || navigator.maxTouchPoints > 0);
+
+    // 모바일: Enter는 줄바꿈 (기본 동작 유지)
+    // PC: Enter로 전송 (Shift+Enter는 줄바꿈)
+    if (e.key === 'Enter' && !e.shiftKey && !isMobile) {
       e.preventDefault();
       handleSubmit();
     }
