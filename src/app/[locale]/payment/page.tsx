@@ -26,7 +26,7 @@ import {
   type PaymentMethod,
 } from '@/lib/portone';
 
-import { Coffee, ChevronRight } from 'lucide-react';
+import { Coffee, ChevronRight, Loader2 } from 'lucide-react';
 import {
   HeroSection,
   PillarsSection,
@@ -60,6 +60,7 @@ export default function PaymentPage({ params: { locale } }: { params: { locale: 
   );
   const [selectedMethod, setSelectedMethod] = useState<PaymentMethod>('payapp_card');
   const [isLoading, setIsLoading] = useState(false);
+  const [isNavigatingToSubscribe, setIsNavigatingToSubscribe] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const requiredCredits = SERVICE_CREDITS.fullAnalysis;
@@ -340,35 +341,43 @@ export default function PaymentPage({ params: { locale } }: { params: { locale: 
                   ))}
                 </div>
 
-                {/* 구독 프로모션 배너 */}
+                {/* 구독 프로모션 배너 - 모바일 최적화 2줄 레이아웃 */}
                 <motion.button
-                  onClick={() => router.push(`/${locale}/daily-fortune/subscribe`)}
+                  onClick={() => {
+                    setIsNavigatingToSubscribe(true);
+                    router.push(`/${locale}/daily-fortune/subscribe`);
+                  }}
+                  disabled={isNavigatingToSubscribe}
                   whileHover={{ scale: 1.01 }}
                   whileTap={{ scale: 0.99 }}
-                  className="mt-4 w-full cursor-pointer rounded-xl border border-[#d4af37]/40 bg-gradient-to-r from-[#1a1a1a] to-[#242424] p-4 text-left transition-all hover:border-[#d4af37] hover:shadow-[0_0_15px_rgba(212,175,55,0.2)]"
+                  className="mt-4 w-full cursor-pointer rounded-xl border border-[#d4af37]/40 bg-gradient-to-r from-[#1a1a1a] to-[#242424] p-4 text-left transition-all hover:border-[#d4af37] hover:shadow-[0_0_15px_rgba(212,175,55,0.2)] disabled:cursor-wait disabled:opacity-70"
                   aria-label={t('subscription.subtext')}
                 >
-                  {/* 상단: 크레딧 + 혜택 */}
+                  {/* 상단: 아이콘 + 캐치프레이즈 + 가격 */}
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3">
                       <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#d4af37]/10">
                         <Coffee className="h-5 w-5 text-[#d4af37]" />
                       </div>
-                      <div>
-                        <p className="flex items-center gap-2 text-base font-bold text-white">
-                          <span className="text-[#d4af37]">50C</span>
-                          <span className="text-gray-400">+</span>
-                          <span>30일 운세</span>
-                        </p>
-                        <p className="text-xs text-gray-400">{t('subscription.subtext')}</p>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-1">
-                      <span className="rounded-full bg-[#d4af37]/20 px-3 py-1.5 text-sm font-bold text-[#f5d76e]">
-                        ₩2,900/월
+                      <span className="text-sm font-medium text-gray-300">
+                        {t('subscription.coffeePrice')}
                       </span>
-                      <ChevronRight className="h-5 w-5 text-gray-400" />
                     </div>
+                    <span className="rounded-full bg-[#d4af37]/20 px-3 py-1.5 text-sm font-bold text-[#f5d76e]">
+                      ₩2,900/월
+                    </span>
+                  </div>
+                  {/* 하단: 혜택 + 화살표 */}
+                  <div className="mt-2 flex items-center justify-between pl-[52px]">
+                    <p className="text-base font-bold text-white">
+                      {t('subscription.dailyFortuneLabel')}{' '}
+                      <span className="text-[#d4af37]">+ 50C</span>
+                    </p>
+                    {isNavigatingToSubscribe ? (
+                      <Loader2 className="h-5 w-5 animate-spin text-[#d4af37]" />
+                    ) : (
+                      <ChevronRight className="h-5 w-5 text-gray-400" />
+                    )}
                   </div>
                 </motion.button>
 

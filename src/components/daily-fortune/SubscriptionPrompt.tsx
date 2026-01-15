@@ -4,10 +4,11 @@
  * 비구독자용 오늘의 운세 구독 유도 카드
  * 버튼 클릭 시 /daily-fortune/subscribe 랜딩 페이지로 이동
  */
+import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { useTranslations, useLocale } from 'next-intl';
 import { useRouter } from 'next/navigation';
-import { Sparkles, Crown, Calendar, ChevronRight } from 'lucide-react';
+import { Sparkles, Crown, Calendar, ChevronRight, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 interface SubscriptionPromptProps {
@@ -24,9 +25,11 @@ export function SubscriptionPrompt({
   const t = useTranslations('dailyFortune');
   const router = useRouter();
   const locale = useLocale();
+  const [isNavigating, setIsNavigating] = useState(false);
 
   /** 랜딩 페이지로 이동 */
   const handleNavigateToSubscribe = () => {
+    setIsNavigating(true);
     router.push(`/${locale}/daily-fortune/subscribe`);
   };
 
@@ -86,11 +89,25 @@ export function SubscriptionPrompt({
         {/* 버튼 - 랜딩 페이지로 이동 */}
         <Button
           onClick={handleNavigateToSubscribe}
-          className="group w-full bg-[#d4af37] text-[#0a0a0a] hover:bg-[#c9a432]"
+          disabled={isNavigating}
+          className="group w-full bg-[#d4af37] text-[#0a0a0a] hover:bg-[#c9a432] disabled:cursor-wait disabled:opacity-70"
         >
           <span className="flex items-center justify-center gap-2">
-            {canStartTrial ? t('subscriptionPrompt.startTrial') : t('subscriptionPrompt.subscribe')}
-            <ChevronRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+            {isNavigating ? (
+              <>
+                <Loader2 className="h-4 w-4 animate-spin" />
+                {canStartTrial
+                  ? t('subscriptionPrompt.startTrial')
+                  : t('subscriptionPrompt.subscribe')}
+              </>
+            ) : (
+              <>
+                {canStartTrial
+                  ? t('subscriptionPrompt.startTrial')
+                  : t('subscriptionPrompt.subscribe')}
+                <ChevronRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+              </>
+            )}
           </span>
         </Button>
       </div>

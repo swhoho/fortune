@@ -319,7 +319,9 @@
       "promo": "咖啡一杯的價格：{daily} + {credits}",
       "daily": "每日運勢",
       "credits": "50C",
-      "subtext": "個人化建議 · 無限每日運勢"
+      "subtext": "個人化建議 · 無限每日運勢",
+      "coffeePrice": "咖啡一杯的價格",
+      "dailyFortuneLabel": "每日運勢"
     },
     "checkout": {
       "method": "付款方式",

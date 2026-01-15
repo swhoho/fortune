@@ -319,7 +319,9 @@
       "promo": "커피 한 잔 가격으로 {daily} + {credits}",
       "daily": "매일 운세분석",
       "credits": "50C",
-      "subtext": "개인화 조언 · 무제한 오늘의 운세"
+      "subtext": "개인화 조언 · 무제한 오늘의 운세",
+      "coffeePrice": "커피 한 잔 가격",
+      "dailyFortuneLabel": "오늘의 운세"
     },
     "checkout": {
       "method": "결제 수단",

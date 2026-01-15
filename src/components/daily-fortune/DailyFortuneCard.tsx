@@ -8,7 +8,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useTranslations, useLocale } from 'next-intl';
 import { useRouter } from 'next/navigation';
-import { Calendar, ChevronRight, Sparkles, RefreshCw } from 'lucide-react';
+import { Calendar, ChevronRight, Sparkles, RefreshCw, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { FortuneScoreGauge } from './FortuneScoreGauge';
 import { SubscriptionPrompt } from './SubscriptionPrompt';
@@ -134,6 +134,7 @@ export function DailyFortuneCard() {
   // v3.0: 진행률 상태
   const [progress, setProgress] = useState(0);
   const [currentStep, setCurrentStep] = useState('');
+  const [isNavigatingToDetail, setIsNavigatingToDetail] = useState(false);
 
   /** 데이터 조회 */
   const fetchFortune = useCallback(async () => {
@@ -499,11 +500,24 @@ export function DailyFortuneCard() {
 
               {/* 상세 보기 버튼 */}
               <Button
-                onClick={() => router.push(`/${locale}/daily-fortune/${data.data?.id}`)}
-                className="w-full bg-[#d4af37] text-[#0a0a0a] hover:bg-[#c9a432]"
+                onClick={() => {
+                  setIsNavigatingToDetail(true);
+                  router.push(`/${locale}/daily-fortune/${data.data?.id}`);
+                }}
+                disabled={isNavigatingToDetail}
+                className="w-full bg-[#d4af37] text-[#0a0a0a] hover:bg-[#c9a432] disabled:cursor-wait disabled:opacity-70"
               >
-                {t('viewDetail')}
-                <ChevronRight className="ml-1 h-4 w-4" />
+                {isNavigatingToDetail ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    {t('viewDetail')}
+                  </>
+                ) : (
+                  <>
+                    {t('viewDetail')}
+                    <ChevronRight className="ml-1 h-4 w-4" />
+                  </>
+                )}
               </Button>
             </motion.div>
           )}

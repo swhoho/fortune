@@ -319,7 +319,9 @@
       "promo": "一杯咖啡的价格：{daily} + {credits}",
       "daily": "每日运势分析",
       "credits": "50C",
-      "subtext": "个性化建议·无限今日运势"
+      "subtext": "个性化建议·无限今日运势",
+      "coffeePrice": "一杯咖啡的价格",
+      "dailyFortuneLabel": "今日运势"
     },
     "checkout": {
       "method": "支付方式",

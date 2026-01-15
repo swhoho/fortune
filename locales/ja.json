@@ -319,7 +319,9 @@
       "promo": "コーヒー1杯の価格で {daily} + {credits}",
       "daily": "毎日の運勢分析",
       "credits": "50C",
-      "subtext": "パーソナライズされたアドバイス・無制限の今日の運勢"
+      "subtext": "パーソナライズされたアドバイス・無制限の今日の運勢",
+      "coffeePrice": "コーヒー1杯の価格",
+      "dailyFortuneLabel": "今日の運勢"
     },
     "checkout": {
       "method": "決済方法",

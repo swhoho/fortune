@@ -319,7 +319,9 @@
       "promo": "For the price of a coffee: {daily} + {credits}",
       "daily": "Daily Fortune",
       "credits": "50C",
-      "subtext": "Personalized advice · Unlimited daily fortune"
+      "subtext": "Personalized advice · Unlimited daily fortune",
+      "coffeePrice": "For the price of a coffee",
+      "dailyFortuneLabel": "Daily Fortune"
     },
     "checkout": {
       "method": "Payment Method",
