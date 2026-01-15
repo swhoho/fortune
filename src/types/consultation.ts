@@ -212,9 +212,9 @@ export function transformMessage(row: ConsultationMessageRow): ConsultationMessa
 /** 상수 */
 export const CONSULTATION_CONSTANTS = {
   /** 세션당 최대 질문 수 */
-  MAX_QUESTIONS_PER_SESSION: 2,
+  MAX_QUESTIONS_PER_SESSION: 1,
   /** 세션 생성 크레딧 비용 */
-  SESSION_CREDITS: 10,
+  SESSION_CREDITS: 5,
   /** 질문 최대 길이 */
   MAX_QUESTION_LENGTH: 500,
   /** 최대 명확화 횟수 (v2.0) */

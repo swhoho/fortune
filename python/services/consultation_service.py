@@ -301,7 +301,7 @@ class ConsultationService:
         if increment_question:
             new_count = session['question_count'] + 1
             update_data['question_count'] = new_count
-            update_data['status'] = 'completed' if new_count >= 2 else 'active'
+            update_data['status'] = 'completed' if new_count >= 1 else 'active'
 
         if increment_clarification:
             update_data['clarification_count'] = clarification_round
