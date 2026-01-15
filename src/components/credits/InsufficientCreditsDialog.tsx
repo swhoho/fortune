@@ -4,7 +4,8 @@
  * 크레딧 부족 안내 다이얼로그
  * Task 23.3: 크레딧 부족 시 안내
  */
-import { Coins, CreditCard } from 'lucide-react';
+import { useState } from 'react';
+import { Coins, CreditCard, Loader2 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { useRouter } from 'next/navigation';
 import {
@@ -44,16 +45,19 @@ export function InsufficientCreditsDialog({
 }: InsufficientCreditsDialogProps) {
   const t = useTranslations('credits');
   const router = useRouter();
+  const [isNavigating, setIsNavigating] = useState(false);
   // 방어적 코딩: shortfall이 음수가 되지 않도록 보호
   const shortfall = Math.max(0, required - current);
 
   const handleCharge = () => {
+    setIsNavigating(true);
     if (onCharge) {
       onCharge();
+      onOpenChange(false);
     } else {
+      // router.push 시에는 다이얼로그를 열어둬서 로딩 스피너 표시
       router.push('/payment');
     }
-    onOpenChange(false);
   };
 
   return (
@@ -97,9 +101,14 @@ export function InsufficientCreditsDialog({
               e.preventDefault();
               handleCharge();
             }}
-            className="bg-[#d4af37] text-white hover:bg-[#c9a02f] focus:ring-[#d4af37]"
+            disabled={isNavigating}
+            className="bg-[#d4af37] text-white hover:bg-[#c9a02f] focus:ring-[#d4af37] disabled:cursor-wait disabled:opacity-70"
           >
-            <CreditCard className="mr-2 h-4 w-4" />
+            {isNavigating ? (
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+            ) : (
+              <CreditCard className="mr-2 h-4 w-4" />
+            )}
             {t('insufficient.chargeCredits')}
           </AlertDialogAction>
         </AlertDialogFooter>

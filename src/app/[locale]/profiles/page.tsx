@@ -19,12 +19,14 @@ export default function ProfilesPage() {
   const t = useTranslations('profile');
   const router = useRouter();
   const [sortOrder, setSortOrder] = useState<'name' | 'created'>('created');
+  const [navigatingProfileId, setNavigatingProfileId] = useState<string | null>(null);
   const { data: profiles, isLoading } = useProfiles(sortOrder);
 
   /**
    * 프로필 선택 핸들러
    */
   const handleSelectProfile = (profile: ProfileResponse) => {
+    setNavigatingProfileId(profile.id);
     router.push(`/profiles/${profile.id}`);
   };
 
@@ -55,6 +57,7 @@ export default function ProfilesPage() {
           sortOrder={sortOrder}
           onSortChange={setSortOrder}
           onSelectProfile={handleSelectProfile}
+          navigatingProfileId={navigatingProfileId}
         />
       </main>
 

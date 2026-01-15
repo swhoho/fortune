@@ -9,7 +9,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { useTranslations, useLocale } from 'next-intl';
-import { Heart, Users, Lock, History } from 'lucide-react';
+import { Heart, Users, Lock, History, Loader2 } from 'lucide-react';
 
 import { AppHeader } from '@/components/layout';
 import { BRAND_COLORS } from '@/lib/constants/colors';
@@ -21,8 +21,10 @@ export default function CompatibilityPage() {
   const locale = useLocale();
   const t = useTranslations('compatibility');
   const [activeTab, setActiveTab] = useState<'new' | 'history'>('new');
+  const [isNavigating, setIsNavigating] = useState(false);
 
   const handleRomanceSelect = () => {
+    setIsNavigating(true);
     router.push('/compatibility/romance/new');
   };
 
@@ -92,14 +94,22 @@ export default function CompatibilityPage() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.1 }}
                 onClick={handleRomanceSelect}
-                className="w-full rounded-xl border border-[#333] bg-[#1a1a1a] p-6 text-left transition-all hover:border-[#d4af37] hover:bg-[#242424]"
+                disabled={isNavigating}
+                className="w-full rounded-xl border border-[#333] bg-[#1a1a1a] p-6 text-left transition-all hover:border-[#d4af37] hover:bg-[#242424] disabled:cursor-wait disabled:opacity-70"
               >
                 <div className="flex items-start gap-4">
                   <div
                     className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full"
                     style={{ backgroundColor: `${BRAND_COLORS.primary}20` }}
                   >
-                    <Heart className="h-6 w-6" style={{ color: BRAND_COLORS.primary }} />
+                    {isNavigating ? (
+                      <Loader2
+                        className="h-6 w-6 animate-spin"
+                        style={{ color: BRAND_COLORS.primary }}
+                      />
+                    ) : (
+                      <Heart className="h-6 w-6" style={{ color: BRAND_COLORS.primary }} />
+                    )}
                   </div>
                   <div className="flex-1">
                     <h3 className="mb-1 text-lg font-semibold text-white">

@@ -108,6 +108,7 @@ export function CompatibilityHistoryList({ locale }: CompatibilityHistoryListPro
   const [items, setItems] = useState<CompatibilityListItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [navigatingItemId, setNavigatingItemId] = useState<string | null>(null);
 
   // date-fns 로케일 매핑
   const dateLocaleMap: Record<string, Locale> = {
@@ -143,12 +144,13 @@ export function CompatibilityHistoryList({ locale }: CompatibilityHistoryListPro
   }, [t]);
 
   const handleItemClick = (item: CompatibilityListItem) => {
+    if (item.status === 'failed') return;
+    setNavigatingItemId(item.id);
     if (item.status === 'completed') {
       router.push(`/compatibility/romance/${item.id}`);
     } else if (item.status === 'processing' || item.status === 'pending') {
       router.push(`/compatibility/romance/${item.id}/generating`);
     }
-    // failed 상태는 클릭 시 새 분석으로 유도 (현재는 무시)
   };
 
   // 로딩 상태
@@ -203,11 +205,13 @@ export function CompatibilityHistoryList({ locale }: CompatibilityHistoryListPro
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: index * 0.05 }}
           onClick={() => handleItemClick(item)}
-          disabled={item.status === 'failed'}
+          disabled={item.status === 'failed' || navigatingItemId === item.id}
           className={`w-full rounded-xl border border-[#333] bg-[#1a1a1a] p-4 text-left transition-all ${
             item.status === 'failed'
               ? 'cursor-not-allowed opacity-60'
-              : 'hover:border-[#d4af37] hover:bg-[#242424]'
+              : navigatingItemId === item.id
+                ? 'cursor-wait opacity-70'
+                : 'hover:border-[#d4af37] hover:bg-[#242424]'
           }`}
         >
           <div className="flex items-center justify-between">
@@ -246,8 +250,13 @@ export function CompatibilityHistoryList({ locale }: CompatibilityHistoryListPro
               </div>
             </div>
 
-            {/* 화살표 (클릭 가능한 경우) */}
-            {item.status !== 'failed' && <ChevronRight className="h-5 w-5 text-gray-500" />}
+            {/* 화살표 또는 로딩 스피너 */}
+            {item.status !== 'failed' &&
+              (navigatingItemId === item.id ? (
+                <Loader2 className="h-5 w-5 animate-spin text-[#d4af37]" />
+              ) : (
+                <ChevronRight className="h-5 w-5 text-gray-500" />
+              ))}
           </div>
         </motion.button>
       ))}

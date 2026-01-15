@@ -18,6 +18,8 @@ interface ProfileCardProps {
   index: number;
   /** 선택 핸들러 (프로필 전달) */
   onSelect?: (profile: ProfileResponse) => void;
+  /** 네비게이션 중 여부 */
+  isNavigating?: boolean;
 }
 
 /** 달력 유형 라벨 */
@@ -57,7 +59,7 @@ const REPORT_STATUS_INFO: Record<
 /**
  * 프로필 카드
  */
-function ProfileCardComponent({ profile, index, onSelect }: ProfileCardProps) {
+function ProfileCardComponent({ profile, index, onSelect, isNavigating }: ProfileCardProps) {
   const t = useTranslations('profile');
   const age = calculateAge(profile.birthDate);
 
@@ -77,11 +79,13 @@ function ProfileCardComponent({ profile, index, onSelect }: ProfileCardProps) {
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: index * 0.05 }}
-      onClick={handleClick}
-      className={`group relative cursor-pointer overflow-hidden rounded-2xl border p-5 shadow-sm transition-all duration-300 hover:shadow-md ${
-        profile.reportStatus === 'failed'
-          ? 'border-red-900/50 bg-red-950/20'
-          : 'border-[#333] bg-[#1a1a1a] hover:border-[#d4af37]/30 hover:bg-[#242424]'
+      onClick={isNavigating ? undefined : handleClick}
+      className={`group relative overflow-hidden rounded-2xl border p-5 shadow-sm transition-all duration-300 ${
+        isNavigating
+          ? 'cursor-wait border-[#d4af37]/50 bg-[#1a1a1a] opacity-70'
+          : profile.reportStatus === 'failed'
+            ? 'cursor-pointer border-red-900/50 bg-red-950/20 hover:shadow-md'
+            : 'cursor-pointer border-[#333] bg-[#1a1a1a] hover:border-[#d4af37]/30 hover:bg-[#242424] hover:shadow-md'
       }`}
     >
       {/* 장식적 배경 요소 */}
@@ -114,8 +118,12 @@ function ProfileCardComponent({ profile, index, onSelect }: ProfileCardProps) {
           </div>
         </div>
 
-        {/* 화살표 아이콘 */}
-        <ChevronRight className="h-5 w-5 text-gray-500 transition-transform duration-300 group-hover:translate-x-1 group-hover:text-[#d4af37]" />
+        {/* 화살표 아이콘 또는 로딩 스피너 */}
+        {isNavigating ? (
+          <Loader2 className="h-5 w-5 animate-spin text-[#d4af37]" />
+        ) : (
+          <ChevronRight className="h-5 w-5 text-gray-500 transition-transform duration-300 group-hover:translate-x-1 group-hover:text-[#d4af37]" />
+        )}
       </div>
 
       {/* 태그 영역 */}

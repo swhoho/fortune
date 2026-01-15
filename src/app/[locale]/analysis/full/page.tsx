@@ -27,6 +27,7 @@ export default function FullAnalysisPage() {
   const [selectedProfile, setSelectedProfile] = useState<ProfileResponse | null>(null);
   const [showCreditsDialog, setShowCreditsDialog] = useState(false);
   const [showDeductionDialog, setShowDeductionDialog] = useState(false);
+  const [navigatingProfileId, setNavigatingProfileId] = useState<string | null>(null);
 
   /**
    * 프로필 선택 후 분석 시작
@@ -34,18 +35,21 @@ export default function FullAnalysisPage() {
   const handleStartAnalysis = (profile: ProfileResponse) => {
     // 이미 완료된 리포트가 있는 경우 → 리포트 페이지로 이동
     if (profile.reportStatus === 'completed') {
+      setNavigatingProfileId(profile.id);
       router.push(`/profiles/${profile.id}/report`);
       return;
     }
 
     // 진행 중인 리포트가 있는 경우 → generating 페이지로 이동
     if (profile.reportStatus === 'in_progress') {
+      setNavigatingProfileId(profile.id);
       router.push(`/profiles/${profile.id}/generating`);
       return;
     }
 
     // 실패한 리포트가 있는 경우 → 크레딧 차감 없이 재시작
     if (profile.reportStatus === 'failed' || profile.reportStatus === 'pending') {
+      setNavigatingProfileId(profile.id);
       router.push(`/profiles/${profile.id}/generating`);
       return;
     }
@@ -67,6 +71,7 @@ export default function FullAnalysisPage() {
    */
   const handleConfirmDeduction = () => {
     if (!selectedProfile) return;
+    setNavigatingProfileId(selectedProfile.id);
     setShowDeductionDialog(false);
     router.push(`/profiles/${selectedProfile.id}/generating`);
   };
@@ -114,6 +119,8 @@ export default function FullAnalysisPage() {
               const isPending = profile.reportStatus === 'pending';
               const isInProgress = profile.reportStatus === 'in_progress';
 
+              const isNavigating = navigatingProfileId === profile.id;
+
               return (
                 <motion.button
                   key={profile.id}
@@ -121,14 +128,17 @@ export default function FullAnalysisPage() {
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: index * 0.05 }}
                   onClick={() => handleStartAnalysis(profile)}
-                  className={`w-full rounded-xl border p-4 text-left shadow-sm transition-all hover:shadow-md ${
-                    isFailed
-                      ? 'border-red-900/50 bg-red-950/30 hover:border-red-800'
-                      : isCompleted
-                        ? 'border-green-900/50 bg-green-950/30 hover:border-green-800'
-                        : isInProgress
-                          ? 'border-[#d4af37]/50 bg-[#d4af37]/10 hover:border-[#d4af37]'
-                          : 'border-[#333] bg-[#1a1a1a] hover:border-[#d4af37]/30 hover:bg-[#242424]'
+                  disabled={isNavigating}
+                  className={`w-full rounded-xl border p-4 text-left shadow-sm transition-all ${
+                    isNavigating
+                      ? 'cursor-wait border-[#d4af37]/50 bg-[#1a1a1a] opacity-70'
+                      : isFailed
+                        ? 'border-red-900/50 bg-red-950/30 hover:border-red-800 hover:shadow-md'
+                        : isCompleted
+                          ? 'border-green-900/50 bg-green-950/30 hover:border-green-800 hover:shadow-md'
+                          : isInProgress
+                            ? 'border-[#d4af37]/50 bg-[#d4af37]/10 hover:border-[#d4af37] hover:shadow-md'
+                            : 'border-[#333] bg-[#1a1a1a] hover:border-[#d4af37]/30 hover:bg-[#242424] hover:shadow-md'
                   }`}
                 >
                   <div className="flex items-center justify-between">
@@ -163,7 +173,9 @@ export default function FullAnalysisPage() {
                         </p>
                       )}
                     </div>
-                    {isFailed ? (
+                    {isNavigating ? (
+                      <Loader2 className="h-5 w-5 animate-spin text-[#d4af37]" />
+                    ) : isFailed ? (
                       <RefreshCw className="h-5 w-5 text-red-400" />
                     ) : isCompleted ? (
                       <CheckCircle className="h-5 w-5 text-green-400" />

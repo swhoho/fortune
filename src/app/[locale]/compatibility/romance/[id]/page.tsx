@@ -203,6 +203,7 @@ export default function CompatibilityResultPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [showShareDialog, setShowShareDialog] = useState(false);
+  const [isNavigating, setIsNavigating] = useState(false);
 
   /** 공유 확인 후 실행 */
   const handleConfirmShare = async () => {
@@ -313,9 +314,14 @@ export default function CompatibilityResultPage() {
               {error || t('ui.errorLoadData', { defaultValue: '데이터를 불러올 수 없습니다' })}
             </p>
             <Button
-              onClick={() => router.push('/compatibility')}
-              className="bg-[#d4af37] px-8 py-3 font-semibold text-black hover:bg-[#c9a227]"
+              onClick={() => {
+                setIsNavigating(true);
+                router.push('/compatibility');
+              }}
+              disabled={isNavigating}
+              className="bg-[#d4af37] px-8 py-3 font-semibold text-black hover:bg-[#c9a227] disabled:cursor-wait disabled:opacity-70"
             >
+              {isNavigating ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
               {t('buttons.back', { defaultValue: '돌아가기' })}
             </Button>
           </GlassCard>

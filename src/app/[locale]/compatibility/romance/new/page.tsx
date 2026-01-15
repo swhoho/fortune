@@ -54,6 +54,7 @@ export default function CompatibilityRomanceNewPage() {
   const [selectedProfileA, setSelectedProfileA] = useState<ProfileResponse | null>(null);
   const [selectedProfileB, setSelectedProfileB] = useState<ProfileResponse | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isNavigating, setIsNavigating] = useState(false);
 
   // 기존 분석 상태
   const [existingAnalysis, setExistingAnalysis] = useState<ExistingAnalysis | null>(null);
@@ -149,6 +150,7 @@ export default function CompatibilityRomanceNewPage() {
 
   // 사주 분석 페이지로 이동
   const handleGoToSajuAnalysis = () => {
+    setIsNavigating(true);
     const profileToAnalyze = profiles?.find((p) =>
       sajuRequiredError?.missingProfiles.includes(p.name)
     );
@@ -203,9 +205,11 @@ export default function CompatibilityRomanceNewPage() {
             </Button>
             <Button
               onClick={handleGoToSajuAnalysis}
+              disabled={isNavigating}
               style={{ backgroundColor: '#d4af37', color: '#000' }}
-              className="hover:opacity-90"
+              className="hover:opacity-90 disabled:cursor-wait disabled:opacity-70"
             >
+              {isNavigating ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
               {t('buttons.goToSajuAnalysis', { defaultValue: '사주 분석 하기' })}
             </Button>
           </div>
@@ -219,11 +223,20 @@ export default function CompatibilityRomanceNewPage() {
     if (existingAnalysis?.isCompleted) {
       return {
         text: t('buttons.viewResult', { defaultValue: '결과 보기' }),
-        icon: <ExternalLink className="mr-2 h-5 w-5" />,
-        action: () => router.push(`/compatibility/romance/${existingAnalysis.analysisId}`),
-        disabled: false,
+        icon: isNavigating ? (
+          <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+        ) : (
+          <ExternalLink className="mr-2 h-5 w-5" />
+        ),
+        action: () => {
+          setIsNavigating(true);
+          router.push(`/compatibility/romance/${existingAnalysis.analysisId}`);
+        },
+        disabled: isNavigating,
         style: {
-          background: 'linear-gradient(135deg, #3b82f6, #2563eb)',
+          background: isNavigating
+            ? 'rgba(59, 130, 246, 0.7)'
+            : 'linear-gradient(135deg, #3b82f6, #2563eb)',
           color: '#fff',
         },
       };
@@ -231,12 +244,20 @@ export default function CompatibilityRomanceNewPage() {
     if (existingAnalysis?.isProcessing) {
       return {
         text: t('buttons.checkProgress', { defaultValue: '진행 상황 확인' }),
-        icon: <Loader2 className="mr-2 h-5 w-5" />,
-        action: () =>
-          router.push(`/compatibility/romance/${existingAnalysis.analysisId}/generating`),
-        disabled: false,
+        icon: isNavigating ? (
+          <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+        ) : (
+          <Loader2 className="mr-2 h-5 w-5" />
+        ),
+        action: () => {
+          setIsNavigating(true);
+          router.push(`/compatibility/romance/${existingAnalysis.analysisId}/generating`);
+        },
+        disabled: isNavigating,
         style: {
-          background: 'linear-gradient(135deg, #f59e0b, #d97706)',
+          background: isNavigating
+            ? 'rgba(245, 158, 11, 0.7)'
+            : 'linear-gradient(135deg, #f59e0b, #d97706)',
           color: '#000',
         },
       };
@@ -244,7 +265,11 @@ export default function CompatibilityRomanceNewPage() {
     if (isFreeRetry) {
       return {
         text: t('buttons.freeRetry', { defaultValue: '무료 재시도' }),
-        icon: <RefreshCw className="mr-2 h-5 w-5" />,
+        icon: isSubmitting ? (
+          <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+        ) : (
+          <RefreshCw className="mr-2 h-5 w-5" />
+        ),
         action: handleStart,
         disabled: !canStart || isSubmitting,
         style: {

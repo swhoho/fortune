@@ -42,6 +42,7 @@ export default function YearlyAnalysisPage() {
   const currentYear = new Date().getFullYear();
 
   const [selectedYear, setSelectedYear] = useState(targetYear || currentYear);
+  const [isNavigating, setIsNavigating] = useState(false);
 
   // 기존 분석 존재 여부 확인
   const { data: existingAnalysis, isLoading: checkingExisting } = useExistingYearlyAnalysis(
@@ -77,6 +78,7 @@ export default function YearlyAnalysisPage() {
   };
 
   const handleStart = () => {
+    setIsNavigating(true);
     setTargetYear(selectedYear);
 
     // 기존 완료된 분석이 있으면 결과 페이지로 직접 이동
@@ -101,7 +103,7 @@ export default function YearlyAnalysisPage() {
   };
 
   const hasEnoughCredits = displayCost === 0 || (user?.credits ?? 0) >= YEARLY_ANALYSIS_COST;
-  const canStart = hasEnoughCredits && !!selectedProfileId && !checkingExisting;
+  const canStart = hasEnoughCredits && !!selectedProfileId && !checkingExisting && !isNavigating;
 
   // 버튼 텍스트 결정
   const getButtonText = () => {
@@ -116,7 +118,7 @@ export default function YearlyAnalysisPage() {
 
   // 버튼 아이콘 결정
   const getButtonIcon = () => {
-    if (checkingExisting) {
+    if (isNavigating || checkingExisting) {
       return <Loader2 className="mr-2 h-5 w-5 animate-spin" />;
     }
     if (hasExistingCompleted) {
@@ -219,7 +221,7 @@ export default function YearlyAnalysisPage() {
           <Button
             onClick={handleStart}
             disabled={!canStart}
-            className="h-14 w-full text-lg font-semibold"
+            className="h-14 w-full text-lg font-semibold disabled:cursor-wait disabled:opacity-70"
             style={{
               backgroundColor: canStart ? BRAND_COLORS.primary : undefined,
               color: canStart ? '#000' : undefined,

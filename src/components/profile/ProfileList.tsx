@@ -24,6 +24,8 @@ interface ProfileListProps {
   onSortChange: (sort: 'name' | 'created') => void;
   /** 프로필 선택 핸들러 */
   onSelectProfile?: (profile: ProfileResponse) => void;
+  /** 네비게이션 중인 프로필 ID */
+  navigatingProfileId?: string | null;
 }
 
 /**
@@ -60,6 +62,7 @@ export function ProfileList({
   sortOrder,
   onSortChange,
   onSelectProfile,
+  navigatingProfileId,
 }: ProfileListProps) {
   const t = useTranslations('profile');
 
@@ -108,6 +111,7 @@ export function ProfileList({
             profile={profile}
             index={index}
             onSelect={onSelectProfile}
+            isNavigating={navigatingProfileId === profile.id}
           />
         ))}
       </div>
