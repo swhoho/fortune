@@ -255,22 +255,6 @@ export function MonthlyTimeline({ monthlyFortunes, year }: MonthlyTimelineProps)
                   <p className="mt-1 text-sm text-gray-400">{fortune.advice}</p>
                 </div>
               )}
-
-              {/* 길일/흉일 요약 */}
-              <div className="mt-4 grid grid-cols-2 gap-4">
-                <div className="rounded-lg bg-green-900/20 p-3">
-                  <p className="text-xs font-medium text-green-400">{t('lucky')}</p>
-                  <p className="text-lg font-bold text-green-500">
-                    {fortune.luckyDays?.length || 0}
-                  </p>
-                </div>
-                <div className="rounded-lg bg-red-900/20 p-3">
-                  <p className="text-xs font-medium text-red-400">{t('unlucky')}</p>
-                  <p className="text-lg font-bold text-red-500">
-                    {fortune.unluckyDays?.length || 0}
-                  </p>
-                </div>
-              </div>
             </div>
           );
         })()}
