@@ -257,7 +257,14 @@ export async function POST(request: NextRequest, context: RouteContext) {
       );
     }
 
-    // 3. Python 백엔드에 AI 생성 요청 (Railway - 타임아웃 제한 없음)
+    // 3. 프로필 정보 조회 (질문자 이름 전달용)
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('id, name')
+      .eq('id', profileId)
+      .single();
+
+    // 4. Python 백엔드에 AI 생성 요청 (Railway - 타임아웃 제한 없음)
     // URL 프로토콜 자동 추가 (리포트 시스템과 동일한 패턴)
     let pythonApiUrl = process.env.PYTHON_API_URL || '';
     if (
@@ -295,6 +302,8 @@ export async function POST(request: NextRequest, context: RouteContext) {
             skip_clarification: skipClarification,
             question_round: currentRound,
             language: language,
+            profile_id: profileId,
+            profile_name: profile?.name || '사용자',
           }),
         });
       } catch (err) {
@@ -361,13 +370,10 @@ export async function PATCH(request: NextRequest, context: RouteContext) {
       );
     }
 
-    const { id: _profileId, sessionId } = await context.params;
+    const { id: profileId, sessionId } = await context.params;
     const supabase = createClient();
     const body = await request.json();
     const { messageId } = body;
-
-    // profileId는 라우트 검증에 사용됨 (Next.js가 자동 검증)
-    void _profileId;
 
     if (!messageId) {
       return NextResponse.json(
@@ -435,7 +441,14 @@ export async function PATCH(request: NextRequest, context: RouteContext) {
       })
       .eq('id', messageId);
 
-    // 4. Python 백엔드에 재생성 요청
+    // 4. 프로필 정보 조회 (질문자 이름 전달용)
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('id, name')
+      .eq('id', profileId)
+      .single();
+
+    // 5. Python 백엔드에 재생성 요청
     let pythonApiUrl = process.env.PYTHON_API_URL || '';
     if (
       pythonApiUrl &&
@@ -462,6 +475,8 @@ export async function PATCH(request: NextRequest, context: RouteContext) {
             skip_clarification: true,
             question_round: aiMessage.question_round,
             language: language,
+            profile_id: profileId,
+            profile_name: profile?.name || '사용자',
           }),
         });
         console.log(`[ConsultationMessages] 재생성 요청 전송: ${messageId}`);

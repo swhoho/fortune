@@ -354,6 +354,9 @@ class ConsultationService:
                 recent_consultations, 100, previous_error
             )
 
+        # 질문자 이름 추출
+        profile_name = request.get('profile_name', '사용자')
+
         # user_clarification인 경우 → 정보 평가 후 다음 결정
         # user_question인 경우 → 정보 평가
         if message_type in ['user_question', 'user_clarification']:
@@ -363,6 +366,7 @@ class ConsultationService:
                 pillars_summary=pillars_summary,
                 history=clarification_history,
                 recent_consultations=recent_consultations,
+                profile_name=profile_name,
                 language=language
             )
 
@@ -449,6 +453,7 @@ class ConsultationService:
         language = request.get('language', 'ko')
         user_content = request['user_content']
         message_type = request['message_type']
+        profile_name = request.get('profile_name', '사용자')
 
         pillars = report.get('pillars', {})
         daewun = report.get('daewun', [])
@@ -499,6 +504,7 @@ class ConsultationService:
             yearly_summary=yearly_summary,
             recent_consultations=recent_consultations,
             confidence_level=confidence_level,
+            profile_name=profile_name,
             language=language
         )
 
